@@ -1,37 +1,25 @@
-/* turboturtle.js */
+/* turboturtle.js — logic only; libraries must be loaded by the page */
 (function(){
-  if (window.__TT_BOOTED__) return; // guard against duplicate init
+  if (window.__TT_BOOTED__) return;
   window.__TT_BOOTED__ = true;
 
-  // --- util: load a script if missing ---
-  function load(src){
-    return new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = src;
-      s.async = true;
-      s.crossOrigin = "anonymous";
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-  }
   function onReady(fn){
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn, { once:true });
-    } else fn();
+      document.addEventListener("DOMContentLoaded", fn, { once: true });
+    } else { fn(); }
   }
 
-  // --- ensure libs, then init ---
-  async function boot(){
-    // Load libs if not present
-    if (!window.Lenis)         await load("https://unpkg.com/lenis@1.3.11/dist/lenis.min.js");
-    if (!window.gsap)          await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js");
-    if (!window.ScrollTrigger) await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js");
-
-    const gsap = window.gsap; const ScrollTrigger = window.ScrollTrigger;
+  onReady(function init(){
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    const Lenis = window.Lenis;
+    if (!gsap || !ScrollTrigger || !Lenis) {
+      console.warn("[turboturtle] Missing libs; ensure Lenis, GSAP, and ScrollTrigger are loaded BEFORE this file.");
+      return;
+    }
     gsap.registerPlugin(ScrollTrigger);
 
-    // Perf nudge (same as your working inline)
+    // Perf nudges
     try {
       const videoWrapper = document.querySelector(".about_onceupon");
       if (videoWrapper){
@@ -46,8 +34,8 @@
     let vw = innerWidth/100, vh = innerHeight/100;
     addEventListener("resize", () => { vw = innerWidth/100; vh = innerHeight/100; });
 
-    // Lenis setup
-    const lenis = new window.Lenis({
+    // Lenis
+    const lenis = new Lenis({
       duration: isMobile ? 6 : 4,
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10*t)),
       smooth: true,
@@ -57,14 +45,11 @@
       touchMultiplier: isMobile ? 0.2 : 2,
       infinite: false
     });
-
-    // RAF loop
     function raf(time){ try{ lenis.raf(time); }catch(e){} requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // Bridge Lenis <-> ScrollTrigger (critical to avoid freezes)
+    // Bridge Lenis <-> ScrollTrigger
     if (typeof lenis.on === "function") lenis.on("scroll", ScrollTrigger.update);
-
     ScrollTrigger.scrollerProxy(window, {
       scrollTop(value){
         if (arguments.length) {
@@ -78,7 +63,7 @@
     ScrollTrigger.addEventListener("refresh", ()=>{ try{ lenis.resize(); }catch(e){} });
     ScrollTrigger.refresh();
 
-    // ========== Videos: play before entering, pause when fully out ==========
+    /* ========= Videos: play slightly before entering, pause when fully out ========= */
     (function setupVideos(){
       const vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (!vids.length) return;
@@ -109,7 +94,7 @@
       });
     })();
 
-    // ========== Parallax tweens (from your working build) ==========
+    /* ========= Parallax tweens ========= */
     gsap.to(".about_planet",{y:20*vh,ease:"none",scrollTrigger:{trigger:".parallax-wrapper",start:"top top",end:"bottom bottom",scrub:true}});
     gsap.to(".spacecats",{x:-3*vw,y:55*vh,rotation:20,scale:1.1,ease:"none",scrollTrigger:{trigger:".parallax-wrapper",start:"top top",end:"bottom bottom",scrub:true}});
     gsap.to(".about_saturn",{x:-2*vw,y:30*vh,rotation:-25,scale:0.9,ease:"none",scrollTrigger:{trigger:".parallax-wrapper",start:"top top",end:"bottom bottom",scrub:true}});
@@ -126,7 +111,7 @@
     gsap.to(".about_giant_squid",{x:3*vw,y:7*vw,rotation:-5,ease:"none",scrollTrigger:{trigger:".about_giant_squid",start:"top bottom",end:"bottom top",scrub:true,invalidateOnRefresh:true}});
     gsap.to(".about_flyduck",{x:120*vw,y:-15*vw,ease:"none",scrollTrigger:{trigger:".about_flyduck",start:"top bottom",end:"bottom 80%",scrub:true,invalidateOnRefresh:true}});
 
-    // ========== Galaxy ultra-slow drift (mask-safe) ==========
+    /* ========= Galaxy ultra-slow drift inside .about_underwater ========= */
     (function galaxySlow(){
       const el = document.querySelector(".about_galaxy");
       if (!el) return;
@@ -147,7 +132,7 @@
       });
     })();
 
-    // ========== Jetplane path (dip then uproar, smoothed banking) ==========
+    /* ========= Jetplane path (dip then uproar, smoothed banking) ========= */
     (function jetplane(){
       const jet = document.querySelector(".about_jetplane");
       if (!jet) return;
@@ -185,7 +170,7 @@
       });
     })();
 
-    // ========== Woman-UFO chase + Akira trail ==========
+    /* ========= Woman UFO chase + Akira trail ========= */
     (function ufo(){
       const ufoEl = document.querySelector(".about_womanufo");
       const host  = document.querySelector(".fixed_screen_area") || document.body;
@@ -238,7 +223,7 @@
       }
       requestAnimationFrame(updateBounceTilt);
 
-      // Trail canvas
+      // Trail
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       Object.assign(canvas.style,{position:"fixed",top:0,left:0,pointerEvents:"none",zIndex:10,background:"transparent"});
@@ -283,7 +268,5 @@
       }
       requestAnimationFrame(render);
     })();
-  }
-
-  onReady(boot);
+  });
 })();
