@@ -1,5 +1,5 @@
 (function bootTurboTurtle() {
-  // Wait until DOM ready
+  // Run after DOM is parsed
   function onReady(fn){
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", fn, { once: true });
@@ -8,7 +8,7 @@
     }
   }
 
-  // Auto-load missing libraries
+  // Load a script if missing
   function load(src){
     return new Promise((resolve, reject) => {
       const s = document.createElement("script");
@@ -20,20 +20,21 @@
     });
   }
 
-  // Ensure GSAP + ScrollTrigger + Lenis
+  // Ensure libs exist
   async function ensureLibs(){
-    if (!window.Lenis)        await load("https://unpkg.com/lenis@1.3.11/dist/lenis.min.js");
-    if (!window.gsap)         await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js");
-    if (!window.ScrollTrigger)await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js");
+    if (!window.Lenis)         await load("https://unpkg.com/lenis@1.3.11/dist/lenis.min.js");
+    if (!window.gsap)          await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js");
+    if (!window.ScrollTrigger) await load("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js");
   }
 
   onReady(async () => {
     try {
       await ensureLibs();
+      const { gsap, ScrollTrigger } = window;
       gsap.registerPlugin(ScrollTrigger);
 
       // ──────────────────────────────────────
-      // 1) Lenis smooth scroll
+      // Viewport helpers
       // ──────────────────────────────────────
       const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       let vw = window.innerWidth  / 100;
@@ -43,70 +44,108 @@
         vh = window.innerHeight / 100;
       });
 
-      const lenis = new Lenis({
-        duration: isMobile ? 6 : 4,
-        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true,
-        direction: "vertical",
+      // ──────────────────────────────────────
+      // Lenis setup (robust)
+      // ──────────────────────────────────────
+      const lenis = new window.Lenis({
+        duration:         isMobile ? 6 : 4,
+        easing:           t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smooth:           true,
+        direction:        "vertical",
         gestureDirection: "vertical",
-        mouseMultiplier: 1,
-        touchMultiplier: isMobile ? 0.2 : 2,
-        infinite: false
+        mouseMultiplier:  1,
+        touchMultiplier:  isMobile ? 0.2 : 2,
+        infinite:         false
       });
-      function runLenis(time) {
-        lenis.raf(time);
-        requestAnimationFrame(runLenis);
-      }
-      requestAnimationFrame(runLenis);
 
+      // Tie Lenis' scroll to GSAP updates (critical!)
+      if (typeof lenis.on === "function") {
+        lenis.on("scroll", ScrollTrigger.update);
+      }
+
+      // Lenis RAF
+      function raf(time){
+        try { lenis.raf(time); } catch(e){}
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+
+      // ScrollerProxy bridge
       ScrollTrigger.scrollerProxy(window, {
         scrollTop(value) {
-          return arguments.length ? lenis.scrollTo(value) : lenis.scroll;
+          if (arguments.length) {
+            // write
+            try { return lenis.scrollTo(value); } catch(e) { window.scrollTo(0, value); }
+          }
+          // read
+          const s = lenis && typeof lenis.scroll === "number" ? lenis.scroll : window.scrollY || window.pageYOffset || 0;
+          return s;
         },
         getBoundingClientRect() {
           return { top: 0, left: 0, width: innerWidth, height: innerHeight };
         },
-        pinType: document.body.style.transform ? "transform" : "fixed"
+        pinType: document.body && document.body.style && document.body.style.transform ? "transform" : "fixed"
       });
-      ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+
+      ScrollTrigger.addEventListener("refresh", () => {
+        try { lenis.resize && lenis.resize(); } catch(e){}
+      });
       ScrollTrigger.refresh();
 
       // ──────────────────────────────────────
-      // 2) Video play/pause only onscreen
+      // Small perf hint for the video wrapper
       // ──────────────────────────────────────
-      var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
-      vids.forEach(function (v) {
-        v.setAttribute("playsinline", "");
-        v.setAttribute("muted", "");
-      });
-      vids.forEach(function (v) {
-        ScrollTrigger.create({
-          trigger: v,
-          start: "top 120%",
-          end: "bottom -20%",
-          onEnter:     () => { try { v.play(); } catch(e){} },
-          onEnterBack: () => { try { v.play(); } catch(e){} }
-        });
-        ScrollTrigger.create({
-          trigger: v,
-          start: "bottom top",
-          end: "top bottom",
-          onLeave:     () => { try { v.pause(); } catch(e){} },
-          onLeaveBack: () => { try { v.pause(); } catch(e){} }
-        });
-      });
-      document.addEventListener("visibilitychange", function(){
-        vids.forEach(function (v) {
-          if (document.hidden) v.pause();
-          else {
-            const r = v.getBoundingClientRect();
-            if (r.bottom > 0 && r.top < window.innerHeight) v.play().catch(()=>{});
-          }
-        });
-      });
+      try {
+        const videoWrapper = document.querySelector(".about_onceupon");
+        if (videoWrapper) {
+          videoWrapper.style.willChange = "transform, opacity";
+          videoWrapper.style.transform = "translateZ(0)";
+        }
+      } catch(e){}
 
       // ──────────────────────────────────────
-      // 3) Parallax elements
+      // Videos: play a bit before entering, pause when fully out
+      // ──────────────────────────────────────
+      (function setupVideos(){
+        if (!window.ScrollTrigger) return;
+        const vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
+        if (!vids.length) return;
+        vids.forEach(v => {
+          v.setAttribute("playsinline", "");
+          v.setAttribute("muted", "");
+        });
+        vids.forEach(v => {
+          ScrollTrigger.create({
+            trigger: v,
+            start: "top 120%",
+            end:   "bottom -20%",
+            onEnter:     () => { try { v.play(); } catch(e){} },
+            onEnterBack: () => { try { v.play(); } catch(e){} }
+          });
+          ScrollTrigger.create({
+            trigger: v,
+            start: "bottom top",
+            end:   "top bottom",
+            onLeave:     () => { try { v.pause(); } catch(e){} },
+            onLeaveBack: () => { try { v.pause(); } catch(e){} }
+          });
+        });
+        document.addEventListener("visibilitychange", () => {
+          vids.forEach(v => {
+            try {
+              if (document.hidden) v.pause();
+              else {
+                const r = v.getBoundingClientRect();
+                const visible = r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
+                if (visible) v.play().catch(()=>{});
+              }
+            } catch(e){}
+          });
+        });
+      })();
+
+      // ──────────────────────────────────────
+      // Parallax blocks
       // ──────────────────────────────────────
       gsap.to(".about_planet", { y: 20*vh, ease: "none",
         scrollTrigger:{trigger:".parallax-wrapper",start:"top top",end:"bottom bottom",scrub:true}});
@@ -140,12 +179,12 @@
         scrollTrigger:{trigger:".about_flyduck",start:"top bottom",end:"bottom 80%",scrub:true,invalidateOnRefresh:true}});
 
       // ──────────────────────────────────────
-      // 4) Galaxy slow parallax (super slow drift, mask-safe)
+      // Galaxy ultra-slow drift (mask-safe)
       // ──────────────────────────────────────
-      (() => {
+      (function galaxySlow(){
         const el = document.querySelector(".about_galaxy");
         if (!el) return;
-        const speed = isMobile ? 0.02 : 0.04; // adjust for slower drift
+        const keepRatio = isMobile ? 0.002 : 0.005; // super slow
         gsap.set(el, { y: 0, force3D: true });
         ScrollTrigger.create({
           trigger: ".about_underwater",
@@ -155,7 +194,7 @@
           invalidateOnRefresh: true,
           onUpdate(self) {
             const delta = self.scroll() - self.start;
-            const y = delta * (1 - speed);
+            const y = delta * keepRatio; // tiny drift
             gsap.set(el, { y });
           },
           onRefreshInit() { gsap.set(el, { y: 0 }); }
@@ -163,9 +202,9 @@
       })();
 
       // ──────────────────────────────────────
-      // 5) Jetplane arc flight
+      // Jetplane custom arc
       // ──────────────────────────────────────
-      (() => {
+      (function jetplane(){
         const jet = document.querySelector(".about_jetplane");
         if (!jet) return;
         ScrollTrigger.create({
@@ -179,90 +218,137 @@
             const x = 145*vw*t;
             const arc = (isMobile ? 26 : 36)*vh;
             const climbY = -arc*Math.pow(t,2.2);
-            const dipEnd=0.18,dipAmp=(isMobile?6:9)*vh;
-            const dipY = t<dipEnd?dipAmp*Math.sin(Math.PI*(t/dipEnd)):0;
-            const y=-5*vw+dipY+climbY;
-            const dClimb=-arc*2.2*Math.pow(Math.max(t,0.0001),1.2);
-            const dDip=t<dipEnd?dipAmp*(Math.PI/dipEnd)*Math.cos(Math.PI*(t/dipEnd)):0;
-            const dydt=dClimb+dDip;
-            const dxdt=130*vw;
-            let angleDeg=Math.atan2(dydt,dxdt)*(180/Math.PI);
-            if(t<0.05) angleDeg*=t/0.05;
-            const targetRot=Math.max(-18,Math.min(angleDeg*0.9,0));
-            const prevRot=parseFloat(jet.dataset.prevRot||"0");
-            const smoothedRot=prevRot+(targetRot-prevRot)*0.15;
-            jet.dataset.prevRot=smoothedRot;
-            jet.style.transform=`translate(${x}px,${y}px) rotate(${smoothedRot}deg)`;
+            const dipEnd=0.18, dipAmp=(isMobile?6:9)*vh;
+            const dipY = t<dipEnd ? dipAmp*Math.sin(Math.PI*(t/dipEnd)) : 0;
+            const y = -5*vw + dipY + climbY;
+
+            const dClimb = -arc*2.2*Math.pow(Math.max(t,0.0001),1.2);
+            const dDip   = t<dipEnd ? dipAmp*(Math.PI/dipEnd)*Math.cos(Math.PI*(t/dipEnd)) : 0;
+            const dydt   = dClimb + dDip;
+            const dxdt   = 130*vw;
+            let angleDeg = Math.atan2(dydt, dxdt) * (180/Math.PI);
+            if (t < 0.05) angleDeg *= t/0.05; // early soften
+            const targetRot = Math.max(-18, Math.min(angleDeg*0.9, 0));
+            const prevRot   = parseFloat(jet.dataset.prevRot || "0");
+            const smoothed  = prevRot + (targetRot - prevRot) * 0.15;
+            jet.dataset.prevRot = smoothed;
+
+            jet.style.transform = `translate(${x}px, ${y}px) rotate(${smoothed}deg)`;
           }
         });
       })();
 
       // ──────────────────────────────────────
-      // 6) Woman UFO chase + trail
+      // Woman UFO chase + Akira trail
       // ──────────────────────────────────────
-      (() => {
-        const ufoEl=document.querySelector(".about_womanufo");
-        if(!ufoEl) return;
-        const velocity=isMobile?1:3, maxAmpVal=isMobile?20*vh:60*vh, tiltDiv=isMobile?3:1, chaseSpeed=isMobile?0.08:0.15;
-        function getBaseY(){return(isMobile?-10:-20)*vh;}
-        const targetState={x:0,y:getBaseY(),rot:0}, actualState={...targetState};
-        ufoEl.style.setProperty("--ufo-x",`${actualState.x}px`);
-        ufoEl.style.setProperty("--ufo-y",`${actualState.y}px`);
-        ufoEl.style.setProperty("--ufo-rot",`${actualState.rot}deg`);
-        ScrollTrigger.create({trigger:".parallax-wrapper",start:"top top",
-          end:isMobile?`${innerHeight*0.25}px top`:`${innerHeight*0.5}px top`,scrub:true,
-          onUpdate(self){targetState.x=130*vw*self.progress;}});
-        let lastScroll=0,bouncePhase=0,idleFrames=0;
+      (function ufo(){
+        const ufoEl = document.querySelector(".about_womanufo");
+        const host  = document.querySelector(".fixed_screen_area") || document.body;
+        if (!ufoEl) return;
+
+        const velocity   = isMobile ? 1 : 3;
+        const maxAmpVal  = isMobile ? 20*vh : 60*vh;
+        const tiltDiv    = isMobile ? 3 : 1;
+        const chaseSpeed = isMobile ? 0.08 : 0.15;
+
+        function getBaseY(){ return (isMobile ? -10 : -20) * vh; }
+        const target = { x: 0, y: getBaseY(), rot: 0 };
+        const actual = { x: 0, y: getBaseY(), rot: 0 };
+
+        ufoEl.style.setProperty("--ufo-x",  `${actual.x}px`);
+        ufoEl.style.setProperty("--ufo-y",  `${actual.y}px`);
+        ufoEl.style.setProperty("--ufo-rot",`${actual.rot}deg`);
+
+        ScrollTrigger.create({
+          trigger: ".parallax-wrapper",
+          start: "top top",
+          end: isMobile ? `${innerHeight*0.25}px top` : `${innerHeight*0.5}px top`,
+          scrub: true,
+          onUpdate(self){ target.x = 130*vw*self.progress; }
+        });
+
+        let lastScroll = (typeof lenis.scroll === "number") ? lenis.scroll : (window.scrollY||0);
+        let bouncePhase = 0, idleFrames = 0;
+
         function updateBounceTilt(){
-          const scrollPos=lenis.scroll,deltaY=scrollPos-lastScroll;lastScroll=scrollPos;
-          const amplitude=Math.min(Math.abs(deltaY)*velocity,maxAmpVal);
-          const horizontal=targetState.x/vw;
-          const bounceScale=horizontal<=30?0:horizontal>=100?1:(horizontal-30)/70;
-          if(Math.abs(deltaY)<1){
+          const currentScroll = (typeof lenis.scroll === "number") ? lenis.scroll : (window.scrollY||0);
+          const deltaY = currentScroll - lastScroll;
+          lastScroll = currentScroll;
+
+          const amplitude   = Math.min(Math.abs(deltaY)*velocity, maxAmpVal);
+          const horizontal  = target.x / vw;
+          const bounceScale = horizontal <= 30 ? 0 : (horizontal >= 100 ? 1 : (horizontal - 30) / 70);
+
+          if (Math.abs(deltaY) < 1) {
             idleFrames++;
-            if(idleFrames>30) gsap.to(targetState,{y:getBaseY(),duration:0.4,ease:"power3.out"});
+            if (idleFrames > 30) gsap.to(target, { y: getBaseY(), duration: 0.4, ease: "power3.out" });
           } else {
-            idleFrames=0;
-            bouncePhase+=0.1;
-            targetState.y=getBaseY()+Math.sin(bouncePhase)*amplitude*bounceScale;
+            idleFrames = 0;
+            bouncePhase += 0.1;
+            target.y = getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
           }
-          targetState.rot=Math.max(-20,Math.min(deltaY/tiltDiv,20))*bounceScale;
+
+          target.rot = Math.max(-20, Math.min(deltaY/tiltDiv, 20)) * bounceScale;
           requestAnimationFrame(updateBounceTilt);
         }
-        updateBounceTilt();
-        const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
-        let trailPoints=[],trailMax=40,fadeTime=800;
-        Object.assign(canvas.style,{position:"fixed",top:0,left:0,pointerEvents:"none",zIndex:10,background:"transparent"});
-        canvas.id="akiraMouseTrail";document.querySelector(".fixed_screen_area").appendChild(canvas);
-        function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-        resizeCanvas();window.addEventListener("resize",resizeCanvas);
-        function animateUFO(){
-          actualState.x+=(targetState.x-actualState.x)*chaseSpeed;
-          actualState.y+=(targetState.y-actualState.y)*chaseSpeed;
-          actualState.rot+=(targetState.rot-actualState.rot)*chaseSpeed;
-          ufoEl.style.setProperty("--ufo-x",`${actualState.x}px`);
-          ufoEl.style.setProperty("--ufo-y",`${actualState.y}px`);
-          ufoEl.style.setProperty("--ufo-rot",`${actualState.rot}deg`);
-          const rect=ufoEl.getBoundingClientRect();
-          trailPoints.push({x:rect.left+rect.width/2,y:rect.top+rect.height/2,t:performance.now()});
-          if(trailPoints.length>trailMax) trailPoints.shift();
-          ctx.clearRect(0,0,canvas.width,canvas.height);
-          const maxWidth=rect.height*0.4;
-          trailPoints.forEach((p1,i)=>{
-            const p2=trailPoints[i+1];if(!p2)return;
-            const dx=p2.x-p1.x,dy=p2.y-p1.y;if(Math.hypot(dx,dy)<1)return;
-            const age=performance.now()-p1.t,alpha=1-age/fadeTime;if(alpha<=0)return;
-            const lineW=10+(maxWidth-10)*alpha;
-            ctx.strokeStyle=`rgba(225,255,0,${alpha})`;ctx.lineWidth=lineW;
-            ctx.beginPath();ctx.moveTo(p1.x,p1.y);
-            ctx.quadraticCurveTo(p1.x+dx*0.5,p1.y+dy*0.5,p2.x,p2.y);ctx.stroke();
-          });
-          requestAnimationFrame(animateUFO);
+        requestAnimationFrame(updateBounceTilt);
+
+        // Trail
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        Object.assign(canvas.style, { position:"fixed", top:0, left:0, pointerEvents:"none", zIndex:10, background:"transparent" });
+        canvas.id = "akiraMouseTrail";
+        host.appendChild(canvas);
+
+        function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        let trail = [];
+        const TRAIL_MAX = 40;
+        const FADE_MS = 800;
+
+        function render(){
+          // chase
+          actual.x   += (target.x   - actual.x)   * chaseSpeed;
+          actual.y   += (target.y   - actual.y)   * chaseSpeed;
+          actual.rot += (target.rot - actual.rot) * chaseSpeed;
+
+          ufoEl.style.setProperty("--ufo-x",  `${actual.x}px`);
+          ufoEl.style.setProperty("--ufo-y",  `${actual.y}px`);
+          ufoEl.style.setProperty("--ufo-rot",`${actual.rot}deg`);
+
+          const r = ufoEl.getBoundingClientRect();
+          trail.push({ x: r.left + r.width/2, y: r.top + r.height/2, t: performance.now() });
+          if (trail.length > TRAIL_MAX) trail.shift();
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const maxW = r.height * 0.4;
+
+          for (let i = 0; i < trail.length - 1; i++) {
+            const p1 = trail[i], p2 = trail[i+1];
+            const dx = p2.x - p1.x, dy = p2.y - p1.y;
+            if (dx*dx + dy*dy < 1) continue;
+
+            const age = performance.now() - p1.t;
+            const alpha = 1 - age / FADE_MS;
+            if (alpha <= 0) continue;
+
+            const lineW = 10 + (maxW - 10) * alpha;
+            ctx.strokeStyle = `rgba(225,255,0,${alpha})`;
+            ctx.lineWidth = lineW;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.quadraticCurveTo(p1.x + dx*0.5, p1.y + dy*0.5, p2.x, p2.y);
+            ctx.stroke();
+          }
+
+          requestAnimationFrame(render);
         }
-        animateUFO();
+        requestAnimationFrame(render);
       })();
 
-    } catch(err) {
+    } catch (err) {
       console.warn("[TurboTurtle] boot error:", err);
     }
   });
