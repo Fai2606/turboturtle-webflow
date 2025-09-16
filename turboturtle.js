@@ -1,5 +1,6 @@
-console.info('[turboturtle] script loaded and running...');
+console.info('[turboturtle] file fetched & executing – v11');
 window.__TT_BOOTED__ = false;
+
 
 window.turboturtleBoot = function turboturtleBoot() {
   try {
