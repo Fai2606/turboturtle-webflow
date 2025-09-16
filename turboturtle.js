@@ -302,3 +302,9 @@ console.info('[turboturtle] file fetched & executing – v3');
 
   whenReady(boot);
 })();
+
+
+// --- mark boot success ---
+window.__TT_BOOTED__ = true;
+console.info('[turboturtle] Boot complete ✅');
+
