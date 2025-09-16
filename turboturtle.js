@@ -1,5 +1,4 @@
-// turboturtle.js — v9
-console.info('[turboturtle] file fetched & executing – v9');
+console.info('[turboturtle] script loaded and running...');
 window.__TT_BOOTED__ = false;
 
 window.turboturtleBoot = function turboturtleBoot() {
@@ -270,10 +269,6 @@ window.turboturtleBoot = function turboturtleBoot() {
       });
     })();
 
-    // mark boot complete
-    window.__TT_BOOTED__ = true;
-    console.info('[turboturtle] Boot complete ✅');
-
   } catch (err) {
     console.error('[turboturtle] Boot failed ❌', err);
   }
@@ -281,3 +276,8 @@ window.turboturtleBoot = function turboturtleBoot() {
 
 // auto-run
 window.turboturtleBoot();
+
+// mark boot complete
+window.__TT_BOOTED__ = true;
+console.info('[turboturtle] Boot complete ✅');
+
