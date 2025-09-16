@@ -252,7 +252,7 @@
         }
         requestAnimationFrame(loop);
       })();
-    })();
+    })();https://github.com/Fai2606/turboturtle-webflow/blob/main/turboturtle.js
 
     // finally, if we got here, we’re good
     window.__TT_BOOTED__ = true;
@@ -262,4 +262,8 @@
     console.error("[turboturtle] FATAL:", err && (err.stack || err.message || err));
     window.__TT_BOOTED__ = false;
   }
+  // at the very end of turboturtle.js
+  window.TT_BOOTED = true;
+  console.log("[TT] booted ✅");
+
 })();
