@@ -1,3 +1,5 @@
+console.info('[turboturtle] file fetched & executing – v3');
+
 /* turboturtle.js — waits for libs, then boots once */
 
 (function(){
