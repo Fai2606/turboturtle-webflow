@@ -1,22 +1,45 @@
-/* turboturtle.js — logic only; libraries must be loaded by the page */
-(function(){
-  if (window.__TT_BOOTED__) return;
-  window.__TT_BOOTED__ = true;
+/* turboturtle.js — waits for libs, then boots once */
 
-  function onReady(fn){
+(function(){
+  // guard but DON'T mark booted until success
+  if (window.__TT_BOOTING__) return;
+  window.__TT_BOOTING__ = true;
+
+  function whenReady(callback){
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn, { once: true });
-    } else { fn(); }
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+    } else callback();
   }
 
-  onReady(function init(){
+  // Poll for libs to exist (Lenis, gsap, ScrollTrigger)
+  function waitForLibs(maxWaitMs = 8000, intervalMs = 50){
+    const start = performance.now();
+    return new Promise((resolve, reject) => {
+      (function tick(){
+        const ok = !!(window.Lenis && window.gsap && window.ScrollTrigger);
+        if (ok) return resolve();
+        if (performance.now() - start > maxWaitMs) return reject(new Error("libs not loaded"));
+        setTimeout(tick, intervalMs);
+      })();
+    });
+  }
+
+  async function boot(){
+    await waitForLibs().catch(() => {});
     const gsap = window.gsap;
     const ScrollTrigger = window.ScrollTrigger;
     const Lenis = window.Lenis;
+
     if (!gsap || !ScrollTrigger || !Lenis) {
-      console.warn("[turboturtle] Missing libs; ensure Lenis, GSAP, and ScrollTrigger are loaded BEFORE this file.");
+      console.warn("[turboturtle] Required libs missing; aborting init.");
+      window.__TT_BOOTING__ = false;
       return;
     }
+
+    if (window.__TT_BOOTED__) return; // final double-guard
+    window.__TT_BOOTED__ = true;
+    window.__TT_BOOTING__ = false;
+
     gsap.registerPlugin(ScrollTrigger);
 
     // Perf nudges
@@ -111,7 +134,7 @@
     gsap.to(".about_giant_squid",{x:3*vw,y:7*vw,rotation:-5,ease:"none",scrollTrigger:{trigger:".about_giant_squid",start:"top bottom",end:"bottom top",scrub:true,invalidateOnRefresh:true}});
     gsap.to(".about_flyduck",{x:120*vw,y:-15*vw,ease:"none",scrollTrigger:{trigger:".about_flyduck",start:"top bottom",end:"bottom 80%",scrub:true,invalidateOnRefresh:true}});
 
-    /* ========= Galaxy ultra-slow drift inside .about_underwater ========= */
+    /* ========= Galaxy ultra-slow drift ========= */
     (function galaxySlow(){
       const el = document.querySelector(".about_galaxy");
       if (!el) return;
@@ -268,5 +291,12 @@
       }
       requestAnimationFrame(render);
     })();
-  });
+  }
+
+  // expose manual boot if needed
+  window.turboturtleBoot = function(){
+    if (!window.__TT_BOOTED__) boot();
+  };
+
+  whenReady(boot);
 })();
