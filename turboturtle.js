@@ -1,5 +1,6 @@
-console.info('[turboturtle] file fetched & executing – v11');
+console.info('[turboturtle] executing v12');
 window.__TT_BOOTED__ = false;
+
 
 
 window.turboturtleBoot = function turboturtleBoot() {
@@ -280,5 +281,6 @@ window.turboturtleBoot();
 
 // mark boot complete
 window.__TT_BOOTED__ = true;
-console.info('[turboturtle] Boot complete ✅');
+console.info('[turboturtle] boot complete ✅');
+
 
