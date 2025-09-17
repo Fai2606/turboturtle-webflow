@@ -430,20 +430,33 @@
     })();
 
 // ───────────────────────────────────────
-// Woman UFO: chase + trail (direct transform, Webflow-proof)
+// Woman UFO: chase + trail (self-wrapping mover, Webflow-proof)
 // ───────────────────────────────────────
 (function initUFO() {
-  var wrapper = document.querySelector(".about_womanufo");
-  if (!wrapper) return;
+  var host = document.querySelector(".about_womanufo");
+  if (!host) return;
 
-  // If you have a dedicated inner element for the artwork, prefer moving that (avoids Webflow IX on wrapper)
-  // You can rename this selector to any child you use, or it will just move the wrapper itself.
-  var mover = wrapper.querySelector(".ufo-asset, .ufo-mover, img, svg, *") || wrapper;
+  // 1) Ensure a dedicated inner mover that only we control.
+  //    If not present, create it and move all children into it.
+  var mover = host.querySelector(".ufo-mover");
+  if (!mover) {
+    mover = document.createElement("div");
+    mover.className = "ufo-mover";
+    // carry size/positioning context from host
+    mover.style.position = "relative";
+    mover.style.display  = "inline-block";
+    mover.style.willChange = "transform";
+    mover.style.transform  = "translate3d(0,0,0)";
 
-  // Ensure GPU compositing
-  mover.style.willChange = "transform";
-  mover.style.transform  = "translate3d(0,0,0)";
+    // Move existing children into mover (one-time)
+    while (host.firstChild) mover.appendChild(host.firstChild);
+    host.appendChild(mover);
+  } else {
+    // If already present, make sure we own its transform
+    mover.style.willChange = "transform";
+  }
 
+  // 2) Motion params (same feel as your working version)
   var velocity   = isMobile ? 1 : 3;
   var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
   var tiltDiv    = isMobile ? 3 : 1;
@@ -454,7 +467,7 @@
   var targetState = { x: 0, y: getBaseY(), rot: 0 };
   var actualState = { x: 0, y: getBaseY(), rot: 0 };
 
-  // Horizontal driver via ScrollTrigger (fallback to body if parallax-wrapper missing)
+  // 3) Horizontal driver via ScrollTrigger (robust trigger + fallback)
   var triggerSel = document.querySelector(".parallax-wrapper") ? ".parallax-wrapper" : "body";
   var lastSTProgress = 0;
 
@@ -463,13 +476,13 @@
     start:   "top top",
     end:     isMobile ? (innerHeight * 0.25) + "px top" : (innerHeight * 0.5) + "px top",
     scrub:   true,
-    onUpdate:function (self) {
+    onUpdate: function (self) {
       lastSTProgress = self.progress;
       targetState.x  = 130 * vw * self.progress;
     }
   });
 
-  // If ST didn’t progress (rare), use page ratio
+  // fallback if ST progress never updates
   function ensureHorizontalProgress() {
     if (lastSTProgress > 0) return;
     var doc = document.documentElement;
@@ -478,7 +491,7 @@
     targetState.x = 130 * vw * ratio;
   }
 
-  // Bounce/tilt from scroll velocity (Lenis-aware)
+  // 4) Bounce + tilt driven by scroll velocity (Lenis-aware)
   var lastScroll  = 0;
   var bouncePhase = 0;
   var idleFrames  = 0;
@@ -519,19 +532,22 @@
   }
   requestAnimationFrame(updateBounceTilt);
 
-  // Trail canvas tied to the *moved* element (so it never disconnects)
-  var canvas = document.createElement("canvas");
-  var ctx    = canvas.getContext("2d");
-  Object.assign(canvas.style, {
-    position:      "fixed",
-    top:           0,
-    left:          0,
-    pointerEvents: "none",
-    zIndex:        10,
-    background:    "transparent"
-  });
-  canvas.id = "akiraMouseTrail";
-  (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+  // 5) Trail canvas bound to the mover (stays attached)
+  var canvas = document.getElementById("akiraMouseTrail");
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    canvas.id = "akiraMouseTrail";
+    Object.assign(canvas.style, {
+      position:      "fixed",
+      top:           0,
+      left:          0,
+      pointerEvents: "none",
+      zIndex:        10,
+      background:    "transparent"
+    });
+    (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+  }
+  var ctx = canvas.getContext("2d");
 
   function resizeCanvas() {
     canvas.width  = innerWidth;
@@ -544,29 +560,30 @@
   var trailMax    = 40;
   var fadeTime    = 800;
 
+  // 6) Render loop: apply direct transform to mover + draw trail
   function animateUFO() {
-    // chase target
+    // chase
     actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
     actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
     actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
 
-    // apply direct transform (Webflow-proof)
+    // direct transform (no CSS vars, no conflicts)
     mover.style.transform =
       "translate3d(" + actualState.x + "px," + actualState.y + "px,0) " +
       "rotate(" + actualState.rot + "deg)";
 
-    // sample rect for trail from the element we actually move
-    var rect = mover.getBoundingClientRect();
+    // trail sample from the actual moved node
+    var r = mover.getBoundingClientRect();
     trailPoints.push({
-      x: rect.left + rect.width  / 2,
-      y: rect.top  + rect.height / 2,
+      x: r.left + r.width  / 2,
+      y: r.top  + r.height / 2,
       t: performance.now()
     });
     if (trailPoints.length > trailMax) trailPoints.shift();
 
-    // draw trail
+    // draw
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var maxWidth = rect.height * 0.4;
+    var maxWidth = r.height * 0.4;
 
     for (var i = 0; i < trailPoints.length - 1; i++) {
       var p1 = trailPoints[i];
@@ -595,6 +612,7 @@
   }
   requestAnimationFrame(animateUFO);
 })();
+
 
 
   }
