@@ -2,8 +2,8 @@
    - Lenis + GSAP ScrollTrigger wiring
    - Parallax tweens
    - Jetplane arc
-   - Woman UFO chase + Akira trail
-   - Galaxy slow parallax (masked)
+   - Woman UFO chase + Akira trail (Webflow-proof)
+   - Galaxy slow parallax (masked & ultra-slow)
    - Video visibility play/pause
 */
 
@@ -13,11 +13,10 @@
   // ─────────────────────────────────────────
   if (!root) return;
 
-  // namespace (optional export)
   root.TT = root.TT || {};
 
   // ─────────────────────────────────────────
-  // Short helpers
+  // Helpers / viewport units
   // ─────────────────────────────────────────
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
@@ -37,7 +36,7 @@
     return !!(root.gsap && root.ScrollTrigger && root.Lenis);
   }
 
-  function onReady(fn) {
+  function onDOMReady(fn) {
     if (document.readyState === "complete" || document.readyState === "interactive") {
       fn();
     } else {
@@ -49,11 +48,13 @@
 
   function waitForLibsAndStart(tries) {
     if (libsReady()) {
-      onReady(startApp);
+      onDOMReady(startApp);
       return;
     }
     if (tries > 0) {
       setTimeout(function () { waitForLibsAndStart(tries - 1); }, 100);
+    } else {
+      console.warn("[TT] Required libs not found.");
     }
   }
 
@@ -66,7 +67,7 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Smooth scrolling
+    // Smooth scrolling (Lenis)
     var lenis = new root.Lenis({
       duration:         isMobile ? 6 : 4,
       easing:           function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
@@ -77,7 +78,6 @@
       touchMultiplier:  isMobile ? 0.2 : 2,
       infinite:         false
     });
-    // keep a ref in case other modules want it
     root.lenis = lenis;
 
     function raf(time) {
@@ -86,13 +86,10 @@
     }
     requestAnimationFrame(raf);
 
-    // Lenis ↔ ScrollTrigger bridge
+    // Lenis ↔ ScrollTrigger
     ScrollTrigger.scrollerProxy(window, {
       scrollTop: function (value) {
-        if (arguments.length) {
-          return lenis.scrollTo(value);
-        }
-        return lenis.scroll;
+        return arguments.length ? lenis.scrollTo(value) : lenis.scroll;
       },
       getBoundingClientRect: function () {
         return { top: 0, left: 0, width: innerWidth, height: innerHeight };
@@ -221,11 +218,11 @@
       y:    -20 * vw,
       ease: "none",
       scrollTrigger: {
-        trigger:               ".parallax-wrapper",
-        start:                 function () { return innerHeight * 0.4 + "px top"; },
-        end:                   function () { return innerHeight * 0.7 + "px top"; },
-        scrub:                 true,
-        invalidateOnRefresh:   true
+        trigger:             ".parallax-wrapper",
+        start:               function () { return innerHeight * 0.4 + "px top"; },
+        end:                 function () { return innerHeight * 0.7 + "px top"; },
+        scrub:               true,
+        invalidateOnRefresh: true
       }
     });
 
@@ -324,10 +321,11 @@
         scrub:               true,
         invalidateOnRefresh: true,
         onUpdate: function (self) {
-          var t = self.progress;                 // 0 → 1
+          var t = self.progress; // 0 → 1
 
           var x = 145 * vw * t;
 
+          // vertical path: early dip then climb
           var arc     = (isMobile ? 26 : 36) * vh;
           var p       = 2.2;
           var climbY  = -arc * Math.pow(t, p);
@@ -339,15 +337,14 @@
 
           var y = -5 * vw + dipY + climbY;
 
+          // rotation = slope
           var dClimb   = -arc * p * Math.pow(Math.max(t, 0.0001), p - 1);
           var dDip     = inDip ? dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)) : 0;
           var dydt     = dClimb + dDip;
           var dxdt     = 130 * vw;
           var angleDeg = Math.atan2(dydt, dxdt) * (180 / Math.PI);
 
-          if (t < 0.05) {
-            angleDeg *= t / 0.05; // soften early tilt
-          }
+          if (t < 0.05) angleDeg *= t / 0.05; // soften early tilt
 
           var targetRot  = Math.max(-18, Math.min(angleDeg * 0.9, 0));
           var prevRot    = parseFloat(jet.dataset.prevRot || "0");
@@ -366,17 +363,17 @@
       var el = document.querySelector(".about_galaxy");
       if (!el) return;
 
-      var ratio = isMobile ? 0.005 : 0.01; // tiny movement => deep space feel
+      var ratio = isMobile ? 0.003 : 0.006; // tiny movement; tune as needed
       gsap.set(el, { y: 0, force3D: true });
 
       ScrollTrigger.create({
-        trigger:   ".about_underwater",
-        start:     "top bottom",
-        end:       "bottom top",
-        scrub:     0.35,
-        pin:       el,        // transform pin => stays clipped by overflow hidden
-        pinSpacing:false,
-        onUpdate:  function (self) {
+        trigger:    ".about_underwater",
+        start:      "top bottom",
+        end:        "bottom top",
+        scrub:      0.35,
+        pin:        el,        // transform pin ⇒ stays clipped by overflow hidden of parent
+        pinSpacing: false,
+        onUpdate:   function (self) {
           var y = (self.scroll() - self.start) * ratio;
           gsap.set(el, { y: y });
         }
@@ -399,11 +396,11 @@
 
       vids.forEach(function (v) {
         ScrollTrigger.create({
-          trigger:    v,
-          start:      "top 120%",
-          end:        "bottom -20%",
-          onEnter:    function () { try { v.play && v.play(); } catch (e) {} },
-          onEnterBack:function () { try { v.play && v.play(); } catch (e) {} }
+          trigger:     v,
+          start:       "top 120%",
+          end:         "bottom -20%",
+          onEnter:     function () { try { v.play && v.play(); } catch (e) {} },
+          onEnterBack: function () { try { v.play && v.play(); } catch (e) {} }
         });
 
         ScrollTrigger.create({
@@ -429,297 +426,236 @@
       });
     })();
 
-// ───────────────────────────────────────
-// Woman UFO: chase + trail (adaptive, Webflow-proof)
-// ───────────────────────────────────────
-(function bootUFOWhenReady() {
-  // Run AFTER Webflow IX has had a chance to attach transforms
-  function onReady(fn) {
-    // Webflow hook (fires after DOM ready & IX init)
-    if (window.Webflow && typeof Webflow.push === "function") {
-      Webflow.push(fn);
-    } else {
-      // Fallbacks: DOMContentLoaded -> next frame -> load
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", fn, { once: true });
-      } else {
-        requestAnimationFrame(fn);
+    // ───────────────────────────────────────
+    // Woman UFO: chase + trail (Webflow-proof with auto-fallback)
+    // ───────────────────────────────────────
+    (function bootUFOWhenReady() {
+      function afterWebflowIX(fn) {
+        if (window.Webflow && typeof Webflow.push === "function") {
+          Webflow.push(fn);
+        } else if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", fn, { once: true });
+        } else {
+          requestAnimationFrame(fn);
+        }
+        window.addEventListener("load", fn, { once: true });
       }
-      window.addEventListener("load", fn, { once: true });
-    }
-  }
 
-  onReady(initUFO);
+      afterWebflowIX(initUFO);
 
-  function initUFO() {
-    var host = document.querySelector(".about_womanufo");
-    if (!host) return;
+      function initUFO() {
+        var host = document.querySelector(".about_womanufo");
+        if (!host) return;
 
-    var DEBUG = !!window.TT_DEBUG;
-    var vw = window.innerWidth / 100;
-    var vh = window.innerHeight / 100;
-    window.addEventListener("resize", function () {
-      vw = window.innerWidth / 100;
-      vh = window.innerHeight / 100;
-    });
+        var DEBUG = !!window.TT_DEBUG;
 
-    // HUD (optional)
-    var hud;
-    function hudSet(txt) {
-      if (!DEBUG) return;
-      if (!hud) {
-        hud = document.createElement("div");
-        hud.style.cssText =
-          "position:fixed;left:8px;bottom:8px;padding:6px 8px;background:rgba(0,0,0,.6);color:#0f0;font:12px/1.2 monospace;z-index:99999;border-radius:4px";
-        document.body.appendChild(hud);
-      }
-      hud.textContent = txt;
-    }
+        var _vw = window.innerWidth / 100;
+        var _vh = window.innerHeight / 100;
+        window.addEventListener("resize", function () {
+          _vw = window.innerWidth / 100;
+          _vh = window.innerHeight / 100;
+        });
 
-    // 1) Create a NEW parent wrapper we control
-    var outer = host.parentElement;
-    if (!outer || !outer.classList.contains("ufo-outer")) {
-      var newOuter = document.createElement("div");
-      newOuter.className = "ufo-outer";
-      newOuter.style.position = "relative";
-      newOuter.style.willChange = "transform";
-      newOuter.style.transform = "translate3d(0,0,0)";
-      host.parentElement.insertBefore(newOuter, host);
-      newOuter.appendChild(host);
-      outer = newOuter;
-    } else {
-      outer.style.willChange = "transform";
-    }
+        // create an outer wrapper we control (so Webflow transforms don’t fight us)
+        var outer = host.parentElement;
+        if (!outer || !outer.classList.contains("ufo-outer")) {
+          var newOuter = document.createElement("div");
+          newOuter.className = "ufo-outer";
+          newOuter.style.position = "relative";
+          newOuter.style.willChange = "transform";
+          newOuter.style.transform = "translate3d(0,0,0)";
+          host.parentElement.insertBefore(newOuter, host);
+          newOuter.appendChild(host);
+          outer = newOuter;
+        } else {
+          outer.style.willChange = "transform";
+        }
 
-    // Prefer sampling rect from visible art
-    var sampleNode = host.querySelector("img,svg,canvas,video") || host;
+        // sample target for trail (prefer the actual art node)
+        var sampleNode = host.querySelector("img,svg,canvas,video") || host;
 
-    // 2) Motion params (same feel as yours)
-    var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    var velocity = isMobile ? 1 : 3;
-    var maxAmpVal = isMobile ? 20 * vh : 60 * vh;
-    var tiltDiv = isMobile ? 3 : 1;
-    var chaseSpeed = isMobile ? 0.08 : 0.15;
+        // motion params
+        var velocity   = isMobile ? 1 : 3;
+        var maxAmpVal  = isMobile ? 20 * _vh : 60 * _vh;
+        var tiltDiv    = isMobile ? 3 : 1;
+        var chaseSpeed = isMobile ? 0.08 : 0.15;
 
-    function getBaseY() {
-      return (isMobile ? -10 : -20) * vh;
-    }
+        function baseY() { return (isMobile ? -10 : -20) * _vh; }
 
-    var targetState = { x: 0, y: getBaseY(), rot: 0 };
-    var actualState = { x: 0, y: getBaseY(), rot: 0 };
+        var targetState = { x: 0, y: baseY(), rot: 0 };
+        var actualState = { x: 0, y: baseY(), rot: 0 };
 
-    // 3) Horizontal driver via ScrollTrigger (+ fallback)
-    var triggerSel = document.querySelector(".parallax-wrapper")
-      ? ".parallax-wrapper"
-      : "body";
-    var lastSTProgress = 0;
+        // drive horizontal with ScrollTrigger
+        var lastSTProgress = 0;
+        var triggerSel = document.querySelector(".parallax-wrapper") ? ".parallax-wrapper" : "body";
 
-    ScrollTrigger.create({
-      trigger: triggerSel,
-      start: "top top",
-      end: isMobile ? innerHeight * 0.25 + "px top" : innerHeight * 0.5 + "px top",
-      scrub: true,
-      onUpdate: function (self) {
-        lastSTProgress = self.progress;
-        targetState.x = 130 * vw * self.progress;
-      },
-    });
+        ScrollTrigger.create({
+          trigger:   triggerSel,
+          start:     "top top",
+          end:       (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
+          scrub:     true,
+          onUpdate:  function (self) {
+            lastSTProgress = self.progress;
+            targetState.x  = 130 * _vw * self.progress;
+          }
+        });
 
-    function ensureHorizontalProgress() {
-      if (lastSTProgress > 0) return;
-      var doc = document.documentElement;
-      var maxScroll = (doc.scrollHeight - innerHeight) || 1;
-      var ratio = Math.max(0, Math.min(1, (window.pageYOffset || 0) / maxScroll));
-      targetState.x = 130 * vw * ratio;
-    }
+        function ensureHorizontalProgress() {
+          if (lastSTProgress > 0) return;
+          var doc = document.documentElement;
+          var maxScroll = (doc.scrollHeight - innerHeight) || 1;
+          var ratio = Math.max(0, Math.min(1, (window.pageYOffset || 0) / maxScroll));
+          targetState.x = 130 * _vw * ratio;
+        }
 
-    // 4) Bounce + tilt by scroll velocity (Lenis-aware)
-    var lastScroll = 0;
-    var bouncePhase = 0;
-    var idleFrames = 0;
-    var idleMax = 30;
+        // bounce + tilt from scroll velocity
+        var lastScroll  = 0;
+        var bouncePhase = 0;
+        var idleFrames  = 0;
+        var idleMax     = 30;
 
-    function updateBounceTilt() {
-      var scrollPos =
-        typeof window.lenis?.scroll === "number"
-          ? window.lenis.scroll
-          : window.pageYOffset || 0;
-      var deltaY = scrollPos - lastScroll;
-      lastScroll = scrollPos;
+        function updateBounceTilt() {
+          var scrollPos = (typeof root.lenis?.scroll === "number") ? root.lenis.scroll : (window.pageYOffset || 0);
+          var deltaY    = scrollPos - lastScroll;
+          lastScroll    = scrollPos;
 
-      ensureHorizontalProgress();
+          ensureHorizontalProgress();
 
-      var amplitude = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
-      var horizontal = targetState.x / vw;
-      var bounceScale =
-        horizontal <= 30 ? 0 : horizontal >= 100 ? 1 : (horizontal - 30) / 70;
+          var amplitude  = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
+          var horizontal = targetState.x / _vw;
+          var bounceScale = (horizontal <= 30) ? 0 : (horizontal >= 100) ? 1 : (horizontal - 30) / 70;
 
-      if (Math.abs(deltaY) < 1) {
-        idleFrames++;
-        if (idleFrames > idleMax) {
-          gsap.to(targetState, {
-            y: getBaseY(),
-            duration: 0.4,
-            ease: "power3.out",
+          if (Math.abs(deltaY) < 1) {
+            idleFrames++;
+            if (idleFrames > idleMax) {
+              gsap.to(targetState, { y: baseY(), duration: 0.4, ease: "power3.out" });
+            }
+          } else {
+            idleFrames = 0;
+            bouncePhase += 0.1;
+            targetState.y = baseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
+          }
+
+          var rawTilt = deltaY / tiltDiv;
+          targetState.rot = Math.max(-20, Math.min(rawTilt, 20)) * bounceScale;
+
+          requestAnimationFrame(updateBounceTilt);
+        }
+        requestAnimationFrame(updateBounceTilt);
+
+        // Akira trail canvas (once)
+        var canvas = document.getElementById("akiraMouseTrail");
+        if (!canvas) {
+          canvas = document.createElement("canvas");
+          canvas.id = "akiraMouseTrail";
+          Object.assign(canvas.style, {
+            position:       "fixed",
+            top:            0,
+            left:           0,
+            pointerEvents:  "none",
+            zIndex:         10,
+            background:     "transparent"
           });
+          (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
         }
-      } else {
-        idleFrames = 0;
-        bouncePhase += 0.1;
-        targetState.y =
-          getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
-      }
-
-      var rawTilt = deltaY / tiltDiv;
-      targetState.rot = Math.max(-20, Math.min(rawTilt, 20)) * bounceScale;
-
-      requestAnimationFrame(updateBounceTilt);
-    }
-    requestAnimationFrame(updateBounceTilt);
-
-    // 5) Trail canvas (global)
-    var canvas = document.getElementById("akiraMouseTrail");
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvas.id = "akiraMouseTrail";
-      Object.assign(canvas.style, {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        pointerEvents: "none",
-        zIndex: 10,
-        background: "transparent",
-      });
-      (document.querySelector(".fixed_screen_area") || document.body).appendChild(
-        canvas
-      );
-    }
-    var ctx = canvas.getContext("2d");
-
-    function resizeCanvas() {
-      canvas.width = innerWidth;
-      canvas.height = innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
-    var trailPoints = [];
-    var trailMax = 40;
-    var fadeTime = 800;
-
-    // 6) Choose which node to move (adaptive)
-    var moveNode = outer;       // try the new parent first
-    var fallbackTried = false;  // if outer is locked, we'll switch to host
-    var frameCount = 0;
-    var lastCenterX = 0;
-
-    function centerXOf(node) {
-      var r = node.getBoundingClientRect();
-      return r.left + r.width / 2;
-    }
-
-    // 7) Render loop: move node + draw trail; auto-fallback if needed
-    function animateUFO() {
-      frameCount++;
-
-      // chase
-      actualState.x += (targetState.x - actualState.x) * chaseSpeed;
-      actualState.y += (targetState.y - actualState.y) * chaseSpeed;
-      actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
-
-      // apply transform
-      moveNode.style.transform =
-        "translate3d(" +
-        actualState.x +
-        "px," +
-        actualState.y +
-        "px,0) rotate(" +
-        actualState.rot +
-        "deg)";
-
-      // trail (from visible art)
-      var rs = sampleNode.getBoundingClientRect();
-      trailPoints.push({
-        x: rs.left + rs.width / 2,
-        y: rs.top + rs.height / 2,
-        t: performance.now(),
-      });
-      if (trailPoints.length > trailMax) trailPoints.shift();
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      var maxWidth = rs.height * 0.4;
-      for (var i = 0; i < trailPoints.length - 1; i++) {
-        var p1 = trailPoints[i];
-        var p2 = trailPoints[i + 1];
-        var dx = p2.x - p1.x,
-          dy = p2.y - p1.y;
-        if (Math.hypot(dx, dy) < 1) continue;
-
-        var age = performance.now() - p1.t;
-        var alpha = 1 - age / fadeTime;
-        if (alpha <= 0) continue;
-
-        ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-        ctx.lineWidth = 10 + (maxWidth - 10) * alpha;
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
-        ctx.stroke();
-      }
-
-      // --- ADAPTIVE FALLBACK ---
-      // After a few frames, if our center X isn't budging while target x is clearly increasing,
-      // assume something is still overriding the parent; switch to moving the host itself.
-      if (!fallbackTried && frameCount % 10 === 0) {
-        var cx = centerXOf(sampleNode);
-        var movedEnough = Math.abs(cx - lastCenterX) > 0.5;
-        var targetBig = targetState.x > 30; // we intended to move some pixels
-        if (targetBig && !movedEnough) {
-          // Switch to host
-          moveNode = host;
-          host.style.willChange = "transform";
-          fallbackTried = true;
-          if (DEBUG) console.warn("[UFO] switching move node to host due to override");
+        var ctx = canvas.getContext("2d");
+        function resizeCanvas() {
+          canvas.width  = innerWidth;
+          canvas.height = innerHeight;
         }
-        lastCenterX = cx;
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        var trailPoints = [];
+        var trailMax    = 40;
+        var fadeTime    = 800;
+
+        // choose which node to move; auto-fallback if wrapper is overridden
+        var moveNode       = outer;
+        var fallbackTried  = false;
+        var frameCount     = 0;
+        var lastCenterX    = 0;
+
+        function centerXOf(node) {
+          var r = node.getBoundingClientRect();
+          return r.left + r.width / 2;
+        }
+
+        // HUD (optional)
+        var hudEl = null;
+        function hudUpdate() {
+          if (!window.TT_DEBUG) return;
+          if (!hudEl) {
+            hudEl = document.createElement("div");
+            hudEl.style.cssText =
+              "position:fixed;left:8px;bottom:8px;padding:6px 8px;background:rgba(0,0,0,.6);color:#0f0;font:12px/1.2 monospace;z-index:99999;border-radius:4px";
+            document.body.appendChild(hudEl);
+          }
+          hudEl.textContent =
+            "UFO node:" + (moveNode === outer ? "outer" : "host") +
+            "  x:" + actualState.x.toFixed(1) +
+            "  y:" + actualState.y.toFixed(1) +
+            "  rot:" + actualState.rot.toFixed(1);
+        }
+
+        // render loop
+        function animateUFO() {
+          frameCount++;
+
+          // chase target
+          actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
+          actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
+          actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
+
+          // apply transform
+          moveNode.style.transform =
+            "translate3d(" + actualState.x + "px," + actualState.y + "px,0) rotate(" + actualState.rot + "deg)";
+
+          // trail from the visible art
+          var rs = sampleNode.getBoundingClientRect();
+          trailPoints.push({ x: rs.left + rs.width / 2, y: rs.top + rs.height / 2, t: performance.now() });
+          if (trailPoints.length > trailMax) trailPoints.shift();
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          var maxWidth = rs.height * 0.4;
+          for (var i = 0; i < trailPoints.length - 1; i++) {
+            var p1 = trailPoints[i];
+            var p2 = trailPoints[i + 1];
+            var dx = p2.x - p1.x;
+            var dy = p2.y - p1.y;
+            if (Math.hypot(dx, dy) < 1) continue;
+
+            var age   = performance.now() - p1.t;
+            var alpha = 1 - age / fadeTime;
+            if (alpha <= 0) continue;
+
+            ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+            ctx.lineWidth   = 10 + (maxWidth - 10) * alpha;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
+            ctx.stroke();
+          }
+
+          // auto-fallback if wrapper isn't moving
+          if (!fallbackTried && frameCount % 10 === 0) {
+            var cx = centerXOf(sampleNode);
+            var movedEnough = Math.abs(cx - lastCenterX) > 0.5;
+            var targetBig   = targetState.x > 30;
+            if (targetBig && !movedEnough) {
+              moveNode = host; // switch to moving the element itself
+              host.style.willChange = "transform";
+              fallbackTried = true;
+              if (DEBUG) console.warn("[UFO] switched move node to .about_womanufo (wrapper was overridden)");
+            }
+            lastCenterX = cx;
+          }
+
+          hudUpdate();
+          requestAnimationFrame(animateUFO);
+        }
+        requestAnimationFrame(animateUFO);
       }
-
-      hudSet(
-        "UFO node:" +
-          (moveNode === outer ? "outer" : "host") +
-          " x:" +
-          actualState.x.toFixed(1) +
-          " y:" +
-          actualState.y.toFixed(1) +
-          " rot:" +
-          actualState.rot.toFixed(1)
-      );
-
-       // HUD DEBUG
-      if (window.TT_DEBUG) {
-        const hud = document.createElement("div");
-        hud.style.cssText = `
-          position:fixed;bottom:5px;left:5px;
-          background:rgba(0,255,0,.75);
-          font:12px monospace;z-index:9999;
-          padding:2px 4px;border-radius:4px;
-        `;
-        document.body.appendChild(hud);
-      
-        setInterval(() => {
-          hud.textContent =
-            `UFO node:${ufoEl?.tagName.toLowerCase()} x:${actualState.x.toFixed(1)} y:${actualState.y.toFixed(1)} rot:${actualState.rot.toFixed(1)}`;
-        }, 250);
-      }
-
-
-      requestAnimationFrame(animateUFO);
-    }
-    requestAnimationFrame(animateUFO);
-  }
-})();
-
-
-
+    })();
   }
 })(window);
