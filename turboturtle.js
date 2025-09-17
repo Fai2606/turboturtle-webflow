@@ -429,24 +429,20 @@
       });
     })();
 
-    // ───────────────────────────────────────
-    // Woman UFO: chase + trail
-    // ───────────────────────────────────────
 // ───────────────────────────────────────
-// Woman UFO: chase + trail (hardened)
+// Woman UFO: chase + trail (direct transform, Webflow-proof)
 // ───────────────────────────────────────
 (function initUFO() {
-  var ufoEl = document.querySelector(".about_womanufo");
-  if (!ufoEl) return;
+  var wrapper = document.querySelector(".about_womanufo");
+  if (!wrapper) return;
 
-  // 1) Force the var-based transform so CSS custom props actually move it,
-  //    even if the stylesheet rule was optimized away.
-  //    This matches your original CSS exactly.
-  ufoEl.style.transform =
-    "translateX(var(--ufo-x, 0px)) " +
-    "translateY(var(--ufo-y, 0px)) " +
-    "rotate(var(--ufo-rot, 0deg))";
-  ufoEl.style.willChange = "transform";
+  // If you have a dedicated inner element for the artwork, prefer moving that (avoids Webflow IX on wrapper)
+  // You can rename this selector to any child you use, or it will just move the wrapper itself.
+  var mover = wrapper.querySelector(".ufo-asset, .ufo-mover, img, svg, *") || wrapper;
+
+  // Ensure GPU compositing
+  mover.style.willChange = "transform";
+  mover.style.transform  = "translate3d(0,0,0)";
 
   var velocity   = isMobile ? 1 : 3;
   var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
@@ -458,51 +454,42 @@
   var targetState = { x: 0, y: getBaseY(), rot: 0 };
   var actualState = { x: 0, y: getBaseY(), rot: 0 };
 
-  // Prime uniforms
-  ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
-  ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
-  ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+  // Horizontal driver via ScrollTrigger (fallback to body if parallax-wrapper missing)
+  var triggerSel = document.querySelector(".parallax-wrapper") ? ".parallax-wrapper" : "body";
+  var lastSTProgress = 0;
 
-  // 2) Horizontal driver via ScrollTrigger (with robust fallback trigger)
-  var hasParallaxWrapper = !!document.querySelector(".parallax-wrapper");
-  var triggerSel         = hasParallaxWrapper ? ".parallax-wrapper" : "body";
-
-  var horizST = ScrollTrigger.create({
+  ScrollTrigger.create({
     trigger: triggerSel,
     start:   "top top",
-    end:     isMobile
-              ? (innerHeight * 0.25) + "px top"
-              : (innerHeight * 0.5) + "px top",
+    end:     isMobile ? (innerHeight * 0.25) + "px top" : (innerHeight * 0.5) + "px top",
     scrub:   true,
     onUpdate:function (self) {
-      targetState.x = 130 * vw * self.progress;
       lastSTProgress = self.progress;
+      targetState.x  = 130 * vw * self.progress;
     }
   });
 
-  // If ST progress never updates (rare timing/layout cases), use page ratio fallback.
-  var lastSTProgress = 0;
-  function fallBackX() {
-    if (lastSTProgress > 0) return; // ST is working
+  // If ST didn’t progress (rare), use page ratio
+  function ensureHorizontalProgress() {
+    if (lastSTProgress > 0) return;
     var doc = document.documentElement;
     var maxScroll = (doc.scrollHeight - innerHeight) || 1;
-    var ratio = Math.max(0, Math.min(1, (root.pageYOffset || 0) / maxScroll));
+    var ratio = Math.max(0, Math.min(1, (window.pageYOffset || 0) / maxScroll));
     targetState.x = 130 * vw * ratio;
   }
 
-  // 3) Bounce/tilt from scroll velocity (Lenis-aware)
+  // Bounce/tilt from scroll velocity (Lenis-aware)
   var lastScroll  = 0;
   var bouncePhase = 0;
   var idleFrames  = 0;
   var idleMax     = 30;
 
   function updateBounceTilt() {
-    var scrollPos = (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
+    var scrollPos = (typeof window.lenis?.scroll === "number") ? window.lenis.scroll : (window.pageYOffset || 0);
     var deltaY    = scrollPos - lastScroll;
     lastScroll    = scrollPos;
 
-    // Keep horizontal moving even if ST didn't wire yet
-    fallBackX();
+    ensureHorizontalProgress();
 
     var amplitude   = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
     var horizontal  = targetState.x / vw;
@@ -520,7 +507,7 @@
         });
       }
     } else {
-      idleFrames += 0;
+      idleFrames = 0;
       bouncePhase += 0.1;
       targetState.y = getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
     }
@@ -532,7 +519,7 @@
   }
   requestAnimationFrame(updateBounceTilt);
 
-  // 4) Trail canvas (Akira)
+  // Trail canvas tied to the *moved* element (so it never disconnects)
   var canvas = document.createElement("canvas");
   var ctx    = canvas.getContext("2d");
   Object.assign(canvas.style, {
@@ -551,25 +538,25 @@
     canvas.height = innerHeight;
   }
   resizeCanvas();
-  root.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", resizeCanvas);
 
   var trailPoints = [];
   var trailMax    = 40;
   var fadeTime    = 800;
 
   function animateUFO() {
-    // chase-to-target
+    // chase target
     actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
     actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
     actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
 
-    // uniforms
-    ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
-    ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
-    ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+    // apply direct transform (Webflow-proof)
+    mover.style.transform =
+      "translate3d(" + actualState.x + "px," + actualState.y + "px,0) " +
+      "rotate(" + actualState.rot + "deg)";
 
-    // trail sampling + draw
-    var rect = ufoEl.getBoundingClientRect();
+    // sample rect for trail from the element we actually move
+    var rect = mover.getBoundingClientRect();
     trailPoints.push({
       x: rect.left + rect.width  / 2,
       y: rect.top  + rect.height / 2,
@@ -577,6 +564,7 @@
     });
     if (trailPoints.length > trailMax) trailPoints.shift();
 
+    // draw trail
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     var maxWidth = rect.height * 0.4;
 
@@ -607,6 +595,7 @@
   }
   requestAnimationFrame(animateUFO);
 })();
+
 
   }
 })(window);
