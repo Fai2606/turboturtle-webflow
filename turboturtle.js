@@ -695,6 +695,24 @@
           actualState.rot.toFixed(1)
       );
 
+       // HUD DEBUG
+      if (window.TT_DEBUG) {
+        const hud = document.createElement("div");
+        hud.style.cssText = `
+          position:fixed;bottom:5px;left:5px;
+          background:rgba(0,255,0,.75);
+          font:12px monospace;z-index:9999;
+          padding:2px 4px;border-radius:4px;
+        `;
+        document.body.appendChild(hud);
+      
+        setInterval(() => {
+          hud.textContent =
+            `UFO node:${ufoEl?.tagName.toLowerCase()} x:${actualState.x.toFixed(1)} y:${actualState.y.toFixed(1)} rot:${actualState.rot.toFixed(1)}`;
+        }, 250);
+      }
+
+
       requestAnimationFrame(animateUFO);
     }
     requestAnimationFrame(animateUFO);
