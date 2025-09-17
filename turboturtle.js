@@ -1,288 +1,574 @@
-console.log("[turboturtle] v14 – starting…");
+/* turboturtle.js — project bootstrap
+   - Lenis + GSAP ScrollTrigger wiring
+   - Parallax tweens
+   - Jetplane arc
+   - Woman UFO chase + Akira trail
+   - Galaxy slow parallax (masked)
+   - Video visibility play/pause
+*/
 
-const libs = {
-  hasGSAP: !!window.gsap,
-  hasLenis: !!window.Lenis,
-  hasST: !!window.ScrollTrigger
-};
-console.log("[turboturtle] libs:", libs);
+(function (root) {
+  // ─────────────────────────────────────────
+  // Guards
+  // ─────────────────────────────────────────
+  if (!root) return;
 
-if (!libs.hasGSAP || !libs.hasST) {
-  throw new Error("ScrollTrigger missing on page");
-}
+  // namespace (optional export)
+  root.TT = root.TT || {};
 
+  // ─────────────────────────────────────────
+  // Short helpers
+  // ─────────────────────────────────────────
+  var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/* turboturtle.js — diagnostic build v14 */
-(function () {
-  console.info("[turboturtle] v14 — starting…");
-  // Default to false; only flip to true at the very end if all good.
-  window.__TT_BOOTED__ = false;
+  var vw = root.innerWidth  / 100;
+  var vh = root.innerHeight / 100;
 
-  try {
-    // ---- sanity checks (these are the #1 cause of 'not booted')
-    const hasGSAP = !!window.gsap;
-    const hasST   = !!window.ScrollTrigger;
-    const hasLenis= !!window.Lenis;
-    console.info("[turboturtle] libs:", { hasGSAP, hasST, hasLenis });
+  function updateVUnits() {
+    vw = root.innerWidth  / 100;
+    vh = root.innerHeight / 100;
+  }
+  root.addEventListener("resize", updateVUnits);
 
-    if (!hasGSAP)  throw new Error("GSAP missing on page");
-    if (!hasST)    throw new Error("ScrollTrigger missing on page");
-    if (!hasLenis) throw new Error("Lenis missing on page");
+  // ─────────────────────────────────────────
+  // Boot when libs are ready
+  // ─────────────────────────────────────────
+  function libsReady() {
+    return !!(root.gsap && root.ScrollTrigger && root.Lenis);
+  }
+
+  function onReady(fn) {
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      fn();
+    } else {
+      document.addEventListener("DOMContentLoaded", fn, { once: true });
+    }
+  }
+
+  waitForLibsAndStart(80);
+
+  function waitForLibsAndStart(tries) {
+    if (libsReady()) {
+      onReady(startApp);
+      return;
+    }
+    if (tries > 0) {
+      setTimeout(function () { waitForLibsAndStart(tries - 1); }, 100);
+    }
+  }
+
+  // ─────────────────────────────────────────
+  // Main
+  // ─────────────────────────────────────────
+  function startApp() {
+    var gsap          = root.gsap;
+    var ScrollTrigger = root.ScrollTrigger;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // ------------------------------------------------------------------
-    // 0) Small pre-style
-    // ------------------------------------------------------------------
-    (function prep(){
-      try {
-        const videoWrapper = document.querySelector(".about_onceupon");
-        if (videoWrapper) {
-          videoWrapper.style.willChange = "transform, opacity";
-          videoWrapper.style.transform = "translateZ(0)";
-        }
-        gsap.set(".about_underwater", { willChange: "transform", transform: "translateZ(0)" });
-      } catch(e){ console.warn("[turboturtle] prep warn:", e); }
-    })();
-
-    // ------------------------------------------------------------------
-    // 1) Globals
-    // ------------------------------------------------------------------
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    let vw = innerWidth / 100, vh = innerHeight / 100;
-    addEventListener("resize", () => { vw = innerWidth / 100; vh = innerHeight / 100; });
-
-    // ------------------------------------------------------------------
-    // 2) Lenis + ScrollTrigger wiring
-    // ------------------------------------------------------------------
-    console.info("[turboturtle] init Lenis");
-    const lenis = new Lenis({
-      duration: isMobile ? 6 : 4,
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-      direction: "vertical",
+    // Smooth scrolling
+    var lenis = new root.Lenis({
+      duration:         isMobile ? 6 : 4,
+      easing:           function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smooth:           true,
+      direction:        "vertical",
       gestureDirection: "vertical",
-      mouseMultiplier: 1,
-      touchMultiplier: isMobile ? 0.2 : 2,
-      infinite: false
+      mouseMultiplier:  1,
+      touchMultiplier:  isMobile ? 0.2 : 2,
+      infinite:         false
     });
+    // keep a ref in case other modules want it
+    root.lenis = lenis;
 
-    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
     requestAnimationFrame(raf);
 
-    console.info("[turboturtle] wire ScrollTrigger scrollerProxy");
+    // Lenis ↔ ScrollTrigger bridge
     ScrollTrigger.scrollerProxy(window, {
-      scrollTop(v){ return arguments.length ? lenis.scrollTo(v) : lenis.scroll; },
-      getBoundingClientRect(){ return { top:0, left:0, width:innerWidth, height:innerHeight }; },
+      scrollTop: function (value) {
+        if (arguments.length) {
+          return lenis.scrollTo(value);
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect: function () {
+        return { top: 0, left: 0, width: innerWidth, height: innerHeight };
+      },
       pinType: document.body.style.transform ? "transform" : "fixed"
     });
-    lenis.on("scroll", () => ScrollTrigger.update());
-    ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+
+    lenis.on && lenis.on("scroll", ScrollTrigger.update);
+    ScrollTrigger.addEventListener("refresh", function () { lenis.resize && lenis.resize(); });
     ScrollTrigger.refresh();
 
-    // ------------------------------------------------------------------
-    // 3) Video play/pause by visibility
-    // ------------------------------------------------------------------
-    console.info("[turboturtle] videos");
-    (function () {
-      const vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
-      vids.forEach(v => {
-        try { v.setAttribute("playsinline",""); v.muted = true; } catch {}
-        ScrollTrigger.create({
-          trigger: v,
-          start: "top 120%",
-          end:   "bottom -20%",
-          onEnter:     () => { try{ v.play && v.play().catch(()=>{});}catch{} },
-          onEnterBack: () => { try{ v.play && v.play().catch(()=>{});}catch{} }
-        });
-        ScrollTrigger.create({
-          trigger: v,
-          start: "bottom top",
-          end:   "top bottom",
-          onLeave:     () => { try{ v.pause && v.pause(); }catch{} },
-          onLeaveBack: () => { try{ v.pause && v.pause(); }catch{} }
-        });
-      });
-      document.addEventListener("visibilitychange", () => {
-        vids.forEach(v => {
-          if (document.hidden) { try{ v.pause(); }catch{}; return; }
-          const r = v.getBoundingClientRect();
-          const on = r.bottom>0 && r.top<innerHeight && r.right>0 && r.left<innerWidth;
-          if (on) try{ v.play && v.play().catch(()=>{});}catch{}
-        });
-      });
-    })();
+    // ───────────────────────────────────────
+    // Parallax & element tweens
+    // ───────────────────────────────────────
+    gsap.to(".about_planet", {
+      y:    20 * vh,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
+    });
 
-    // ------------------------------------------------------------------
-    // 4) Parallax tweens
-    // ------------------------------------------------------------------
-    console.info("[turboturtle] parallax tweens");
-    const ST_FULL = { trigger: ".parallax-wrapper", start: "top top", end: "bottom bottom", scrub: true, invalidateOnRefresh:true };
-    gsap.to(".about_planet",     { y: 20*vh, ease:"none", scrollTrigger: ST_FULL });
-    gsap.to(".spacecats",        { x:-3*vw, y:55*vh, rotation:20, scale:1.1, ease:"none", scrollTrigger: ST_FULL });
-    gsap.to(".about_saturn",     { x:-2*vw, y:30*vh, rotation:-25, scale:.9, ease:"none", scrollTrigger: ST_FULL });
-    gsap.to(".satellitemove",    { x:10*vw, y:50*vh, rotation:15, scale:.85, ease:"none", scrollTrigger: ST_FULL });
-    gsap.to(".about_watermoon",  { y:35*vh, ease:"none", scrollTrigger: ST_FULL });
-    gsap.to(".about_section_1",  { y:-10*vh, ease:"none", scrollTrigger: ST_FULL });
+    gsap.to(".spacecats", {
+      x:        -3 * vw,
+      y:        55 * vh,
+      rotation: 20,
+      scale:    1.1,
+      ease:     "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
+    });
 
-    gsap.to(".about_section_2", {
-      y:-10*vh, ease:"none",
-      scrollTrigger:{ trigger:".about_section_2", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
+    gsap.to(".about_saturn", {
+      x:        -2 * vw,
+      y:        30 * vh,
+      rotation: -25,
+      scale:    0.9,
+      ease:     "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
     });
-    gsap.to(".lakeshrink", {
-      scaleY:.4, ease:"none",
-      scrollTrigger:{ trigger:".lakeshrink", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
+
+    gsap.to(".satellitemove", {
+      x:        10 * vw,
+      y:        50 * vh,
+      rotation: 15,
+      scale:    0.85,
+      ease:     "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
     });
-    gsap.to(".duckswim", {
-      x:-5*vw-80, yPercent:-35, ease:"none",
-      scrollTrigger:{ trigger:".duckswim", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_rocket", {
-      x:130*vw, y:-20*vw, ease:"none",
-      scrollTrigger:{ trigger:".parallax-wrapper", start:() => `${innerHeight*.4}px top`, end:() => `${innerHeight*.7}px top`, scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_turtle2", {
-      x:30*vw, y:5*vw, rotation:5, ease:"none",
-      scrollTrigger:{ trigger:".about_turtle2", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_turtle1", {
-      x:28*vw, y:-5*vw, rotation:-5, ease:"none",
-      scrollTrigger:{ trigger:".about_turtle1", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_nessie", {
-      x:7*vw, y:-13*vw, rotation:-30, ease:"none",
-      scrollTrigger:{ trigger:".about_nessie", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_giant_squid", {
-      x:3*vw, y:777*vw, rotation:-5, ease:"none",
-      scrollTrigger:{ trigger:".about_giant_squid", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
-    });
-    gsap.to(".about_flyduck", {
-      x:120*vw, y:-15*vw, ease:"none",
-      scrollTrigger:{ trigger:".about_flyduck", start:"top bottom", end:"bottom 80%", scrub:true, invalidateOnRefresh:true }
-    });
+
     gsap.to(".about_watermoon", {
-      y:5*vw, ease:"none",
-      scrollTrigger:{ trigger:".about_watermoon", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
+      y:    35 * vh,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
     });
+
+    gsap.to(".about_section_1", {
+      y:    -10 * vh,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".parallax-wrapper",
+        start:   "top top",
+        end:     "bottom bottom",
+        scrub:   true
+      }
+    });
+
     gsap.to(".about_section_2", {
-      y:550*vh, ease:"none",
-      scrollTrigger:{ trigger:".about_section_2", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
+      y:    -10 * vh,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".about_section_2",
+        start:   "top bottom",
+        end:     "bottom top",
+        scrub:   true
+      }
     });
 
-    
+    gsap.to(".lakeshrink", {
+      scaleY: 0.4,
+      ease:   "none",
+      scrollTrigger: {
+        trigger: ".lakeshrink",
+        start:   "top bottom",
+        end:     "bottom top",
+        scrub:   true
+      }
+    });
 
-    // ------------------------------------------------------------------
-    // 5) Galaxy ultra-slow drift (pinned, still clipped)
-    // ------------------------------------------------------------------
-    (function(){
-      const el=document.querySelector(".about_galaxy"); if(!el) return;
-      const ratio = isMobile ? 0.004 : 0.006; // smaller = slower
-      gsap.set(el,{ y:0, force3D:true });
+    gsap.to(".duckswim", {
+      x:        -5 * vw - 80,
+      yPercent: -35,
+      ease:     "none",
+      scrollTrigger: {
+        trigger: ".duckswim",
+        start:   "top bottom",
+        end:     "bottom top",
+        scrub:   true
+      }
+    });
+
+    gsap.to(".about_rocket", {
+      x:    130 * vw,
+      y:    -20 * vw,
+      ease: "none",
+      scrollTrigger: {
+        trigger:               ".parallax-wrapper",
+        start:                 function () { return innerHeight * 0.4 + "px top"; },
+        end:                   function () { return innerHeight * 0.7 + "px top"; },
+        scrub:                 true,
+        invalidateOnRefresh:   true
+      }
+    });
+
+    gsap.to(".about_turtle2", {
+      x:        30 * vw,
+      y:        5 * vw,
+      rotation: 5,
+      ease:     "none",
+      scrollTrigger: {
+        trigger:             ".about_turtle2",
+        start:               "top bottom",
+        end:                 "bottom top",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".about_turtle1", {
+      x:        28 * vw,
+      y:        -5 * vw,
+      rotation: -5,
+      ease:     "none",
+      scrollTrigger: {
+        trigger:             ".about_turtle1",
+        start:               "top bottom",
+        end:                 "bottom top",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".about_nessie", {
+      x:        7 * vw,
+      y:        -13 * vw,
+      rotation: -30,
+      ease:     "none",
+      scrollTrigger: {
+        trigger:             ".about_nessie",
+        start:               "top bottom",
+        end:                 "bottom top",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".about_giant_squid", {
+      x:        3 * vw,
+      y:        7 * vw,
+      rotation: -5,
+      ease:     "none",
+      scrollTrigger: {
+        trigger:             ".about_giant_squid",
+        start:               "top bottom",
+        end:                 "bottom top",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".about_flyduck", {
+      x:    120 * vw,
+      y:    -15 * vw,
+      ease: "none",
+      scrollTrigger: {
+        trigger:             ".about_flyduck",
+        start:               "top bottom",
+        end:                 "bottom 80%",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".about_watermoon", {
+      y:    5 * vw,
+      ease: "none",
+      scrollTrigger: {
+        trigger:             ".about_watermoon",
+        start:               "top bottom",
+        end:                 "bottom top",
+        scrub:               true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // ───────────────────────────────────────
+    // Jetplane — dip then strong climb + bank
+    // ───────────────────────────────────────
+    (function initJet() {
+      var jet = document.querySelector(".about_jetplane");
+      if (!jet) return;
+
       ScrollTrigger.create({
-        trigger: ".about_underwater",
-        start: "top bottom",
-        end:   "bottom top",
-        scrub: 0.35,
-        pin:   el,
-        pinSpacing: false,
-        onUpdate(self){
-          const y = (self.scroll() - self.start) * ratio;
-          gsap.set(el,{ y });
+        trigger:             ".about_jetplane",
+        start:               "top 50%",
+        end:                 "bottom 30%",
+        scrub:               true,
+        invalidateOnRefresh: true,
+        onUpdate: function (self) {
+          var t = self.progress;                 // 0 → 1
+
+          var x = 145 * vw * t;
+
+          var arc     = (isMobile ? 26 : 36) * vh;
+          var p       = 2.2;
+          var climbY  = -arc * Math.pow(t, p);
+
+          var dipEnd  = 0.18;
+          var dipAmp  = (isMobile ? 6 : 9) * vh;
+          var inDip   = t < dipEnd;
+          var dipY    = inDip ? dipAmp * Math.sin(Math.PI * (t / dipEnd)) : 0;
+
+          var y = -5 * vw + dipY + climbY;
+
+          var dClimb   = -arc * p * Math.pow(Math.max(t, 0.0001), p - 1);
+          var dDip     = inDip ? dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)) : 0;
+          var dydt     = dClimb + dDip;
+          var dxdt     = 130 * vw;
+          var angleDeg = Math.atan2(dydt, dxdt) * (180 / Math.PI);
+
+          if (t < 0.05) {
+            angleDeg *= t / 0.05; // soften early tilt
+          }
+
+          var targetRot  = Math.max(-18, Math.min(angleDeg * 0.9, 0));
+          var prevRot    = parseFloat(jet.dataset.prevRot || "0");
+          var smoothed   = prevRot + (targetRot - prevRot) * 0.15;
+          jet.dataset.prevRot = smoothed;
+
+          jet.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smoothed + "deg)";
         }
       });
-      ScrollTrigger.addEventListener("refresh", () => gsap.set(el, { y: 0 }));
     })();
 
-    // ------------------------------------------------------------------
-    // 6) Jetplane arc + banking
-    // ------------------------------------------------------------------
-    (function(){
-      const jet=document.querySelector(".about_jetplane"); if(!jet) return;
+    // ───────────────────────────────────────
+    // Galaxy ultra-slow parallax (masked)
+    // ───────────────────────────────────────
+    (function initGalaxy() {
+      var el = document.querySelector(".about_galaxy");
+      if (!el) return;
+
+      var ratio = isMobile ? 0.005 : 0.01; // tiny movement => deep space feel
+      gsap.set(el, { y: 0, force3D: true });
+
       ScrollTrigger.create({
-        trigger: ".about_jetplane",
-        start: "top 50%",
-        end:   "bottom 30%",
-        scrub: true,
-        invalidateOnRefresh:true,
-        onUpdate(self){
-          const t=self.progress, x=145*vw*t;
-          const arc=(isMobile?26:36)*vh, p=2.2, climbY=-arc*Math.pow(t,p);
-          const dipEnd=.18, dipAmp=(isMobile?6:9)*vh, inDip=t<dipEnd;
-          const dipY=inDip? dipAmp*Math.sin(Math.PI*(t/dipEnd)) : 0;
-          const y=-5*vw + dipY + climbY;
-          const dClimb=-arc*p*Math.pow(Math.max(t,.0001), p-1);
-          const dDip=inDip? dipAmp*(Math.PI/dipEnd)*Math.cos(Math.PI*(t/dipEnd)) : 0;
-          const dydt=dClimb+dDip, dxdt=130*vw;
-          let angleDeg=Math.atan2(dydt,dxdt)*(180/Math.PI);
-          if(t<.05) angleDeg*=t/.05;
-          const targetRot=Math.max(-18, Math.min(angleDeg*.9, 0));
-          const prev=parseFloat(jet.dataset.prevRot||"0");
-          const rot=prev+(targetRot-prev)*.15; jet.dataset.prevRot=rot;
-          jet.style.transform=`translate(${x}px, ${y}px) rotate(${rot}deg)`;
+        trigger:   ".about_underwater",
+        start:     "top bottom",
+        end:       "bottom top",
+        scrub:     0.35,
+        pin:       el,        // transform pin => stays clipped by overflow hidden
+        pinSpacing:false,
+        onUpdate:  function (self) {
+          var y = (self.scroll() - self.start) * ratio;
+          gsap.set(el, { y: y });
         }
+      });
+
+      ScrollTrigger.addEventListener("refresh", function () { gsap.set(el, { y: 0 }); });
+    })();
+
+    // ───────────────────────────────────────
+    // Video: play a bit before entering, pause when fully out
+    // ───────────────────────────────────────
+    (function initVideoVisibility() {
+      var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
+      if (!vids.length) return;
+
+      vids.forEach(function (v) {
+        v.setAttribute("playsinline", "");
+        v.setAttribute("muted", "");
+      });
+
+      vids.forEach(function (v) {
+        ScrollTrigger.create({
+          trigger:    v,
+          start:      "top 120%",
+          end:        "bottom -20%",
+          onEnter:    function () { try { v.play && v.play(); } catch (e) {} },
+          onEnterBack:function () { try { v.play && v.play(); } catch (e) {} }
+        });
+
+        ScrollTrigger.create({
+          trigger:     v,
+          start:       "bottom top",
+          end:         "top bottom",
+          onLeave:     function () { try { v.pause && v.pause(); } catch (e) {} },
+          onLeaveBack: function () { try { v.pause && v.pause(); } catch (e) {} }
+        });
+      });
+
+      document.addEventListener("visibilitychange", function () {
+        vids.forEach(function (v) {
+          try {
+            if (document.hidden) { v.pause && v.pause(); }
+            else {
+              var r = v.getBoundingClientRect();
+              var onScreen = r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+              if (onScreen) { v.play && v.play(); }
+            }
+          } catch (e) {}
+        });
       });
     })();
 
-    // ------------------------------------------------------------------
-    // 7) Woman UFO with canvas trail
-    // ------------------------------------------------------------------
-    (function(){
-      const ufo=document.querySelector(".about_womanufo"); if(!ufo) return;
-      const velocity=isMobile?1:3, maxAmp=isMobile?20*vh:60*vh, tiltDiv=isMobile?3:1, chase=.08;
-      function baseY(){ return (isMobile?-10:-20)*vh; }
-      const target={ x:0,y:baseY(),rot:0 }, actual={ x:0,y:baseY(),rot:0 };
-      ufo.style.setProperty("--ufo-x",`${actual.x}px`);
-      ufo.style.setProperty("--ufo-y",`${actual.y}px`);
-      ufo.style.setProperty("--ufo-rot",`${actual.rot}deg`);
+    // ───────────────────────────────────────
+    // Woman UFO: chase + trail
+    // ───────────────────────────────────────
+    (function initUFO() {
+      var ufoEl = document.querySelector(".about_womanufo");
+      if (!ufoEl) return;
+
+      var velocity   = isMobile ? 1 : 3;
+      var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
+      var tiltDiv    = isMobile ? 3 : 1;
+      var chaseSpeed = isMobile ? 0.08 : 0.15;
+
+      function getBaseY() { return (isMobile ? -10 : -20) * vh; }
+
+      var targetState = { x: 0, y: getBaseY(), rot: 0 };
+      var actualState = { x: 0, y: getBaseY(), rot: 0 };
+
+      ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
+      ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
+      ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+
       ScrollTrigger.create({
         trigger: ".parallax-wrapper",
-        start:"top top",
-        end: isMobile? `${innerHeight*.25}px top` : `${innerHeight*.5}px top`,
-        scrub:true,
-        onUpdate(self){ target.x=130*vw*self.progress; }
-      });
-      let last=0, phase=0, idle=0, idleMax=30;
-      (function update(){
-        const pos=lenis.scroll, dY=pos-last; last=pos;
-        const amp=Math.min(Math.abs(dY)*velocity, maxAmp);
-        const horizontal=target.x/vw;
-        const scale=horizontal<=30?0: (horizontal>=100?1: (horizontal-30)/70);
-        if(Math.abs(dY)<1){ idle++; if(idle>idleMax) gsap.to(target,{y:baseY(), duration:.4, ease:"power3.out"}); }
-        else { idle=0; phase+=.1; target.y=baseY()+Math.sin(phase)*amp*scale; }
-        target.rot=Math.max(-20, Math.min(dY/tiltDiv,20))*scale;
-        requestAnimationFrame(update);
-      })();
-      const c=document.createElement("canvas"), ctx=c.getContext("2d");
-      let pts=[], max=40, fade=800;
-      Object.assign(c.style,{ position:"fixed", top:0, left:0, pointerEvents:"none", zIndex:10, background:"transparent" });
-      c.id="akiraMouseTrail"; (document.querySelector(".fixed_screen_area")||document.body).appendChild(c);
-      function resize(){ c.width=innerWidth; c.height=innerHeight; } resize(); addEventListener("resize", resize);
-      (function loop(){
-        actual.x+=(target.x-actual.x)*chase; actual.y+=(target.y-actual.y)*chase; actual.rot+=(target.rot-actual.rot)*chase;
-        ufo.style.setProperty("--ufo-x",`${actual.x}px`); ufo.style.setProperty("--ufo-y",`${actual.y}px`); ufo.style.setProperty("--ufo-rot",`${actual.rot}deg`);
-        const r=ufo.getBoundingClientRect(); pts.push({ x:r.left+r.width/2, y:r.top+r.height/2, t:performance.now() }); if(pts.length>max) pts.shift();
-        ctx.clearRect(0,0,c.width,c.height);
-        const mw=r.height*.4;
-        for(let i=0;i<pts.length-1;i++){
-          const p1=pts[i], p2=pts[i+1], dx=p2.x-p1.x, dy=p2.y-p1.y; if(Math.hypot(dx,dy)<1) continue;
-          const a=1-(performance.now()-p1.t)/fade; if(a<=0) continue;
-          const lw=10+(mw-10)*a; ctx.strokeStyle=`rgba(225,255,0,${a})`; ctx.lineWidth=lw;
-          ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.quadraticCurveTo(p1.x+dx*.5, p1.y+dy*.5, p2.x,p2.y); ctx.stroke();
+        start:   "top top",
+        end:     isMobile ? (innerHeight * 0.25) + "px top" : (innerHeight * 0.5) + "px top",
+        scrub:   true,
+        onUpdate:function (self) {
+          targetState.x = 130 * vw * self.progress;
         }
-        requestAnimationFrame(loop);
-      })();
-    })();https://github.com/Fai2606/turboturtle-webflow/blob/main/turboturtle.js
+      });
 
-    // finally, if we got here, we’re good
-    window.__TT_BOOTED__ = true;
-    console.info("[turboturtle] v14 booted ✅");
-  } catch (err) {
-    // Any early error gets surfaced clearly
-    console.error("[turboturtle] FATAL:", err && (err.stack || err.message || err));
-    window.__TT_BOOTED__ = false;
+      var lastScroll  = 0;
+      var bouncePhase = 0;
+      var idleFrames  = 0;
+      var idleMax     = 30;
+
+      function updateBounceTilt() {
+        var scrollPos = (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
+        var deltaY    = scrollPos - lastScroll;
+        lastScroll    = scrollPos;
+
+        var amplitude   = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
+        var horizontal  = targetState.x / vw;
+        var bounceScale = (horizontal <= 30) ? 0 :
+                          (horizontal >= 100) ? 1 :
+                          (horizontal - 30) / 70;
+
+        if (Math.abs(deltaY) < 1) {
+          idleFrames++;
+          if (idleFrames > idleMax) {
+            gsap.to(targetState, {
+              y:        getBaseY(),
+              duration: 0.4,
+              ease:     "power3.out"
+            });
+          }
+        } else {
+          idleFrames = 0;
+          bouncePhase += 0.1;
+          targetState.y = getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
+        }
+
+        var rawTilt = deltaY / tiltDiv;
+        targetState.rot = Math.max(-20, Math.min(rawTilt, 20)) * bounceScale;
+
+        requestAnimationFrame(updateBounceTilt);
+      }
+      requestAnimationFrame(updateBounceTilt);
+
+      // Trail canvas
+      var canvas = document.createElement("canvas");
+      var ctx    = canvas.getContext("2d");
+      Object.assign(canvas.style, {
+        position:      "fixed",
+        top:           0,
+        left:          0,
+        pointerEvents: "none",
+        zIndex:        10,
+        background:    "transparent"
+      });
+      canvas.id = "akiraMouseTrail";
+      (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+
+      function resizeCanvas() {
+        canvas.width  = innerWidth;
+        canvas.height = innerHeight;
+      }
+      resizeCanvas();
+      root.addEventListener("resize", resizeCanvas);
+
+      var trailPoints = [];
+      var trailMax    = 40;
+      var fadeTime    = 800;
+
+      function animateUFO() {
+        actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
+        actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
+        actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
+
+        ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
+        ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
+        ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+
+        var rect = ufoEl.getBoundingClientRect();
+        trailPoints.push({
+          x: rect.left + rect.width  / 2,
+          y: rect.top  + rect.height / 2,
+          t: performance.now()
+        });
+        if (trailPoints.length > trailMax) trailPoints.shift();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var maxWidth = rect.height * 0.4;
+
+        for (var i = 0; i < trailPoints.length - 1; i++) {
+          var p1 = trailPoints[i];
+          var p2 = trailPoints[i + 1];
+          var dx = p2.x - p1.x;
+          var dy = p2.y - p1.y;
+          if (Math.hypot(dx, dy) < 1) continue;
+
+          var age   = performance.now() - p1.t;
+          var alpha = 1 - age / fadeTime;
+          if (alpha <= 0) continue;
+
+          ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+          ctx.lineWidth   = 10 + (maxWidth - 10) * alpha;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.quadraticCurveTo(
+            p1.x + dx * 0.5,
+            p1.y + dy * 0.5,
+            p2.x, p2.y
+          );
+          ctx.stroke();
+        }
+
+        requestAnimationFrame(animateUFO);
+      }
+      requestAnimationFrame(animateUFO);
+    })();
   }
-  // at the very end of turboturtle.js
-  window.TT_BOOTED = true;
-  console.log("[turboturtle] booted ✅");
-})();
+})(window);
