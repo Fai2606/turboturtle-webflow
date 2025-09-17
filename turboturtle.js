@@ -166,7 +166,7 @@ if (!libs.hasGSAP || !libs.hasST) {
       scrollTrigger:{ trigger:".about_watermoon", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
     });
     gsap.to(".about_section_2", {
-      y:50*vh, ease:"none",
+      y:550*vh, ease:"none",
       scrollTrigger:{ trigger:".about_section_2", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
     });
 
