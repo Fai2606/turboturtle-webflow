@@ -432,143 +432,181 @@
     // ───────────────────────────────────────
     // Woman UFO: chase + trail
     // ───────────────────────────────────────
-    (function initUFO() {
-      var ufoEl = document.querySelector(".about_womanufo");
-      if (!ufoEl) return;
+// ───────────────────────────────────────
+// Woman UFO: chase + trail (hardened)
+// ───────────────────────────────────────
+(function initUFO() {
+  var ufoEl = document.querySelector(".about_womanufo");
+  if (!ufoEl) return;
 
-      var velocity   = isMobile ? 1 : 3;
-      var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
-      var tiltDiv    = isMobile ? 3 : 1;
-      var chaseSpeed = isMobile ? 0.08 : 0.15;
+  // 1) Force the var-based transform so CSS custom props actually move it,
+  //    even if the stylesheet rule was optimized away.
+  //    This matches your original CSS exactly.
+  ufoEl.style.transform =
+    "translateX(var(--ufo-x, 0px)) " +
+    "translateY(var(--ufo-y, 0px)) " +
+    "rotate(var(--ufo-rot, 0deg))";
+  ufoEl.style.willChange = "transform";
 
-      function getBaseY() { return (isMobile ? -10 : -20) * vh; }
+  var velocity   = isMobile ? 1 : 3;
+  var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
+  var tiltDiv    = isMobile ? 3 : 1;
+  var chaseSpeed = isMobile ? 0.08 : 0.15;
 
-      var targetState = { x: 0, y: getBaseY(), rot: 0 };
-      var actualState = { x: 0, y: getBaseY(), rot: 0 };
+  function getBaseY() { return (isMobile ? -10 : -20) * vh; }
 
-      ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
-      ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
-      ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+  var targetState = { x: 0, y: getBaseY(), rot: 0 };
+  var actualState = { x: 0, y: getBaseY(), rot: 0 };
 
-      ScrollTrigger.create({
-        trigger: ".parallax-wrapper",
-        start:   "top top",
-        end:     isMobile ? (innerHeight * 0.25) + "px top" : (innerHeight * 0.5) + "px top",
-        scrub:   true,
-        onUpdate:function (self) {
-          targetState.x = 130 * vw * self.progress;
-        }
-      });
+  // Prime uniforms
+  ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
+  ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
+  ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
 
-      var lastScroll  = 0;
-      var bouncePhase = 0;
-      var idleFrames  = 0;
-      var idleMax     = 30;
+  // 2) Horizontal driver via ScrollTrigger (with robust fallback trigger)
+  var hasParallaxWrapper = !!document.querySelector(".parallax-wrapper");
+  var triggerSel         = hasParallaxWrapper ? ".parallax-wrapper" : "body";
 
-      function updateBounceTilt() {
-        var scrollPos = (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
-        var deltaY    = scrollPos - lastScroll;
-        lastScroll    = scrollPos;
+  var horizST = ScrollTrigger.create({
+    trigger: triggerSel,
+    start:   "top top",
+    end:     isMobile
+              ? (innerHeight * 0.25) + "px top"
+              : (innerHeight * 0.5) + "px top",
+    scrub:   true,
+    onUpdate:function (self) {
+      targetState.x = 130 * vw * self.progress;
+      lastSTProgress = self.progress;
+    }
+  });
 
-        var amplitude   = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
-        var horizontal  = targetState.x / vw;
-        var bounceScale = (horizontal <= 30) ? 0 :
-                          (horizontal >= 100) ? 1 :
-                          (horizontal - 30) / 70;
+  // If ST progress never updates (rare timing/layout cases), use page ratio fallback.
+  var lastSTProgress = 0;
+  function fallBackX() {
+    if (lastSTProgress > 0) return; // ST is working
+    var doc = document.documentElement;
+    var maxScroll = (doc.scrollHeight - innerHeight) || 1;
+    var ratio = Math.max(0, Math.min(1, (root.pageYOffset || 0) / maxScroll));
+    targetState.x = 130 * vw * ratio;
+  }
 
-        if (Math.abs(deltaY) < 1) {
-          idleFrames++;
-          if (idleFrames > idleMax) {
-            gsap.to(targetState, {
-              y:        getBaseY(),
-              duration: 0.4,
-              ease:     "power3.out"
-            });
-          }
-        } else {
-          idleFrames = 0;
-          bouncePhase += 0.1;
-          targetState.y = getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
-        }
+  // 3) Bounce/tilt from scroll velocity (Lenis-aware)
+  var lastScroll  = 0;
+  var bouncePhase = 0;
+  var idleFrames  = 0;
+  var idleMax     = 30;
 
-        var rawTilt = deltaY / tiltDiv;
-        targetState.rot = Math.max(-20, Math.min(rawTilt, 20)) * bounceScale;
+  function updateBounceTilt() {
+    var scrollPos = (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
+    var deltaY    = scrollPos - lastScroll;
+    lastScroll    = scrollPos;
 
-        requestAnimationFrame(updateBounceTilt);
-      }
-      requestAnimationFrame(updateBounceTilt);
+    // Keep horizontal moving even if ST didn't wire yet
+    fallBackX();
 
-      // Trail canvas
-      var canvas = document.createElement("canvas");
-      var ctx    = canvas.getContext("2d");
-      Object.assign(canvas.style, {
-        position:      "fixed",
-        top:           0,
-        left:          0,
-        pointerEvents: "none",
-        zIndex:        10,
-        background:    "transparent"
-      });
-      canvas.id = "akiraMouseTrail";
-      (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+    var amplitude   = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
+    var horizontal  = targetState.x / vw;
+    var bounceScale = (horizontal <= 30) ? 0 :
+                      (horizontal >= 100) ? 1 :
+                      (horizontal - 30) / 70;
 
-      function resizeCanvas() {
-        canvas.width  = innerWidth;
-        canvas.height = innerHeight;
-      }
-      resizeCanvas();
-      root.addEventListener("resize", resizeCanvas);
-
-      var trailPoints = [];
-      var trailMax    = 40;
-      var fadeTime    = 800;
-
-      function animateUFO() {
-        actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
-        actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
-        actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
-
-        ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
-        ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
-        ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
-
-        var rect = ufoEl.getBoundingClientRect();
-        trailPoints.push({
-          x: rect.left + rect.width  / 2,
-          y: rect.top  + rect.height / 2,
-          t: performance.now()
+    if (Math.abs(deltaY) < 1) {
+      idleFrames++;
+      if (idleFrames > idleMax) {
+        gsap.to(targetState, {
+          y:        getBaseY(),
+          duration: 0.4,
+          ease:     "power3.out"
         });
-        if (trailPoints.length > trailMax) trailPoints.shift();
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        var maxWidth = rect.height * 0.4;
-
-        for (var i = 0; i < trailPoints.length - 1; i++) {
-          var p1 = trailPoints[i];
-          var p2 = trailPoints[i + 1];
-          var dx = p2.x - p1.x;
-          var dy = p2.y - p1.y;
-          if (Math.hypot(dx, dy) < 1) continue;
-
-          var age   = performance.now() - p1.t;
-          var alpha = 1 - age / fadeTime;
-          if (alpha <= 0) continue;
-
-          ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-          ctx.lineWidth   = 10 + (maxWidth - 10) * alpha;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.quadraticCurveTo(
-            p1.x + dx * 0.5,
-            p1.y + dy * 0.5,
-            p2.x, p2.y
-          );
-          ctx.stroke();
-        }
-
-        requestAnimationFrame(animateUFO);
       }
-      requestAnimationFrame(animateUFO);
-    })();
+    } else {
+      idleFrames += 0;
+      bouncePhase += 0.1;
+      targetState.y = getBaseY() + Math.sin(bouncePhase) * amplitude * bounceScale;
+    }
+
+    var rawTilt = deltaY / tiltDiv;
+    targetState.rot = Math.max(-20, Math.min(rawTilt, 20)) * bounceScale;
+
+    requestAnimationFrame(updateBounceTilt);
+  }
+  requestAnimationFrame(updateBounceTilt);
+
+  // 4) Trail canvas (Akira)
+  var canvas = document.createElement("canvas");
+  var ctx    = canvas.getContext("2d");
+  Object.assign(canvas.style, {
+    position:      "fixed",
+    top:           0,
+    left:          0,
+    pointerEvents: "none",
+    zIndex:        10,
+    background:    "transparent"
+  });
+  canvas.id = "akiraMouseTrail";
+  (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+
+  function resizeCanvas() {
+    canvas.width  = innerWidth;
+    canvas.height = innerHeight;
+  }
+  resizeCanvas();
+  root.addEventListener("resize", resizeCanvas);
+
+  var trailPoints = [];
+  var trailMax    = 40;
+  var fadeTime    = 800;
+
+  function animateUFO() {
+    // chase-to-target
+    actualState.x   += (targetState.x   - actualState.x)   * chaseSpeed;
+    actualState.y   += (targetState.y   - actualState.y)   * chaseSpeed;
+    actualState.rot += (targetState.rot - actualState.rot) * chaseSpeed;
+
+    // uniforms
+    ufoEl.style.setProperty("--ufo-x",   actualState.x + "px");
+    ufoEl.style.setProperty("--ufo-y",   actualState.y + "px");
+    ufoEl.style.setProperty("--ufo-rot", actualState.rot + "deg");
+
+    // trail sampling + draw
+    var rect = ufoEl.getBoundingClientRect();
+    trailPoints.push({
+      x: rect.left + rect.width  / 2,
+      y: rect.top  + rect.height / 2,
+      t: performance.now()
+    });
+    if (trailPoints.length > trailMax) trailPoints.shift();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var maxWidth = rect.height * 0.4;
+
+    for (var i = 0; i < trailPoints.length - 1; i++) {
+      var p1 = trailPoints[i];
+      var p2 = trailPoints[i + 1];
+      var dx = p2.x - p1.x;
+      var dy = p2.y - p1.y;
+      if (Math.hypot(dx, dy) < 1) continue;
+
+      var age   = performance.now() - p1.t;
+      var alpha = 1 - age / fadeTime;
+      if (alpha <= 0) continue;
+
+      ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+      ctx.lineWidth   = 10 + (maxWidth - 10) * alpha;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.quadraticCurveTo(
+        p1.x + dx * 0.5,
+        p1.y + dy * 0.5,
+        p2.x, p2.y
+      );
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(animateUFO);
+  }
+  requestAnimationFrame(animateUFO);
+})();
+
   }
 })(window);
