@@ -1,3 +1,17 @@
+console.log("[turboturtle] v14 – starting…");
+
+const libs = {
+  hasGSAP: !!window.gsap,
+  hasLenis: !!window.Lenis,
+  hasST: !!window.ScrollTrigger
+};
+console.log("[turboturtle] libs:", libs);
+
+if (!libs.hasGSAP || !libs.hasST) {
+  throw new Error("ScrollTrigger missing on page");
+}
+
+
 /* turboturtle.js — diagnostic build v14 */
 (function () {
   console.info("[turboturtle] v14 — starting…");
@@ -264,6 +278,5 @@
   }
   // at the very end of turboturtle.js
   window.TT_BOOTED = true;
-  console.log("[TT] booted ✅");
-
+  console.log("[turboturtle] booted ✅");
 })();
