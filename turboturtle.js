@@ -154,7 +154,7 @@ if (!libs.hasGSAP || !libs.hasST) {
       scrollTrigger:{ trigger:".about_nessie", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
     });
     gsap.to(".about_giant_squid", {
-      x:3*vw, y:7*vw, rotation:-5, ease:"none",
+      x:3*vw, y:777*vw, rotation:-5, ease:"none",
       scrollTrigger:{ trigger:".about_giant_squid", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
     });
     gsap.to(".about_flyduck", {
