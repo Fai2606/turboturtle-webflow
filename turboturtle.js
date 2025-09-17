@@ -165,6 +165,12 @@ if (!libs.hasGSAP || !libs.hasST) {
       y:5*vw, ease:"none",
       scrollTrigger:{ trigger:".about_watermoon", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
     });
+    gsap.to(".about_section_2", {
+      y:50*vh, ease:"none",
+      scrollTrigger:{ trigger:".about_section_2", start:"top bottom", end:"bottom top", scrub:true, invalidateOnRefresh:true }
+    });
+
+    
 
     // ------------------------------------------------------------------
     // 5) Galaxy ultra-slow drift (pinned, still clipped)
