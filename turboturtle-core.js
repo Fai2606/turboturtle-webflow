@@ -2,7 +2,7 @@
    - Lenis + GSAP ScrollTrigger wiring
    - Parallax tweens
    - Jetplane arc
-   - Galaxy slow parallax (masked by .about_underwater)
+   - Galaxy ultra-slow parallax (masked by .about_underwater, no pin)
    - Video visibility play/pause
 */
 
@@ -40,13 +40,6 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Make sure the section that masks the galaxy participates in a transform stack
-    // so transform-based pinning will remain clipped by overflow:hidden
-    gsap.set(".about_underwater", {
-      willChange: "transform",
-      transform:  "translateZ(0)"
-    });
-
     // Smooth scrolling
     var lenis = new root.Lenis({
       duration:         isMobile ? 6 : 4,
@@ -66,7 +59,7 @@
     }
     requestAnimationFrame(raf);
 
-    // Bridge Lenis <-> ScrollTrigger, but FORCE transform-based pinning
+    // Lenis ↔ ScrollTrigger bridge (no global pinType forcing)
     ScrollTrigger.scrollerProxy(window, {
       scrollTop: function (value) {
         if (arguments.length) return lenis.scrollTo(value);
@@ -75,7 +68,7 @@
       getBoundingClientRect: function () {
         return { top: 0, left: 0, width: innerWidth, height: innerHeight };
       },
-      pinType: "transform"                // ⬅ critical for keeping the galaxy clipped
+      pinType: document.body.style.transform ? "transform" : "fixed"
     });
 
     lenis.on && lenis.on("scroll", ScrollTrigger.update);
@@ -336,32 +329,31 @@
     })();
 
     // ───────────────────────────────────────
-    // Galaxy ultra-slow parallax (masked by .about_underwater)
+    // Galaxy ultra-slow parallax (masked by .about_underwater, NO pin)
     // ───────────────────────────────────────
     (function initGalaxy() {
       var el = document.querySelector(".about_galaxy");
-      if (!el) return;
+      var host = document.querySelector(".about_underwater");
+      if (!el || !host) return;
 
-      // Tiny ratio so it barely drifts (feel free to tweak)
-      var ratio = isMobile ? 0.002 : 0.003;
+      // keep transforms GPU-friendly and keep host in a transform context
+      gsap.set(host, { willChange: "transform", transform: "translateZ(0)" });
+      gsap.set(el,   { willChange: "transform", force3D: true });
 
-      gsap.set(el, {
-        y:       0,
-        force3D: true,
-        willChange: "transform"
-      });
+      // move MUCH slower than its parent section
+      var ratio = isMobile ? 0.0015 : 0.0025; // tweak smaller to keep it on screen longer
 
       ScrollTrigger.create({
-        trigger:     ".about_underwater",
-        start:       "top bottom",
-        end:         "bottom top",
-        scrub:       0.35,
-        anticipatePin: 1,
-        pin:         el,          // pin the galaxy itself
-        pinSpacing:  false,       // no extra space
-        onUpdate:    function (self) {
-          // With transform pinning, this stays clipped by the parent overflow
-          var y = (self.scroll() - self.start) * ratio;
+        trigger:   host,
+        start:     "top bottom",
+        end:       "bottom top",
+        scrub:     0.35,
+        onUpdate:  function (self) {
+          // total scroll distance of this section through the viewport
+          var total = self.end - self.start;
+          // Counter the parent’s upward motion so net motion is slower
+          // parent moves ~ -total; we move back up by (1 - ratio) * total * progress
+          var y = - (1 - ratio) * total * self.progress;
           gsap.set(el, { y: y });
         }
       });
