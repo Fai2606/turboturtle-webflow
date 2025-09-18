@@ -318,30 +318,6 @@
       });
     })();
 
-    // Galaxy ultra-slow parallax (masked via transform pin)
-    (function initGalaxy() {
-      var el = document.querySelector(".about_galaxy");
-      if (!el) return;
-
-      var ratio = isMobile ? 0.003 : 0.006;  // slower = deeper
-      gsap.set(el, { y: 0, force3D: true });
-
-      ScrollTrigger.create({
-        trigger:    ".about_underwater",
-        start:      "top bottom",
-        end:        "bottom top",
-        scrub:      0.4,
-        pin:        el,
-        pinSpacing: false,
-        onUpdate:   function (self) {
-          var y = (self.scroll() - self.start) * ratio;
-          gsap.set(el, { y: y });
-        }
-      });
-
-      ScrollTrigger.addEventListener("refresh", function(){ gsap.set(el, { y: 0 }); });
-    })();
-
     // Video visibility
     (function initVideos() {
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
