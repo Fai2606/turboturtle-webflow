@@ -1,18 +1,15 @@
 /* turboturtle-ufo.js
    - Woman UFO chase + bounce + tilt
    - Akira trail
-   - Starts after 'TT:core-ready' (from core), with safe fallbacks
+   - Starts after 'TT:core-ready' (from core), with safe fallback
 */
-
 (function (root) {
   if (!root) return;
 
   var started = false;
 
-  // Start only once
   function boot() {
-    if (started) return;
-    started = true;
+    if (started) return; started = true;
 
     var host = document.querySelector(".about_womanufo");
     if (!host) return;
@@ -28,7 +25,6 @@
       vh = root.innerHeight / 100;
     });
 
-    // motion params
     var velocity   = isMobile ? 1 : 3;
     var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
     var tiltDiv    = isMobile ? 3 : 1;
@@ -39,14 +35,13 @@
     var target = { x: 0, y: getBaseY(), rot: 0 };
     var actual = { x: 0, y: getBaseY(), rot: 0 };
 
-    // drive X with ScrollTrigger (fallback to scroll ratio)
     var lastProgress = 0;
     if (root.ScrollTrigger) {
       root.ScrollTrigger.create({
         trigger: ".parallax-wrapper",
-        start:   "top top",
-        end:     (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
-        scrub:   true,
+        start: "top top",
+        end: (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
+        scrub: true,
         onUpdate: function (self) {
           lastProgress = self.progress;
           target.x = 130 * vw * self.progress;
@@ -61,16 +56,11 @@
       target.x = 130 * vw * ratio;
     }
 
-    // bounce/tilt on scroll velocity
-    var lastScroll = 0;
-    var bouncePhase = 0;
-    var idleFrames = 0;
-    var idleMax = 30;
+    var lastScroll = 0, bouncePhase = 0, idleFrames = 0, idleMax = 30;
 
     function updateBounceTilt() {
       var scrollPos = (typeof lenis?.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
-      var deltaY = scrollPos - lastScroll;
-      lastScroll = scrollPos;
+      var deltaY = scrollPos - lastScroll; lastScroll = scrollPos;
 
       ensureX();
 
@@ -88,14 +78,13 @@
         bouncePhase += 0.1;
         target.y = getBaseY() + Math.sin(bouncePhase) * amplitude * scale;
       }
-
       target.rot = Math.max(-20, Math.min(deltaY / tiltDiv, 20)) * scale;
 
       requestAnimationFrame(updateBounceTilt);
     }
     requestAnimationFrame(updateBounceTilt);
 
-    // trail
+    // Akira trail
     var canvas = document.getElementById("akiraMouseTrail");
     if (!canvas) {
       canvas = document.createElement("canvas");
@@ -115,9 +104,7 @@
     resizeCanvas();
     root.addEventListener("resize", resizeCanvas);
 
-    var trail = [];
-    var trailMax = 40;
-    var fadeTime = 800;
+    var trail = [], trailMax = 40, fadeTime = 800;
 
     function loop() {
       actual.x   += (target.x   - actual.x)   * chaseSpeed;
@@ -147,18 +134,11 @@
         ctx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
         ctx.stroke();
       }
-
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
   }
 
-  // Prefer to start after core signals it's ready
-  try {
-    root.addEventListener("TT:core-ready", boot, { once: true });
-  } catch(e){}
-
-  // Safety fallback (if event missed)
-  setTimeout(boot, 2000);
-
+  try { root.addEventListener("TT:core-ready", boot, { once: true }); } catch(e){}
+  setTimeout(function(){ if (root.gsap && root.lenis) boot(); }, 2000);
 })(window);
