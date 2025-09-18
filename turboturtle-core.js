@@ -38,6 +38,14 @@
     ScrollTrigger = root.ScrollTrigger;
     gsap.registerPlugin(ScrollTrigger);
 
+   // ensure ScrollTrigger uses transform-pinning inside the mask
+   gsap.set(".about_underwater", {
+     willChange: "transform",
+     transform:  "translateZ(0)", // forces a transform context
+     force3D:    true
+   });
+
+
     // Lenis
     var lenis = new root.Lenis({
       duration:         isMobile ? 6 : 4,
@@ -319,28 +327,42 @@
     })();
 
     // Galaxy ultra-slow parallax (masked via transform pin)
-    (function initGalaxy() {
-      var el = document.querySelector(".about_galaxy");
-      if (!el) return;
+   (function initGalaxy() {
+     var el        = document.querySelector(".about_galaxy");
+     var container = document.querySelector(".about_underwater");
+     if (!el || !container) return;
+   
+     // Make sure the container has a transform context (mask-safe)
+     gsap.set(container, {
+       willChange: "transform",
+       transform:  "translateZ(0)",
+       force3D:    true
+     });
+   
+     // super slow drift = deeper feel
+     var ratio = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 0.003 : 0.006;
+   
+     gsap.set(el, { y: 0, force3D: true });
+   
+     ScrollTrigger.create({
+       trigger:    container, // the masked section
+       start:      "top bottom",
+       end:        "bottom top",
+       scrub:      0.4,
+       pin:        el,        // pin the galaxy element *inside* the container
+       pinSpacing: false,     // don't push layout
+       // transform-pinning will be chosen thanks to the transform on .about_underwater
+       onUpdate:   function (self) {
+         var y = (self.scroll() - self.start) * ratio;
+         gsap.set(el, { y: y });
+       }
+     });
+   
+     ScrollTrigger.addEventListener("refresh", function () {
+       gsap.set(el, { y: 0 });
+     });
+   })();
 
-      var ratio = isMobile ? 0.003 : 0.006;  // slower = deeper
-      gsap.set(el, { y: 0, force3D: true });
-
-      ScrollTrigger.create({
-        trigger:    ".about_underwater",
-        start:      "top bottom",
-        end:        "bottom top",
-        scrub:      0.4,
-        pin:        el,
-        pinSpacing: false,
-        onUpdate:   function (self) {
-          var y = (self.scroll() - self.start) * ratio;
-          gsap.set(el, { y: y });
-        }
-      });
-
-      ScrollTrigger.addEventListener("refresh", function(){ gsap.set(el, { y: 0 }); });
-    })();
 
     // Video visibility
     (function initVideos() {
