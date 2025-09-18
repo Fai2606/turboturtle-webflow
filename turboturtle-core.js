@@ -1,52 +1,53 @@
-/* turboturtle-core.js
-   - Lenis + ScrollTrigger wiring
+/* turboturtle.js — core site code
+   - Lenis + GSAP ScrollTrigger wiring
    - Parallax tweens
    - Jetplane arc
-   - Galaxy slow parallax (masked/pinned)
+   - Galaxy slow parallax (masked by .about_underwater)
    - Video visibility play/pause
-   - Dispatches 'TT:core-ready' when initialized
 */
 
 (function (root) {
   if (!root) return;
 
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  var gsap, ScrollTrigger;
 
-  var vw = root.innerWidth / 100;
+  var vw = root.innerWidth  / 100;
   var vh = root.innerHeight / 100;
-  root.addEventListener("resize", function () {
-    vw = root.innerWidth / 100;
+
+  function updateVUnits() {
+    vw = root.innerWidth  / 100;
     vh = root.innerHeight / 100;
-  });
+  }
+  root.addEventListener("resize", updateVUnits);
 
   function libsReady() {
     return !!(root.gsap && root.ScrollTrigger && root.Lenis);
   }
+
   function onDOMReady(fn) {
     if (document.readyState === "complete" || document.readyState === "interactive") fn();
     else document.addEventListener("DOMContentLoaded", fn, { once: true });
   }
-  function startWhenReady(tries) {
-    if (libsReady()) { onDOMReady(startCore); return; }
-    if (tries > 0) setTimeout(function(){ startWhenReady(tries-1); }, 100);
-  }
-  startWhenReady(100);
 
-  function startCore() {
-    gsap = root.gsap;
-    ScrollTrigger = root.ScrollTrigger;
+  (function waitForLibs(tries){
+    if (libsReady()) onDOMReady(start);
+    else if (tries > 0) setTimeout(function(){ waitForLibs(tries-1); }, 100);
+  })(80);
+
+  function start() {
+    var gsap          = root.gsap;
+    var ScrollTrigger = root.ScrollTrigger;
+
     gsap.registerPlugin(ScrollTrigger);
 
-   // ensure ScrollTrigger uses transform-pinning inside the mask
-   gsap.set(".about_underwater", {
-     willChange: "transform",
-     transform:  "translateZ(0)", // forces a transform context
-     force3D:    true
-   });
+    // Make sure the section that masks the galaxy participates in a transform stack
+    // so transform-based pinning will remain clipped by overflow:hidden
+    gsap.set(".about_underwater", {
+      willChange: "transform",
+      transform:  "translateZ(0)"
+    });
 
-
-    // Lenis
+    // Smooth scrolling
     var lenis = new root.Lenis({
       duration:         isMobile ? 6 : 4,
       easing:           function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
@@ -65,26 +66,29 @@
     }
     requestAnimationFrame(raf);
 
+    // Bridge Lenis <-> ScrollTrigger, but FORCE transform-based pinning
     ScrollTrigger.scrollerProxy(window, {
       scrollTop: function (value) {
-        return arguments.length ? lenis.scrollTo(value) : lenis.scroll;
+        if (arguments.length) return lenis.scrollTo(value);
+        return lenis.scroll;
       },
       getBoundingClientRect: function () {
         return { top: 0, left: 0, width: innerWidth, height: innerHeight };
       },
-      pinType: document.body.style.transform ? "transform" : "fixed"
+      pinType: "transform"                // ⬅ critical for keeping the galaxy clipped
     });
+
     lenis.on && lenis.on("scroll", ScrollTrigger.update);
-    ScrollTrigger.addEventListener("refresh", function(){ lenis.resize && lenis.resize(); });
+    ScrollTrigger.addEventListener("refresh", function () { lenis.resize && lenis.resize(); });
     ScrollTrigger.refresh();
 
-    // ─────────────────────────────────────
-    // Parallax & tweens (multi-line style)
-    // ─────────────────────────────────────
+    // ───────────────────────────────────────
+    // Parallax & element tweens
+    // ───────────────────────────────────────
     gsap.to(".about_planet", {
-      y:   20 * vh,
-      ease:"none",
-      scrollTrigger:{
+      y:    20 * vh,
+      ease: "none",
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -93,12 +97,12 @@
     });
 
     gsap.to(".spacecats", {
-      x:       -3 * vw,
+      x:        -3 * vw,
       y:        55 * vh,
       rotation: 20,
       scale:    1.1,
-      ease:    "none",
-      scrollTrigger:{
+      ease:     "none",
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -107,12 +111,12 @@
     });
 
     gsap.to(".about_saturn", {
-      x:       -2 * vw,
+      x:        -2 * vw,
       y:        30 * vh,
       rotation: -25,
       scale:    0.9,
-      ease:    "none",
-      scrollTrigger:{
+      ease:     "none",
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -121,12 +125,12 @@
     });
 
     gsap.to(".satellitemove", {
-      x:       10 * vw,
-      y:       50 * vh,
-      rotation:15,
-      scale:   0.85,
-      ease:    "none",
-      scrollTrigger:{
+      x:        10 * vw,
+      y:        50 * vh,
+      rotation: 15,
+      scale:    0.85,
+      ease:     "none",
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -137,7 +141,7 @@
     gsap.to(".about_watermoon", {
       y:    35 * vh,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -148,7 +152,7 @@
     gsap.to(".about_section_1", {
       y:    -10 * vh,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger: ".parallax-wrapper",
         start:   "top top",
         end:     "bottom bottom",
@@ -159,7 +163,7 @@
     gsap.to(".about_section_2", {
       y:    -10 * vh,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger: ".about_section_2",
         start:   "top bottom",
         end:     "bottom top",
@@ -170,7 +174,7 @@
     gsap.to(".lakeshrink", {
       scaleY: 0.4,
       ease:   "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger: ".lakeshrink",
         start:   "top bottom",
         end:     "bottom top",
@@ -182,7 +186,7 @@
       x:        -5 * vw - 80,
       yPercent: -35,
       ease:     "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger: ".duckswim",
         start:   "top bottom",
         end:     "bottom top",
@@ -194,10 +198,10 @@
       x:    130 * vw,
       y:    -20 * vw,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".parallax-wrapper",
-        start:               function(){ return innerHeight * 0.4 + "px top"; },
-        end:                 function(){ return innerHeight * 0.7 + "px top"; },
+        start:               function () { return innerHeight * 0.4 + "px top"; },
+        end:                 function () { return innerHeight * 0.7 + "px top"; },
         scrub:               true,
         invalidateOnRefresh: true
       }
@@ -205,10 +209,10 @@
 
     gsap.to(".about_turtle2", {
       x:        30 * vw,
-      y:         5 * vw,
-      rotation:  5,
+      y:        5 * vw,
+      rotation: 5,
       ease:     "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_turtle2",
         start:               "top bottom",
         end:                 "bottom top",
@@ -222,7 +226,7 @@
       y:        -5 * vw,
       rotation: -5,
       ease:     "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_turtle1",
         start:               "top bottom",
         end:                 "bottom top",
@@ -233,10 +237,10 @@
 
     gsap.to(".about_nessie", {
       x:        7 * vw,
-      y:       -13 * vw,
+      y:        -13 * vw,
       rotation: -30,
       ease:     "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_nessie",
         start:               "top bottom",
         end:                 "bottom top",
@@ -250,7 +254,7 @@
       y:        7 * vw,
       rotation: -5,
       ease:     "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_giant_squid",
         start:               "top bottom",
         end:                 "bottom top",
@@ -263,7 +267,7 @@
       x:    120 * vw,
       y:    -15 * vw,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_flyduck",
         start:               "top bottom",
         end:                 "bottom 80%",
@@ -275,7 +279,7 @@
     gsap.to(".about_watermoon", {
       y:    5 * vw,
       ease: "none",
-      scrollTrigger:{
+      scrollTrigger: {
         trigger:             ".about_watermoon",
         start:               "top bottom",
         end:                 "bottom top",
@@ -284,8 +288,10 @@
       }
     });
 
-    // Jetplane — dip then climb + banking
-    (function initJetplane() {
+    // ───────────────────────────────────────
+    // Jetplane — dip then strong climb + bank
+    // ───────────────────────────────────────
+    (function initJet() {
       var jet = document.querySelector(".about_jetplane");
       if (!jet) return;
 
@@ -297,75 +303,78 @@
         invalidateOnRefresh: true,
         onUpdate: function (self) {
           var t = self.progress;
+
           var x = 145 * vw * t;
 
-          var arc    = (isMobile ? 26 : 36) * vh;
-          var climbY = -arc * Math.pow(t, 2.2);
+          var arc     = (isMobile ? 26 : 36) * vh;
+          var p       = 2.2;
+          var climbY  = -arc * Math.pow(t, p);
 
-          var dipEnd = 0.18;
-          var dipAmp = (isMobile ? 6 : 9) * vh;
-          var dipY   = t < dipEnd ? dipAmp * Math.sin(Math.PI * (t / dipEnd)) : 0;
+          var dipEnd  = 0.18;
+          var dipAmp  = (isMobile ? 6 : 9) * vh;
+          var inDip   = t < dipEnd;
+          var dipY    = inDip ? dipAmp * Math.sin(Math.PI * (t / dipEnd)) : 0;
 
           var y = -5 * vw + dipY + climbY;
 
-          var dClimb   = -arc * 2.2 * Math.pow(Math.max(t, 0.0001), 1.2);
-          var dDip     = t < dipEnd ? dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)) : 0;
+          var dClimb   = -arc * p * Math.pow(Math.max(t, 0.0001), p - 1);
+          var dDip     = inDip ? dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)) : 0;
           var dydt     = dClimb + dDip;
           var dxdt     = 130 * vw;
           var angleDeg = Math.atan2(dydt, dxdt) * (180 / Math.PI);
 
           if (t < 0.05) angleDeg *= t / 0.05;
 
-          var targetRot = Math.max(-18, Math.min(angleDeg * 0.9, 0));
-          var prevRot   = parseFloat(jet.dataset.prevRot || "0");
-          var smooth    = prevRot + (targetRot - prevRot) * 0.15;
-          jet.dataset.prevRot = smooth;
+          var targetRot  = Math.max(-18, Math.min(angleDeg * 0.9, 0));
+          var prevRot    = parseFloat(jet.dataset.prevRot || "0");
+          var smoothed   = prevRot + (targetRot - prevRot) * 0.15;
+          jet.dataset.prevRot = smoothed;
 
-          jet.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smooth + "deg)";
+          jet.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smoothed + "deg)";
         }
       });
     })();
 
-    // Galaxy ultra-slow parallax (masked via transform pin)
-   (function initGalaxy() {
-     var el        = document.querySelector(".about_galaxy");
-     var container = document.querySelector(".about_underwater");
-     if (!el || !container) return;
-   
-     // Make sure the container has a transform context (mask-safe)
-     gsap.set(container, {
-       willChange: "transform",
-       transform:  "translateZ(0)",
-       force3D:    true
-     });
-   
-     // super slow drift = deeper feel
-     var ratio = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 0.003 : 0.006;
-   
-     gsap.set(el, { y: 0, force3D: true });
-   
-     ScrollTrigger.create({
-       trigger:    container, // the masked section
-       start:      "top bottom",
-       end:        "bottom top",
-       scrub:      0.4,
-       pin:        el,        // pin the galaxy element *inside* the container
-       pinSpacing: false,     // don't push layout
-       // transform-pinning will be chosen thanks to the transform on .about_underwater
-       onUpdate:   function (self) {
-         var y = (self.scroll() - self.start) * ratio;
-         gsap.set(el, { y: y });
-       }
-     });
-   
-     ScrollTrigger.addEventListener("refresh", function () {
-       gsap.set(el, { y: 0 });
-     });
-   })();
+    // ───────────────────────────────────────
+    // Galaxy ultra-slow parallax (masked by .about_underwater)
+    // ───────────────────────────────────────
+    (function initGalaxy() {
+      var el = document.querySelector(".about_galaxy");
+      if (!el) return;
 
+      // Tiny ratio so it barely drifts (feel free to tweak)
+      var ratio = isMobile ? 0.002 : 0.003;
 
-    // Video visibility
-    (function initVideos() {
+      gsap.set(el, {
+        y:       0,
+        force3D: true,
+        willChange: "transform"
+      });
+
+      ScrollTrigger.create({
+        trigger:     ".about_underwater",
+        start:       "top bottom",
+        end:         "bottom top",
+        scrub:       0.35,
+        anticipatePin: 1,
+        pin:         el,          // pin the galaxy itself
+        pinSpacing:  false,       // no extra space
+        onUpdate:    function (self) {
+          // With transform pinning, this stays clipped by the parent overflow
+          var y = (self.scroll() - self.start) * ratio;
+          gsap.set(el, { y: y });
+        }
+      });
+
+      ScrollTrigger.addEventListener("refresh", function () {
+        gsap.set(el, { y: 0 });
+      });
+    })();
+
+    // ───────────────────────────────────────
+    // Video: play slightly before enter, pause fully out
+    // ───────────────────────────────────────
+    (function initVideoVisibility() {
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (!vids.length) return;
 
@@ -379,36 +388,31 @@
           trigger:     v,
           start:       "top 120%",
           end:         "bottom -20%",
-          onEnter:     function(){ try { v.play && v.play(); } catch(e){} },
-          onEnterBack: function(){ try { v.play && v.play(); } catch(e){} }
+          onEnter:     function(){ try{ v.play && v.play(); }catch(e){} },
+          onEnterBack: function(){ try{ v.play && v.play(); }catch(e){} }
         });
+
         ScrollTrigger.create({
           trigger:     v,
           start:       "bottom top",
           end:         "top bottom",
-          onLeave:     function(){ try { v.pause && v.pause(); } catch(e){} },
-          onLeaveBack: function(){ try { v.pause && v.pause(); } catch(e){} }
+          onLeave:     function(){ try{ v.pause && v.pause(); }catch(e){} },
+          onLeaveBack: function(){ try{ v.pause && v.pause(); }catch(e){} }
         });
       });
 
       document.addEventListener("visibilitychange", function () {
         vids.forEach(function (v) {
           try {
-            if (document.hidden) v.pause && v.pause();
+            if (document.hidden) { v.pause && v.pause(); }
             else {
               var r = v.getBoundingClientRect();
-              if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) {
-                v.play && v.play();
-              }
+              var onScreen = r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+              if (onScreen) { v.play && v.play(); }
             }
           } catch(e){}
         });
       });
     })();
-
-    // Signal to UFO module
-    try {
-      root.dispatchEvent(new CustomEvent("TT:core-ready"));
-    } catch(e){}
   }
 })(window);
