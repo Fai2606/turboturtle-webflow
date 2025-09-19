@@ -255,8 +255,8 @@
         ease: "none",
         scrollTrigger: {
           trigger: ".about_turtle2",
-          start: "top bottom",
-          end: "bottom top",
+          start: "-20% bottom",
+          end: "bottom -20%",
           scrub: true,
           invalidateOnRefresh: true
         }
@@ -335,8 +335,8 @@
         ease: "none",
         scrollTrigger: {
           trigger: ".about_turtle3",
-          start: "top bottom",
-          end: "bottom top",
+          start: "-20% bottom",
+          end: "bottom -20%",
           scrub: true,
           invalidateOnRefresh: true
         }
@@ -369,13 +369,25 @@
       });
 
       tweenIf(".about_octopus2", {
-        x: 10 * vw,
-        y: -140 * vh,
+        x: 30 * vw,
+        y: 20 * vh,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_octopus2",
+          start: "-20% bottom",
+          end: "bottom -20%",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      });
+
+      tweenIf(".about_topgalaxy", {
+        y: -140 * vh,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_topgalaxy2",
           start: "top bottom",
-          end: "bottom top",
+          end: "bottom 80%",
           scrub: true,
           invalidateOnRefresh: true
         }
