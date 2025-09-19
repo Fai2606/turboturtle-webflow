@@ -290,8 +290,8 @@
       });
 
       tweenIf(".about_giant_squid", {
-        x: 3 * vw,
-        y: 30 * vh,
+        x: 5 * vw,
+        y: 50 * vh,
         rotation: -5,
         ease: "none",
         scrollTrigger: {
