@@ -329,7 +329,8 @@
       });
 
       tweenIf(".about_bigfly", {
-        x: 10 * vw,
+        x: 40 * vw,
+        y: -20 * vw,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_bigfly",
@@ -367,8 +368,8 @@
       });
 
       tweenIf(".about_octopus1", {
-        x: 10 * vw,
-        y: -10 * vh,
+        x: 20 * vw,
+        y: -15 * vh,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_octopus1",
@@ -381,8 +382,8 @@
 
 
       tweenIf(".about_octopus2", {
-        x: 15 * vw,
-        y: -15 * vh,
+        x: 10 * vw,
+        y: -10 * vh,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_octopus2",
