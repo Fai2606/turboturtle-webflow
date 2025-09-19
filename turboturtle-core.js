@@ -297,7 +297,7 @@
         scrollTrigger: {
           trigger: ".about_giant_squid",
           start: "top top",
-          end: "bottom bottom",
+          end: "bottom -200%",
           scrub: true,
           invalidateOnRefresh: true
         }
