@@ -2,6 +2,7 @@
    - Lenis + ScrollTrigger wiring
    - Parallax tweens (guarded against missing DOM)
    - Jetplane arc (guarded)
+   - Bigfly arc (jetplane-style, guarded)   <-- NEW
    - Galaxy slow parallax (conditional pin if not fixed)
    - Video visibility play/pause
    - Dispatches 'TT:core-ready' when initialized
@@ -328,18 +329,9 @@
         }
       });
 
-      tweenIf(".about_bigfly", {
-        x: 40 * vw,
-        y: -20 * vw,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".about_bigfly",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-          invalidateOnRefresh: true
-        }
-      });
+      // ─────────────────────────────────────
+      // REMOVED old linear tween for .about_bigfly (replaced with arc below)
+      // ─────────────────────────────────────
 
       tweenIf(".about_turtle3", {
         x: 30 * vw,
@@ -380,7 +372,6 @@
         }
       });
 
-
       tweenIf(".about_octopus2", {
         x: 10 * vw,
         y: -10 * vh,
@@ -393,7 +384,6 @@
           invalidateOnRefresh: true
         }
       });
-       
 
       // Jetplane — dip then climb + banking (guarded)
       (function initJetplane() {
@@ -441,6 +431,67 @@
             jet.dataset.prevRot = smooth;
 
             jet.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smooth + "deg)";
+          }
+        });
+      })();
+
+      // Bigfly — smooth arc + gentle banking (guarded, jetplane-style)
+      (function initBigfly() {
+        var fly = q(".about_bigfly");
+        if (!fly) return;
+
+        // Clear any inline transforms left from a previous run
+        fly.style.transform = "";
+
+        ScrollTrigger.create({
+          trigger: ".about_bigfly",
+          start: "top 80%",
+          end: "bottom 30%",
+          scrub: true,
+          invalidateOnRefresh: true,
+          onUpdate: function (self) {
+            var t = self.progress; // 0..1
+            // Horizontal travel slightly shorter than jetplane (feels lighter)
+            var x = 120 * vw * t;
+
+            // Arc height a bit gentler than jetplane
+            var arc = (isMobile ? 18 : 26) * vh;
+            var climbY = -arc * Math.pow(t, 2.1);
+
+            // Small initial dip to mimic take-off feel (softer than jetplane)
+            var dipEnd = 0.16;
+            var dipAmp = (isMobile ? 3.5 : 5) * vh;
+            var dipY = (t < dipEnd)
+              ? dipAmp * Math.sin(Math.PI * (t / dipEnd))
+              : 0;
+
+            // Base offset so it doesn’t collide with neighbors
+            var baseY = -3 * vw;
+            var y = baseY + dipY + climbY;
+
+            // Derivatives for banking angle
+            var dClimb = -arc * 2.1 * Math.pow(Math.max(t, 0.0001), 1.1);
+            var dDip = (t < dipEnd)
+              ? (dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)))
+              : 0;
+
+            var dydt = dClimb + dDip;
+            var dxdt = 110 * vw;
+
+            var angleDeg = Math.atan2(dydt, dxdt) * (180 / Math.PI);
+
+            // Ease-in the angle at kickoff to prevent snapping
+            if (t < 0.05) angleDeg *= t / 0.05;
+
+            // Gentle banking limits (slightly narrower than jetplane)
+            var targetRot = Math.max(-14, Math.min(angleDeg * 0.85, 6));
+
+            // Low-pass filter for ultra-smooth rotation
+            var prevRot = parseFloat(fly.dataset.prevRot || "0");
+            var smooth = prevRot + (targetRot - prevRot) * 0.18;
+            fly.dataset.prevRot = smooth;
+
+            fly.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smooth + "deg)";
           }
         });
       })();
