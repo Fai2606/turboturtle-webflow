@@ -381,6 +381,20 @@
         }
       });
 
+
+      tweenIf(".about_chickenfish", {
+        x: 12 * vw,
+        y: 5 * vh,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_chickenfish",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      });
+
       // Jetplane — dip then climb + banking (guarded)
       (function initJetplane() {
         var jet = q(".about_jetplane");
@@ -441,7 +455,7 @@
       
         ScrollTrigger.create({
           trigger: ".about_bigfly",
-          start: "top bottom",
+          start: "20% bottom",
           end: "bottom -20%",
           scrub: true,
           invalidateOnRefresh: true,
