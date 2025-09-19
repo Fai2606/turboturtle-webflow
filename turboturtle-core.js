@@ -381,13 +381,13 @@
         }
       });
 
-      tweenIf(".about_topgalaxy", {
-        y: -140 * vh,
+      tweenIf(".about_bubble", {
+        y: -160 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: ".about_topgalaxy2",
+          trigger: ".about_bubble2",
           start: "top bottom",
-          end: "bottom 80%",
+          end: "bottom -60%",
           scrub: true,
           invalidateOnRefresh: true
         }
