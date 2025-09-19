@@ -494,36 +494,39 @@
         });
       })();
 
-      // Galaxy ultra-slow parallax (conditional pin if not fixed)
+      // Galaxy ultra-slow parallax (moves UP, slightly faster, conditional pin)
       (function initGalaxy() {
         var el = q(".about_galaxy");
         if (!el) return;
-
+      
         var isFixed = getComputedStyle(el).position === "fixed";
-        var ratio = isMobile ? 0.003 : 0.006;
-
-        gsap.set(el, {
-          y: 0,
-          force3D: true
-        });
-
+      
+        // Slightly faster than before but still subtle.
+        // You can fine-tune these two numbers:
+        var ratio = isMobile ? 0.01 : 0.015; // was 0.003 / 0.006
+      
+        gsap.set(el, { y: 0, force3D: true });
+      
         ScrollTrigger.create({
           trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger,
           start: "top bottom",
           end: "bottom top",
-          scrub: 0.4,
+          scrub: 0.5,               // a touch more responsive than 0.4
           pin: isFixed ? false : el,
           pinSpacing: false,
+          invalidateOnRefresh: true,
           onUpdate: function (self) {
-            var y = (self.scroll() - self.start) * ratio;
+            // NEGATIVE to go UP as you scroll down
+            var y = -(self.scroll() - self.start) * ratio;
             gsap.set(el, { y: y });
           }
         });
-
+      
         ScrollTrigger.addEventListener("refresh", function () {
           gsap.set(el, { y: 0 });
         });
       })();
+
 
       // Video visibility
       (function initVideos() {
