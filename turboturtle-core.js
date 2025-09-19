@@ -455,7 +455,7 @@
       
         ScrollTrigger.create({
           trigger: ".about_bigfly",
-          start: "20% bottom",
+          start: "-20% bottom",
           end: "bottom -20%",
           scrub: true,
           invalidateOnRefresh: true,
