@@ -289,6 +289,20 @@
         }
       });
 
+      tweenIf(".about_giant_squid", {
+        x: 3 * vw,
+        y: 120 * vh,
+        rotation: -5,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_giant_squid",
+          start: "top bottom",
+          end: "bottom -100%",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      });
+
       tweenIf(".about_flyduck", {
         x: 120 * vw,
         y: -15 * vw,
@@ -380,20 +394,6 @@
           invalidateOnRefresh: true
         }
       });
-
-      tweenIf(".about_giant_squid", {
-        x: 5 * vw,
-        y: 120 * vh,
-        rotation: -10,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".about_giant_squid",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-          invalidateOnRefresh: true
-        }
-      });
        
 
       // Jetplane — dip then climb + banking (guarded)
@@ -476,9 +476,6 @@
           gsap.set(el, { y: 0 });
         });
       })();
-
-     
-
 
       // Video visibility
       (function initVideos() {
