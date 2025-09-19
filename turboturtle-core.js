@@ -289,25 +289,6 @@
         }
       });
 
-      tweenIf(".about_giant_squid", {
-        x: 3 * vw,
-        rotation: -5,
-        y: 45 * vh,                 // ⬅️ positive = move DOWN as you scroll down
-        ease: "none",
-        overwrite: "auto",
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: parallaxTrigger, // drive it over the whole page like the others
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-          invalidateOnRefresh: true
-          // , markers: true        // turn on to verify it's scrubbing
-        }
-      });
-
-
-
       tweenIf(".about_flyduck", {
         x: 120 * vw,
         y: -15 * vw,
@@ -481,6 +462,39 @@
           gsap.set(el, { y: 0 });
         });
       })();
+
+      // Giant Squid — ultra-slow parallax (galaxy-style, slightly faster)
+      (function initGiantSquid() {
+        var el = q(".about_giant_squid");
+        if (!el) return;
+      
+        // positive ratio = push DOWN as you scroll DOWN → appears to linger (rise slower)
+        var ratio = isMobile ? 0.004 : 0.008;  // tweak: smaller = slower, larger = faster
+      
+        gsap.set(el, {
+          y: 0,
+          force3D: true
+        });
+      
+        ScrollTrigger.create({
+          trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.4,
+          // NOTE: galaxy conditionally pins; for squid we DON'T pin, we just drift
+          pin: false,
+          pinSpacing: false,
+          onUpdate: function (self) {
+            var y = (self.scroll() - self.start) * ratio; // push DOWN while scrolling DOWN
+            gsap.set(el, { y: y });
+          }
+        });
+      
+        ScrollTrigger.addEventListener("refresh", function () {
+          gsap.set(el, { y: 0 });
+        });
+      })();
+
 
       // Video visibility
       (function initVideos() {
