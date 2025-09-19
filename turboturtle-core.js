@@ -289,31 +289,23 @@
         }
       });
 
-      (function initGiantSquid() {
-        var el = q(".about_giant_squid");
-        if (!el) return;
-      
-        // tweak ratio for speed: smaller = slower, larger = faster
-        var ratio = isMobile ? -0.004 : -0.008; 
-        // negative so it moves upward when you scroll down
-      
-        gsap.set(el, { y: 0, force3D: true });
-      
-        ScrollTrigger.create({
-          trigger: parallaxTrigger,
-          start: "top bottom",
-          end: "bottom top",
+      tweenIf(".about_giant_squid", {
+        x: 3 * vw,
+        rotation: -5,
+        y: 45 * vh,                 // ⬅️ positive = move DOWN as you scroll down
+        ease: "none",
+        overwrite: "auto",
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: parallaxTrigger, // drive it over the whole page like the others
+          start: "top top",
+          end: "bottom bottom",
           scrub: true,
-          onUpdate: function (self) {
-            var y = (self.scroll() - self.start) * ratio;
-            gsap.set(el, { y: y });
-          }
-        });
-      
-        ScrollTrigger.addEventListener("refresh", function () {
-          gsap.set(el, { y: 0 });
-        });
-      })();
+          invalidateOnRefresh: true
+          // , markers: true        // turn on to verify it's scrubbing
+        }
+      });
+
 
 
       tweenIf(".about_flyduck", {
