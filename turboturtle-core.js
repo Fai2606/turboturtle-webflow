@@ -387,9 +387,9 @@
         rotation: -10,
         ease: "none",
         scrollTrigger: {
-          trigger: ".about_underwater",
-          start: "top top",
-          end: "bottom bottom",
+          trigger: ".about_giant_squid",
+          start: "top bottom",
+          end: "bottom top",
           scrub: true,
           invalidateOnRefresh: true
         }
