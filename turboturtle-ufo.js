@@ -34,7 +34,7 @@
     var tiltDiv    = isMobile ? 3 : 1;
     var chaseSpeed = isMobile ? 0.08 : 0.15;
 
-    function getBaseY() { return (isMobile ? 30 : 40) * vh; }
+    function getBaseY() { return (isMobile ? -10 : -20) * vh; }
 
     var target = { x: 0, y: getBaseY(), rot: 0 };
     var actual = { x: 0, y: getBaseY(), rot: 0 };
