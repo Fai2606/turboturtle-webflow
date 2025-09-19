@@ -442,17 +442,17 @@
         ScrollTrigger.create({
           trigger: ".about_bigfly",
           start: "top bottom",
-          end: "bottom top",
+          end: "bottom -20%",
           scrub: true,
           invalidateOnRefresh: true,
           onUpdate: function (self) {
             var t = self.progress; // 0..1
       
             // Horizontal travel
-            var x = 120 * vw * t;
+            var x = 80 * vw * t;
       
             // Arc height
-            var arc = (isMobile ? 18 : 26) * vh;
+            var arc = (isMobile ? 24 : 32) * vh;
             var climbY = -arc * Math.pow(t, 2.1);
       
             // No dip, just base offset
@@ -460,7 +460,7 @@
             var y = baseY + climbY;
       
             // Constant rotation
-            var rot = -5;
+            var rot = -10;
       
             fly.style.transform = "translate(" + x + "px," + y + "px) rotate(" + rot + "deg)";
           }
