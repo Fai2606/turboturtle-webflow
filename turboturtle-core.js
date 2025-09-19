@@ -340,12 +340,12 @@
         }
       });
 
-      tweenIf("about_turtle3", {
+      tweenIf(".about_turtle3", {
         x: 30 * vw,
         y: -5 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: "about_turtle3",
+          trigger: ".about_turtle3",
           start: "top bottom",
           end: "bottom top",
           scrub: true,
@@ -353,12 +353,12 @@
         }
       });
 
-      tweenIf("about_chickenfish", {
+      tweenIf(".about_chickenfish", {
         x: 5 * vw,
         y: -1 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: "about_chickenfish",
+          trigger: ".about_chickenfish",
           start: "top bottom",
           end: "bottom top",
           scrub: true,
@@ -366,12 +366,12 @@
         }
       });
 
-      tweenIf("about_octopus1", {
+      tweenIf(".about_octopus1", {
         x: 10 * vw,
         y: -10 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: "about_octopus1",
+          trigger: ".about_octopus1",
           start: "top bottom",
           end: "bottom top",
           scrub: true,
@@ -380,12 +380,12 @@
       });
 
 
-      tweenIf("about_octopus2", {
+      tweenIf(".about_octopus2", {
         x: 15 * vw,
         y: -15 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: "about_octopus2",
+          trigger: ".about_octopus2",
           start: "top bottom",
           end: "bottom top",
           scrub: true,
