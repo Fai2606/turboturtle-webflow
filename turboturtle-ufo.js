@@ -15,7 +15,7 @@
     root.addEventListener("resize", function(){ vw = root.innerWidth / 100; vh = root.innerHeight / 100; });
 
     var velocity = isMobile ? 1 : 3, maxAmpVal = isMobile ? 20*vh : 60*vh, tiltDiv = isMobile ? 3 : 1, chaseSpeed = isMobile ? 0.08 : 0.15;
-    function getBaseY(){ return (isMobile ? 10 : 20) * vh; }
+    function getBaseY(){ return (isMobile ? -80 : -160) * vh; }
 
     var target = { x:0, y:getBaseY(), rot:0 }, actual = { x:0, y:getBaseY(), rot:0 };
 
