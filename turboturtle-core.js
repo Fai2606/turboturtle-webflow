@@ -501,9 +501,8 @@
       
         var isFixed = getComputedStyle(el).position === "fixed";
       
-        // Slightly faster than before but still subtle.
-        // You can fine-tune these two numbers:
-        var ratio = isMobile ? 0.01 : 0.015; // was 0.003 / 0.006
+        // Slightly faster than before — tuned up again
+        var ratio = isMobile ? 0.015 : 0.025; // was 0.01 / 0.015
       
         gsap.set(el, { y: 0, force3D: true });
       
@@ -511,12 +510,12 @@
           trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger,
           start: "top bottom",
           end: "bottom top",
-          scrub: 0.5,               // a touch more responsive than 0.4
+          scrub: 0.5,
           pin: isFixed ? false : el,
           pinSpacing: false,
           invalidateOnRefresh: true,
           onUpdate: function (self) {
-            // NEGATIVE to go UP as you scroll down
+            // NEGATIVE → moves up when scrolling down
             var y = -(self.scroll() - self.start) * ratio;
             gsap.set(el, { y: y });
           }
@@ -526,6 +525,7 @@
           gsap.set(el, { y: 0 });
         });
       })();
+
 
 
       // Video visibility
