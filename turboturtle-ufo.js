@@ -1,7 +1,7 @@
 /* turboturtle-ufo.js
    - Woman UFO chase + bounce + tilt
    - Akira trail
-   - Starts after 'TT:core-ready' (from core), with safe fallbacks
+   - Starts after 'TT:core-ready' (from core), with safe fallback
 */
 
 (function (root) {
@@ -9,17 +9,18 @@
 
   var started = false;
 
-  // Start only once
   function boot() {
     if (started) return;
     started = true;
 
     var host = document.querySelector(".about_womanufo");
-    if (!host) return;
+    if (!host) { console.warn("[TT] UFO: .about_womanufo not found"); return; }
 
     var isMobile  = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     var gsap      = root.gsap;
     var lenis     = root.lenis;
+
+    if (!gsap) { console.warn("[TT] UFO: GSAP not available"); }
 
     var vw = root.innerWidth / 100;
     var vh = root.innerHeight / 100;
@@ -81,7 +82,8 @@
       if (Math.abs(deltaY) < 1) {
         idleFrames++;
         if (idleFrames > idleMax) {
-          gsap.to(target, { y: getBaseY(), duration: 0.4, ease: "power3.out" });
+          if (gsap) gsap.to(target, { y: getBaseY(), duration: 0.4, ease: "power3.out" });
+          else target.y = getBaseY();
         }
       } else {
         idleFrames = 0;
@@ -120,6 +122,7 @@
     var fadeTime = 800;
 
     function loop() {
+      // ease toward target
       actual.x   += (target.x   - actual.x)   * chaseSpeed;
       actual.y   += (target.y   - actual.y)   * chaseSpeed;
       actual.rot += (target.rot - actual.rot) * chaseSpeed;
@@ -127,10 +130,12 @@
       host.style.transform =
         "translate3d(" + actual.x + "px," + actual.y + "px,0) rotate(" + actual.rot + "deg)";
 
+      // record trail
       var r = host.getBoundingClientRect();
       trail.push({ x: r.left + r.width/2, y: r.top + r.height/2, t: performance.now() });
       if (trail.length > trailMax) trail.shift();
 
+      // draw trail
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       var maxW = r.height * 0.4;
 
@@ -151,6 +156,8 @@
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
+
+    console.log("[TT] UFO booted");
   }
 
   // Prefer to start after core signals it's ready
@@ -158,7 +165,12 @@
     root.addEventListener("TT:core-ready", boot, { once: true });
   } catch(e){}
 
-  // Safety fallback (if event missed)
-  setTimeout(boot, 2000);
+  // Safety fallback (if event missed or core delayed on slow networks)
+  setTimeout(function(){
+    if (!started) {
+      console.warn("[TT] UFO fallback start (core-ready not received in time)");
+      boot();
+    }
+  }, 3000);
 
 })(window);
