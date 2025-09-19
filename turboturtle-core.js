@@ -332,7 +332,7 @@
         x: 10 * vw,
         ease: "none",
         scrollTrigger: {
-          trigger: parallaxTrigger,
+          trigger: ".about_bigfly",
           start: "top bottom",
           end: "bottom top",
           scrub: true,
