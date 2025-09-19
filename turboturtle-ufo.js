@@ -31,11 +31,11 @@
 
     // motion params
     var velocity   = isMobile ? 1 : 3;
-    var maxAmpVal  = isMobile ? 20 * vh : 60 * vh;
-    var tiltDiv    = isMobile ? 3 : 1;
+    var maxAmpVal  = isMobile ? 20 * vh : 80 * vh;
+    var tiltDiv    = isMobile ? 3 : 3;
     var chaseSpeed = isMobile ? 0.08 : 0.15;
 
-    function getBaseY() { return (isMobile ? -10 : -20) * vh; }
+    function getBaseY() { return -5 * vh; }
 
     var target = { x: 0, y: getBaseY(), rot: 0 };
     var actual = { x: 0, y: getBaseY(), rot: 0 };
