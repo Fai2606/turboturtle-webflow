@@ -292,7 +292,7 @@
 
       tweenIf(".about_giant_squid", {
         x: 5 * vw,
-        y: 50 * vh,
+        y: 60 * vh,
         rotation: -5,
         ease: "none",
         scrollTrigger: {
