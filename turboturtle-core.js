@@ -291,13 +291,13 @@
 
       tweenIf(".about_giant_squid", {
         x: 3 * vw,
-        y: 10 * vh,
+        y: 100 * vh,
         rotation: -5,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_giant_squid",
           start: "top top",
-          end: "bottom -200%",
+          end: "bottom -100%",
           scrub: true,
           invalidateOnRefresh: true
         }
