@@ -445,8 +445,8 @@
 
         ScrollTrigger.create({
           trigger: ".about_bigfly",
-          start: "top 80%",
-          end: "bottom 30%",
+          start: "top bottom",
+          end: "bottom top,
           scrub: true,
           invalidateOnRefresh: true,
           onUpdate: function (self) {
@@ -459,21 +459,21 @@
             var climbY = -arc * Math.pow(t, 2.1);
 
             // Small initial dip to mimic take-off feel (softer than jetplane)
-            var dipEnd = 0.16;
-            var dipAmp = (isMobile ? 3.5 : 5) * vh;
-            var dipY = (t < dipEnd)
-              ? dipAmp * Math.sin(Math.PI * (t / dipEnd))
-              : 0;
+            // var dipEnd = 0.16;
+            // var dipAmp = (isMobile ? 3.5 : 5) * vh;
+            // var dipY = (t < dipEnd)
+            //  ? dipAmp * Math.sin(Math.PI * (t / dipEnd))
+            //  : 0;
 
             // Base offset so it doesn’t collide with neighbors
-            var baseY = -3 * vw;
-            var y = baseY + dipY + climbY;
+            // var baseY = -3 * vw;
+            // var y = baseY + dipY + climbY;
 
             // Derivatives for banking angle
-            var dClimb = -arc * 2.1 * Math.pow(Math.max(t, 0.0001), 1.1);
-            var dDip = (t < dipEnd)
-              ? (dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)))
-              : 0;
+            // var dClimb = -arc * 2.1 * Math.pow(Math.max(t, 0.0001), 1.1);
+            // var dDip = (t < dipEnd)
+            //   ? (dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd)))
+            //   : 0;
 
             var dydt = dClimb + dDip;
             var dxdt = 110 * vw;
