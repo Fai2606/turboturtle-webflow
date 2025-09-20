@@ -415,8 +415,8 @@
 
         ScrollTrigger.create({
           trigger: ".about_jetplane",
-          start: "top 50%",
-          end: "bottom 30%",
+          start: "top 20%",
+          end: "bottom 50%",
           scrub: true,
           invalidateOnRefresh: true,
           onUpdate: function (self) {
