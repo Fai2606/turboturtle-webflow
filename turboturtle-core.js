@@ -111,12 +111,13 @@
         ".lakeshrink",
         ".duckswim",
         ".about_rocket",
-        ".about_turtle2",
         ".about_turtle1",
+        ".about_turtle2",
         ".about_nessie",
         ".about_giant_squid",
         ".about_flyduck",
         ".about_turtle3",
+        ".about_turtle4",
         ".about_chickenfish",
         ".about_octopus1",
         ".about_octopus2",
@@ -250,6 +251,11 @@
       tweenIf(".about_turtle3", stable({
         x: () => 30 * vw, y: () => -5 * vh, ease: "none",
         scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true }
+      }));
+
+      tweenIf(".about_turtle4", stable({
+        x: () => 20 * vw, y: () => 8 * vh, ease: "none",
+        scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true }
       }));
 
       tweenIf(".about_chickenfish", stable({
