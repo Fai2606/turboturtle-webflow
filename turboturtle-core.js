@@ -369,8 +369,8 @@
       });
 
       tweenIf(".about_octopus2", {
-        x: 30 * vw,
-        y: 20 * vh,
+        x: 15 * vw,
+        y: 25 * vh,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_octopus2",
