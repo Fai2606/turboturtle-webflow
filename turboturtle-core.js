@@ -395,6 +395,19 @@
         }
       });
 
+      tweenIf(".about_bigbubble", {
+        y: -1200 * vh,
+        x: 2 * vw,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_bigbubble",
+          start: "top bottom",
+          end: "bottom -400%",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      });
+
 
       tweenIf(".about_chickenfish", {
         x: 12 * vw,
