@@ -372,6 +372,7 @@
       tweenIf(".about_octopus2", {
         x: 15 * vw,
         y: 25 * vh,
+        rotation: 10,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_octopus2",
