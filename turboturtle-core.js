@@ -386,7 +386,7 @@
         x: 2 * vw,
         ease: "none",
         scrollTrigger: {
-          trigger: ".about_bubble2",
+          trigger: ".about_bubble",
           start: "top bottom",
           end: "bottom -120%",
           scrub: true,
