@@ -382,13 +382,13 @@
       });
 
       tweenIf(".about_bubble", {
-        y: -250 * vh,
+        y: -350 * vh,
         x: 2 * vw,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_bubble",
           start: "top bottom",
-          end: "bottom -120%",
+          end: "bottom -150%",
           scrub: true,
           invalidateOnRefresh: true
         }
