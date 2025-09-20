@@ -396,7 +396,7 @@
       });
 
       tweenIf(".about_bigbubble", {
-        y: -1200 * vh,
+        y: -1400 * vh,
         x: 2 * vw,
         ease: "none",
         scrollTrigger: {
