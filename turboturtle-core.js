@@ -181,9 +181,9 @@
         y: 35 * vh,
         ease: "none",
         scrollTrigger: {
-          trigger: parallaxTrigger,
-          start: "top top",
-          end: "bottom bottom",
+          trigger: ".about_watermoon",
+          start: "-20% bottom",
+          end: "bottom -20%",
           scrub: true
         }
       });
