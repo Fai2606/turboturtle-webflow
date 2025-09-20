@@ -250,8 +250,8 @@
 
       tweenIf(".about_turtle2", {
         x: 30 * vw,
-        y: 20 * vw,
-        rotation: 8,
+        y: 10 * vw,
+        rotation: 6,
         ease: "none",
         scrollTrigger: {
           trigger: ".about_turtle2",
