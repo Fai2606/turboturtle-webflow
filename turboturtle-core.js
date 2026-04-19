@@ -57,12 +57,14 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      // --- 1. LENIS (Smooth Scroll) ---
+// --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
-        duration: isMobile ? 6 : 4,
-        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
-        smooth: true, direction: "vertical", gestureDirection: "vertical",
-        mouseMultiplier: 1, touchMultiplier: isMobile ? 0.2 : 2, infinite: false
+        lerp: 0.1, // Smoothness intensity (replaces the 6-second duration)
+        smoothWheel: true, // Keeps desktop mouse wheel buttery smooth
+        smoothTouch: false, // CRITICAL: Lets the iPhone handle finger swipes natively
+        wheelMultiplier: 1,
+        touchMultiplier: 1, // Back to 100% swipe power
+        infinite: false
       });
       root.lenis = lenis;
 
@@ -72,6 +74,7 @@
       }
       requestAnimationFrame(raf);
 
+      // GSAP ScrollTrigger Proxy (Kept exactly as you had it - this part is perfect)
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
           if (arguments.length) return lenis.scrollTo(value);
@@ -86,7 +89,7 @@
       lenis.on("scroll", ScrollTrigger.update);
       ScrollTrigger.addEventListener("refresh", function () { if (lenis.resize) lenis.resize(); });
 
-      // --- 2. PARALLAX TWEENS ---
+// --- 2. PARALLAX TWEENS ---
       var parallaxTrigger = exists(".parallax-wrapper") ? ".parallax-wrapper" : "body";
 
       function stable(vars) {
