@@ -1,5 +1,6 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
+   - Underwater Wavy Ripple Effect on Scroll
    - Parallax tweens
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
@@ -50,6 +51,24 @@
   function exists(s){ return !!q(s); }
   function tweenIf(sel, vars) { if (exists(sel)) gsap.to(sel, vars); }
 
+  // --- NEW EFFECT: Inject SVG Underwater Filter into DOM ---
+  function initUnderwaterFilter() {
+    if (document.getElementById("underwater-svg-filter")) return;
+
+    var svgNS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(svgNS, "svg");
+    svg.id = "underwater-svg-filter";
+    svg.setAttribute("style", "position: absolute; width: 0; height: 0; pointer-events: none; overflow: hidden;");
+
+    svg.innerHTML = 
+      '<filter id="underwater-wave" x="-10%" y="-10%" width="120%" height="120%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.01 0.02" numOctaves="2" result="noise" id="fe-turbulence" />' +
+        '<feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="fe-displacement" />' +
+      '</filter>';
+
+    document.body.appendChild(svg);
+  }
+
   function startCore() {
     console.log("[TT] startCore entered");
     try {
@@ -57,16 +76,77 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-// --- 1. LENIS (Smooth Scroll) ---
+      // Initialize the SVG Filter
+      initUnderwaterFilter();
+
+      // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
-        lerp: 0.1, // Smoothness intensity (replaces the 6-second duration)
-        smoothWheel: true, // Keeps desktop mouse wheel buttery smooth
-        smoothTouch: false, // CRITICAL: Lets the iPhone handle finger swipes natively
+        lerp: 0.1,
+        smoothWheel: true,
+        smoothTouch: false,
         wheelMultiplier: 1,
-        touchMultiplier: 1, // Back to 100% swipe power
+        touchMultiplier: 1,
         infinite: false
       });
       root.lenis = lenis;
+
+      // --- NEW EFFECT: Underwater Wavy Distortion on Scroll ---
+      var feDisplacement = document.getElementById("fe-displacement");
+      var feTurbulence = document.getElementById("fe-turbulence");
+      var waveProps = { scale: 0, freqX: 0.01, freqY: 0.02 };
+      var waveTargetClass = ".parallax-wrapper"; // Change target wrapper if needed
+
+      // Target main wrapper or fallback to body
+      var waveTarget = exists(waveTargetClass) ? q(waveTargetClass) : document.body;
+      if (waveTarget) {
+        waveTarget.style.filter = "url(#underwater-wave)";
+        waveTarget.style.willChange = "filter";
+      }
+
+      var waveTween;
+      lenis.on("scroll", function (e) {
+        var velocity = Math.abs(e.velocity || 0);
+
+        // Calculate wave intensity based on scroll velocity (capped at 45px displacement)
+        var targetScale = Math.min(velocity * 1.5, 45);
+
+        if (waveTween) waveTween.kill();
+
+        // Animate wave distortion out smoothly when scrolling slows down
+        waveTween = gsap.to(waveProps, {
+          scale: targetScale,
+          duration: 0.15,
+          ease: "power1.out",
+          onUpdate: function () {
+            if (feDisplacement) feDisplacement.setAttribute("scale", waveProps.scale);
+          },
+          onComplete: function () {
+            gsap.to(waveProps, {
+              scale: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              onUpdate: function () {
+                if (feDisplacement) feDisplacement.setAttribute("scale", waveProps.scale);
+              }
+            });
+          }
+        });
+      });
+
+      // Continuous animated current (liquid motion loop)
+      gsap.to(waveProps, {
+        freqX: 0.02,
+        freqY: 0.04,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.easeInOut",
+        onUpdate: function () {
+          if (feTurbulence) {
+            feTurbulence.setAttribute("baseFrequency", waveProps.freqX + " " + waveProps.freqY);
+          }
+        }
+      });
 
       function raf(time) {
         lenis.raf(time);
@@ -74,7 +154,7 @@
       }
       requestAnimationFrame(raf);
 
-      // GSAP ScrollTrigger Proxy (Kept exactly as you had it - this part is perfect)
+      // GSAP ScrollTrigger Proxy
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
           if (arguments.length) return lenis.scrollTo(value);
@@ -89,7 +169,7 @@
       lenis.on("scroll", ScrollTrigger.update);
       ScrollTrigger.addEventListener("refresh", function () { if (lenis.resize) lenis.resize(); });
 
-// --- 2. PARALLAX TWEENS ---
+      // --- 2. PARALLAX TWEENS ---
       var parallaxTrigger = exists(".parallax-wrapper") ? ".parallax-wrapper" : "body";
 
       function stable(vars) {
@@ -202,7 +282,7 @@
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
 
       console.log("[TT] Core Setup Complete, booting UFO...");
-      bootUFO(); // Boot the UFO instantly right here!
+      bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
   }
