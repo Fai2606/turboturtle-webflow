@@ -127,10 +127,10 @@
       gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top 85%",      // Grows when entering bottom of screen
+          start: "top 5%",      // Grows when entering bottom of screen
           end: "bottom -5%",     // Only triggers AFTER completely scrolling past top edge
           onEnter: function () {
-            gsap.delayedCall((index % 3) * 0.2, function() {
+            gsap.delayedCall((index % 3) * 0.1, function() {
               el.style.setProperty("--highlight-scale", "1");
             });
           },
@@ -139,7 +139,7 @@
             el.style.setProperty("--highlight-scale", "0");
           },
           onEnterBack: function () {
-            gsap.delayedCall((index % 3) * 0.2, function() {
+            gsap.delayedCall((index % 3) * 0.1, function() {
               el.style.setProperty("--highlight-scale", "1");
             });
           },
