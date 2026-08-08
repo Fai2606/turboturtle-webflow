@@ -59,8 +59,8 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-// --- 0. INITIAL TEXT FADE-IN ANIMATION ---
-      var fadeTargets = document.querySelectorAll('.big_heading, .Text_initial_fade');
+// --- 0.  TEXT FADE-IN ANIMATION ---
+      var fadeTargets = document.querySelectorAll('.big_heading, .text_initial_fade');
       if (fadeTargets.length) {
         gsap.set(fadeTargets, { opacity: 0, y: 20 });
         gsap.to(fadeTargets, {
