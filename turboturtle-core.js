@@ -124,31 +124,25 @@
       tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
-      gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 0%",      // Grows when entering bottom of screen
-          end: "bottom 0%",     // Only triggers AFTER completely scrolling past top edge
-          onEnter: function () {
-            gsap.delayedCall((index % 3) * 0.1, function() {
-              el.style.setProperty("--highlight-scale", "1");
-            });
-          },
-          onLeave: function () {
-            // Shrinks after leaving screen completely at the top
-            el.style.setProperty("--highlight-scale", "0");
-          },
-          onEnterBack: function () {
-            gsap.delayedCall((index % 3) * 0.1, function() {
-              el.style.setProperty("--highlight-scale", "1");
-            });
-          },
-          onLeaveBack: function () {
-            // Shrinks after leaving screen completely at the bottom
-            el.style.setProperty("--highlight-scale", "0");
-          }
-        });
-      });
+gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
+  ScrollTrigger.create({
+    trigger: el,
+    start: "top 85%",  // Triggers when element reaches 85% down the viewport (near the bottom)
+    end: "bottom 0%",   // Ends when element scrolls off the top of screen
+    onEnter: function () {
+      el.style.setProperty("--highlight-scale", "1");
+    },
+    onLeave: function () {
+      el.style.setProperty("--highlight-scale", "0");
+    },
+    onEnterBack: function () {
+      el.style.setProperty("--highlight-scale", "1");
+    },
+    onLeaveBack: function () {
+      el.style.setProperty("--highlight-scale", "0");
+    }
+  });
+});
 
 // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
