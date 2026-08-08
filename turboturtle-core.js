@@ -59,6 +59,20 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
+// --- 0. INITIAL TEXT FADE-IN ANIMATION ---
+      var fadeTargets = document.querySelectorAll('.big_heading, .Text_initial_fade');
+      if (fadeTargets.length) {
+        gsap.set(fadeTargets, { opacity: 0, y: 20 });
+        gsap.to(fadeTargets, {
+          opacity: 1,
+          y: 0,
+          duration: 1.2,
+          ease: "power2.out",
+          stagger: 0.15,
+          delay: 0.2
+        });
+      }
+
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
         lerp: 0.1,
@@ -148,17 +162,6 @@
           }
         });
       });
-
-// --- 2.6. KV TEXT FADE IN ON LOAD ---
-      if (exists(".KV_fade")) {
-        gsap.to(".KV_fade", {
-          opacity: 1,
-          duration: 1,
-          stagger: 0.2,
-          ease: "power2.out",
-          delay: 0.1
-        });
-      }
 
 // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
