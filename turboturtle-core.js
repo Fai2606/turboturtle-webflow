@@ -127,23 +127,27 @@
       gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top 85%",    // Grows when entering bottom of viewport
-          end: "bottom 15%",   // Shrinks when leaving top of viewport
+          start: "top 85%",    // Animates when top of text enters 85% down screen
+          end: "bottom 15%",   // Resets when text passes top of screen
           onEnter: function () {
-            setTimeout(function() {
-              el.classList.add("is-active");
-            }, (index % 3) * 150); // Staggers 1-by-1 (0ms, 150ms, 300ms)
+            // Slower staggered reveal (0ms, 200ms, 400ms)
+            gsap.delayedCall((index % 3) * 0.2, function() {
+              el.style.setProperty("--highlight-scale", "1");
+            });
           },
           onLeave: function () {
-            el.classList.remove("is-active"); // Shrinks back when scrolled past top
+            // Shrinks back instantly when scrolled out past top
+            el.style.setProperty("--highlight-scale", "0");
           },
           onEnterBack: function () {
-            setTimeout(function() {
-              el.classList.add("is-active"); // Regrows when scrolling back into view
-            }, (index % 3) * 150);
+            // Regrows when scrolling back down into view
+            gsap.delayedCall((index % 3) * 0.2, function() {
+              el.style.setProperty("--highlight-scale", "1");
+            });
           },
           onLeaveBack: function () {
-            el.classList.remove("is-active"); // Shrinks back when scrolled past bottom
+            // Shrinks back instantly when scrolled out past bottom
+            el.style.setProperty("--highlight-scale", "0");
           }
         });
       });
