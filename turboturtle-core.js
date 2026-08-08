@@ -149,30 +149,6 @@
         });
       });
 
-// --- 2.6. BIG HEADING ANIMATION ---
-      if (exists(".big_heading")) {
-        gsap.utils.toArray(".big_heading").forEach(function (el) {
-          gsap.fromTo(el, 
-            { y: 60, opacity: 0 },
-            { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
-          );
-
-          ScrollTrigger.create({
-            trigger: el,
-            start: "top 90%",
-            end: "bottom -10%",
-            onLeave: function () {
-              gsap.to(el, { y: -40, opacity: 0, duration: 0.4 });
-            },
-            onEnterBack: function () {
-              gsap.to(el, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" });
-            },
-            onLeaveBack: function () {
-              gsap.to(el, { y: 0, opacity: 1, duration: 0.4 });
-            }
-          });
-        });
-      }
 
 // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
