@@ -59,28 +59,35 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-// --- 0. TEXT FADE & BLUR ANIMATION ---
-      var fadeTargets = document.querySelectorAll('.big_heading, .text_initial_fade, .Text_initial_fade');
-      if (fadeTargets.length) {
-        // Set starting state with opacity 0, offset y, and blur
-        gsap.set(fadeTargets, { 
-          opacity: 0, 
-          y: 25, 
-          filter: "blur(12px)" 
-        });
+// --- 0. KV TEXT FADE & BLUR ANIMATION ---
+var fadeTargets = document.querySelectorAll('.big_heading, .text_initial_fade, .Text_initial_fade');
 
-        // Animate to clear text with easeOutCubic (power3.out) over 1.5s
-        gsap.to(fadeTargets, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 1.5,
-          ease: "power3.out", // GSAP equivalent to easeOutCubic
-          stagger: 0.15,
-          delay: 0.2,
-          clearProps: "filter" // Clear blur filter inline style after finish to keep text rendering sharp
-        });
-      }
+if (fadeTargets.length) {
+  // 1. Force GSAP to record the starting state cleanly
+  gsap.set(fadeTargets, { 
+    opacity: 0, 
+    y: 25, 
+    filter: "blur(12px)" 
+  });
+
+  // 2. Trigger animation after preloader unlocks (2.1s delay)
+  gsap.to(fadeTargets, {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    duration: 1.5,
+    ease: "power3.out", // GSAP equivalent of easeOutCubic
+    stagger: 0.15,
+    delay: 2.1,         // Wait for preloader to clear first!
+    onComplete: function() {
+      // Hard-reset filter to prevent permanent blur state
+      fadeTargets.forEach(function(el) {
+        el.style.filter = "none";
+        el.style.webkitFilter = "none";
+      });
+    }
+  });
+}
 
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
