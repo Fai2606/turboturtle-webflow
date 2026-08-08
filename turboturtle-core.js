@@ -1,7 +1,6 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
-   - Highlight Reveal trigger
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -60,11 +59,11 @@
 
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
-        lerp: 0.1,
-        smoothWheel: true,
-        smoothTouch: false,
+        lerp: 0.1, // Smoothness intensity (replaces the 6-second duration)
+        smoothWheel: true, // Keeps desktop mouse wheel buttery smooth
+        smoothTouch: false, // CRITICAL: Lets the iPhone handle finger swipes natively
         wheelMultiplier: 1,
-        touchMultiplier: 1,
+        touchMultiplier: 1, // Back to 100% swipe power
         infinite: false
       });
       root.lenis = lenis;
@@ -75,7 +74,7 @@
       }
       requestAnimationFrame(raf);
 
-      // GSAP ScrollTrigger Proxy
+      // GSAP ScrollTrigger Proxy (Kept exactly as you had it - this part is perfect)
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
           if (arguments.length) return lenis.scrollTo(value);
@@ -123,32 +122,7 @@
       tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
       tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
 
-// --- 2.5. BLACK HIGHLIGHT ANIMATION ---
-      gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top -10%",
-          end: "bottom -10%",
-          onEnter: function () {
-            gsap.delayedCall((index % 3) * 0.1, function() {
-              el.style.setProperty("--highlight-scale", "1");
-            });
-          },
-          onLeave: function () {
-            el.style.setProperty("--highlight-scale", "0");
-          },
-          onEnterBack: function () {
-            gsap.delayedCall((index % 3) * 0.1, function() {
-              el.style.setProperty("--highlight-scale", "1");
-            });
-          },
-          onLeaveBack: function () {
-            el.style.setProperty("--highlight-scale", "0");
-          }
-        });
-      });
-
-// --- 3. COMPLEX FLIGHT PATHS ---
+      // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
         ScrollTrigger.create({
@@ -178,7 +152,7 @@
         ScrollTrigger.create({
           trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: true, invalidateOnRefresh: true,
           onUpdate: function (self) {
-            var t = self.progress; var x = 50 * vw * t;
+            var t = self.progress; var x = 80 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh; var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
             fly.style.transform = "translate(" + x + "px," + y + "px) rotate(-10deg)";
@@ -199,7 +173,7 @@
         ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
       }
 
-// --- 4. VIDEO VISIBILITY ---
+      // --- 4. VIDEO VISIBILITY ---
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (vids.length) {
         vids.forEach(function (v) { v.setAttribute("playsinline", ""); v.setAttribute("muted", ""); });
@@ -228,7 +202,7 @@
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
 
       console.log("[TT] Core Setup Complete, booting UFO...");
-      bootUFO();
+      bootUFO(); // Boot the UFO instantly right here!
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
   }
