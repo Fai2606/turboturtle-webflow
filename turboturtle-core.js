@@ -124,12 +124,27 @@
       tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
-      gsap.utils.toArray(".black_highlight").forEach(function (el) {
+      gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top 85%", // Triggers when the element hits 85% down the screen
+          start: "top 85%",    // Animates in when entering from bottom
+          end: "bottom 15%",   // Detects when leaving the top of viewport
           onEnter: function () {
-            el.classList.add("is-active");
+            // Stagger spawn delay based on line order (0s, 0.15s, 0.3s)
+            setTimeout(function() {
+              el.classList.add("is-active");
+            }, (index % 3) * 150); 
+          },
+          onLeave: function () {
+            el.classList.remove("is-active"); // Hide when scrolled past top
+          },
+          onEnterBack: function () {
+            setTimeout(function() {
+              el.classList.add("is-active"); // Re-animate when scrolling back down
+            }, (index % 3) * 150);
+          },
+          onLeaveBack: function () {
+            el.classList.remove("is-active"); // Hide when scrolled back below bottom
           }
         });
       });
