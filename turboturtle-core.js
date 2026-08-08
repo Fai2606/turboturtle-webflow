@@ -110,7 +110,7 @@
       tweenIf(".lakeshrink", stable({ scaleY: 0.4, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_rocket", stable({ x: () => 130 * vw, y: () => -20 * vw, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: () => innerHeight * 0.4 + "px top", end: () => innerHeight * 0.7 + "px top", scrub: true } }));
-      tweenIf(".about_turtle2", stable({ x: () => 30 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_giant_squid", stable({ x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: true } }));
