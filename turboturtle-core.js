@@ -321,5 +321,26 @@ gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
     requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
-
+// --- ABOUT LEADIN SCROLL ANIMATION ---
+var leadin = q(".about_leadin");
+if (leadin) {
+  gsap.fromTo(leadin, 
+    { 
+      opacity: 0, 
+      y: 40 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      ease: "power3.out", // GSAP equivalent of easeOutCubic
+      scrollTrigger: {
+        trigger: leadin,
+        start: "top 80%",    // Starts when top of element reaches 80% down the screen
+        end: "top 10%",      // Ends at 10% down from the top of the screen
+        toggleActions: "play reverse play reverse" // Fades in on entry, fades back out when reaching top 10%
+      }
+    }
+  );
+}
 })(window);
