@@ -150,6 +150,20 @@
         });
       });
 
+// --- 2.6. BIG HEADING ANIMATION ---
+      if (exists(".big_heading")) {
+        gsap.from(".big_heading", {
+          y: 50,
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ".big_heading",
+            start: "top 90%",
+            toggleActions: "play reverse play reverse"
+          }
+        });
+      }
+
 // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
@@ -326,19 +340,5 @@
     requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
-
-// --- 2.6. SIMPLE BIG HEADING ANIMATION ---
-if (exists(".big_heading")) {
-  gsap.from(".big_heading", {
-    y: 50,
-    duration: 1,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: ".big_heading",
-      start: "top 90%",
-      toggleActions: "play reverse play reverse"
-    }
-  });
-}
 
 })(window);
