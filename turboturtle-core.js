@@ -180,7 +180,7 @@
         ScrollTrigger.create({
           trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: true, invalidateOnRefresh: true,
           onUpdate: function (self) {
-            var t = self.progress; var x = 80 * vw * t;
+            var t = self.progress; var x = 50 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh; var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
             fly.style.transform = "translate(" + x + "px," + y + "px) rotate(-10deg)";
