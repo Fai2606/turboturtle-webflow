@@ -2,7 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
    - Highlight Reveal trigger
-   - Big Heading Landing & Scroll Reveal
+   - KV Text Fade Animation
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -149,6 +149,16 @@
         });
       });
 
+// --- 2.6. KV TEXT FADE IN ON LOAD ---
+      if (exists(".KV_fade")) {
+        gsap.to(".KV_fade", {
+          opacity: 1,
+          duration: 1,
+          stagger: 0.2,
+          ease: "power2.out",
+          delay: 0.1
+        });
+      }
 
 // --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
