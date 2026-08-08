@@ -321,10 +321,9 @@ gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
     requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
-// --- FADEUP SCROLL ANIMATION ---
-var leadin = q(".fadeup");
-if (leadin) {
-  gsap.fromTo(leadin, 
+// --- REUSABLE FADEUP SCROLL ANIMATION ---
+gsap.utils.toArray(".fadeup").forEach(function (el) {
+  gsap.fromTo(el, 
     { 
       opacity: 0, 
       y: 40 
@@ -335,13 +334,13 @@ if (leadin) {
       duration: 1,
       ease: "power3.out", // GSAP equivalent of easeOutCubic
       scrollTrigger: {
-        trigger: leadin,
+        trigger: el,
         start: "top 80%",    // Starts when top of element reaches 80% down the screen
         end: "top 10%",      // Ends at 10% down from the top of the screen
-        toggleActions: "play reverse play reverse" // Fades in on entry, fades back out when reaching top 10%
+        toggleActions: "play reverse play reverse" // Fades in on entry, fades out at 10%
       }
     }
   );
-}
+});
 
 })(window);
