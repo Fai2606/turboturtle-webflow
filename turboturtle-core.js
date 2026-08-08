@@ -127,8 +127,8 @@
       gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top -10%",      // Grows when entering bottom of screen
-          end: "bottom -10%",     // Only triggers AFTER completely scrolling past top edge
+          start: "top 0%",      // Grows when entering bottom of screen
+          end: "bottom 0%",     // Only triggers AFTER completely scrolling past top edge
           onEnter: function () {
             gsap.delayedCall((index % 3) * 0.1, function() {
               el.style.setProperty("--highlight-scale", "1");
