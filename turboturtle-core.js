@@ -327,35 +327,40 @@
     console.log("[TT] UFO booted");
   }
 
-// --- 2.6. BIG HEADING LANDING & SCROLL REVEAL ---
-      gsap.utils.toArray(".big_heading").forEach(function (el) {
-        // 1. Immediate reveal on landing (for KV area)
-        gsap.fromTo(el, 
-          { opacity: 0, y: 50, scale: 0.92, rotateX: -25 },
-          { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 1.2, ease: "power3.out", delay: 0.2 }
-        );
+// --- 2.6. BIG HEADING LANDING & SCROLL REVEAL (SAFE VERSION) ---
+      var bigHeadings = document.querySelectorAll(".big_heading");
+      
+      if (bigHeadings.length) {
+        bigHeadings.forEach(function (el) {
+          // Force element visible immediately if GSAP runs
+          gsap.set(el, { opacity: 1 });
 
-        // 2. ScrollTrigger for scroll-out and scroll-back
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 80%",
-          end: "bottom -5%",
-          onLeave: function () {
-            // Fades and slides up when scrolling past top
-            gsap.to(el, { opacity: 0, y: -40, duration: 0.5, ease: "power2.in" });
-          },
-          onEnterBack: function () {
-            // Re-animates smoothly when scrolling back to hero
-            gsap.fromTo(el, 
-              { opacity: 0, y: -40, scale: 0.95 },
-              { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out" }
-            );
-          },
-          onLeaveBack: function () {
-            // Fades out if scrolled past bottom edge
-            gsap.to(el, { opacity: 0, y: 40, duration: 0.5, ease: "power2.in" });
-          }
+          // 1. Landing Animation on KV Load
+          gsap.from(el, {
+            y: 40,
+            scale: 0.95,
+            duration: 1.2,
+            ease: "power3.out",
+            delay: 0.1
+          });
+
+          // 2. ScrollTrigger for Scroll Out / Back In
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 80%",
+            end: "bottom -5%",
+            onLeave: function () {
+              gsap.to(el, { opacity: 0, y: -30, duration: 0.4 });
+            },
+            onEnterBack: function () {
+              gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" });
+            },
+            onLeaveBack: function () {
+              // Keeps it fully visible when at the very top of the KV page
+              gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.4 });
+            }
+          });
         });
-      });
+      }
 
 })(window);
