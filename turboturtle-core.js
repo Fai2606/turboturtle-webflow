@@ -127,24 +127,23 @@
       gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top 85%",    // Animates in when entering from bottom
-          end: "bottom 15%",   // Detects when leaving the top of viewport
+          start: "top 85%",    // Grows when entering bottom of viewport
+          end: "bottom 15%",   // Shrinks when leaving top of viewport
           onEnter: function () {
-            // Stagger spawn delay based on line order (0s, 0.15s, 0.3s)
             setTimeout(function() {
               el.classList.add("is-active");
-            }, (index % 3) * 150); 
+            }, (index % 3) * 150); // Staggers 1-by-1 (0ms, 150ms, 300ms)
           },
           onLeave: function () {
-            el.classList.remove("is-active"); // Hide when scrolled past top
+            el.classList.remove("is-active"); // Shrinks back when scrolled past top
           },
           onEnterBack: function () {
             setTimeout(function() {
-              el.classList.add("is-active"); // Re-animate when scrolling back down
+              el.classList.add("is-active"); // Regrows when scrolling back into view
             }, (index % 3) * 150);
           },
           onLeaveBack: function () {
-            el.classList.remove("is-active"); // Hide when scrolled back below bottom
+            el.classList.remove("is-active"); // Shrinks back when scrolled past bottom
           }
         });
       });
