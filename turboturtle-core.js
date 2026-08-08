@@ -2,6 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
    - Highlight Reveal trigger
+   - Big Heading Landing & Scroll Reveal
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -60,11 +61,11 @@
 
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
-        lerp: 0.1, // Smoothness intensity (replaces the 6-second duration)
-        smoothWheel: true, // Keeps desktop mouse wheel buttery smooth
-        smoothTouch: false, // CRITICAL: Lets the iPhone handle finger swipes natively
+        lerp: 0.1,
+        smoothWheel: true,
+        smoothTouch: false,
         wheelMultiplier: 1,
-        touchMultiplier: 1, // Back to 100% swipe power
+        touchMultiplier: 1,
         infinite: false
       });
       root.lenis = lenis;
@@ -127,15 +128,14 @@
       gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.create({
           trigger: el,
-          start: "top -10%",      // Grows when entering bottom of screen
-          end: "bottom -10%",     // Only triggers AFTER completely scrolling past top edge
+          start: "top -10%",
+          end: "bottom -10%",
           onEnter: function () {
             gsap.delayedCall((index % 3) * 0.1, function() {
               el.style.setProperty("--highlight-scale", "1");
             });
           },
           onLeave: function () {
-            // Shrinks after leaving screen completely at the top
             el.style.setProperty("--highlight-scale", "0");
           },
           onEnterBack: function () {
@@ -144,7 +144,6 @@
             });
           },
           onLeaveBack: function () {
-            // Shrinks after leaving screen completely at the bottom
             el.style.setProperty("--highlight-scale", "0");
           }
         });
@@ -152,15 +151,26 @@
 
 // --- 2.6. BIG HEADING ANIMATION ---
       if (exists(".big_heading")) {
-        gsap.from(".big_heading", {
-          y: 50,
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".big_heading",
+        gsap.utils.toArray(".big_heading").forEach(function (el) {
+          gsap.fromTo(el, 
+            { y: 60, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
+          );
+
+          ScrollTrigger.create({
+            trigger: el,
             start: "top 90%",
-            toggleActions: "play reverse play reverse"
-          }
+            end: "bottom -10%",
+            onLeave: function () {
+              gsap.to(el, { y: -40, opacity: 0, duration: 0.4 });
+            },
+            onEnterBack: function () {
+              gsap.to(el, { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" });
+            },
+            onLeaveBack: function () {
+              gsap.to(el, { y: 0, opacity: 1, duration: 0.4 });
+            }
+          });
         });
       }
 
@@ -244,7 +254,7 @@
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
 
       console.log("[TT] Core Setup Complete, booting UFO...");
-      bootUFO(); // Boot the UFO instantly right here!
+      bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
   }
