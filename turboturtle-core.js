@@ -2,7 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
    - Highlight Reveal trigger
-   - KV Text Fade Animation
+   - KV Text Fade Animation (Smooth Blur + EaseOutCubic)
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -59,17 +59,26 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-// --- 0.  TEXT FADE-IN ANIMATION ---
-      var fadeTargets = document.querySelectorAll('.big_heading, .text_initial_fade');
+// --- 0. TEXT FADE & BLUR ANIMATION ---
+      var fadeTargets = document.querySelectorAll('.big_heading, .text_initial_fade, .Text_initial_fade');
       if (fadeTargets.length) {
-        gsap.set(fadeTargets, { opacity: 0, y: 20 });
+        // Set starting state with opacity 0, offset y, and blur
+        gsap.set(fadeTargets, { 
+          opacity: 0, 
+          y: 25, 
+          filter: "blur(12px)" 
+        });
+
+        // Animate to clear text with easeOutCubic (power3.out) over 1.5s
         gsap.to(fadeTargets, {
           opacity: 1,
           y: 0,
-          duration: 1.2,
-          ease: "power2.out",
+          filter: "blur(0px)",
+          duration: 1.5,
+          ease: "power3.out", // GSAP equivalent to easeOutCubic
           stagger: 0.15,
-          delay: 0.2
+          delay: 0.2,
+          clearProps: "filter" // Clear blur filter inline style after finish to keep text rendering sharp
         });
       }
 
