@@ -327,31 +327,35 @@
     console.log("[TT] UFO booted");
   }
 
-// --- OPTION 1: LIQUID MASK REVEAL ---
-gsap.utils.toArray(".big_heading").forEach(function (el) {
-  ScrollTrigger.create({
-    trigger: el,
-    start: "top 85%",
-    end: "bottom -5%",
-    onEnter: function () {
-      gsap.fromTo(el, 
-        { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", y: 20 },
-        { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
-      );
-    },
-    onLeave: function () {
-      gsap.to(el, { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", duration: 0.6, ease: "power2.in" });
-    },
-    onEnterBack: function () {
-      gsap.fromTo(el, 
-        { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", y: -20 },
-        { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
-      );
-    },
-    onLeaveBack: function () {
-      gsap.to(el, { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", duration: 0.6, ease: "power2.in" });
-    }
-  });
-});
+// --- 2.6. BIG HEADING LIQUID REVEAL (HERO / KV FRIENDLY) ---
+      gsap.utils.toArray(".big_heading").forEach(function (el) {
+        // 1. Play reveal immediately on page load since it's in the KV
+        gsap.fromTo(el, 
+          { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", y: 20 },
+          { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.4, ease: "power4.out", delay: 0.2 }
+        );
+
+        // 2. Attach ScrollTrigger for handling scroll-out and scroll-back
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 85%",
+          end: "bottom -5%",
+          onLeave: function () {
+            // Wipes away when scrolled past top of screen
+            gsap.to(el, { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", duration: 0.6, ease: "power2.in" });
+          },
+          onEnterBack: function () {
+            // Wipes back in when scrolling back up into view
+            gsap.fromTo(el, 
+              { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", y: -20 },
+              { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
+            );
+          },
+          onLeaveBack: function () {
+            // Wipes away if scrolled past bottom
+            gsap.to(el, { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", duration: 0.6, ease: "power2.in" });
+          }
+        });
+      });
 
 })(window);
