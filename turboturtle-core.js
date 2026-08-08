@@ -327,40 +327,18 @@
     console.log("[TT] UFO booted");
   }
 
-// --- 2.6. BIG HEADING LANDING & SCROLL REVEAL (SAFE VERSION) ---
-      var bigHeadings = document.querySelectorAll(".big_heading");
-      
-      if (bigHeadings.length) {
-        bigHeadings.forEach(function (el) {
-          // Force element visible immediately if GSAP runs
-          gsap.set(el, { opacity: 1 });
-
-          // 1. Landing Animation on KV Load
-          gsap.from(el, {
-            y: 40,
-            scale: 0.95,
-            duration: 1.2,
-            ease: "power3.out",
-            delay: 0.1
-          });
-
-          // 2. ScrollTrigger for Scroll Out / Back In
-          ScrollTrigger.create({
-            trigger: el,
-            start: "top 80%",
-            end: "bottom -5%",
-            onLeave: function () {
-              gsap.to(el, { opacity: 0, y: -30, duration: 0.4 });
-            },
-            onEnterBack: function () {
-              gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" });
-            },
-            onLeaveBack: function () {
-              // Keeps it fully visible when at the very top of the KV page
-              gsap.to(el, { opacity: 1, y: 0, scale: 1, duration: 0.4 });
-            }
-          });
-        });
-      }
+// --- 2.6. SIMPLE BIG HEADING ANIMATION ---
+if (exists(".big_heading")) {
+  gsap.from(".big_heading", {
+    y: 50,
+    duration: 1,
+    ease: "power2.out",
+    scrollTrigger: {
+      trigger: ".big_heading",
+      start: "top 90%",
+      toggleActions: "play reverse play reverse"
+    }
+  });
+}
 
 })(window);
