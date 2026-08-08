@@ -2,7 +2,6 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
    - Highlight Reveal trigger
-   - KV Text Fade Animation (Smooth Blur + EaseOutCubic)
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -58,8 +57,6 @@
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
-
-
 
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
