@@ -1,6 +1,7 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
+   - Highlight Reveal trigger
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -74,7 +75,7 @@
       }
       requestAnimationFrame(raf);
 
-      // GSAP ScrollTrigger Proxy (Kept exactly as you had it - this part is perfect)
+      // GSAP ScrollTrigger Proxy
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
           if (arguments.length) return lenis.scrollTo(value);
@@ -122,7 +123,18 @@
       tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
       tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
 
-      // --- 3. COMPLEX FLIGHT PATHS ---
+// --- 2.5. BLACK HIGHLIGHT ANIMATION ---
+      gsap.utils.toArray(".black_highlight").forEach(function (el) {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 85%", // Triggers when the element hits 85% down the screen
+          onEnter: function () {
+            el.classList.add("is-active");
+          }
+        });
+      });
+
+// --- 3. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
         ScrollTrigger.create({
@@ -173,7 +185,7 @@
         ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
       }
 
-      // --- 4. VIDEO VISIBILITY ---
+// --- 4. VIDEO VISIBILITY ---
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (vids.length) {
         vids.forEach(function (v) { v.setAttribute("playsinline", ""); v.setAttribute("muted", ""); });
