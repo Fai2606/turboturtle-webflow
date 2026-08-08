@@ -327,33 +327,33 @@
     console.log("[TT] UFO booted");
   }
 
-// --- 2.6. BIG HEADING LIQUID REVEAL (HERO / KV FRIENDLY) ---
+// --- 2.6. BIG HEADING LANDING & SCROLL REVEAL ---
       gsap.utils.toArray(".big_heading").forEach(function (el) {
-        // 1. Play reveal immediately on page load since it's in the KV
+        // 1. Immediate reveal on landing (for KV area)
         gsap.fromTo(el, 
-          { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", y: 20 },
-          { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.4, ease: "power4.out", delay: 0.2 }
+          { opacity: 0, y: 50, scale: 0.92, rotateX: -25 },
+          { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 1.2, ease: "power3.out", delay: 0.2 }
         );
 
-        // 2. Attach ScrollTrigger for handling scroll-out and scroll-back
+        // 2. ScrollTrigger for scroll-out and scroll-back
         ScrollTrigger.create({
           trigger: el,
-          start: "top 85%",
+          start: "top 80%",
           end: "bottom -5%",
           onLeave: function () {
-            // Wipes away when scrolled past top of screen
-            gsap.to(el, { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", duration: 0.6, ease: "power2.in" });
+            // Fades and slides up when scrolling past top
+            gsap.to(el, { opacity: 0, y: -40, duration: 0.5, ease: "power2.in" });
           },
           onEnterBack: function () {
-            // Wipes back in when scrolling back up into view
+            // Re-animates smoothly when scrolling back to hero
             gsap.fromTo(el, 
-              { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", y: -20 },
-              { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
+              { opacity: 0, y: -40, scale: 0.95 },
+              { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out" }
             );
           },
           onLeaveBack: function () {
-            // Wipes away if scrolled past bottom
-            gsap.to(el, { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", duration: 0.6, ease: "power2.in" });
+            // Fades out if scrolled past bottom edge
+            gsap.to(el, { opacity: 0, y: 40, duration: 0.5, ease: "power2.in" });
           }
         });
       });
