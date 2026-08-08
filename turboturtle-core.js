@@ -327,4 +327,31 @@
     console.log("[TT] UFO booted");
   }
 
+// --- OPTION 1: LIQUID MASK REVEAL ---
+gsap.utils.toArray(".big_heading").forEach(function (el) {
+  ScrollTrigger.create({
+    trigger: el,
+    start: "top 85%",
+    end: "bottom -5%",
+    onEnter: function () {
+      gsap.fromTo(el, 
+        { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", y: 20 },
+        { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
+      );
+    },
+    onLeave: function () {
+      gsap.to(el, { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", duration: 0.6, ease: "power2.in" });
+    },
+    onEnterBack: function () {
+      gsap.fromTo(el, 
+        { clipPath: "polygon(0 0%, 100% 0%, 100% 0%, 0 0%)", y: -20 },
+        { clipPath: "polygon(0 0%, 100% 0%, 100% 100%, 0 100%)", y: 0, duration: 1.2, ease: "power4.out" }
+      );
+    },
+    onLeaveBack: function () {
+      gsap.to(el, { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)", duration: 0.6, ease: "power2.in" });
+    }
+  });
+});
+
 })(window);
