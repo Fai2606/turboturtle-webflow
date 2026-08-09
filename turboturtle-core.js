@@ -346,19 +346,20 @@ gsap.utils.toArray(".fadeup").forEach(function (el) {
 // --- JETMAN HOVER & LAUNCH ANIMATION ---
 var jetman = q(".about_jetman");
 if (jetman) {
+
   // 1. Hover idle loop (floating up and down constantly)
   var hoverTween = gsap.to(jetman, {
     y: "-=15",
-    duration: 1.8,
+    duration: 1,
     ease: "sine.inOut",
     yoyo: true,
     repeat: -1
   });
 
-  // 2. ScrollTrigger launch at 30% viewport height
+  // 2. ScrollTrigger launch at XX% viewport height
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 30%",
+    start: "top 45%",
     onEnter: function () {
       // Pause hover loop so transforms don't conflict
       hoverTween.pause();
@@ -368,7 +369,7 @@ if (jetman) {
         x: "120vw",
         y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw", // Exactly 35-degree launch vector
         rotation: -35,
-        duration: 1.2,
+        duration: 0.8,
         ease: "power2.in"
       });
     },
