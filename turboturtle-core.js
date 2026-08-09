@@ -343,4 +343,49 @@ gsap.utils.toArray(".fadeup").forEach(function (el) {
   );
 });
 
+// --- JETMAN HOVER & LAUNCH ANIMATION ---
+var jetman = q(".about_jetman");
+if (jetman) {
+  // 1. Hover idle loop (floating up and down constantly)
+  var hoverTween = gsap.to(jetman, {
+    y: "-=15",
+    duration: 1.8,
+    ease: "sine.inOut",
+    yoyo: true,
+    repeat: -1
+  });
+
+  // 2. ScrollTrigger launch at 30% viewport height
+  ScrollTrigger.create({
+    trigger: jetman,
+    start: "top 30%",
+    onEnter: function () {
+      // Pause hover loop so transforms don't conflict
+      hoverTween.pause();
+
+      // Launch rocket at 35 degrees up and to the right off-screen
+      gsap.to(jetman, {
+        x: "120vw",
+        y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw", // Exactly 35-degree launch vector
+        rotation: -35,
+        duration: 1.2,
+        ease: "power2.in"
+      });
+    },
+    onLeaveBack: function () {
+      // Reset position and resume hover loop when scrolling back up
+      gsap.to(jetman, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        onComplete: function () {
+          hoverTween.resume();
+        }
+      });
+    }
+  });
+}
+
 })(window);
