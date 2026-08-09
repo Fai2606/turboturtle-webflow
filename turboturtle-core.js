@@ -346,35 +346,43 @@ gsap.utils.toArray(".fadeup").forEach(function (el) {
 // --- JETMAN HOVER & LAUNCH ANIMATION ---
 var jetman = q(".about_jetman");
 if (jetman) {
+  var hoverTween;
 
-  // 1. Hover idle loop (floating up and down constantly)
-  var hoverTween = gsap.to(jetman, {
-    y: "-=15",
-    duration: 1,
-    ease: "sine.inOut",
-    yoyo: true,
-    repeat: -1
-  });
+  function startHover() {
+    // Always start a clean hover tween from the current position
+    hoverTween = gsap.to(jetman, {
+      y: "-=15",
+      duration: 0.8,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+  }
 
-  // 2. ScrollTrigger launch at XX% viewport height
+  // Start initial hover
+  startHover();
+
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 45%",
+    start: "top 50%",
     onEnter: function () {
-      // Pause hover loop so transforms don't conflict
-      hoverTween.pause();
+      // Kill the hover tween completely so its inline state doesn't persist
+      if (hoverTween) hoverTween.kill();
 
       // Launch rocket at 35 degrees up and to the right off-screen
       gsap.to(jetman, {
         x: "120vw",
-        y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw", // Exactly 35-degree launch vector
+        y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
         rotation: -35,
         duration: 0.8,
         ease: "power2.in"
       });
     },
     onLeaveBack: function () {
-      // Reset position and resume hover loop when scrolling back up
+      // Kill any active launch/reset tweens
+      gsap.killTweensOf(jetman);
+
+      // Smoothly animate back to starting origin
       gsap.to(jetman, {
         x: 0,
         y: 0,
@@ -382,7 +390,8 @@ if (jetman) {
         duration: 0.8,
         ease: "power2.out",
         onComplete: function () {
-          hoverTween.resume();
+          // Restart a fresh hover loop cleanly from y: 0
+          startHover();
         }
       });
     }
