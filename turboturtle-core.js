@@ -2,7 +2,9 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens
    - Highlight Reveal trigger
+   - Reusable Fadeup trigger
    - Jetplane & Bigfly arcs
+   - Jetman & Surprised Dolphin launch
    - UFO chase + Akira trail
 */
 (function (root) {
@@ -15,10 +17,17 @@
   var vw = root.innerWidth / 100;
   var vh = root.innerHeight / 100;
 
+  // Track width only to prevent mobile address bar vertical height changes from triggering layout shifts
+  var lastWidth = root.innerWidth;
+
   root.addEventListener("resize", function () {
     vw = root.innerWidth / 100;
     vh = root.innerHeight / 100;
-    if (root.ScrollTrigger) root.ScrollTrigger.refresh();
+
+    if (root.innerWidth !== lastWidth) {
+      lastWidth = root.innerWidth;
+      if (root.ScrollTrigger) root.ScrollTrigger.refresh();
+    }
   });
 
   function libsReady() {
@@ -58,22 +67,25 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
+      // Prevent mobile address bar collapses from breaking scroll triggers
+      ScrollTrigger.config({ ignoreMobileResize: true });
+
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
-        lerp: 0.1, // Smoothness intensity (replaces the 6-second duration)
-        smoothWheel: true, // Keeps desktop mouse wheel buttery smooth
-        smoothTouch: false, // CRITICAL: Lets the iPhone handle finger swipes natively
+        lerp: 0.1,
+        smoothWheel: true,
+        smoothTouch: false, // Lets iOS handle swipes natively
         wheelMultiplier: 1,
-        touchMultiplier: 1, // Back to 100% swipe power
+        touchMultiplier: 1,
         infinite: false
       });
       root.lenis = lenis;
 
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
-      requestAnimationFrame(raf);
+      // Sync GSAP ticker with Lenis & frame rates
+      gsap.ticker.add(function (time) {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0); // Stops scroll cracking/jumping during rapid swipes
 
       // GSAP ScrollTrigger Proxy
       ScrollTrigger.scrollerProxy(window, {
@@ -128,27 +140,121 @@
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
-gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
-  ScrollTrigger.create({
-    trigger: el,
-    start: "top 85%",  // Triggers when element reaches 85% down the viewport (near the bottom)
-    end: "bottom 0%",   // Ends when element scrolls off the top of screen
-    onEnter: function () {
-      el.style.setProperty("--highlight-scale", "1");
-    },
-    onLeave: function () {
-      el.style.setProperty("--highlight-scale", "0");
-    },
-    onEnterBack: function () {
-      el.style.setProperty("--highlight-scale", "1");
-    },
-    onLeaveBack: function () {
-      el.style.setProperty("--highlight-scale", "0");
-    }
-  });
-});
+      gsap.utils.toArray(".black_highlight").forEach(function (el) {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 85%",
+          end: "bottom 0%",
+          onEnter: function () {
+            el.style.setProperty("--highlight-scale", "1");
+          },
+          onLeave: function () {
+            el.style.setProperty("--highlight-scale", "0");
+          },
+          onEnterBack: function () {
+            el.style.setProperty("--highlight-scale", "1");
+          },
+          onLeaveBack: function () {
+            el.style.setProperty("--highlight-scale", "0");
+          }
+        });
+      });
 
-// --- 3. COMPLEX FLIGHT PATHS ---
+// --- 2.6. REUSABLE FADEUP ANIMATION ---
+      gsap.utils.toArray(".fadeup").forEach(function (el) {
+        gsap.fromTo(el, 
+          { 
+            opacity: 0, 
+            y: 40 
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 80%",
+              end: "top 10%",
+              toggleActions: "play reverse play reverse"
+            }
+          }
+        );
+      });
+
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
+      var jetman = q(".about_jetman");
+      var dolphin = q(".about_dolphin");
+
+      if (jetman) {
+        var hoverTween;
+
+        function startHover() {
+          hoverTween = gsap.to(jetman, {
+            y: "-=15",
+            duration: 1,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+          });
+        }
+
+        startHover();
+
+        ScrollTrigger.create({
+          trigger: jetman,
+          start: "top 45%",
+          onEnter: function () {
+            if (hoverTween) hoverTween.kill();
+
+            // 1. Launch Jetman instantly
+            gsap.to(jetman, {
+              x: "120vw",
+              y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
+              rotation: -35,
+              duration: 0.8,
+              ease: "power2.in"
+            });
+
+            // 2. Dolphin reacts after a brief 0.25s delay
+            if (dolphin) {
+              gsap.to(dolphin, {
+                rotation: -20,
+                duration: 0.4,
+                delay: 0.25,
+                ease: "back.out(1.7)"
+              });
+            }
+          },
+          onLeaveBack: function () {
+            gsap.killTweensOf(jetman);
+            if (dolphin) gsap.killTweensOf(dolphin);
+
+            // 1. Reset Jetman
+            gsap.to(jetman, {
+              x: 0,
+              y: 0,
+              rotation: 0,
+              duration: 0.8,
+              ease: "power2.out",
+              onComplete: function () {
+                startHover();
+              }
+            });
+
+            // 2. Reset Dolphin smoothly back to normal
+            if (dolphin) {
+              gsap.to(dolphin, {
+                rotation: 0,
+                duration: 0.6,
+                ease: "power2.out"
+              });
+            }
+          }
+        });
+      }
+
+// --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
         ScrollTrigger.create({
@@ -199,7 +305,7 @@ gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
         ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
       }
 
-// --- 4. VIDEO VISIBILITY ---
+// --- 5. VIDEO VISIBILITY ---
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (vids.length) {
         vids.forEach(function (v) { v.setAttribute("playsinline", ""); v.setAttribute("muted", ""); });
@@ -228,12 +334,12 @@ gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
 
       console.log("[TT] Core Setup Complete, booting UFO...");
-      bootUFO(); // Boot the UFO instantly right here!
+      bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
   }
 
-  // --- 5. UFO MODULE ---
+  // --- 6. UFO MODULE ---
   function bootUFO() {
     var host = document.querySelector(".about_womanufo");
     if (!host) { console.warn("[TT] UFO: .about_womanufo not found"); return; }
@@ -321,101 +427,21 @@ gsap.utils.toArray(".black_highlight").forEach(function (el, index) {
       }
       requestAnimationFrame(loop);
     }
-    requestAnimationFrame(loop);
+
+    // Only run canvas trail on desktop to optimize mobile frame rates
+    if (!isMobile) {
+      requestAnimationFrame(loop);
+    } else {
+      function mobileLoop() {
+        actual.x += (target.x - actual.x) * chaseSpeed;
+        actual.y += (target.y - actual.y) * chaseSpeed;
+        actual.rot += (target.rot - actual.rot) * chaseSpeed;
+        host.style.transform = "translate3d(" + actual.x + "px," + actual.y + "px,0) rotate(" + actual.rot + "deg)";
+        requestAnimationFrame(mobileLoop);
+      }
+      requestAnimationFrame(mobileLoop);
+    }
     console.log("[TT] UFO booted");
   }
-// --- REUSABLE FADEUP SCROLL ANIMATION ---
-gsap.utils.toArray(".fadeup").forEach(function (el) {
-  gsap.fromTo(el, 
-    { 
-      opacity: 0, 
-      y: 40 
-    },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      ease: "power3.out", // GSAP equivalent of easeOutCubic
-      scrollTrigger: {
-        trigger: el,
-        start: "top 80%",    // Starts when top of element reaches 80% down the screen
-        end: "top 10%",      // Ends at 10% down from the top of the screen
-        toggleActions: "play reverse play reverse" // Fades in on entry, fades out at 10%
-      }
-    }
-  );
-});
-
-// --- JETMAN & SURPRISED DOLPHIN ANIMATION ---
-var jetman = q(".about_jetman");
-var dolphin = q(".about_dolphin");
-
-if (jetman) {
-  var hoverTween;
-
-  function startHover() {
-    hoverTween = gsap.to(jetman, {
-      y: "-=15",
-      duration: 1,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: -1
-    });
-  }
-
-  startHover();
-
-  ScrollTrigger.create({
-    trigger: jetman,
-    start: "top 45%",
-    onEnter: function () {
-      if (hoverTween) hoverTween.kill();
-
-      // 1. Launch Jetman instantly
-      gsap.to(jetman, {
-        x: "120vw",
-        y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
-        rotation: -35,
-        duration: 0.8,
-        ease: "power2.in"
-      });
-
-      // 2. Dolphin reacts after a brief 0.25s delay
-      if (dolphin) {
-        gsap.to(dolphin, {
-          rotation: -20,
-          duration: 0.4,
-          delay: 0.25, // Delayed reaction so Jetman is already flying!
-          ease: "back.out(1.7)"
-        });
-      }
-    },
-    onLeaveBack: function () {
-      gsap.killTweensOf(jetman);
-      if (dolphin) gsap.killTweensOf(dolphin); // Stop any pending dolphin delays
-
-      // 1. Reset Jetman
-      gsap.to(jetman, {
-        x: 0,
-        y: 0,
-        rotation: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        onComplete: function () {
-          startHover();
-        }
-      });
-
-      // 2. Reset Dolphin smoothly back to normal
-      if (dolphin) {
-        gsap.to(dolphin, {
-          rotation: 0,
-          duration: 0.6,
-          ease: "power2.out"
-        });
-      }
-    }
-  });
-}
 
 })(window);
