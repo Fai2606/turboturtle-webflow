@@ -343,33 +343,32 @@ gsap.utils.toArray(".fadeup").forEach(function (el) {
   );
 });
 
-// --- JETMAN HOVER & LAUNCH ANIMATION ---
+// --- JETMAN & SURPRISED DOLPHIN ANIMATION ---
 var jetman = q(".about_jetman");
+var dolphin = q(".about_dolphin");
+
 if (jetman) {
   var hoverTween;
 
   function startHover() {
-    // Always start a clean hover tween from the current position
     hoverTween = gsap.to(jetman, {
       y: "-=15",
-      duration: 0.8,
+      duration: 1,
       ease: "sine.inOut",
       yoyo: true,
       repeat: -1
     });
   }
 
-  // Start initial hover
   startHover();
 
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 50%",
+    start: "top 45%",
     onEnter: function () {
-      // Kill the hover tween completely so its inline state doesn't persist
       if (hoverTween) hoverTween.kill();
 
-      // Launch rocket at 35 degrees up and to the right off-screen
+      // 1. Launch Jetman
       gsap.to(jetman, {
         x: "120vw",
         y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
@@ -377,12 +376,20 @@ if (jetman) {
         duration: 0.8,
         ease: "power2.in"
       });
+
+      // 2. Surprised Dolphin reacts (Rotates -20deg anticlockwise)
+      if (dolphin) {
+        gsap.to(dolphin, {
+          rotation: -20,
+          duration: 0.4,
+          ease: "back.out(1.7)" // Quick, snappy jump back to show surprise!
+        });
+      }
     },
     onLeaveBack: function () {
-      // Kill any active launch/reset tweens
       gsap.killTweensOf(jetman);
 
-      // Smoothly animate back to starting origin
+      // 1. Reset Jetman
       gsap.to(jetman, {
         x: 0,
         y: 0,
@@ -390,10 +397,18 @@ if (jetman) {
         duration: 0.8,
         ease: "power2.out",
         onComplete: function () {
-          // Restart a fresh hover loop cleanly from y: 0
           startHover();
         }
       });
+
+      // 2. Reset Dolphin back to normal
+      if (dolphin) {
+        gsap.to(dolphin, {
+          rotation: 0,
+          duration: 0.6,
+          ease: "power2.out"
+        });
+      }
     }
   });
 }
