@@ -13,17 +13,13 @@
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var gsap, ScrollTrigger, lenis;
 
-  // Viewport units
   var vw = root.innerWidth / 100;
   var vh = root.innerHeight / 100;
-
-  // Track width only to prevent mobile address bar vertical height changes from triggering layout shifts
   var lastWidth = root.innerWidth;
 
   root.addEventListener("resize", function () {
     vw = root.innerWidth / 100;
     vh = root.innerHeight / 100;
-
     if (root.innerWidth !== lastWidth) {
       lastWidth = root.innerWidth;
       if (root.ScrollTrigger) root.ScrollTrigger.refresh();
@@ -67,27 +63,25 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      // Prevent mobile address bar collapses from breaking scroll triggers
+      // Stop dynamic Safari toolbars from breaking ScrollTriggers
       ScrollTrigger.config({ ignoreMobileResize: true });
 
 // --- 1. LENIS (Smooth Scroll) ---
       lenis = new root.Lenis({
         lerp: 0.1,
         smoothWheel: true,
-        smoothTouch: false, // Lets iOS handle swipes natively
+        smoothTouch: false,
         wheelMultiplier: 1,
         touchMultiplier: 1,
         infinite: false
       });
       root.lenis = lenis;
 
-      // Sync GSAP ticker with Lenis & frame rates
       gsap.ticker.add(function (time) {
         lenis.raf(time * 1000);
       });
-      gsap.ticker.lagSmoothing(0); // Stops scroll cracking/jumping during rapid swipes
+      gsap.ticker.lagSmoothing(0);
 
-      // GSAP ScrollTrigger Proxy
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
           if (arguments.length) return lenis.scrollTo(value);
@@ -145,28 +139,17 @@
           trigger: el,
           start: "top 85%",
           end: "bottom 0%",
-          onEnter: function () {
-            el.style.setProperty("--highlight-scale", "1");
-          },
-          onLeave: function () {
-            el.style.setProperty("--highlight-scale", "0");
-          },
-          onEnterBack: function () {
-            el.style.setProperty("--highlight-scale", "1");
-          },
-          onLeaveBack: function () {
-            el.style.setProperty("--highlight-scale", "0");
-          }
+          onEnter: function () { el.style.setProperty("--highlight-scale", "1"); },
+          onLeave: function () { el.style.setProperty("--highlight-scale", "0"); },
+          onEnterBack: function () { el.style.setProperty("--highlight-scale", "1"); },
+          onLeaveBack: function () { el.style.setProperty("--highlight-scale", "0"); }
         });
       });
 
 // --- 2.6. REUSABLE FADEUP ANIMATION ---
       gsap.utils.toArray(".fadeup").forEach(function (el) {
         gsap.fromTo(el, 
-          { 
-            opacity: 0, 
-            y: 40 
-          },
+          { opacity: 0, y: 40 },
           {
             opacity: 1,
             y: 0,
@@ -188,7 +171,6 @@
 
       if (jetman) {
         var hoverTween;
-
         function startHover() {
           hoverTween = gsap.to(jetman, {
             y: "-=15",
@@ -198,7 +180,6 @@
             repeat: -1
           });
         }
-
         startHover();
 
         ScrollTrigger.create({
@@ -206,8 +187,6 @@
           start: "top 45%",
           onEnter: function () {
             if (hoverTween) hoverTween.kill();
-
-            // 1. Launch Jetman instantly
             gsap.to(jetman, {
               x: "120vw",
               y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
@@ -215,8 +194,6 @@
               duration: 0.8,
               ease: "power2.in"
             });
-
-            // 2. Dolphin reacts after a brief 0.25s delay
             if (dolphin) {
               gsap.to(dolphin, {
                 rotation: -20,
@@ -229,26 +206,12 @@
           onLeaveBack: function () {
             gsap.killTweensOf(jetman);
             if (dolphin) gsap.killTweensOf(dolphin);
-
-            // 1. Reset Jetman
             gsap.to(jetman, {
-              x: 0,
-              y: 0,
-              rotation: 0,
-              duration: 0.8,
-              ease: "power2.out",
-              onComplete: function () {
-                startHover();
-              }
+              x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power2.out",
+              onComplete: function () { startHover(); }
             });
-
-            // 2. Reset Dolphin smoothly back to normal
             if (dolphin) {
-              gsap.to(dolphin, {
-                rotation: 0,
-                duration: 0.6,
-                ease: "power2.out"
-              });
+              gsap.to(dolphin, { rotation: 0, duration: 0.6, ease: "power2.out" });
             }
           }
         });
@@ -318,22 +281,11 @@
             onLeaveBack: function () { try { v.pause && v.pause(); } catch (e) {} }
           });
         });
-        document.addEventListener("visibilitychange", function () {
-          vids.forEach(function (v) {
-            try {
-              if (document.hidden) { v.pause && v.pause(); }
-              else {
-                var r = v.getBoundingClientRect();
-                if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && v.play) v.play();
-              }
-            } catch (e) {}
-          });
-        });
       }
 
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
 
-      console.log("[TT] Core Setup Complete, booting UFO...");
+      console.log("[TT] Booting UFO...");
       bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
@@ -346,7 +298,7 @@
 
     var velocity = isMobile ? 1 : 3;
     var maxAmpVal = isMobile ? 20 * vh : 80 * vh;
-    var tiltDiv = isMobile ? 3 : 3;
+    var tiltDiv = 3;
     var chaseSpeed = isMobile ? 0.08 : 0.15;
 
     function getBaseY() { return -5 * vh; }
@@ -396,7 +348,8 @@
 
     var canvas = document.getElementById("akiraMouseTrail");
     if (!canvas) {
-      canvas = document.createElement("canvas"); canvas.id = "akiraMouseTrail";
+      canvas = document.createElement("canvas"); 
+      canvas.id = "akiraMouseTrail";
       Object.assign(canvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 10, background: "transparent" });
       (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
     }
@@ -428,19 +381,7 @@
       requestAnimationFrame(loop);
     }
 
-    // Only run canvas trail on desktop to optimize mobile frame rates
-    if (!isMobile) {
-      requestAnimationFrame(loop);
-    } else {
-      function mobileLoop() {
-        actual.x += (target.x - actual.x) * chaseSpeed;
-        actual.y += (target.y - actual.y) * chaseSpeed;
-        actual.rot += (target.rot - actual.rot) * chaseSpeed;
-        host.style.transform = "translate3d(" + actual.x + "px," + actual.y + "px,0) rotate(" + actual.rot + "deg)";
-        requestAnimationFrame(mobileLoop);
-      }
-      requestAnimationFrame(mobileLoop);
-    }
+    requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
 
