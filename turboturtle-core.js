@@ -368,7 +368,7 @@ if (jetman) {
     onEnter: function () {
       if (hoverTween) hoverTween.kill();
 
-      // 1. Launch Jetman
+      // 1. Launch Jetman instantly
       gsap.to(jetman, {
         x: "120vw",
         y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
@@ -377,17 +377,19 @@ if (jetman) {
         ease: "power2.in"
       });
 
-      // 2. Surprised Dolphin reacts (Rotates -20deg anticlockwise)
+      // 2. Dolphin reacts after a brief 0.25s delay
       if (dolphin) {
         gsap.to(dolphin, {
           rotation: -20,
           duration: 0.4,
-          ease: "back.out(1.7)" // Quick, snappy jump back to show surprise!
+          delay: 0.25, // Delayed reaction so Jetman is already flying!
+          ease: "back.out(1.7)"
         });
       }
     },
     onLeaveBack: function () {
       gsap.killTweensOf(jetman);
+      if (dolphin) gsap.killTweensOf(dolphin); // Stop any pending dolphin delays
 
       // 1. Reset Jetman
       gsap.to(jetman, {
@@ -401,7 +403,7 @@ if (jetman) {
         }
       });
 
-      // 2. Reset Dolphin back to normal
+      // 2. Reset Dolphin smoothly back to normal
       if (dolphin) {
         gsap.to(dolphin, {
           rotation: 0,
