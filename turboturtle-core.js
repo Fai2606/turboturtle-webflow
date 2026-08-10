@@ -165,36 +165,42 @@
         );
       });
        
-// --- 2.7. HERO BIG HEADING SPAWN EFFECT (ON LOAD) ---
+// --- 2.7. HERO SECTION SEQUENTIAL SPAWN EFFECT ---
+var heroTl = gsap.timeline({ delay: 0.2 });
+
+// 1. .small_heading - Smooth Fade In
+if (exists(".small_heading")) {
+  heroTl.fromTo(".small_heading", 
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+  );
+}
+
+// 2. .big_heading - Fade In from Blur (Word Stagger)
 var bigHeading = q(".big_heading");
 if (bigHeading) {
-  // Wrap words in inline-block spans for individual control
   if (!bigHeading.querySelector(".heading_word")) {
     var text = bigHeading.innerText.trim();
     var words = text.split(/\s+/);
     bigHeading.innerHTML = words.map(function (w) {
-      return '<span class="heading_word" style="display: inline-block; will-change: transform, opacity, filter;">' + w + '</span>';
+      return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter;">' + w + '</span>';
     }).join("&nbsp;");
   }
 
-  // Plays immediately on page load
-  gsap.fromTo(".big_heading .heading_word", 
-    { 
-      opacity: 0, 
-      y: 50, 
-      scale: 0.85,
-      filter: "blur(12px)" 
-    },
-    {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-      duration: 1.2,
-      stagger: 0.18,
-      delay: 0.2, // Small delay so libraries ready before spawning
-      ease: "power3.out"
-    }
+  heroTl.fromTo(".big_heading .heading_word", 
+    { opacity: 0, filter: "blur(12px)", y: 15 },
+    { opacity: 1, filter: "blur(0px)", y: 0, duration: 1, stagger: 0.15, ease: "power2.out" },
+    "-=0.7" // Starts 0.1s after small_heading begins fading
+  );
+}
+
+// 3. body_text - Smooth Fade In
+var bodyText = q(".about_underwater_textbox1") || q(".body_text") || q("p");
+if (bodyText) {
+  heroTl.fromTo(bodyText, 
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+    "-=0.7" // Starts 0.1s after big_heading starts revealing
   );
 }
 
