@@ -4,7 +4,7 @@
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
    - Jetplane & Bigfly arcs
-   - Jetman & Surprised Dolphin launch + Mini Trail (Delayed & Extra Short)
+   - Jetman & Surprised Dolphin launch + Mini Trail (Delayed & Longer Sweep)
    - UFO chase + Akira trail
 */
 (function (root) {
@@ -165,13 +165,13 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (DELAYED & EXTRA SHORT TRAIL) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (DELAYED & EXTENDED TRAIL) ---
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
 
       if (jetman) {
         var hoverTween;
-        var jTrail = [], jTrailMax = 6, jFadeTime = 150; // Ultra-short trail length & fast fade
+        var jTrail = [], jTrailMax = 20, jFadeTime = 450; // Increased length (20 points) & longer fade (450ms)
         var jCanvas = document.getElementById("jetmanTrailCanvas");
         var trailDelayTimeout;
 
@@ -234,7 +234,7 @@
             isJetmanLaunching = false;
             jTrail = [];
 
-            // Delay trail rendering slightly so it doesn't draw at ground level
+            // Keeps ground delay intact before drawing extended trail
             trailDelayTimeout = setTimeout(function () {
               isJetmanLaunching = true;
             }, 150);
