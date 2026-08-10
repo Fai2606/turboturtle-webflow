@@ -165,13 +165,13 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (WITH MINI JET TRAIL) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (WITH SHORT DOUBLE-THICK TRAIL) ---
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
 
       if (jetman) {
         var hoverTween;
-        var jTrail = [], jTrailMax = 25, jFadeTime = 400;
+        var jTrail = [], jTrailMax = 12, jFadeTime = 250; // Shorter trail + quick fade time
         var jCanvas = document.getElementById("jetmanTrailCanvas");
 
         if (!jCanvas) {
@@ -193,7 +193,7 @@
             jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
             if (jTrail.length > jTrailMax) jTrail.shift();
           } else if (jTrail.length > 0) {
-            jTrail.shift(); // Fade out remaining trail points smoothly
+            jTrail.shift();
           }
 
           for (var i = 0; i < jTrail.length - 1; i++) {
@@ -202,8 +202,8 @@
             if (Math.hypot(dx, dy) < 1) continue;
             var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
             if (alpha <= 0) continue;
-            jCtx.strokeStyle = "rgba(255,230,0," + alpha + ")";
-            jCtx.lineWidth = 2 + (5 - 2) * alpha; // Fine mini trail scaled for Jetman!
+            jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")"; // Exact same color as UFO Trail
+            jCtx.lineWidth = 4 + (10 - 4) * alpha; // Double thick line width (4px to 10px)
             jCtx.beginPath();
             jCtx.moveTo(p1.x, p1.y);
             jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
