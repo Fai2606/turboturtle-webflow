@@ -1,11 +1,10 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
-   - Parallax tweens
+   - Parallax tweens (Restored .about_flyduck)
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
    - Hero Text Reveal (Sequential Blur & Fade In)
    - Jetman & Surprised Dolphin launch
-   - Fly Duck Launch & Return Flip
    - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
@@ -126,6 +125,7 @@
       tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
@@ -262,50 +262,6 @@
           }
         });
       }
-
-// --- 3.5. FLY DUCK LAUNCH & RETURN FLIP ANIMATION ---
-var flyduck = q(".about_flyduck");
-if (flyduck) {
-  // 初始狀態：預設面向右邊 (scaleX: 1)，隱藏在左側畫面外 (-100vw)
-  gsap.set(flyduck, { x: "-100vw", y: 0, scaleX: 1, opacity: 1 });
-
-  ScrollTrigger.create({
-    trigger: flyduck,
-    start: "top 60%", // 當 duck 的 Y 位置到達螢幕 60% 高度時觸發
-    onEnter: function () {
-      gsap.killTweensOf(flyduck);
-
-      // 1. 飛行前：瞬間設定為面向右邊 (scaleX: 1)
-      gsap.set(flyduck, { scaleX: 1 });
-
-      // 2. 向下 Scroll：慢速 3 秒飛往右側外，且「微微向上升」
-      gsap.to(flyduck, {
-        x: "120vw",
-        y: () => -15 * vh, // 微微向上升
-        duration: 3,
-        ease: "power1.inOut"
-      });
-    },
-    onLeaveBack: function () {
-      gsap.killTweensOf(flyduck);
-
-      // 1. 飛行前：瞬間完成翻轉，面向左邊 (scaleX: -1)
-      gsap.set(flyduck, { scaleX: -1 });
-
-      // 2. 向上 Scroll：飛回左側外，且「微微滑翔向下」
-      gsap.to(flyduck, {
-        x: "-100vw",
-        y: () => 10 * vh, // 微微滑翔向下
-        duration: 2.5,
-        ease: "power1.out",
-        onComplete: function () {
-          // 隱藏後恢復預設面向右邊，準備下次向下觸發
-          gsap.set(flyduck, { scaleX: 1, y: 0 });
-        }
-      });
-    }
-  });
-}
 
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
