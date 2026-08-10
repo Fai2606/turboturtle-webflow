@@ -264,44 +264,48 @@
       }
 
 // --- 3.5. FLY DUCK LAUNCH & RETURN FLIP ANIMATION ---
-      var flyduck = q(".about_flyduck");
-      if (flyduck) {
-        // 初始狀態：面向右邊 (scaleX: 1)，藏在左側畫面外 (-100vw)
-        gsap.set(flyduck, { x: "-100vw", y: 0, scaleX: 1, opacity: 1 });
+var flyduck = q(".about_flyduck");
+if (flyduck) {
+  // 初始狀態：預設面向右邊 (scaleX: 1)，隱藏在左側畫面外 (-100vw)
+  gsap.set(flyduck, { x: "-100vw", y: 0, scaleX: 1, opacity: 1 });
 
-        ScrollTrigger.create({
-          trigger: flyduck,
-          start: "top 60%", // 當 duck 的 Y 位置到達螢幕 60% 高度時觸發
-          onEnter: function () {
-            gsap.killTweensOf(flyduck);
+  ScrollTrigger.create({
+    trigger: flyduck,
+    start: "top 60%", // 當 duck 的 Y 位置到達螢幕 60% 高度時觸發
+    onEnter: function () {
+      gsap.killTweensOf(flyduck);
 
-            // 向下 Scroll：面向右邊，慢速 3 秒飛往右側外
-            gsap.to(flyduck, {
-              x: "120vw",
-              y: () => -10 * vh,
-              scaleX: 1,
-              duration: 3,
-              ease: "power1.inOut"
-            });
-          },
-          onLeaveBack: function () {
-            gsap.killTweensOf(flyduck);
+      // 1. 飛行前：瞬間設定為面向右邊 (scaleX: 1)
+      gsap.set(flyduck, { scaleX: 1 });
 
-            // 向上 Scroll：水平翻轉面向左邊 (scaleX: -1)，飛回左側外
-            gsap.to(flyduck, {
-              x: "-100vw",
-              y: 0,
-              scaleX: -1,
-              duration: 2.5,
-              ease: "power1.out",
-              onComplete: function () {
-                // 飛回隱藏後，重置翻轉方向為面向右邊
-                gsap.set(flyduck, { scaleX: 1 });
-              }
-            });
-          }
-        });
-      }
+      // 2. 向下 Scroll：慢速 3 秒飛往右側外，且「微微向上升」
+      gsap.to(flyduck, {
+        x: "120vw",
+        y: () => -15 * vh, // 微微向上升
+        duration: 3,
+        ease: "power1.inOut"
+      });
+    },
+    onLeaveBack: function () {
+      gsap.killTweensOf(flyduck);
+
+      // 1. 飛行前：瞬間完成翻轉，面向左邊 (scaleX: -1)
+      gsap.set(flyduck, { scaleX: -1 });
+
+      // 2. 向上 Scroll：飛回左側外，且「微微滑翔向下」
+      gsap.to(flyduck, {
+        x: "-100vw",
+        y: () => 10 * vh, // 微微滑翔向下
+        duration: 2.5,
+        ease: "power1.out",
+        onComplete: function () {
+          // 隱藏後恢復預設面向右邊，準備下次向下觸發
+          gsap.set(flyduck, { scaleX: 1, y: 0 });
+        }
+      });
+    }
+  });
+}
 
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
