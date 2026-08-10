@@ -165,278 +165,75 @@
         );
       });
        
-// --- 2.7. HERO BIG HEADING WARP TEXT (OGL / WEBGL) ---
-(function initWarpText() {
-  var headingEl = q(".big_heading");
-  if (!headingEl) return;
+// --- 2.7. HERO BIG HEADING LIQUID WARP (CSS SVG FILTER) ---
+(function initLiquidWarpHeading() {
+  var bigHeading = q(".big_heading");
+  if (!bigHeading) return;
 
-  function bootWarp() {
-    if (!root.OGL) {
-      setTimeout(bootWarp, 50);
-      return;
-    }
-
-    var OGL = root.OGL;
-    var Renderer = OGL.Renderer;
-    var Program = OGL.Program;
-    var Mesh = OGL.Mesh;
-    var Triangle = OGL.Triangle;
-    var Texture = OGL.Texture;
-
-    // 取得原始文字 (支援換行)
-    var targetText = headingEl.innerText.trim() || "Curiously\nBlended";
-    headingEl.innerHTML = "";
-    headingEl.style.position = "relative";
-    headingEl.style.display = "block";
-    headingEl.style.minHeight = "220px";
-
-    var vertexShader = `#version 300 es
-    in vec2 position;
-    in vec2 uv;
-    out vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = vec4(position, 0.0, 1.0);
-    }`;
-
-    var fragmentShader = `#version 300 es
-    precision highp float;
-    uniform sampler2D uTextTexture;
-    uniform vec2 uResolution;
-    uniform vec2 uPointer;
-    uniform float uPointerActive;
-    uniform float uTime;
-    uniform float uWarpStrength;
-    uniform float uWarpScale;
-    uniform float uSpeed;
-    uniform float uPointerInfluence;
-    uniform float uPointerStrength;
-    uniform float uRefraction;
-    uniform float uRipple;
-    uniform float uMotion;
-
-    in vec2 vUv;
-    out vec4 fragColor;
-
-    float hash(vec2 p) {
-      p = fract(p * vec2(123.34, 456.21));
-      p += dot(p, p + 45.32);
-      return fract(p.x * p.y);
-    }
-
-    float noise(vec2 p) {
-      vec2 i = floor(p);
-      vec2 f = fract(p);
-      vec2 u = f * f * (3.0 - 2.0 * f);
-      float a = hash(i);
-      float b = hash(i + vec2(1.0, 0.0));
-      float c = hash(i + vec2(0.0, 1.0));
-      float d = hash(i + vec2(1.0, 1.0));
-      return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-    }
-
-    float fbm(vec2 p) {
-      float value = 0.0;
-      float amplitude = 0.5;
-      for (int i = 0; i < 4; i++) {
-        value += amplitude * noise(p);
-        p *= 2.02;
-        amplitude *= 0.5;
-      }
-      return value;
-    }
-
-    vec4 sampleText(vec2 uv) {
-      if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return vec4(0.0);
-      return texture(uTextTexture, uv);
-    }
-
-    void main() {
-      vec2 uv = vUv;
-      float aspect = uResolution.x / max(uResolution.y, 1.0);
-      float time = uTime * uSpeed;
-      float scale = max(uWarpScale, 0.001);
-
-      vec2 drift = vec2(time * 0.055, -time * 0.045);
-      float n1 = fbm(uv * scale * 3.1 + drift);
-      float n2 = fbm((uv + 19.17) * scale * 3.4 - drift.yx);
-      vec2 ambient = (vec2(n1, n2) - 0.5) * uWarpStrength * 0.045 * uMotion;
-
-      vec2 pointerDelta = uv - uPointer;
-      vec2 aspectDelta = vec2(pointerDelta.x * aspect, pointerDelta.y);
-      float dist = length(aspectDelta);
-      float radius = max(uPointerInfluence, 0.001);
-      float t = clamp(dist / radius, 0.0, 1.0);
-      float lens = smoothstep(radius, 0.0, dist) * uPointerActive;
-      float bulge = t * (1.0 - t) * (1.0 - t) * 6.75 * uPointerActive;
-      vec2 dir = dist > 0.0001 ? vec2(aspectDelta.x / aspect, aspectDelta.y) / dist : vec2(0.0);
-
-      float rippleWave = sin(dist * 28.0 - time * 4.2) * 0.5 + 0.5;
-      float rippleRing = (rippleWave - 0.5) * uRipple;
-      vec2 pointerWarp = -dir * bulge * uPointerStrength * 0.045;
-      pointerWarp += dir * rippleRing * bulge * uPointerStrength * 0.016;
-
-      vec2 displaced = uv + ambient + pointerWarp;
-      vec2 splitDir = ambient + pointerWarp;
-      float splitLen = length(splitDir);
-      splitDir = splitLen > 0.00001 ? splitDir / splitLen : vec2(0.7071, 0.7071);
-      vec2 split = splitDir * uRefraction * 0.16 * (0.35 + lens * 1.65);
-
-      vec4 base = sampleText(displaced);
-      float r = sampleText(displaced + split).r;
-      float g = base.g;
-      float b = sampleText(displaced - split).b;
-      float a = max(max(sampleText(displaced + split).a, base.a), sampleText(displaced - split).a);
-
-      vec3 color = vec3(r, g, b) + lens * base.a * 0.055;
-      fragColor = vec4(color, a);
-    }`;
-
-    // 參數設定 (可在此微調)
-    var props = {
-      text: targetText,
-      color: "#000000",          // 文字顏色 (配合你原本的黑字)
-      fontSize: "clamp(3rem, 7vw, 6rem)",
-      fontWeight: 800,
-      fontFamily: "inherit",
-      letterSpacing: -2,
-      lineHeight: 0.95,
-      warpStrength: 0.08,
-      warpScale: 1.7,
-      speed: 0.55,
-      pointerInfluence: 0.42,
-      pointerStrength: 0.38,
-      refraction: 0.018,
-      ripple: true
-    };
-
-    var renderer = new Renderer({ webgl: 2, alpha: true, antialias: true, dpr: Math.min(root.devicePixelRatio || 1, 2) });
-    var gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
-
-    var canvas = gl.canvas;
-    Object.assign(canvas.style, {
-      position: "absolute",
-      inset: "0",
-      width: "100%",
-      height: "100%",
-      display: "block"
-    });
-    headingEl.appendChild(canvas);
-
-    var texture = new Texture(gl, { generateMipmaps: false, minFilter: gl.LINEAR, magFilter: gl.LINEAR, wrapS: gl.CLAMP_TO_EDGE, wrapT: gl.CLAMP_TO_EDGE });
-    var geometry = new Triangle(gl);
-
-    var program = new Program(gl, {
-      vertex: vertexShader,
-      fragment: fragmentShader,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-      uniforms: {
-        uTextTexture: { value: texture },
-        uResolution: { value: new Float32Array([1, 1]) },
-        uPointer: { value: new Float32Array([0.5, 0.5]) },
-        uPointerActive: { value: 0 },
-        uTime: { value: 0 },
-        uWarpStrength: { value: props.warpStrength },
-        uWarpScale: { value: props.warpScale },
-        uSpeed: { value: props.speed },
-        uPointerInfluence: { value: props.pointerInfluence },
-        uPointerStrength: { value: props.pointerStrength },
-        uRefraction: { value: props.refraction },
-        uRipple: { value: props.ripple ? 1 : 0 },
-        uMotion: { value: 1 }
-      }
-    });
-
-    var mesh = new Mesh(gl, { geometry: geometry, program: program });
-
-    function measureLine(ctx, line, spacing) {
-      var chars = Array.from(line);
-      var w = chars.reduce(function(acc, c) { return acc + ctx.measureText(c).width; }, 0);
-      return w + Math.max(0, chars.length - 1) * spacing;
-    }
-
-    function buildTextCanvas(w, h, dpr) {
-      var c = document.createElement('canvas');
-      c.width = Math.max(1, Math.floor(w * dpr));
-      c.height = Math.max(1, Math.floor(h * dpr));
-      var ctx = c.getContext('2d');
-      if (!ctx) return c;
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = props.color;
-
-      var lines = props.text.split('\n');
-      var fontSizePx = Math.min(w * 0.12, 90);
-      var lineHeight = fontSizePx * props.lineHeight;
-
-      ctx.font = props.fontWeight + ' ' + fontSizePx + 'px ' + window.getComputedStyle(headingEl).fontFamily;
-
-      var startY = h / 2 - (lineHeight * (lines.length - 1)) / 2;
-      lines.forEach(function(line, idx) {
-        ctx.fillText(line, w / 2, startY + idx * lineHeight);
-      });
-      return c;
-    }
-
-    function rasterize() {
-      var rect = headingEl.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      var dpr = Math.min(root.devicePixelRatio || 1, 2);
-      texture.image = buildTextCanvas(rect.width, rect.height, dpr);
-      texture.needsUpdate = true;
-    }
-
-    function resize() {
-      var rect = headingEl.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return;
-      renderer.setSize(rect.width, rect.height);
-      program.uniforms.uResolution.value[0] = gl.drawingBufferWidth;
-      program.uniforms.uResolution.value[1] = gl.drawingBufferHeight;
-      rasterize();
-    }
-
-    var pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, active: 0, activeTarget: 0 };
-    canvas.addEventListener('pointermove', function(e) {
-      var rect = canvas.getBoundingClientRect();
-      pointer.tx = (e.clientX - rect.left) / rect.width;
-      pointer.ty = 1 - (e.clientY - rect.top) / rect.height;
-      pointer.activeTarget = 1;
-    });
-    canvas.addEventListener('pointerleave', function() { pointer.activeTarget = 0; });
-
-    var startTime = performance.now();
-    function loop(now) {
-      var elapsed = (now - startTime) * 0.001;
-      var targetX = pointer.activeTarget > 0 ? pointer.tx : 0.5 + Math.sin(elapsed * 0.33) * 0.12;
-      var targetY = pointer.activeTarget > 0 ? pointer.ty : 0.5 + Math.cos(elapsed * 0.27) * 0.1;
-
-      pointer.x += (targetX - pointer.x) * 0.1;
-      pointer.y += (targetY - pointer.y) * 0.2;
-      pointer.active += ((pointer.activeTarget > 0 ? 1 : 0.18) - pointer.active) * 0.06;
-
-      program.uniforms.uPointer.value[0] = pointer.x;
-      program.uniforms.uPointer.value[1] = pointer.y;
-      program.uniforms.uPointerActive.value = pointer.active;
-      program.uniforms.uTime.value = elapsed;
-
-      renderer.render({ scene: mesh });
-      requestAnimationFrame(loop);
-    }
-
-    root.addEventListener('resize', resize);
-    resize();
-    requestAnimationFrame(loop);
+  // 1. 動態注入水波扭曲 SVG Filter
+  if (!document.getElementById("liquidWarpFilter")) {
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.id = "liquidWarpFilter";
+    svg.setAttribute("style", "position: fixed; width: 0; height: 0; pointer-events: none; z-index: -1;");
+    svg.innerHTML = `
+      <defs>
+        <filter id="warpGlass" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.015 0.03" numOctaves="2" result="noise" id="feTurb"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="feDisp"/>
+        </filter>
+      </defs>
+    `;
+    document.body.appendChild(svg);
   }
 
-  bootWarp();
-})();
+  // 2. 設定 Big Heading 樣式
+  bigHeading.style.filter = "url(#warpGlass)";
+  bigHeading.style.transition = "filter 0.1s ease-out";
+  bigHeading.style.willChange = "filter, transform";
 
+  var feTurb = document.getElementById("feTurb");
+  var feDisp = document.getElementById("feDisp");
+
+  var currentScale = 0;
+  var targetScale = 0;
+  var baseFreqX = 0.015, baseFreqY = 0.03;
+  var time = 0;
+
+  // 滑鼠懸停互動扭曲 (Ripple & Liquid Motion)
+  bigHeading.addEventListener("mouseenter", function() {
+    targetScale = 22; // 扭曲強度
+  });
+
+  bigHeading.addEventListener("mouseleave", function() {
+    targetScale = 0;  // 移出時平滑復原
+  });
+
+  function renderWarp() {
+    time += 0.015;
+    currentScale += (targetScale - currentScale) * 0.08;
+
+    if (feTurb && feDisp) {
+      // 動態液體波動
+      var dynamicX = baseFreqX + Math.sin(time) * 0.005;
+      var dynamicY = baseFreqY + Math.cos(time * 0.8) * 0.005;
+      
+      feTurb.setAttribute("baseFrequency", dynamicX + " " + dynamicY);
+      feDisp.setAttribute("scale", currentScale.toFixed(2));
+    }
+
+    requestAnimationFrame(renderWarp);
+  }
+
+  requestAnimationFrame(renderWarp);
+
+  // 3. 入場動畫 (Fade in)
+  if (root.gsap) {
+    gsap.fromTo(bigHeading, 
+      { opacity: 0, y: 25 },
+      { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power3.out" }
+    );
+  }
+})();
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
