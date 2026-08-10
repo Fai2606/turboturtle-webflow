@@ -165,9 +165,10 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (OFF-CENTER THRUSTER & BEHIND LAYER FIX) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (LIGHT DOT TRACKING) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
+var jetmanDot = q(".akira_light_dot_jetman");
 
 if (jetman) {
   var hoverTween;
@@ -175,7 +176,7 @@ if (jetman) {
   var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
 
-  // Ensure Jetman sits above any child/sibling elements in his parent block
+  // Ensure Jetman sits above the trail canvas
   jetman.style.zIndex = "2";
 
   if (!jCanvas) {
@@ -183,25 +184,20 @@ if (jetman) {
     jCanvas.id = "jetmanTrailCanvas";
     Object.assign(jCanvas.style, {
       position: "fixed",
-      top: "0px",
-      left: "0px",
+      top: 0,
+      left: 0,
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
-      zIndex: "1", // Sits under Jetman (zIndex 2)
+      zIndex: 1, // Directly underneath Jetman (zIndex 2)
       background: "transparent"
     });
-    // Inject canvas directly into Jetman's parent wrapper right before him
-    if (jetman.parentNode) {
-      jetman.parentNode.insertBefore(jCanvas, jetman);
-    } else {
-      document.body.appendChild(jCanvas);
-    }
+    (document.querySelector(".fixed_screen_area") || document.body).appendChild(jCanvas);
   }
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { 
-    jCanvas.width = root.innerWidth; 
-    jCanvas.height = root.innerHeight; 
+    jCanvas.width = innerWidth; 
+    jCanvas.height = innerHeight; 
   }
   resizeJCanvas();
   root.addEventListener("resize", resizeJCanvas);
@@ -219,26 +215,18 @@ if (jetman) {
     jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
 
     if (isJetmanFlying) {
-      var r = jetman.getBoundingClientRect();
-      var centerX = r.left + r.width / 2;
-      var centerY = r.top + r.height / 2;
-
-      // Calculate rotated offset so trail emits strictly from his bottom-left thrusters
-      var currentRot = (gsap.getProperty(jetman, "rotation") || 0) * (Math.PI / 180);
-      var offsetX = -r.width * 0.25; // Shift left toward thruster
-      var offsetY = r.height * 0.35;  // Shift down toward thruster
-
-      var thrusterX = centerX + (offsetX * Math.cos(currentRot) - offsetY * Math.sin(currentRot));
-      var thrusterY = centerY + (offsetX * Math.sin(currentRot) + offsetY * Math.cos(currentRot));
+      // Read the exact screen position of .akira_light_dot_jetman
+      var targetNode = jetmanDot || jetman;
+      var r = targetNode.getBoundingClientRect();
 
       jTrail.push({ 
-        x: thrusterX, 
-        y: thrusterY, 
+        x: r.left + r.width / 2, 
+        y: r.top + r.height / 2, 
         t: performance.now() 
       });
       if (jTrail.length > jTrailMax) jTrail.shift();
     } else if (jTrail.length > 0) {
-      jTrail.shift();
+      jTrail.shift(); // Smoothly drain trail when landing
     }
 
     for (var i = 0; i < jTrail.length - 1; i++) {
@@ -272,7 +260,7 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 75%",
+    start: "top 75%", // Triggers earlier
     onEnter: function () {
       gsap.killTweensOf(jetman);
       if (hoverTween) hoverTween.kill();
