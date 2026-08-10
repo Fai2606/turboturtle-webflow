@@ -165,47 +165,19 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STABLE BODY CANVAS & DIRECT TRACKING) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (SHARED AKIRA CANVAS - ALWAYS BEHIND) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
-var jetmanParent = jetman ? jetman.closest(".about_underwater_textbox4") || jetman.parentElement : null;
 
 if (jetman) {
   var hoverTween;
   var jTrail = [], jTrailMax = 18, jFadeTime = 350;
-  var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
 
-  // Elevate Jetman's parent container so Jetman sits above the fixed canvas (zIndex 3)
-  if (jetmanParent) {
-    jetmanParent.style.position = "relative";
-    jetmanParent.style.zIndex = "4";
+  // 1. Grab the exact same canvas used by the UFO trail (or fallback to body fixed)
+  function getSharedCanvas() {
+    return document.getElementById("akiraMouseTrail") || document.getElementById("jetmanTrailCanvas");
   }
-  jetman.style.zIndex = "5";
-
-  if (!jCanvas) {
-    jCanvas = document.createElement("canvas");
-    jCanvas.id = "jetmanTrailCanvas";
-    Object.assign(jCanvas.style, {
-      position: "fixed",
-      top: "0px",
-      left: "0px",
-      width: "100vw",
-      height: "100vh",
-      pointerEvents: "none",
-      zIndex: "3", // Sits directly below Jetman parent (zIndex 4)
-      background: "transparent"
-    });
-    document.body.appendChild(jCanvas);
-  }
-
-  var jCtx = jCanvas.getContext("2d");
-  function resizeJCanvas() { 
-    jCanvas.width = root.innerWidth; 
-    jCanvas.height = root.innerHeight; 
-  }
-  resizeJCanvas();
-  root.addEventListener("resize", resizeJCanvas);
 
   var isJetmanFlying = false;
 
@@ -213,39 +185,40 @@ if (jetman) {
     isJetmanFlying = false;
     clearTimeout(trailDelayTimeout);
     jTrail = [];
-    if (jCtx) jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
   }
 
   function renderJetmanTrail() {
-    jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+    var canvas = getSharedCanvas();
+    if (canvas) {
+      var jCtx = canvas.getContext("2d");
+      
+      if (isJetmanFlying) {
+        var r = jetman.getBoundingClientRect();
+        jTrail.push({ 
+          x: r.left + r.width * 0.5, 
+          y: r.top + r.height * 0.5, 
+          t: performance.now() 
+        });
+        if (jTrail.length > jTrailMax) jTrail.shift();
+      } else if (jTrail.length > 0) {
+        jTrail.shift();
+      }
 
-    if (isJetmanFlying) {
-      // Track Jetman directly on screen
-      var r = jetman.getBoundingClientRect();
+      // Draw Jetman's trail on the shared background canvas
+      for (var i = 0; i < jTrail.length - 1; i++) {
+        var p1 = jTrail[i], p2 = jTrail[i + 1];
+        var dx = p2.x - p1.x, dy = p2.y - p1.y;
+        if (Math.hypot(dx, dy) < 1) continue;
+        var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
+        if (alpha <= 0) continue;
 
-      jTrail.push({ 
-        x: r.left + r.width * 0.5, 
-        y: r.top + r.height * 0.5, 
-        t: performance.now() 
-      });
-      if (jTrail.length > jTrailMax) jTrail.shift();
-    } else if (jTrail.length > 0) {
-      jTrail.shift();
-    }
-
-    for (var i = 0; i < jTrail.length - 1; i++) {
-      var p1 = jTrail[i], p2 = jTrail[i + 1];
-      var dx = p2.x - p1.x, dy = p2.y - p1.y;
-      if (Math.hypot(dx, dy) < 1) continue;
-      var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
-      if (alpha <= 0) continue;
-
-      jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-      jCtx.lineWidth = 5 + (12 - 5) * alpha; // 1.2x width
-      jCtx.beginPath();
-      jCtx.moveTo(p1.x, p1.y);
-      jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
-      jCtx.stroke();
+        jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+        jCtx.lineWidth = 5 + (12 - 5) * alpha; // 1.2x thickness
+        jCtx.beginPath();
+        jCtx.moveTo(p1.x, p1.y);
+        jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
+        jCtx.stroke();
+      }
     }
     requestAnimationFrame(renderJetmanTrail);
   }
