@@ -165,111 +165,44 @@
         );
       });
        
-// --- 2.7. HERO SECTION SEQUENTIAL SPAWN EFFECT ---
+// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT ---
 var heroTl = gsap.timeline({ delay: 0.2 });
 
-// 1. .small_heading - Smooth Fade In
+// 1. .small_heading - Fade in
 if (exists(".small_heading")) {
   heroTl.fromTo(".small_heading", 
-    { opacity: 0, y: 20 },
+    { opacity: 0, y: 15 },
     { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
   );
 }
 
-// 2. .big_heading - Fade In from Blur (Word Stagger)
+// 2. .big_heading - Fade in from blur (no scaling)
 var bigHeading = q(".big_heading");
 if (bigHeading) {
   if (!bigHeading.querySelector(".heading_word")) {
     var text = bigHeading.innerText.trim();
     var words = text.split(/\s+/);
     bigHeading.innerHTML = words.map(function (w) {
-      return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter;">' + w + '</span>';
+      return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter, transform;">' + w + '</span>';
     }).join("&nbsp;");
   }
 
   heroTl.fromTo(".big_heading .heading_word", 
-    { opacity: 0, filter: "blur(12px)", y: 15 },
-    { opacity: 1, filter: "blur(0px)", y: 0, duration: 1, stagger: 0.15, ease: "power2.out" },
-    "-=0.7" // Starts 0.1s after small_heading begins fading
+    { opacity: 0, y: 25, filter: "blur(12px)" },
+    { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.0, stagger: 0.12, ease: "power3.out" },
+    "-=0.7" // Starts slightly overlapping with previous step for smoother transition
   );
 }
 
-// 3. body_text - Smooth Fade In
-var bodyText = q(".about_underwater_textbox1") || q(".body_text") || q("p");
+// 3. .body_text .KV_body_text - Fade in (0.1s delay after big_heading)
+var bodyText = q(".body_text .KV_body_text") || q(".KV_body_text");
 if (bodyText) {
   heroTl.fromTo(bodyText, 
     { opacity: 0, y: 20 },
     { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-    "-=0.7" // Starts 0.1s after big_heading starts revealing
+    "+=0.1" // Explicit 0.1s delay after heading finishes
   );
 }
-
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
-      var jetman = q(".about_jetman");
-      var dolphin = q(".about_dolphin");
-
-      if (jetman) {
-        var hoverTween;
-
-        function startHover() {
-          hoverTween = gsap.to(jetman, {
-            y: "-=15",
-            duration: 1,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1
-          });
-        }
-        startHover();
-
-        ScrollTrigger.create({
-          trigger: jetman,
-          start: "top 75%",
-          onEnter: function () {
-            gsap.killTweensOf(jetman);
-            if (hoverTween) hoverTween.kill();
-            if (dolphin) gsap.killTweensOf(dolphin);
-
-            gsap.to(jetman, {
-              x: "100vw",
-              y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
-              rotation: -50,
-              duration: 1.1,
-              ease: "power2.in"
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, {
-                rotation: -20,
-                duration: 0.4,
-                delay: 0.2,
-                ease: "back.out(1.7)"
-              });
-            }
-          },
-          onLeaveBack: function () {
-            gsap.killTweensOf(jetman);
-            if (dolphin) gsap.killTweensOf(dolphin);
-
-            gsap.set(jetman, { rotation: 180 });
-
-            gsap.to(jetman, {
-              x: 0,
-              y: 0,
-              rotation: 0,
-              duration: 1.4,
-              ease: "power2.out",
-              onComplete: function () {
-                startHover();
-              }
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, { rotation: 0, duration: 0.8, ease: "power2.out" });
-            }
-          }
-        });
-      }
 
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
