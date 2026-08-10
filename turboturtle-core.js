@@ -125,7 +125,6 @@
       tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
@@ -272,6 +271,39 @@
         });
       }
 
+// --- 3.5. FLY DUCK LAUNCH ANIMATION ---
+var flyduck = q(".about_flyduck");
+if (flyduck) {
+  // 1. 初始化位置：隱藏在螢幕左側外面 (-100vw)
+  gsap.set(flyduck, { x: "-100vw", y: 0, opacity: 1 });
+
+  ScrollTrigger.create({
+    trigger: flyduck,
+    start: "top 60%", // 當 duck 的 Y 位置到達螢幕 Top 的 60% 時觸發
+    onEnter: function () {
+      gsap.killTweensOf(flyduck);
+
+      // 往右快速飛穿越畫面到右側外面 (120vw)
+      gsap.to(flyduck, {
+        x: "120vw",
+        y: () => -10 * vh, // 帶一點微微往上飛的弧度（如不需要可改成 0）
+        duration: 1.2,     // 飛行速度（數字越小飛越快）
+        ease: "power2.inOut"
+      });
+    },
+    onLeaveBack: function () {
+      // 往上捲回時重置回左側外面
+      gsap.killTweensOf(flyduck);
+      gsap.to(flyduck, {
+        x: "-100vw",
+        y: 0,
+        duration: 0.5,
+        ease: "power1.out"
+      });
+    }
+  });
+}
+       
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
