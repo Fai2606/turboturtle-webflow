@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (TRAIL UNDERNEATH + 2-STAGE TURNAROUND) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (ADJUSTED TIMING, LAYER & TRAIL) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
@@ -178,9 +178,13 @@ if (jetman) {
   if (!jCanvas) {
     jCanvas = document.createElement("canvas");
     jCanvas.id = "jetmanTrailCanvas";
-    // FIXED: zIndex: 1 places canvas UNDER Jetman (instead of zIndex: 9)
-    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 1, background: "transparent" });
-    document.body.appendChild(jCanvas);
+    // 2. FIXED: Inserts canvas before jetman in DOM & sets zIndex: -1 so it stays underneath
+    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: -1, background: "transparent" });
+    if (jetman.parentNode) {
+      jetman.parentNode.insertBefore(jCanvas, jetman);
+    } else {
+      document.body.appendChild(jCanvas);
+    }
   }
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
@@ -205,7 +209,8 @@ if (jetman) {
       var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
       if (alpha <= 0) continue;
       jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-      jCtx.lineWidth = 4 + (10 - 4) * alpha;
+      // 3. FIXED: 1.5x Thickness (6px tail to 15px head)
+      jCtx.lineWidth = 6 + (15 - 6) * alpha;
       jCtx.beginPath();
       jCtx.moveTo(p1.x, p1.y);
       jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
@@ -228,7 +233,8 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 45%",
+    // 4. FIXED: Triggers earlier at 60% viewport height from top
+    start: "top 60%",
     onEnter: function () {
       if (hoverTween) hoverTween.kill();
       clearTimeout(trailDelayTimeout);
@@ -239,12 +245,11 @@ if (jetman) {
         isJetmanFlying = true;
       }, 150);
 
-      // Launch upward at 45° angle with nose tilted (-50°)
       gsap.to(jetman, {
         x: "100vw",
         y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
         rotation: -50,
-        duration: 0.8,
+        duration: 1.1, // Slightly relaxed launch duration
         ease: "power2.in",
         onComplete: function() {
           isJetmanFlying = false;
@@ -268,7 +273,6 @@ if (jetman) {
       isJetmanFlying = true;
       jTrail = [];
 
-      // Start return flight clearly inverted (180° turned around)
       gsap.set(jetman, { rotation: 180 });
 
       var returnTl = gsap.timeline({
@@ -278,26 +282,25 @@ if (jetman) {
         }
       });
 
-      // 1. Flies back inverted for most of the trajectory (0.6s)
+      // 1. FIXED: Slower return speed with heavy ease-out curve (power4.out)
       returnTl.to(jetman, {
         x: "20vw",
         y: () => -20 * Math.tan(45 * Math.PI / 180) + "vw",
-        rotation: 180, // Keeps 180° inverted orientation clearly visible mid-flight!
-        duration: 0.6,
-        ease: "none"
+        rotation: 180,
+        duration: 1.1, // Slower travel
+        ease: "power3.out"
       });
 
-      // 2. Flips back to 0° upright position right as he lands home (0.3s)
       returnTl.to(jetman, {
         x: 0,
         y: 0,
         rotation: 0,
-        duration: 0.3,
-        ease: "power2.out"
+        duration: 0.6, // Strong deceleration into touchdown
+        ease: "power4.out"
       });
 
       if (dolphin) {
-        gsap.to(dolphin, { rotation: 0, duration: 0.6, ease: "power2.out" });
+        gsap.to(dolphin, { rotation: 0, duration: 0.8, ease: "power2.out" });
       }
     }
   });
