@@ -4,7 +4,7 @@
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
    - Jetplane & Bigfly arcs
-   - Jetman & Surprised Dolphin launch + Mini Trail
+   - Jetman & Surprised Dolphin launch + Mini Trail (Delayed & Extra Short)
    - UFO chase + Akira trail
 */
 (function (root) {
@@ -165,14 +165,15 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (WITH SHORT DOUBLE-THICK TRAIL) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (DELAYED & EXTRA SHORT TRAIL) ---
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
 
       if (jetman) {
         var hoverTween;
-        var jTrail = [], jTrailMax = 12, jFadeTime = 250; // Shorter trail + quick fade time
+        var jTrail = [], jTrailMax = 6, jFadeTime = 150; // Ultra-short trail length & fast fade
         var jCanvas = document.getElementById("jetmanTrailCanvas");
+        var trailDelayTimeout;
 
         if (!jCanvas) {
           jCanvas = document.createElement("canvas");
@@ -202,8 +203,8 @@
             if (Math.hypot(dx, dy) < 1) continue;
             var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
             if (alpha <= 0) continue;
-            jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")"; // Exact same color as UFO Trail
-            jCtx.lineWidth = 4 + (10 - 4) * alpha; // Double thick line width (4px to 10px)
+            jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+            jCtx.lineWidth = 4 + (10 - 4) * alpha;
             jCtx.beginPath();
             jCtx.moveTo(p1.x, p1.y);
             jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
@@ -229,8 +230,14 @@
           start: "top 45%",
           onEnter: function () {
             if (hoverTween) hoverTween.kill();
-            isJetmanLaunching = true;
+            clearTimeout(trailDelayTimeout);
+            isJetmanLaunching = false;
             jTrail = [];
+
+            // Delay trail rendering slightly so it doesn't draw at ground level
+            trailDelayTimeout = setTimeout(function () {
+              isJetmanLaunching = true;
+            }, 150);
 
             gsap.to(jetman, {
               x: "120vw",
@@ -253,6 +260,7 @@
             }
           },
           onLeaveBack: function () {
+            clearTimeout(trailDelayTimeout);
             isJetmanLaunching = false;
             jTrail = [];
             gsap.killTweensOf(jetman);
