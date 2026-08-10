@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STEEPER LAUNCH + SMOOTH RETURN UNROLL) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (TRAIL UNDERNEATH + 2-STAGE TURNAROUND) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
@@ -178,7 +178,8 @@ if (jetman) {
   if (!jCanvas) {
     jCanvas = document.createElement("canvas");
     jCanvas.id = "jetmanTrailCanvas";
-    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 9, background: "transparent" });
+    // FIXED: zIndex: 1 places canvas UNDER Jetman (instead of zIndex: 9)
+    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 1, background: "transparent" });
     document.body.appendChild(jCanvas);
   }
   var jCtx = jCanvas.getContext("2d");
@@ -238,10 +239,10 @@ if (jetman) {
         isJetmanFlying = true;
       }, 150);
 
-      // 1. Steeper launch (45° angle) with nose pointed upwards (-50° tilt)
+      // Launch upward at 45° angle with nose tilted (-50°)
       gsap.to(jetman, {
         x: "100vw",
-        y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw", // Steeper upward angle
+        y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
         rotation: -50,
         duration: 0.8,
         ease: "power2.in",
@@ -267,20 +268,32 @@ if (jetman) {
       isJetmanFlying = true;
       jTrail = [];
 
-      // Set starting angle to 190° right as return flight begins
-      gsap.set(jetman, { rotation: 190 });
+      // Start return flight clearly inverted (180° turned around)
+      gsap.set(jetman, { rotation: 180 });
 
-      // 2. Smoothly animate x, y, AND rotation to 0 at the same time
-      gsap.to(jetman, {
-        x: 0,
-        y: 0,
-        rotation: 0, // Rotates smoothly from 190° down to 0° over the full flight duration
-        duration: 0.9,
-        ease: "power2.out",
+      var returnTl = gsap.timeline({
         onComplete: function () {
           isJetmanFlying = false;
           startHover();
         }
+      });
+
+      // 1. Flies back inverted for most of the trajectory (0.6s)
+      returnTl.to(jetman, {
+        x: "20vw",
+        y: () => -20 * Math.tan(45 * Math.PI / 180) + "vw",
+        rotation: 180, // Keeps 180° inverted orientation clearly visible mid-flight!
+        duration: 0.6,
+        ease: "none"
+      });
+
+      // 2. Flips back to 0° upright position right as he lands home (0.3s)
+      returnTl.to(jetman, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        duration: 0.3,
+        ease: "power2.out"
       });
 
       if (dolphin) {
