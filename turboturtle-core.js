@@ -165,24 +165,25 @@
         );
       });
        
-// --- 2.7. BIG HEADING SPAWN EFFECT ---
+// --- 2.7. HERO BIG HEADING SPAWN EFFECT (ON LOAD) ---
 var bigHeading = q(".big_heading");
 if (bigHeading) {
-  // Split words automatically into spans if not already split
+  // Wrap words in inline-block spans for individual control
   if (!bigHeading.querySelector(".heading_word")) {
     var text = bigHeading.innerText.trim();
     var words = text.split(/\s+/);
     bigHeading.innerHTML = words.map(function (w) {
       return '<span class="heading_word" style="display: inline-block; will-change: transform, opacity, filter;">' + w + '</span>';
-    }).join(" ");
+    }).join("&nbsp;");
   }
 
+  // Plays immediately on page load
   gsap.fromTo(".big_heading .heading_word", 
     { 
       opacity: 0, 
-      y: 45, 
-      scale: 0.9,
-      filter: "blur(10px)" 
+      y: 50, 
+      scale: 0.85,
+      filter: "blur(12px)" 
     },
     {
       opacity: 1,
@@ -190,14 +191,9 @@ if (bigHeading) {
       scale: 1,
       filter: "blur(0px)",
       duration: 1.2,
-      stagger: 0.15,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".big_heading",
-        start: "top 80%",
-        end: "top 20%",
-        toggleActions: "play reverse play reverse"
-      }
+      stagger: 0.18,
+      delay: 0.2, // Small delay so libraries ready before spawning
+      ease: "power3.out"
     }
   );
 }
