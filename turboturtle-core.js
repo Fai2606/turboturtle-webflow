@@ -4,8 +4,9 @@
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
    - Hero Text Reveal (Sequential Blur & Fade In)
-   - Jetplane & Bigfly arcs
    - Jetman & Surprised Dolphin launch
+   - Fly Duck Launch & Return Flip
+   - Jetplane & Bigfly arcs
    - UFO chase + Akira trail
 */
 (function (root) {
@@ -165,45 +166,36 @@
         );
       });
         
-// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT (FAST OVERLAP) ---
-      var heroTl = gsap.timeline({ delay: 0.1 });
-      
-      // 1. .small_heading - Quick Fade
-      if (exists(".small_heading")) {
-        heroTl.fromTo(".small_heading", 
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-        );
-      }
-      
-      // 2. .big_heading - Smooth Blur & Rise
-      var bigHeading = q(".big_heading");
-      if (bigHeading) {
-        if (!bigHeading.querySelector(".heading_word")) {
-          var text = bigHeading.innerText.trim();
-          var words = text.split(/\s+/);
-          bigHeading.innerHTML = words.map(function (w) {
-            return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter, transform;">' + w + '</span>';
-          }).join("&nbsp;");
+// --- 2.7. HERO HEADINGS SEQUENCED REVEAL ---
+      (function initHeroSequence() {
+        var heroTl = gsap.timeline({ delay: 0.1 });
+
+        if (exists(".small_heading")) {
+          heroTl.fromTo(".small_heading", 
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+          );
         }
-      
-        heroTl.fromTo(".big_heading .heading_word", 
-          { opacity: 0, y: 20, filter: "blur(8px)" },
-          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, stagger: 0.08, ease: "power3.out" },
-          "-=0.4"
-        );
-      }
-      
-      // 3. .body_text / .KV_body_text - Starts immediately while heading is finishing
-      var bodyTarget = q(".KV_body_text") || q(".body_text");
-      if (bodyTarget) {
-        heroTl.fromTo(bodyTarget, 
-          { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-          "<0.2" // Overlaps: starts 0.2s after big heading starts!
-        );
-      }
-        
+
+        var bigHeading = q(".big_heading");
+        if (bigHeading) {
+          heroTl.fromTo(bigHeading, 
+            { opacity: 0, y: 20, filter: "blur(10px)" },
+            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" },
+            "-=0.3"
+          );
+        }
+
+        var bodyTarget = q(".kv_body_text") || q(".body_text");
+        if (bodyTarget) {
+          heroTl.fromTo(bodyTarget, 
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+            "<0.2"
+          );
+        }
+      })();
+
 // --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
@@ -271,39 +263,46 @@
         });
       }
 
-// --- 3.5. FLY DUCK LAUNCH ANIMATION ---
-var flyduck = q(".about_flyduck");
-if (flyduck) {
-  // 1. 初始化位置：隱藏在螢幕左側外面 (-100vw)
-  gsap.set(flyduck, { x: "-100vw", y: 0, opacity: 1 });
+// --- 3.5. FLY DUCK LAUNCH & RETURN FLIP ANIMATION ---
+      var flyduck = q(".about_flyduck");
+      if (flyduck) {
+        // 初始狀態：面向右邊 (scaleX: 1)，藏在左側畫面外 (-100vw)
+        gsap.set(flyduck, { x: "-100vw", y: 0, scaleX: 1, opacity: 1 });
 
-  ScrollTrigger.create({
-    trigger: flyduck,
-    start: "top 60%", // 當 duck 的 Y 位置到達螢幕 Top 的 60% 時觸發
-    onEnter: function () {
-      gsap.killTweensOf(flyduck);
+        ScrollTrigger.create({
+          trigger: flyduck,
+          start: "top 60%", // 當 duck 的 Y 位置到達螢幕 60% 高度時觸發
+          onEnter: function () {
+            gsap.killTweensOf(flyduck);
 
-      // 往右快速飛穿越畫面到右側外面 (120vw)
-      gsap.to(flyduck, {
-        x: "120vw",
-        y: () => -10 * vh, // 帶一點微微往上飛的弧度（如不需要可改成 0）
-        duration: 1.2,     // 飛行速度（數字越小飛越快）
-        ease: "power2.inOut"
-      });
-    },
-    onLeaveBack: function () {
-      // 往上捲回時重置回左側外面
-      gsap.killTweensOf(flyduck);
-      gsap.to(flyduck, {
-        x: "-100vw",
-        y: 0,
-        duration: 0.5,
-        ease: "power1.out"
-      });
-    }
-  });
-}
-       
+            // 向下 Scroll：面向右邊，慢速 3 秒飛往右側外
+            gsap.to(flyduck, {
+              x: "120vw",
+              y: () => -10 * vh,
+              scaleX: 1,
+              duration: 3,
+              ease: "power1.inOut"
+            });
+          },
+          onLeaveBack: function () {
+            gsap.killTweensOf(flyduck);
+
+            // 向上 Scroll：水平翻轉面向左邊 (scaleX: -1)，飛回左側外
+            gsap.to(flyduck, {
+              x: "-100vw",
+              y: 0,
+              scaleX: -1,
+              duration: 2.5,
+              ease: "power1.out",
+              onComplete: function () {
+                // 飛回隱藏後，重置翻轉方向為面向右邊
+                gsap.set(flyduck, { scaleX: 1 });
+              }
+            });
+          }
+        });
+      }
+
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
