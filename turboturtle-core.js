@@ -166,38 +166,44 @@
         );
       });
         
-// --- 2.7. HERO HEADINGS SEQUENCED REVEAL (BLUR & FADE IN) ---
-      (function initHeroSequence() {
-        var heroTl = gsap.timeline({ delay: 0.1 });
-
-        // 1. .small_heading - Quick Fade
-        if (exists(".small_heading")) {
-          heroTl.fromTo(".small_heading", 
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-          );
+// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT (FAST OVERLAP) ---
+      var heroTl = gsap.timeline({ delay: 0.1 });
+      
+      // 1. .small_heading - Quick Fade
+      if (exists(".small_heading")) {
+        heroTl.fromTo(".small_heading", 
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+        );
+      }
+      
+      // 2. .big_heading - Smooth Blur & Rise
+      var bigHeading = q(".big_heading");
+      if (bigHeading) {
+        if (!bigHeading.querySelector(".heading_word")) {
+          var text = bigHeading.innerText.trim();
+          var words = text.split(/\s+/);
+          bigHeading.innerHTML = words.map(function (w) {
+            return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter, transform;">' + w + '</span>';
+          }).join("&nbsp;");
         }
-
-        // 2. .big_heading - Smooth Blur & Rise
-        var bigHeading = q(".big_heading");
-        if (bigHeading) {
-          heroTl.fromTo(bigHeading, 
-            { opacity: 0, y: 20, filter: "blur(10px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" },
-            "-=0.3"
-          );
-        }
-
-        // 3. .body_text / .KV_body_text - Starts almost immediately alongside heading
-        var bodyTarget = q(".kv_body_text") || q(".body_text");
-        if (bodyTarget) {
-          heroTl.fromTo(bodyTarget, 
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-            "<0.2"
-          );
-        }
-      })();
+      
+        heroTl.fromTo(".big_heading .heading_word", 
+          { opacity: 0, y: 20, filter: "blur(8px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, stagger: 0.08, ease: "power3.out" },
+          "-=0.4"
+        );
+      }
+      
+      // 3. .body_text / .KV_body_text - Starts immediately while heading is finishing
+      var bodyTarget = q(".KV_body_text") || q(".body_text");
+      if (bodyTarget) {
+        heroTl.fromTo(bodyTarget, 
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+          "<0.2" // Overlaps: starts 0.2s after big heading starts!
+        );
+      }
         
 // --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
       var jetman = q(".about_jetman");
