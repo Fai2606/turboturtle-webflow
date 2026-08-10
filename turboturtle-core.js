@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (BIDIRECTIONAL TRAIL + TURNAROUND) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STEEPER LAUNCH + SMOOTH RETURN UNROLL) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
@@ -234,16 +234,15 @@ if (jetman) {
       isJetmanFlying = false;
       jTrail = [];
 
-      // Delay trail so it doesn't draw at origin
       trailDelayTimeout = setTimeout(function () {
         isJetmanFlying = true;
       }, 150);
 
-      // 1. Launch forward at 25 degrees with slight anti-clockwise tilt (-25° launch angle - 10° extra tilt = -35° rotation)
+      // 1. Steeper launch (45° angle) with nose pointed upwards (-50° tilt)
       gsap.to(jetman, {
-        x: "120vw",
-        y: () => -120 * Math.tan(25 * Math.PI / 180) + "vw", // Narrower 25° flight trajectory
-        rotation: -35,
+        x: "100vw",
+        y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw", // Steeper upward angle
+        rotation: -50,
         duration: 0.8,
         ease: "power2.in",
         onComplete: function() {
@@ -265,28 +264,22 @@ if (jetman) {
       gsap.killTweensOf(jetman);
       if (dolphin) gsap.killTweensOf(dolphin);
 
-      // Instantly start trail when flying backward
       isJetmanFlying = true;
       jTrail = [];
 
-      // 2. Return flight: Turn 180 degrees (facing bottom-left: 180 - 25 = 155°) while traveling back
+      // Set starting angle to 190° right as return flight begins
+      gsap.set(jetman, { rotation: 190 });
+
+      // 2. Smoothly animate x, y, AND rotation to 0 at the same time
       gsap.to(jetman, {
         x: 0,
         y: 0,
-        rotation: 155, // Head towards bottom-left, feet at top-right
-        duration: 0.8,
+        rotation: 0, // Rotates smoothly from 190° down to 0° over the full flight duration
+        duration: 0.9,
         ease: "power2.out",
         onComplete: function () {
           isJetmanFlying = false;
-          // Smoothly rotate back to default 0° position once arrived
-          gsap.to(jetman, {
-            rotation: 0,
-            duration: 0.3,
-            ease: "power1.out",
-            onComplete: function() {
-              startHover();
-            }
-          });
+          startHover();
         }
       });
 
