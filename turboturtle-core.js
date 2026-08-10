@@ -164,6 +164,43 @@
           }
         );
       });
+       
+// --- 2.7. BIG HEADING SPAWN EFFECT ---
+var bigHeading = q(".big_heading");
+if (bigHeading) {
+  // Split words automatically into spans if not already split
+  if (!bigHeading.querySelector(".heading_word")) {
+    var text = bigHeading.innerText.trim();
+    var words = text.split(/\s+/);
+    bigHeading.innerHTML = words.map(function (w) {
+      return '<span class="heading_word" style="display: inline-block; will-change: transform, opacity, filter;">' + w + '</span>';
+    }).join(" ");
+  }
+
+  gsap.fromTo(".big_heading .heading_word", 
+    { 
+      opacity: 0, 
+      y: 45, 
+      scale: 0.9,
+      filter: "blur(10px)" 
+    },
+    {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      duration: 1.2,
+      stagger: 0.15,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".big_heading",
+        start: "top 80%",
+        end: "top 20%",
+        toggleActions: "play reverse play reverse"
+      }
+    }
+  );
+}
 
 // --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
       var jetman = q(".about_jetman");
