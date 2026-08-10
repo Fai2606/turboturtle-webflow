@@ -165,7 +165,7 @@
         );
       });
        
-// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT ---
+// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT (FIXED SELECTOR) ---
 var heroTl = gsap.timeline({ delay: 0.2 });
 
 // 1. .small_heading - Fade in
@@ -176,7 +176,7 @@ if (exists(".small_heading")) {
   );
 }
 
-// 2. .big_heading - Fade in from blur (no scaling)
+// 2. .big_heading - Smooth Blur & Rise Fade
 var bigHeading = q(".big_heading");
 if (bigHeading) {
   if (!bigHeading.querySelector(".heading_word")) {
@@ -188,19 +188,19 @@ if (bigHeading) {
   }
 
   heroTl.fromTo(".big_heading .heading_word", 
-    { opacity: 0, y: 25, filter: "blur(12px)" },
+    { opacity: 0, y: 30, filter: "blur(12px)" },
     { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.0, stagger: 0.12, ease: "power3.out" },
-    "-=0.7" // Starts slightly overlapping with previous step for smoother transition
+    "-=0.5"
   );
 }
 
-// 3. .body_text .KV_body_text - Fade in (0.1s delay after big_heading)
-var bodyText = q(".body_text .KV_body_text") || q(".KV_body_text");
-if (bodyText) {
-  heroTl.fromTo(bodyText, 
+// 3. .body_text / .KV_body_text - Fixed Selector targeting either class directly
+var bodyTarget = q(".KV_body_text") || q(".body_text");
+if (bodyTarget) {
+  heroTl.fromTo(bodyTarget, 
     { opacity: 0, y: 20 },
     { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-    "+=0.1" // Explicit 0.1s delay after heading finishes
+    "+=0.1" // 0.1s delay after big heading finishes
   );
 }
 
