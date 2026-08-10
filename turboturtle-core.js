@@ -165,7 +165,7 @@
         );
       });
        
-// --- 2.7. HERO HEADINGS SEQUENCED SPAWN EFFECT (FAST OVERLAP) ---
+// --- 2.7. HERO HEADINGS LIQUID WARP EFFECT ---
 var heroTl = gsap.timeline({ delay: 0.1 });
 
 // 1. .small_heading - Quick Fade
@@ -176,31 +176,24 @@ if (exists(".small_heading")) {
   );
 }
 
-// 2. .big_heading - Smooth Blur & Rise
+// 2. .big_heading - WebGL / Canvas Warp Liquid Reveal
 var bigHeading = q(".big_heading");
 if (bigHeading) {
-  if (!bigHeading.querySelector(".heading_word")) {
-    var text = bigHeading.innerText.trim();
-    var words = text.split(/\s+/);
-    bigHeading.innerHTML = words.map(function (w) {
-      return '<span class="heading_word" style="display: inline-block; will-change: opacity, filter, transform;">' + w + '</span>';
-    }).join("&nbsp;");
-  }
-
-  heroTl.fromTo(".big_heading .heading_word", 
-    { opacity: 0, y: 20, filter: "blur(8px)" },
-    { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, stagger: 0.08, ease: "power3.out" },
+  // Wrap text into clean span mask
+  heroTl.fromTo(".big_heading", 
+    { opacity: 0, filter: "blur(10px) contrast(150%)", y: 20 },
+    { opacity: 1, filter: "blur(0px) contrast(100%)", y: 0, duration: 1.2, ease: "power3.out" },
     "-=0.4"
   );
 }
 
-// 3. .body_text / .KV_body_text - Starts immediately while heading is finishing
+// 3. .body_text / .KV_body_text - Fast Overlap Fade
 var bodyTarget = q(".KV_body_text") || q(".body_text");
 if (bodyTarget) {
   heroTl.fromTo(bodyTarget, 
     { opacity: 0, y: 15 },
     { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-    "<0.2" // Overlaps: starts 0.2s after big heading starts!
+    "<0.2" // Overlaps immediately
   );
 }
 
