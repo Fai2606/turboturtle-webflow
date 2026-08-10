@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (LIGHT DOT TRACKING) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STRICT DOM BEHIND LAYER + CENTERED DOT) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 var jetmanDot = q(".akira_light_dot_jetman");
@@ -176,8 +176,9 @@ if (jetman) {
   var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
 
-  // Ensure Jetman sits above the trail canvas
-  jetman.style.zIndex = "2";
+  // Explicitly elevate Jetman inside his local parent stacking context
+  jetman.style.position = "relative";
+  jetman.style.zIndex = "5";
 
   if (!jCanvas) {
     jCanvas = document.createElement("canvas");
@@ -189,15 +190,21 @@ if (jetman) {
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
-      zIndex: 1, // Directly underneath Jetman (zIndex 2)
+      zIndex: 1, // Stays behind Jetman (zIndex 5)
       background: "transparent"
     });
-    (document.querySelector(".fixed_screen_area") || document.body).appendChild(jCanvas);
+
+    // Inject canvas right before Jetman in the DOM tree to guarantee bottom-layer rendering
+    if (jetman.parentNode) {
+      jetman.parentNode.insertBefore(jCanvas, jetman);
+    } else {
+      document.body.appendChild(jCanvas);
+    }
   }
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { 
-    jCanvas.width = innerWidth; 
-    jCanvas.height = innerHeight; 
+    jCanvas.width = root.innerWidth; 
+    jCanvas.height = root.innerHeight; 
   }
   resizeJCanvas();
   root.addEventListener("resize", resizeJCanvas);
@@ -215,18 +222,18 @@ if (jetman) {
     jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
 
     if (isJetmanFlying) {
-      // Read the exact screen position of .akira_light_dot_jetman
       var targetNode = jetmanDot || jetman;
       var r = targetNode.getBoundingClientRect();
 
+      // Lock emission point to the exact visual center of akira_light_dot_jetman
       jTrail.push({ 
-        x: r.left + r.width / 2, 
-        y: r.top + r.height / 2, 
+        x: r.left + r.width * 0.5, 
+        y: r.top + r.height * 0.5, 
         t: performance.now() 
       });
       if (jTrail.length > jTrailMax) jTrail.shift();
     } else if (jTrail.length > 0) {
-      jTrail.shift(); // Smoothly drain trail when landing
+      jTrail.shift();
     }
 
     for (var i = 0; i < jTrail.length - 1; i++) {
@@ -260,7 +267,7 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 75%", // Triggers earlier
+    start: "top 75%",
     onEnter: function () {
       gsap.killTweensOf(jetman);
       if (hoverTween) hoverTween.kill();
