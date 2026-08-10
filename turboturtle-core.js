@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (CANVAS BEHIND + 1.2X TRAIL + EARLIER TRIGGER) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (FIXED TRAIL POSITION & LAYER) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
@@ -175,26 +175,29 @@ if (jetman) {
   var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
 
+  // Ensure Jetman sits on a clear stacking context
+  jetman.style.zIndex = "2";
+
   if (!jCanvas) {
     jCanvas = document.createElement("canvas");
     jCanvas.id = "jetmanTrailCanvas";
     Object.assign(jCanvas.style, {
       position: "fixed",
-      top: 0,
-      left: 0,
+      top: "0px",
+      left: "0px",
+      width: "100vw",
+      height: "100vh",
       pointerEvents: "none",
-      zIndex: 0,
+      zIndex: 1, // Sits directly below Jetman
       background: "transparent"
     });
-    // Inject canvas directly before Jetman in DOM so it stays behind him in stacking order
-    if (jetman.parentNode) {
-      jetman.parentNode.insertBefore(jCanvas, jetman);
-    } else {
-      document.body.appendChild(jCanvas);
-    }
+    document.body.appendChild(jCanvas);
   }
   var jCtx = jCanvas.getContext("2d");
-  function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
+  function resizeJCanvas() { 
+    jCanvas.width = root.innerWidth; 
+    jCanvas.height = root.innerHeight; 
+  }
   resizeJCanvas();
   root.addEventListener("resize", resizeJCanvas);
 
@@ -209,9 +212,15 @@ if (jetman) {
 
   function renderJetmanTrail() {
     jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+
     if (isJetmanFlying) {
+      // Get real viewport coordinates just like the UFO module
       var r = jetman.getBoundingClientRect();
-      jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
+      jTrail.push({ 
+        x: r.left + r.width / 2, 
+        y: r.top + r.height / 2, 
+        t: performance.now() 
+      });
       if (jTrail.length > jTrailMax) jTrail.shift();
     } else if (jTrail.length > 0) {
       jTrail.shift();
@@ -223,9 +232,9 @@ if (jetman) {
       if (Math.hypot(dx, dy) < 1) continue;
       var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
       if (alpha <= 0) continue;
+
       jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-      // 1.2x Width (5px to 12px)
-      jCtx.lineWidth = 5 + (12 - 5) * alpha;
+      jCtx.lineWidth = 5 + (12 - 5) * alpha; // 1.2x width
       jCtx.beginPath();
       jCtx.moveTo(p1.x, p1.y);
       jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
@@ -248,8 +257,7 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    // Trigger earlier at 75% down the viewport
-    start: "top 75%",
+    start: "top 75%", // Triggers earlier
     onEnter: function () {
       gsap.killTweensOf(jetman);
       if (hoverTween) hoverTween.kill();
