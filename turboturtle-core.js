@@ -165,26 +165,33 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (ADJUSTED TIMING, LAYER & TRAIL) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (FIXED TRAIL & LAYER SETUP) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
 if (jetman) {
   var hoverTween;
-  var jTrail = [], jTrailMax = 20, jFadeTime = 450;
+  var jTrail = [], jTrailMax = 18, jFadeTime = 350;
   var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
+
+  // Force Jetman to sit cleanly ABOVE the trail canvas
+  jetman.style.position = "relative";
+  jetman.style.zIndex = "10";
 
   if (!jCanvas) {
     jCanvas = document.createElement("canvas");
     jCanvas.id = "jetmanTrailCanvas";
-    // 2. FIXED: Inserts canvas before jetman in DOM & sets zIndex: -1 so it stays underneath
-    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: -1, background: "transparent" });
-    if (jetman.parentNode) {
-      jetman.parentNode.insertBefore(jCanvas, jetman);
-    } else {
-      document.body.appendChild(jCanvas);
-    }
+    // Fixed: zIndex 9 sits directly underneath Jetman (zIndex 10)
+    Object.assign(jCanvas.style, {
+      position: "fixed",
+      top: 0,
+      left: 0,
+      pointerEvents: "none",
+      zIndex: 9,
+      background: "transparent"
+    });
+    document.body.appendChild(jCanvas);
   }
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
@@ -192,6 +199,14 @@ if (jetman) {
   root.addEventListener("resize", resizeJCanvas);
 
   var isJetmanFlying = false;
+
+  function resetTrailState() {
+    isJetmanFlying = false;
+    clearTimeout(trailDelayTimeout);
+    jTrail = [];
+    if (jCtx) jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+  }
+
   function renderJetmanTrail() {
     jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
     if (isJetmanFlying) {
@@ -199,7 +214,7 @@ if (jetman) {
       jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
       if (jTrail.length > jTrailMax) jTrail.shift();
     } else if (jTrail.length > 0) {
-      jTrail.shift();
+      jTrail.shift(); // Smoothly drain trail when flight stops
     }
 
     for (var i = 0; i < jTrail.length - 1; i++) {
@@ -209,8 +224,7 @@ if (jetman) {
       var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
       if (alpha <= 0) continue;
       jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-      // 3. FIXED: 1.5x Thickness (6px tail to 15px head)
-      jCtx.lineWidth = 6 + (15 - 6) * alpha;
+      jCtx.lineWidth = 6 + (15 - 6) * alpha; // 1.5x Thickness
       jCtx.beginPath();
       jCtx.moveTo(p1.x, p1.y);
       jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
@@ -233,25 +247,24 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    // 4. FIXED: Triggers earlier at 60% viewport height from top
     start: "top 60%",
     onEnter: function () {
+      gsap.killTweensOf(jetman);
       if (hoverTween) hoverTween.kill();
-      clearTimeout(trailDelayTimeout);
-      isJetmanFlying = false;
-      jTrail = [];
+      if (dolphin) gsap.killTweensOf(dolphin);
+      resetTrailState();
 
       trailDelayTimeout = setTimeout(function () {
         isJetmanFlying = true;
-      }, 150);
+      }, 120);
 
       gsap.to(jetman, {
         x: "100vw",
         y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
         rotation: -50,
-        duration: 1.1, // Slightly relaxed launch duration
+        duration: 1.1,
         ease: "power2.in",
-        onComplete: function() {
+        onComplete: function () {
           isJetmanFlying = false;
         }
       });
@@ -260,34 +273,31 @@ if (jetman) {
         gsap.to(dolphin, {
           rotation: -20,
           duration: 0.4,
-          delay: 0.25,
+          delay: 0.2,
           ease: "back.out(1.7)"
         });
       }
     },
     onLeaveBack: function () {
-      clearTimeout(trailDelayTimeout);
       gsap.killTweensOf(jetman);
       if (dolphin) gsap.killTweensOf(dolphin);
+      resetTrailState();
 
       isJetmanFlying = true;
-      jTrail = [];
-
       gsap.set(jetman, { rotation: 180 });
 
       var returnTl = gsap.timeline({
         onComplete: function () {
-          isJetmanFlying = false;
+          resetTrailState();
           startHover();
         }
       });
 
-      // 1. FIXED: Slower return speed with heavy ease-out curve (power4.out)
       returnTl.to(jetman, {
         x: "20vw",
         y: () => -20 * Math.tan(45 * Math.PI / 180) + "vw",
         rotation: 180,
-        duration: 1.1, // Slower travel
+        duration: 1.1,
         ease: "power3.out"
       });
 
@@ -295,7 +305,7 @@ if (jetman) {
         x: 0,
         y: 0,
         rotation: 0,
-        duration: 0.6, // Strong deceleration into touchdown
+        duration: 0.6,
         ease: "power4.out"
       });
 
