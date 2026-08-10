@@ -384,18 +384,5 @@
     requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
-   // --- SPACECATS SPACE FLOAT ANIMATION ---
-   var spacecats = q(".spacecats");
-   if (spacecats) {
-     // Continuous smooth floating loop (Y-axis, X-axis, and gentle rotation)
-     gsap.to(spacecats, {
-       y: "+=20",          // Slowly floats 20px up and down
-       x: "+=12",          // Slowly drifts 12px side to side
-       rotation: "+=6",    // Gentle 6-degree rotational tilt
-       duration: 3.5,      // Slow duration for weightless space feel
-       ease: "sine.inOut", // Silky smooth easing curve
-       yoyo: true,         // Reverses direction continuously
-       repeat: -1          // Infinite loop
-     });
-   }
+
 })(window);
