@@ -165,118 +165,137 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (DELAYED & EXTENDED TRAIL) ---
-      var jetman = q(".about_jetman");
-      var dolphin = q(".about_dolphin");
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (BIDIRECTIONAL TRAIL + TURNAROUND) ---
+var jetman = q(".about_jetman");
+var dolphin = q(".about_dolphin");
 
-      if (jetman) {
-        var hoverTween;
-        var jTrail = [], jTrailMax = 20, jFadeTime = 450; // Increased length (20 points) & longer fade (450ms)
-        var jCanvas = document.getElementById("jetmanTrailCanvas");
-        var trailDelayTimeout;
+if (jetman) {
+  var hoverTween;
+  var jTrail = [], jTrailMax = 20, jFadeTime = 450;
+  var jCanvas = document.getElementById("jetmanTrailCanvas");
+  var trailDelayTimeout;
 
-        if (!jCanvas) {
-          jCanvas = document.createElement("canvas");
-          jCanvas.id = "jetmanTrailCanvas";
-          Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 9, background: "transparent" });
-          document.body.appendChild(jCanvas);
+  if (!jCanvas) {
+    jCanvas = document.createElement("canvas");
+    jCanvas.id = "jetmanTrailCanvas";
+    Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 9, background: "transparent" });
+    document.body.appendChild(jCanvas);
+  }
+  var jCtx = jCanvas.getContext("2d");
+  function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
+  resizeJCanvas();
+  root.addEventListener("resize", resizeJCanvas);
+
+  var isJetmanFlying = false;
+  function renderJetmanTrail() {
+    jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+    if (isJetmanFlying) {
+      var r = jetman.getBoundingClientRect();
+      jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
+      if (jTrail.length > jTrailMax) jTrail.shift();
+    } else if (jTrail.length > 0) {
+      jTrail.shift();
+    }
+
+    for (var i = 0; i < jTrail.length - 1; i++) {
+      var p1 = jTrail[i], p2 = jTrail[i + 1];
+      var dx = p2.x - p1.x, dy = p2.y - p1.y;
+      if (Math.hypot(dx, dy) < 1) continue;
+      var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
+      if (alpha <= 0) continue;
+      jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
+      jCtx.lineWidth = 4 + (10 - 4) * alpha;
+      jCtx.beginPath();
+      jCtx.moveTo(p1.x, p1.y);
+      jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
+      jCtx.stroke();
+    }
+    requestAnimationFrame(renderJetmanTrail);
+  }
+  requestAnimationFrame(renderJetmanTrail);
+
+  function startHover() {
+    hoverTween = gsap.to(jetman, {
+      y: "-=15",
+      duration: 1,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+  }
+  startHover();
+
+  ScrollTrigger.create({
+    trigger: jetman,
+    start: "top 45%",
+    onEnter: function () {
+      if (hoverTween) hoverTween.kill();
+      clearTimeout(trailDelayTimeout);
+      isJetmanFlying = false;
+      jTrail = [];
+
+      // Delay trail so it doesn't draw at origin
+      trailDelayTimeout = setTimeout(function () {
+        isJetmanFlying = true;
+      }, 150);
+
+      // 1. Launch forward at 25 degrees with slight anti-clockwise tilt (-25° launch angle - 10° extra tilt = -35° rotation)
+      gsap.to(jetman, {
+        x: "120vw",
+        y: () => -120 * Math.tan(25 * Math.PI / 180) + "vw", // Narrower 25° flight trajectory
+        rotation: -35,
+        duration: 0.8,
+        ease: "power2.in",
+        onComplete: function() {
+          isJetmanFlying = false;
         }
-        var jCtx = jCanvas.getContext("2d");
-        function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
-        resizeJCanvas();
-        root.addEventListener("resize", resizeJCanvas);
+      });
 
-        var isJetmanLaunching = false;
-        function renderJetmanTrail() {
-          jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
-          if (isJetmanLaunching) {
-            var r = jetman.getBoundingClientRect();
-            jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
-            if (jTrail.length > jTrailMax) jTrail.shift();
-          } else if (jTrail.length > 0) {
-            jTrail.shift();
-          }
-
-          for (var i = 0; i < jTrail.length - 1; i++) {
-            var p1 = jTrail[i], p2 = jTrail[i + 1];
-            var dx = p2.x - p1.x, dy = p2.y - p1.y;
-            if (Math.hypot(dx, dy) < 1) continue;
-            var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
-            if (alpha <= 0) continue;
-            jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-            jCtx.lineWidth = 4 + (10 - 4) * alpha;
-            jCtx.beginPath();
-            jCtx.moveTo(p1.x, p1.y);
-            jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
-            jCtx.stroke();
-          }
-          requestAnimationFrame(renderJetmanTrail);
-        }
-        requestAnimationFrame(renderJetmanTrail);
-
-        function startHover() {
-          hoverTween = gsap.to(jetman, {
-            y: "-=15",
-            duration: 1,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1
-          });
-        }
-        startHover();
-
-        ScrollTrigger.create({
-          trigger: jetman,
-          start: "top 45%",
-          onEnter: function () {
-            if (hoverTween) hoverTween.kill();
-            clearTimeout(trailDelayTimeout);
-            isJetmanLaunching = false;
-            jTrail = [];
-
-            // Keeps ground delay intact before drawing extended trail
-            trailDelayTimeout = setTimeout(function () {
-              isJetmanLaunching = true;
-            }, 150);
-
-            gsap.to(jetman, {
-              x: "120vw",
-              y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
-              rotation: -35,
-              duration: 0.8,
-              ease: "power2.in",
-              onComplete: function() {
-                isJetmanLaunching = false;
-              }
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, {
-                rotation: -20,
-                duration: 0.4,
-                delay: 0.25,
-                ease: "back.out(1.7)"
-              });
-            }
-          },
-          onLeaveBack: function () {
-            clearTimeout(trailDelayTimeout);
-            isJetmanLaunching = false;
-            jTrail = [];
-            gsap.killTweensOf(jetman);
-            if (dolphin) gsap.killTweensOf(dolphin);
-
-            gsap.to(jetman, {
-              x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power2.out",
-              onComplete: function () { startHover(); }
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, { rotation: 0, duration: 0.6, ease: "power2.out" });
-            }
-          }
+      if (dolphin) {
+        gsap.to(dolphin, {
+          rotation: -20,
+          duration: 0.4,
+          delay: 0.25,
+          ease: "back.out(1.7)"
         });
       }
+    },
+    onLeaveBack: function () {
+      clearTimeout(trailDelayTimeout);
+      gsap.killTweensOf(jetman);
+      if (dolphin) gsap.killTweensOf(dolphin);
+
+      // Instantly start trail when flying backward
+      isJetmanFlying = true;
+      jTrail = [];
+
+      // 2. Return flight: Turn 180 degrees (facing bottom-left: 180 - 25 = 155°) while traveling back
+      gsap.to(jetman, {
+        x: 0,
+        y: 0,
+        rotation: 155, // Head towards bottom-left, feet at top-right
+        duration: 0.8,
+        ease: "power2.out",
+        onComplete: function () {
+          isJetmanFlying = false;
+          // Smoothly rotate back to default 0° position once arrived
+          gsap.to(jetman, {
+            rotation: 0,
+            duration: 0.3,
+            ease: "power1.out",
+            onComplete: function() {
+              startHover();
+            }
+          });
+        }
+      });
+
+      if (dolphin) {
+        gsap.to(dolphin, { rotation: 0, duration: 0.6, ease: "power2.out" });
+      }
+    }
+  });
+}
 
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
