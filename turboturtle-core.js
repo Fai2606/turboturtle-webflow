@@ -4,7 +4,7 @@
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
    - Jetplane & Bigfly arcs
-   - Jetman & Surprised Dolphin launch
+   - Jetman & Surprised Dolphin launch + Mini Trail
    - UFO chase + Akira trail
 */
 (function (root) {
@@ -165,12 +165,54 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (WITH MINI JET TRAIL) ---
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
 
       if (jetman) {
         var hoverTween;
+        var jTrail = [], jTrailMax = 25, jFadeTime = 400;
+        var jCanvas = document.getElementById("jetmanTrailCanvas");
+
+        if (!jCanvas) {
+          jCanvas = document.createElement("canvas");
+          jCanvas.id = "jetmanTrailCanvas";
+          Object.assign(jCanvas.style, { position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 9, background: "transparent" });
+          document.body.appendChild(jCanvas);
+        }
+        var jCtx = jCanvas.getContext("2d");
+        function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
+        resizeJCanvas();
+        root.addEventListener("resize", resizeJCanvas);
+
+        var isJetmanLaunching = false;
+        function renderJetmanTrail() {
+          jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+          if (isJetmanLaunching) {
+            var r = jetman.getBoundingClientRect();
+            jTrail.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, t: performance.now() });
+            if (jTrail.length > jTrailMax) jTrail.shift();
+          } else if (jTrail.length > 0) {
+            jTrail.shift(); // Fade out remaining trail points smoothly
+          }
+
+          for (var i = 0; i < jTrail.length - 1; i++) {
+            var p1 = jTrail[i], p2 = jTrail[i + 1];
+            var dx = p2.x - p1.x, dy = p2.y - p1.y;
+            if (Math.hypot(dx, dy) < 1) continue;
+            var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
+            if (alpha <= 0) continue;
+            jCtx.strokeStyle = "rgba(255,230,0," + alpha + ")";
+            jCtx.lineWidth = 2 + (5 - 2) * alpha; // Fine mini trail scaled for Jetman!
+            jCtx.beginPath();
+            jCtx.moveTo(p1.x, p1.y);
+            jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
+            jCtx.stroke();
+          }
+          requestAnimationFrame(renderJetmanTrail);
+        }
+        requestAnimationFrame(renderJetmanTrail);
+
         function startHover() {
           hoverTween = gsap.to(jetman, {
             y: "-=15",
@@ -187,13 +229,20 @@
           start: "top 45%",
           onEnter: function () {
             if (hoverTween) hoverTween.kill();
+            isJetmanLaunching = true;
+            jTrail = [];
+
             gsap.to(jetman, {
               x: "120vw",
               y: () => -120 * Math.tan(35 * Math.PI / 180) + "vw",
               rotation: -35,
               duration: 0.8,
-              ease: "power2.in"
+              ease: "power2.in",
+              onComplete: function() {
+                isJetmanLaunching = false;
+              }
             });
+
             if (dolphin) {
               gsap.to(dolphin, {
                 rotation: -20,
@@ -204,12 +253,16 @@
             }
           },
           onLeaveBack: function () {
+            isJetmanLaunching = false;
+            jTrail = [];
             gsap.killTweensOf(jetman);
             if (dolphin) gsap.killTweensOf(dolphin);
+
             gsap.to(jetman, {
               x: 0, y: 0, rotation: 0, duration: 0.8, ease: "power2.out",
               onComplete: function () { startHover(); }
             });
+
             if (dolphin) {
               gsap.to(dolphin, { rotation: 0, duration: 0.6, ease: "power2.out" });
             }
