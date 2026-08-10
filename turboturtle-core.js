@@ -165,7 +165,7 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (FIXED POSITION & CONTINUOUS FLIGHT) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (CANVAS BEHIND + 1.2X TRAIL + EARLIER TRIGGER) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
 
@@ -183,10 +183,15 @@ if (jetman) {
       top: 0,
       left: 0,
       pointerEvents: "none",
-      zIndex: 1, // Kept light so it sits underneath elements safely
+      zIndex: 0,
       background: "transparent"
     });
-    document.body.appendChild(jCanvas);
+    // Inject canvas directly before Jetman in DOM so it stays behind him in stacking order
+    if (jetman.parentNode) {
+      jetman.parentNode.insertBefore(jCanvas, jetman);
+    } else {
+      document.body.appendChild(jCanvas);
+    }
   }
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { jCanvas.width = innerWidth; jCanvas.height = innerHeight; }
@@ -219,7 +224,8 @@ if (jetman) {
       var alpha = 1 - (performance.now() - p1.t) / jFadeTime;
       if (alpha <= 0) continue;
       jCtx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-      jCtx.lineWidth = 6 + (15 - 6) * alpha;
+      // 1.2x Width (5px to 12px)
+      jCtx.lineWidth = 5 + (12 - 5) * alpha;
       jCtx.beginPath();
       jCtx.moveTo(p1.x, p1.y);
       jCtx.quadraticCurveTo(p1.x + dx * 0.5, p1.y + dy * 0.5, p2.x, p2.y);
@@ -242,7 +248,8 @@ if (jetman) {
 
   ScrollTrigger.create({
     trigger: jetman,
-    start: "top 60%",
+    // Trigger earlier at 75% down the viewport
+    start: "top 75%",
     onEnter: function () {
       gsap.killTweensOf(jetman);
       if (hoverTween) hoverTween.kill();
@@ -253,7 +260,6 @@ if (jetman) {
         isJetmanFlying = true;
       }, 120);
 
-      // Launch forward
       gsap.to(jetman, {
         x: "100vw",
         y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
@@ -282,13 +288,12 @@ if (jetman) {
       isJetmanFlying = true;
       gsap.set(jetman, { rotation: 180 });
 
-      // SINGLE TWEEN: Smooth continuous flight return with seamless unroll
       gsap.to(jetman, {
         x: 0,
         y: 0,
         rotation: 0,
         duration: 1.4,
-        ease: "power2.out", // Smooth deceleration straight to touchdown
+        ease: "power2.out",
         onComplete: function () {
           resetTrailState();
           startHover();
