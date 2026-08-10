@@ -3,6 +3,7 @@
    - Parallax tweens
    - Highlight Reveal trigger
    - Reusable Fadeup trigger
+   - Hero Text Reveal (Sequential Blur & Fade In)
    - Jetplane & Bigfly arcs
    - Jetman & Surprised Dolphin launch
    - UFO chase + Akira trail
@@ -164,77 +165,107 @@
           }
         );
       });
-       
-// --- 2.7. HERO BIG HEADING LIQUID WARP (CSS SVG FILTER) ---
-(function initLiquidWarpHeading() {
-  var bigHeading = q(".big_heading");
-  if (!bigHeading) return;
+        
+// --- 2.7. HERO HEADINGS SEQUENCED REVEAL (BLUR & FADE IN) ---
+      (function initHeroSequence() {
+        var heroTl = gsap.timeline({ delay: 0.1 });
 
-  // 1. 動態注入水波扭曲 SVG Filter
-  if (!document.getElementById("liquidWarpFilter")) {
-    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.id = "liquidWarpFilter";
-    svg.setAttribute("style", "position: fixed; width: 0; height: 0; pointer-events: none; z-index: -1;");
-    svg.innerHTML = `
-      <defs>
-        <filter id="warpGlass" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.015 0.03" numOctaves="2" result="noise" id="feTurb"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="feDisp"/>
-        </filter>
-      </defs>
-    `;
-    document.body.appendChild(svg);
-  }
+        // 1. .small_heading - Quick Fade
+        if (exists(".small_heading")) {
+          heroTl.fromTo(".small_heading", 
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+          );
+        }
 
-  // 2. 設定 Big Heading 樣式
-  bigHeading.style.filter = "url(#warpGlass)";
-  bigHeading.style.transition = "filter 0.1s ease-out";
-  bigHeading.style.willChange = "filter, transform";
+        // 2. .big_heading - Smooth Blur & Rise
+        var bigHeading = q(".big_heading");
+        if (bigHeading) {
+          heroTl.fromTo(bigHeading, 
+            { opacity: 0, y: 20, filter: "blur(10px)" },
+            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" },
+            "-=0.3"
+          );
+        }
 
-  var feTurb = document.getElementById("feTurb");
-  var feDisp = document.getElementById("feDisp");
+        // 3. .body_text / .KV_body_text - Starts almost immediately alongside heading
+        var bodyTarget = q(".kv_body_text") || q(".body_text");
+        if (bodyTarget) {
+          heroTl.fromTo(bodyTarget, 
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+            "<0.2"
+          );
+        }
+      })();
+        
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
+      var jetman = q(".about_jetman");
+      var dolphin = q(".about_dolphin");
 
-  var currentScale = 0;
-  var targetScale = 0;
-  var baseFreqX = 0.015, baseFreqY = 0.03;
-  var time = 0;
+      if (jetman) {
+        var hoverTween;
 
-  // 滑鼠懸停互動扭曲 (Ripple & Liquid Motion)
-  bigHeading.addEventListener("mouseenter", function() {
-    targetScale = 22; // 扭曲強度
-  });
+        function startHover() {
+          hoverTween = gsap.to(jetman, {
+            y: "-=15",
+            duration: 1,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+          });
+        }
+        startHover();
 
-  bigHeading.addEventListener("mouseleave", function() {
-    targetScale = 0;  // 移出時平滑復原
-  });
+        ScrollTrigger.create({
+          trigger: jetman,
+          start: "top 75%",
+          onEnter: function () {
+            gsap.killTweensOf(jetman);
+            if (hoverTween) hoverTween.kill();
+            if (dolphin) gsap.killTweensOf(dolphin);
 
-  function renderWarp() {
-    time += 0.015;
-    currentScale += (targetScale - currentScale) * 0.08;
+            gsap.to(jetman, {
+              x: "100vw",
+              y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
+              rotation: -50,
+              duration: 1.1,
+              ease: "power2.in"
+            });
 
-    if (feTurb && feDisp) {
-      // 動態液體波動
-      var dynamicX = baseFreqX + Math.sin(time) * 0.005;
-      var dynamicY = baseFreqY + Math.cos(time * 0.8) * 0.005;
-      
-      feTurb.setAttribute("baseFrequency", dynamicX + " " + dynamicY);
-      feDisp.setAttribute("scale", currentScale.toFixed(2));
-    }
+            if (dolphin) {
+              gsap.to(dolphin, {
+                rotation: -20,
+                duration: 0.4,
+                delay: 0.2,
+                ease: "back.out(1.7)"
+              });
+            }
+          },
+          onLeaveBack: function () {
+            gsap.killTweensOf(jetman);
+            if (dolphin) gsap.killTweensOf(dolphin);
 
-    requestAnimationFrame(renderWarp);
-  }
+            gsap.set(jetman, { rotation: 180 });
 
-  requestAnimationFrame(renderWarp);
+            gsap.to(jetman, {
+              x: 0,
+              y: 0,
+              rotation: 0,
+              duration: 1.4,
+              ease: "power2.out",
+              onComplete: function () {
+                startHover();
+              }
+            });
 
-  // 3. 入場動畫 (Fade in)
-  if (root.gsap) {
-    gsap.fromTo(bigHeading, 
-      { opacity: 0, y: 25 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power3.out" }
-    );
-  }
-})();
-       
+            if (dolphin) {
+              gsap.to(dolphin, { rotation: 0, duration: 0.8, ease: "power2.out" });
+            }
+          }
+        });
+      }
+
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
