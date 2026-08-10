@@ -165,10 +165,10 @@
         );
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STRICT DOM BEHIND LAYER + CENTERED DOT) ---
+// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION (STABLE BODY CANVAS & DIRECT TRACKING) ---
 var jetman = q(".about_jetman");
 var dolphin = q(".about_dolphin");
-var jetmanDot = q(".akira_light_dot_jetman");
+var jetmanParent = jetman ? jetman.closest(".about_underwater_textbox4") || jetman.parentElement : null;
 
 if (jetman) {
   var hoverTween;
@@ -176,8 +176,11 @@ if (jetman) {
   var jCanvas = document.getElementById("jetmanTrailCanvas");
   var trailDelayTimeout;
 
-  // Explicitly elevate Jetman inside his local parent stacking context
-  jetman.style.position = "relative";
+  // Elevate Jetman's parent container so Jetman sits above the fixed canvas (zIndex 3)
+  if (jetmanParent) {
+    jetmanParent.style.position = "relative";
+    jetmanParent.style.zIndex = "4";
+  }
   jetman.style.zIndex = "5";
 
   if (!jCanvas) {
@@ -185,22 +188,17 @@ if (jetman) {
     jCanvas.id = "jetmanTrailCanvas";
     Object.assign(jCanvas.style, {
       position: "fixed",
-      top: 0,
-      left: 0,
+      top: "0px",
+      left: "0px",
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
-      zIndex: 1, // Stays behind Jetman (zIndex 5)
+      zIndex: "3", // Sits directly below Jetman parent (zIndex 4)
       background: "transparent"
     });
-
-    // Inject canvas right before Jetman in the DOM tree to guarantee bottom-layer rendering
-    if (jetman.parentNode) {
-      jetman.parentNode.insertBefore(jCanvas, jetman);
-    } else {
-      document.body.appendChild(jCanvas);
-    }
+    document.body.appendChild(jCanvas);
   }
+
   var jCtx = jCanvas.getContext("2d");
   function resizeJCanvas() { 
     jCanvas.width = root.innerWidth; 
@@ -222,10 +220,9 @@ if (jetman) {
     jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
 
     if (isJetmanFlying) {
-      var targetNode = jetmanDot || jetman;
-      var r = targetNode.getBoundingClientRect();
+      // Track Jetman directly on screen
+      var r = jetman.getBoundingClientRect();
 
-      // Lock emission point to the exact visual center of akira_light_dot_jetman
       jTrail.push({ 
         x: r.left + r.width * 0.5, 
         y: r.top + r.height * 0.5, 
