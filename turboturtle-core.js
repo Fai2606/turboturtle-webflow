@@ -107,7 +107,7 @@
       }
 
       tweenIf(".about_planet", stable({ y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
-      tweenIf(".spacecats", stable({ x: () => -3 * vw, y: () => 55 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+      tweenIf(".spacecats", stable({ x: () => -3 * vw, y: () => 55 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5, fastScrollEnd: true } }));
       tweenIf(".about_saturn", stable({ x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
       tweenIf(".satellitemove", stable({ x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
       tweenIf(".about_watermoon", stable({ yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
@@ -384,5 +384,18 @@
     requestAnimationFrame(loop);
     console.log("[TT] UFO booted");
   }
-
+   // --- SPACECATS SPACE FLOAT ANIMATION ---
+   var spacecats = q(".spacecats");
+   if (spacecats) {
+     // Continuous smooth floating loop (Y-axis, X-axis, and gentle rotation)
+     gsap.to(spacecats, {
+       y: "+=20",          // Slowly floats 20px up and down
+       x: "+=12",          // Slowly drifts 12px side to side
+       rotation: "+=6",    // Gentle 6-degree rotational tilt
+       duration: 3.5,      // Slow duration for weightless space feel
+       ease: "sine.inOut", // Silky smooth easing curve
+       yoyo: true,         // Reverses direction continuously
+       repeat: -1          // Infinite loop
+     });
+   }
 })(window);
