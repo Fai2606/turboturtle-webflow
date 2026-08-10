@@ -234,6 +234,7 @@
     );
   }
 })();
+       
 // --- 4. COMPLEX FLIGHT PATHS ---
       var jet = q(".about_jetplane");
       if (jet) {
