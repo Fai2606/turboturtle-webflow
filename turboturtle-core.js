@@ -130,33 +130,36 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS PARALLAX GROWTH (SCRUBBED 100% -> 50%) ---
-      var cityGrowthTargets = [
-        ".about_citybuilding_1",
-        ".about_citybuilding_4",
-        ".about_citybuilding_3",
-        ".about_citybuilding_6",
-        ".about_citybuilding_5",
-        ".about_citybuilding_2",
-        ".about_backlayer",
-        ".about_moutain"
-      ].filter(exists);
+// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (層級距離拉開) ---
+      var cityPerspectiveLayers = [
+        // 1. 遠景：下壓最少 (10vh)，移動最慢
+        { sel: ".about_moutain, .about_backlayer", fromY: "10vh" },
+        
+        // 2. 中景：下壓中等 (22vh)，中速拉開距離
+        { sel: ".about_citybuilding_5, .about_citybuilding_6", fromY: "22vh" },
+        
+        // 3. 前景：下壓最多 (35vh)，快速竄出，形成深度視差
+        { sel: ".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", fromY: "35vh" }
+      ];
 
-      if (cityGrowthTargets.length) {
-        gsap.fromTo(cityGrowthTargets,
-          { y: "30vh" }, // 進入底部時從下方 30vh 開始
-          {
-            y: "0vh",   // 隨滾動平滑向上升至原位
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about_city",
-              start: "top 100%", // 剛進畫面底部時開始
-              end: "top 50%",    // 滾動到畫面 50% 正中間時精確完成
-              scrub: true        // 與滾動聯動（可自由倒放）
+      cityPerspectiveLayers.forEach(function (layer) {
+        var targets = layer.sel.split(", ").map(function(s){ return s.trim(); }).filter(exists);
+        if (targets.length) {
+          gsap.fromTo(targets,
+            { y: layer.fromY },
+            {
+              y: "0vh",       // 滾動到 50% 時全部準確歸位到 PS 的原始座標
+              ease: "none",
+              scrollTrigger: {
+                trigger: ".about_city",
+                start: "top 100%", // 進入畫面底部開始
+                end: "top 50%",    // 滾動至畫面中間完成
+                scrub: true
+              }
             }
-          }
-        );
-      }
+          );
+        }
+      });
 
 // --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
