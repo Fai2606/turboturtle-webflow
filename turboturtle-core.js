@@ -130,7 +130,7 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (0.1s + 0.02s STAGGER) ---
+// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (即時回應復原) ---
       var cityGrowthSelectors = [
         ".about_citybuilding_1",
         ".about_citybuilding_4",
@@ -146,15 +146,16 @@
 
       if (validGrowthTargets.length) {
         gsap.fromTo(validGrowthTargets,
-          { y: "30vh" }, // 初始預設隱藏於下方 30vh
+          { y: "30vh" }, // 隱藏於下方 30vh
           {
             y: "0vh",
-            duration: 0.5,      // 0.1 秒極速向上彈起
-            stagger: 0.05,      // 每個圖層間隔 0.02 秒依次出現
+            duration: 0.5,
+            stagger: 0.05,
             ease: "power2.out",
             scrollTrigger: {
               trigger: ".about_city",
-              start: "top 100%",  // 當城市頂部進到畫面 80% 位置時一體觸發
+              start: "top 60%", // 改為 60%：進入畫面下半部時即時彈出
+              end: "top 10%",   // 當向上滾動時，只要離開 60% 區域會瞬間 trigger reverse 復原！
               toggleActions: "play reverse play reverse"
             }
           }
