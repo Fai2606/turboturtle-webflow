@@ -1,13 +1,10 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
-   - Parallax tweens (Restored .about_flyduck)
-   - Highlight Reveal trigger
-   - Reusable Fadeup trigger
+   - Parallax tweens & Config-based City Layer Reveals
+   - Highlight Reveal & Reusable Fadeup trigger
    - Hero Text Reveal (Sequential Blur & Fade In)
-   - City Queen Reveal Animation
    - Jetman & Surprised Dolphin launch
-   - Jetplane & Bigfly arcs
-   - UFO chase + Akira trail
+   - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
 (function (root) {
   if (!root) return;
@@ -28,28 +25,17 @@
     }
   });
 
-  function libsReady() {
-    return !!(root.gsap && root.ScrollTrigger && root.Lenis);
-  }
+  function libsReady() { return !!(root.gsap && root.ScrollTrigger && root.Lenis); }
 
   function onDOMReady(fn) {
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-      fn();
-    } else {
-      document.addEventListener("DOMContentLoaded", fn, { once: true });
-    }
+    if (document.readyState === "complete" || document.readyState === "interactive") fn();
+    else document.addEventListener("DOMContentLoaded", fn, { once: true });
   }
 
   function startWhenReady(tries) {
-    if (libsReady()) {
-      onDOMReady(startCore);
-      return;
-    }
-    if (tries > 0) {
-      setTimeout(function () { startWhenReady(tries - 1); }, 100);
-    } else {
-      console.error("[TT] Required libs not available (GSAP/ScrollTrigger/Lenis).");
-    }
+    if (libsReady()) { onDOMReady(startCore); return; }
+    if (tries > 0) setTimeout(function () { startWhenReady(tries - 1); }, 100);
+    else console.error("[TT] Required libs not available (GSAP/ScrollTrigger/Lenis).");
   }
 
   startWhenReady(120);
@@ -65,23 +51,13 @@
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      // Stop dynamic Safari toolbars from breaking ScrollTriggers
       ScrollTrigger.config({ ignoreMobileResize: true });
 
 // --- 1. LENIS (Smooth Scroll) ---
-      lenis = new root.Lenis({
-        lerp: 0.1,
-        smoothWheel: true,
-        smoothTouch: false,
-        wheelMultiplier: 1,
-        touchMultiplier: 1,
-        infinite: false
-      });
+      lenis = new root.Lenis({ lerp: 0.1, smoothWheel: true, smoothTouch: false, wheelMultiplier: 1, touchMultiplier: 1, infinite: false });
       root.lenis = lenis;
 
-      gsap.ticker.add(function (time) {
-        lenis.raf(time * 1000);
-      });
+      gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
       gsap.ticker.lagSmoothing(0);
 
       ScrollTrigger.scrollerProxy(window, {
@@ -89,9 +65,7 @@
           if (arguments.length) return lenis.scrollTo(value);
           return (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
         },
-        getBoundingClientRect: function () {
-          return { top: 0, left: 0, width: innerWidth, height: innerHeight };
-        },
+        getBoundingClientRect: function () { return { top: 0, left: 0, width: innerWidth, height: innerHeight }; },
         pinType: document.body.style.transform ? "transform" : "fixed"
       });
 
@@ -135,29 +109,32 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.4. CITY QUEEN (EGYPT GOD) REVEAL ---
-      if (exists(".about_cityqueen")) {
-        gsap.fromTo(".about_cityqueen", 
-          { y: "30vh" },
-          {
-            y: "0vh",
+// --- 2.4. CITY LAYER REVEALS ENGINE (簡單集中管理) ---
+      var cityReveals = [
+        { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_doggod",    from: { x: "20vw" }, to: { x: "0vw" }, start: "100%", end: "40%" }, // 右至左
+        { sel: ".about_crystal",   from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }  // 下至上
+        // 未來要加新圖層，直接複製上面一行即可！
+      ];
+
+      cityReveals.forEach(function (item) {
+        if (exists(item.sel)) {
+          gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "none",
             scrollTrigger: {
-              trigger: ".about_cityqueen",
-              start: "top 100%", // 剛進入畫面底部時開始
-              end: "top 40%",   // 到達畫面下方 30% 位置時完成並回歸原位
+              trigger: item.sel,
+              start: "top " + (item.start || "100%"),
+              end: "top " + (item.end || "30%"),
               scrub: true
             }
-          }
-        );
-      }
+          }));
+        }
+      });
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
         ScrollTrigger.create({
-          trigger: el,
-          start: "top 85%",
-          end: "bottom 0%",
+          trigger: el, start: "top 85%", end: "bottom 0%",
           onEnter: function () { el.style.setProperty("--highlight-scale", "1"); },
           onLeave: function () { el.style.setProperty("--highlight-scale", "0"); },
           onEnterBack: function () { el.style.setProperty("--highlight-scale", "1"); },
@@ -167,51 +144,20 @@
 
 // --- 2.6. REUSABLE FADEUP ANIMATION ---
       gsap.utils.toArray(".fadeup").forEach(function (el) {
-        gsap.fromTo(el, 
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 80%",
-              end: "top 10%",
-              toggleActions: "play reverse play reverse"
-            }
-          }
-        );
+        gsap.fromTo(el, { opacity: 0, y: 40 }, {
+          opacity: 1, y: 0, duration: 1, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 80%", end: "top 10%", toggleActions: "play reverse play reverse" }
+        });
       });
         
 // --- 2.7. HERO HEADINGS SEQUENCED REVEAL ---
       (function initHeroSequence() {
         var heroTl = gsap.timeline({ delay: 0.1 });
-
-        if (exists(".small_heading")) {
-          heroTl.fromTo(".small_heading", 
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-          );
-        }
-
+        if (exists(".small_heading")) heroTl.fromTo(".small_heading", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" });
         var bigHeading = q(".big_heading");
-        if (bigHeading) {
-          heroTl.fromTo(bigHeading, 
-            { opacity: 0, y: 20, filter: "blur(10px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" },
-            "-=0.3"
-          );
-        }
-
+        if (bigHeading) heroTl.fromTo(bigHeading, { opacity: 0, y: 20, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" }, "-=0.3");
         var bodyTarget = q(".kv_body_text") || q(".body_text");
-        if (bodyTarget) {
-          heroTl.fromTo(bodyTarget, 
-            { opacity: 0, y: 15 },
-            { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-            "<0.2"
-          );
-        }
+        if (bodyTarget) heroTl.fromTo(bodyTarget, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, "<0.2");
       })();
 
 // --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
@@ -220,63 +166,21 @@
 
       if (jetman) {
         var hoverTween;
-
-        function startHover() {
-          hoverTween = gsap.to(jetman, {
-            y: "-=15",
-            duration: 1,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1
-          });
-        }
+        function startHover() { hoverTween = gsap.to(jetman, { y: "-=15", duration: 1, ease: "sine.inOut", yoyo: true, repeat: -1 }); }
         startHover();
 
         ScrollTrigger.create({
-          trigger: jetman,
-          start: "top 75%",
+          trigger: jetman, start: "top 75%",
           onEnter: function () {
-            gsap.killTweensOf(jetman);
-            if (hoverTween) hoverTween.kill();
-            if (dolphin) gsap.killTweensOf(dolphin);
-
-            gsap.to(jetman, {
-              x: "100vw",
-              y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
-              rotation: -50,
-              duration: 1.1,
-              ease: "power2.in"
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, {
-                rotation: -20,
-                duration: 0.4,
-                delay: 0.2,
-                ease: "back.out(1.7)"
-              });
-            }
+            gsap.killTweensOf(jetman); if (hoverTween) hoverTween.kill(); if (dolphin) gsap.killTweensOf(dolphin);
+            gsap.to(jetman, { x: "100vw", y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw", rotation: -50, duration: 1.1, ease: "power2.in" });
+            if (dolphin) gsap.to(dolphin, { rotation: -20, duration: 0.4, delay: 0.2, ease: "back.out(1.7)" });
           },
           onLeaveBack: function () {
-            gsap.killTweensOf(jetman);
-            if (dolphin) gsap.killTweensOf(dolphin);
-
+            gsap.killTweensOf(jetman); if (hoverTween) hoverTween.kill(); if (dolphin) gsap.killTweensOf(dolphin);
             gsap.set(jetman, { rotation: 180 });
-
-            gsap.to(jetman, {
-              x: 0,
-              y: 0,
-              rotation: 0,
-              duration: 1.4,
-              ease: "power2.out",
-              onComplete: function () {
-                startHover();
-              }
-            });
-
-            if (dolphin) {
-              gsap.to(dolphin, { rotation: 0, duration: 0.8, ease: "power2.out" });
-            }
+            gsap.to(jetman, { x: 0, y: 0, rotation: 0, duration: 1.4, ease: "power2.out", onComplete: startHover });
+            if (dolphin) gsap.to(dolphin, { rotation: 0, duration: 0.8, ease: "power2.out" });
           }
         });
       }
@@ -348,7 +252,6 @@
       }
 
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
-
       console.log("[TT] Booting UFO...");
       bootUFO();
 
