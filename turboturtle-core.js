@@ -133,6 +133,8 @@
       tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_cityqueen", stable({ y: 0, scrollTrigger: { trigger: ".about_cityqueen", start: "top 70%", end: "top 30%", scrub: true } })); gsap.set(".about_cityqueen", { y: "20vh" });
+       
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
