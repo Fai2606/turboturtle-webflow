@@ -138,14 +138,14 @@
 // --- 2.4. CITY QUEEN (EGYPT GOD) REVEAL ---
       if (exists(".about_cityqueen")) {
         gsap.fromTo(".about_cityqueen", 
-          { y: "25vh" },
+          { y: "30vh" },
           {
             y: "0vh",
             ease: "none",
             scrollTrigger: {
               trigger: ".about_cityqueen",
               start: "top 100%", // 剛進入畫面底部時開始
-              end: "top 70%",   // 到達畫面下方 30% 位置時完成並回歸原位
+              end: "top 40%",   // 到達畫面下方 30% 位置時完成並回歸原位
               scrub: true
             }
           }
