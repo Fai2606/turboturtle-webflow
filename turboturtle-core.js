@@ -2,7 +2,6 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Highlight Reveal & Reusable Fadeup trigger
-   - Hero Text Reveal (Sequential Blur & Fade In)
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -109,12 +108,11 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (簡單集中管理) ---
+// --- 2.4. CITY LAYER REVEALS ENGINE ---
       var cityReveals = [
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_doggod",    from: { x: "5vw" }, to: { x: "0vw" }, start: "60%", end: "30%" }, // 右至左
-        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }  // 下至上
-        // 未來要加新圖層，直接複製上面一行即可！
+        { sel: ".about_doggod",    from: { x: "3vw" }, to: { x: "0vw" }, start: "100%", end: "20%" },
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -149,16 +147,6 @@
           scrollTrigger: { trigger: el, start: "top 80%", end: "top 10%", toggleActions: "play reverse play reverse" }
         });
       });
-        
-// --- 2.7. HERO HEADINGS SEQUENCED REVEAL ---
-      (function initHeroSequence() {
-        var heroTl = gsap.timeline({ delay: 0.1 });
-        if (exists(".small_heading")) heroTl.fromTo(".small_heading", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" });
-        var bigHeading = q(".big_heading");
-        if (bigHeading) heroTl.fromTo(bigHeading, { opacity: 0, y: 20, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out" }, "-=0.3");
-        var bodyTarget = q(".kv_body_text") || q(".body_text");
-        if (bodyTarget) heroTl.fromTo(bodyTarget, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, "<0.2");
-      })();
 
 // --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
       var jetman = q(".about_jetman");
