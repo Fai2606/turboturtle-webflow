@@ -149,12 +149,12 @@
           { y: "30vh" }, // 初始預設隱藏於下方 30vh
           {
             y: "0vh",
-            duration: 0.1,      // 0.1 秒極速向上彈起
-            stagger: 0.02,      // 每個圖層間隔 0.02 秒依次出現
+            duration: 0.3,      // 0.1 秒極速向上彈起
+            stagger: 0.05,      // 每個圖層間隔 0.02 秒依次出現
             ease: "power2.out",
             scrollTrigger: {
               trigger: ".about_city",
-              start: "top 80%",  // 當城市頂部進到畫面 80% 位置時一體觸發
+              start: "top 100%",  // 當城市頂部進到畫面 80% 位置時一體觸發
               toggleActions: "play reverse play reverse"
             }
           }
