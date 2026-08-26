@@ -116,8 +116,8 @@
         ease: "power1.out",
         scrollTrigger: {
           trigger: ".about_balloon",
-          start: "top bottom",
-          end: "bottom -10%",
+          start: "top 100%",
+          end: "top 20%",
           scrub: true
         }
       }));
