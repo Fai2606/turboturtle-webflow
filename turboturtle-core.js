@@ -112,15 +112,16 @@
 
 // --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
       tweenIf(".about_balloon", stable({
-        y: () => 85 * vh, // 提高向下位移量，增強慢速升起的持續力
-        ease: "none",
+        y: () => 90 * vh,
+        ease: "power1.out",
         scrollTrigger: {
           trigger: ".about_balloon",
-          start: "top 100%", // 進入畫面底部開始
-          end: "top 20%",   // 當氣球頂部到達畫面 20% 位置時才剛好用完位移，確保全程都在緩慢上升
+          start: "top bottom",
+          end: "bottom -10%",
           scrub: true
         }
       }));
+
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
