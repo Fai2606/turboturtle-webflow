@@ -112,7 +112,9 @@
       var cityReveals = [
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
         { sel: ".about_doggod",    from: { x: "3vw" }, to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_cityrocket",   from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "10%" }
+
       ];
 
       cityReveals.forEach(function (item) {
