@@ -109,38 +109,35 @@
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED) ---
-      var cityReveals = [
-        // 角色與特殊物件
-        { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
+var cityReveals = [
+  { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
+  { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
+  { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
+  { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+  { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
+];
 
-        // 所有城市與背景圖層（每一個都有微調過不同的從屬深淺 y 距離）
-        { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
-      ];
+var sharedCityTrigger = document.querySelector(".about_bottom_area") ? ".about_bottom_area" : "body";
 
-      var sharedCityTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
-
-      cityReveals.forEach(function (item) {
-        if (exists(item.sel)) {
-          gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-            ease: "none",
-            scrollTrigger: {
-              trigger: sharedCityTrigger, // 關鍵：統一綁定到最外層有真實高度的區域
-              start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "50%"),
-              scrub: true
-            }
-          }));
-        }
-      });
+cityReveals.forEach(function (item) {
+  if (document.querySelector(item.sel)) {
+    gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
+      ease: "none",
+      scrollTrigger: {
+        trigger: sharedCityTrigger, // 關鍵：改用外層 Wrapper 觸發！
+        start: "top " + (item.start || "100%"),
+        end: "top " + (item.end || "50%"),
+        scrub: true
+      }
+    }));
+  }
+});
 
 // --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
