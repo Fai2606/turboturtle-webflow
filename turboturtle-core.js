@@ -109,37 +109,35 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (統一下以 .about_moutain 為全體觸發源) ---
+// --- 2.4. CITY LAYER REVEALS ENGINE (全圖層統一以 Mountain 為觸發源) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
       var cityReveals = [
+        // 角色與特殊物件 (已納入 Mountain 觸發體系)
         { sel: ".about_cityqueen",       from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "60%" },
-        { sel: ".about_doggod",          from: { x: "4.5vw" },   to: { x: "0vw" }, start: "100%", end: "20%" },
+        { sel: ".about_doggod",          from: { x: "4.5vw" }, to: { x: "0vw" }, start: "100%", end: "20%" },
         { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
         { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
 
-        // 城市建築全體：統一以 mountainTrigger 為 trigger 起點
-        { sel: ".about_citybuilding_4",  from: { y: "5vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_citybuilding_3",  from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_citybuilding_6",  from: { y: "15vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_citybuilding_5",  from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_citybuilding_2",  from: { y: "25vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_backlayer",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_mountain",        from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "40%" }
+        // 城市建築全體
+        { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_citybuilding_3",  from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_citybuilding_6",  from: { y: "15vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_citybuilding_5",  from: { y: "20vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_moutain",         from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "40%" }
       ];
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
-          // 如果是建築物圖層，強制統一使用 mountainTrigger 作為 trigger
-          var isBuildingLayer = item.sel.indexOf("building") !== -1 || item.sel.indexOf("backlayer") !== -1 || item.sel.indexOf("mou") !== -1;
-          var targetTrigger = isBuildingLayer ? mountainTrigger : item.sel;
-
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "none",
             scrollTrigger: {
-              trigger: targetTrigger,
+              trigger: mountainTrigger, // 無論什麼圖層，全數統一使用 Mountain 作為基準點
               start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "30%"),
+              end: "top " + (item.end || "40%"),
               scrub: true
             }
           }));
