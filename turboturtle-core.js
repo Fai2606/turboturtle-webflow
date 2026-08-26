@@ -1,4 +1,12 @@
-/* turboturtle-combined.js */
+/* turboturtle-combined.js
+   - Core Lenis + GSAP ScrollTrigger
+   - Parallax tweens & Config-based City Layer Reveals
+   - City Buildings Fast Pop-up Growth (0.1s + 0.02s Stagger)
+   - Highlight Reveal & Reusable Fadeup trigger
+   - Rocket Standalone Launch Trigger
+   - Jetman & Surprised Dolphin launch
+   - Jetplane & Bigfly arcs & UFO chase + Akira trail
+*/
 (function (root) {
   if (!root) return;
 
@@ -28,6 +36,7 @@
   function startWhenReady(tries) {
     if (libsReady()) { onDOMReady(startCore); return; }
     if (tries > 0) setTimeout(function () { startWhenReady(tries - 1); }, 100);
+    else console.error("[TT] Required libs not available (GSAP/ScrollTrigger/Lenis).");
   }
 
   startWhenReady(120);
@@ -37,6 +46,7 @@
   function tweenIf(sel, vars) { if (exists(sel)) gsap.to(sel, vars); }
 
   function startCore() {
+    console.log("[TT] startCore entered");
     try {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
@@ -101,37 +111,57 @@
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED) ---
       var cityReveals = [
-        { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "50%" },
-        { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-        { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
+        { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_doggod",    from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" }
       ];
-
-      // 修正重點：統一以有真實高度的區域 .about_bottom_area 為觸發起點
-      var cityParentTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "none",
             scrollTrigger: {
-              trigger: cityParentTrigger,
+              trigger: item.sel,
               start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "50%"),
+              end: "top " + (item.end || "30%"),
               scrub: true
             }
           }));
         }
       });
 
-// --- 2.46. CITY ROCKET LAUNCH ---
+// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (0.1s + 0.02s STAGGER) ---
+      var cityGrowthSelectors = [
+        ".about_citybuilding_1",
+        ".about_citybuilding_4",
+        ".about_citybuilding_3",
+        ".about_citybuilding_6",
+        ".about_citybuilding_5",
+        ".about_citybuilding_2",
+        ".about_backlayer",
+        ".about_moutain"
+      ];
+
+      var validGrowthTargets = cityGrowthSelectors.filter(exists);
+
+      if (validGrowthTargets.length) {
+        gsap.fromTo(validGrowthTargets,
+          { y: "30vh" }, // 初始預設隱藏於下方 30vh
+          {
+            y: "0vh",
+            duration: 0.1,      // 0.1 秒極速向上彈起
+            stagger: 0.02,      // 每個圖層間隔 0.02 秒依次出現
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".about_city",
+              start: "top 80%",  // 當城市頂部進到畫面 80% 位置時一體觸發
+              toggleActions: "play reverse play reverse"
+            }
+          }
+        );
+      }
+
+// --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
         gsap.fromTo(".about_cityrocket",
           { y: "30vh" },
@@ -259,6 +289,7 @@
       }
 
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
+      console.log("[TT] Booting UFO...");
       bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
@@ -267,7 +298,7 @@
   // --- 6. UFO MODULE ---
   function bootUFO() {
     var host = document.querySelector(".about_womanufo");
-    if (!host) return;
+    if (!host) { console.warn("[TT] UFO: .about_womanufo not found"); return; }
 
     var velocity = isMobile ? 1 : 3;
     var maxAmpVal = isMobile ? 20 * vh : 80 * vh;
@@ -355,6 +386,7 @@
     }
 
     requestAnimationFrame(loop);
+    console.log("[TT] UFO booted");
   }
 
 })(window);
