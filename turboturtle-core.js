@@ -113,7 +113,7 @@
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
         { sel: ".about_doggod",    from: { x: "3vw" }, to: { x: "0vw" }, start: "100%", end: "20%" },
         { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%", end: "30%" },
-        { sel: ".about_cityrocket",   from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "2%" }
+        { sel: ".about_cityrocket",   from: { y: "50vh" }, to: { y: "0vh" }, start: "700%", end: "30%" }
 
       ];
 
