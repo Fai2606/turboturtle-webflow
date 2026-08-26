@@ -110,14 +110,14 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-      // --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
+// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
       tweenIf(".about_balloon", stable({
-        y: () => 70 * vh,
+        y: () => 85 * vh, // 提高向下位移量，增強慢速升起的持續力
         ease: "none",
         scrollTrigger: {
           trigger: ".about_balloon",
-          start: "top bottom",
-          end: "bottom top",
+          start: "top 100%", // 進入畫面底部開始
+          end: "top 20%",   // 當氣球頂部到達畫面 20% 位置時才剛好用完位移，確保全程都在緩慢上升
           scrub: true
         }
       }));
