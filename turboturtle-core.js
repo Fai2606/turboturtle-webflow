@@ -1,7 +1,7 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
-   - City Buildings Fast Pop-up Growth (0.1s + 0.02s Stagger)
+   - City Buildings Parallax Growth (Scrubbed 100% -> 50%)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -130,8 +130,8 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (0.1s + 0.02s STAGGER) ---
-      var cityGrowthSelectors = [
+// --- 2.45. CITY BUILDINGS PARALLAX GROWTH (SCRUBBED 100% -> 50%) ---
+      var cityGrowthTargets = [
         ".about_citybuilding_1",
         ".about_citybuilding_4",
         ".about_citybuilding_3",
@@ -140,22 +140,19 @@
         ".about_citybuilding_2",
         ".about_backlayer",
         ".about_moutain"
-      ];
+      ].filter(exists);
 
-      var validGrowthTargets = cityGrowthSelectors.filter(exists);
-
-      if (validGrowthTargets.length) {
-        gsap.fromTo(validGrowthTargets,
-          { y: "30vh" }, // 初始預設隱藏於下方 30vh
+      if (cityGrowthTargets.length) {
+        gsap.fromTo(cityGrowthTargets,
+          { y: "30vh" }, // 進入底部時從下方 30vh 開始
           {
-            y: "0vh",
-            duration: 0.5,      // 0.1 秒極速向上彈起
-            stagger: 0.1,      // 每個圖層間隔 0.02 秒依次出現
-            ease: "power2.out",
+            y: "0vh",   // 隨滾動平滑向上升至原位
+            ease: "none",
             scrollTrigger: {
               trigger: ".about_city",
-              start: "top 100%",  // 當城市頂部進到畫面 80% 位置時一體觸發
-              toggleActions: "play reverse play reverse"
+              start: "top 100%", // 剛進畫面底部時開始
+              end: "top 50%",    // 滾動到畫面 50% 正中間時精確完成
+              scrub: true        // 與滾動聯動（可自由倒放）
             }
           }
         );
