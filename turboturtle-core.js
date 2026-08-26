@@ -113,7 +113,19 @@
       var cityReveals = [
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
         { sel: ".about_doggod",    from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" }
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
+        { sel: ".about_frog",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
+         
+         
+        { sel: ".about_citybuilding_1", from: { y: "5vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_4",    from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_3",   from: { y: "15vh" }, to: { y: "0vh" }, start: "80%",  end: "55%" },
+        { sel: ".about_citybuilding_6", from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_5",    from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_2",   from: { y: "30vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" },
+        { sel: ".about_cityqueen", from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_backlayer",    from: { y: "40vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_moutain",   from: { y: "45vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -130,37 +142,6 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (即時回應復原) ---
-      var cityGrowthSelectors = [
-        ".about_citybuilding_1",
-        ".about_citybuilding_4",
-        ".about_citybuilding_3",
-        ".about_citybuilding_6",
-        ".about_citybuilding_5",
-        ".about_citybuilding_2",
-        ".about_backlayer",
-        ".about_moutain"
-      ];
-
-      var validGrowthTargets = cityGrowthSelectors.filter(exists);
-
-      if (validGrowthTargets.length) {
-        gsap.fromTo(validGrowthTargets,
-          { y: "30vh" }, // 隱藏於下方 30vh
-          {
-            y: "0vh",
-            duration: 0.5,
-            stagger: 0.05,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: ".about_city",
-              start: "top 60%", // 改為 60%：進入畫面下半部時即時彈出
-              end: "top 10%",   // 當向上滾動時，只要離開 60% 區域會瞬間 trigger reverse 復原！
-              toggleActions: "play reverse play reverse"
-            }
-          }
-        );
-      }
 
 // --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
