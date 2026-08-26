@@ -117,14 +117,14 @@
         { sel: ".about_frog",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
          
          
-        { sel: ".about_citybuilding_1", from: { y: "-2vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
-        { sel: ".about_citybuilding_4",    from: { y: "-4vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
-        { sel: ".about_citybuilding_3",   from: { y: "-6vh" }, to: { y: "0vh" }, start: "80%",  end: "55%" },
-        { sel: ".about_citybuilding_6", from: { y: "-8vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
-        { sel: ".about_citybuilding_5",    from: { y: "-10vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
-        { sel: ".about_citybuilding_2",   from: { y: "-12vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" },
-        { sel: ".about_backlayer",    from: { y: "-14vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
-        { sel: ".about_moutain",   from: { y: "-16vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" }
+        { sel: ".about_citybuilding_1", from: { y: "-4vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_4",    from: { y: "-8vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_3",   from: { y: "-12vh" }, to: { y: "0vh" }, start: "80%",  end: "55%" },
+        { sel: ".about_citybuilding_6", from: { y: "-16vh" }, to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_5",    from: { y: "-20vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_citybuilding_2",   from: { y: "-24vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" },
+        { sel: ".about_backlayer",    from: { y: "-28vh" },  to: { y: "0vh" }, start: "100%", end: "55%" },
+        { sel: ".about_moutain",   from: { y: "-32vh" }, to: { y: "0vh" }, start: "100%",  end: "55%" }
       ];
 
       cityReveals.forEach(function (item) {
