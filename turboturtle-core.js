@@ -2,6 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Highlight Reveal & Reusable Fadeup trigger
+   - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -90,7 +91,6 @@
       tweenIf(".about_section_2", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".lakeshrink", stable({ scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_rocket", stable({ x: () => 130 * vw, y: () => -20 * vw, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: () => innerHeight * 0.4 + "px top", end: () => innerHeight * 0.7 + "px top", scrub: true } }));
       tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
       tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
@@ -108,13 +108,11 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.4. CITY LAYER REVEALS ENGINE ---
+// --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED) ---
       var cityReveals = [
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_doggod",    from: { x: "3vw" }, to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%", end: "30%" },
-        { sel: ".about_cityrocket",   from: { y: "20vh" }, to: { y: "0vh" }, start: "80%", end: "40%" }
-
+        { sel: ".about_doggod",    from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -130,6 +128,23 @@
           }));
         }
       });
+
+// --- 2.45. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
+      if (exists(".about_cityrocket")) {
+        gsap.fromTo(".about_cityrocket",
+          { y: "30vh" }, // Starting position (below original spot)
+          {
+            y: "0vh",
+            duration: 1.0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ".about_cityrocket",
+              start: "top 80%", // Launch triggers when rocket top reaches 80% of viewport
+              toggleActions: "play reverse play reverse"
+            }
+          }
+        );
+      }
 
 // --- 2.5. BLACK HIGHLIGHT ANIMATION ---
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
