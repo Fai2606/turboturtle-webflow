@@ -112,8 +112,8 @@
 // --- 2.4. CITY LAYER REVEALS ENGINE (簡單集中管理) ---
       var cityReveals = [
         { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_doggod",    from: { x: "20vw" }, to: { x: "0vw" }, start: "100%", end: "40%" }, // 右至左
-        { sel: ".about_crystal",   from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }  // 下至上
+        { sel: ".about_doggod",    from: { x: "5vw" }, to: { x: "0vw" }, start: "90%", end: "45%" }, // 右至左
+        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }  // 下至上
         // 未來要加新圖層，直接複製上面一行即可！
       ];
 
