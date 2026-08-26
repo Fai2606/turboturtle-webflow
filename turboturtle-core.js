@@ -1,11 +1,4 @@
-/* turboturtle-combined.js
-   - Core Lenis + GSAP ScrollTrigger
-   - Parallax tweens & Config-based City Layer Reveals (Full Array Engine)
-   - Highlight Reveal & Reusable Fadeup trigger
-   - Rocket Standalone Launch Trigger
-   - Jetman & Surprised Dolphin launch
-   - Jetplane & Bigfly arcs & UFO chase + Akira trail
-*/
+/* turboturtle-combined.js */
 (function (root) {
   if (!root) return;
 
@@ -35,7 +28,6 @@
   function startWhenReady(tries) {
     if (libsReady()) { onDOMReady(startCore); return; }
     if (tries > 0) setTimeout(function () { startWhenReady(tries - 1); }, 100);
-    else console.error("[TT] Required libs not available (GSAP/ScrollTrigger/Lenis).");
   }
 
   startWhenReady(120);
@@ -45,7 +37,6 @@
   function tweenIf(sel, vars) { if (exists(sel)) gsap.to(sel, vars); }
 
   function startCore() {
-    console.log("[TT] startCore entered");
     try {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
@@ -109,37 +100,38 @@
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED) ---
-var cityReveals = [
-  { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-  { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
-  { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
-  { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
-  { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
-];
+      var cityReveals = [
+        { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "50%" },
+        { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
+      ];
 
-var sharedCityTrigger = document.querySelector(".about_bottom_area") ? ".about_bottom_area" : "body";
+      // 修正重點：統一以有真實高度的區域 .about_bottom_area 為觸發起點
+      var cityParentTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
 
-cityReveals.forEach(function (item) {
-  if (document.querySelector(item.sel)) {
-    gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-      ease: "none",
-      scrollTrigger: {
-        trigger: sharedCityTrigger, // 關鍵：改用外層 Wrapper 觸發！
-        start: "top " + (item.start || "100%"),
-        end: "top " + (item.end || "50%"),
-        scrub: true
-      }
-    }));
-  }
-});
+      cityReveals.forEach(function (item) {
+        if (exists(item.sel)) {
+          gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
+            ease: "none",
+            scrollTrigger: {
+              trigger: cityParentTrigger,
+              start: "top " + (item.start || "100%"),
+              end: "top " + (item.end || "50%"),
+              scrub: true
+            }
+          }));
+        }
+      });
 
-// --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
+// --- 2.46. CITY ROCKET LAUNCH ---
       if (exists(".about_cityrocket")) {
         gsap.fromTo(".about_cityrocket",
           { y: "30vh" },
@@ -267,7 +259,6 @@ cityReveals.forEach(function (item) {
       }
 
       root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
-      console.log("[TT] Booting UFO...");
       bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
@@ -276,7 +267,7 @@ cityReveals.forEach(function (item) {
   // --- 6. UFO MODULE ---
   function bootUFO() {
     var host = document.querySelector(".about_womanufo");
-    if (!host) { console.warn("[TT] UFO: .about_womanufo not found"); return; }
+    if (!host) return;
 
     var velocity = isMobile ? 1 : 3;
     var maxAmpVal = isMobile ? 20 * vh : 80 * vh;
@@ -364,7 +355,6 @@ cityReveals.forEach(function (item) {
     }
 
     requestAnimationFrame(loop);
-    console.log("[TT] UFO booted");
   }
 
 })(window);
