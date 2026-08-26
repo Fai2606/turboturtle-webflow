@@ -149,8 +149,8 @@
           { y: "30vh" }, // 初始預設隱藏於下方 30vh
           {
             y: "0vh",
-            duration: 0.3,      // 0.1 秒極速向上彈起
-            stagger: 0.05,      // 每個圖層間隔 0.02 秒依次出現
+            duration: 0.5,      // 0.1 秒極速向上彈起
+            stagger: 0.1,      // 每個圖層間隔 0.02 秒依次出現
             ease: "power2.out",
             scrollTrigger: {
               trigger: ".about_city",
