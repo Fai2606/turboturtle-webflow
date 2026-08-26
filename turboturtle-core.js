@@ -109,20 +109,8 @@
       tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_balloon", stable({ y: () => 100 * vh, ease: "none", scrollTrigger: { trigger: ".about_balloon", start: "top bottom", end: "bottom -250%", scrub: true } }));
 
-// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
-      var balloonParent = exists(".about_viewport_wrapper") ? ".about_viewport_wrapper" : "body";
-
-      tweenIf(".about_balloon", stable({
-        y: () => 100 * vh, // 往下移動 100vh，產生極慢上升並被下方城市追上的視覺差
-        ease: "none",
-        scrollTrigger: {
-          trigger: balloonParent, // 關鍵：改用有真實高度的父級 Wrapper 作為 Trigger
-          start: "top top",      // 從頁面頂部滾動開始連動
-          end: "bottom top",     // 滾動到底部結束
-          scrub: true
-        }
-      }));
 
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
