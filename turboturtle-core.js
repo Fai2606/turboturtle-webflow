@@ -112,7 +112,7 @@
 
 // --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
       tweenIf(".about_balloon", stable({
-        y: () => 90 * vh,
+        y: () => 120 * vh,
         ease: "power1.out",
         scrollTrigger: {
           trigger: ".about_balloon",
