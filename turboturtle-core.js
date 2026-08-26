@@ -1,7 +1,7 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
-   - City Buildings Parallax Growth (Scrubbed 100% -> 50%)
+   - City Buildings Perspective Parallax Growth (Queen Principle)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -130,38 +130,20 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (視差深度拉開) ---
-      var cityPerspectiveLayers = [
-        // 1. 遠景：下壓最少 (10vh)，移動最慢
-        { sel: ".about_moutain, .about_backlayer", fromY: "10vh" },
-        
-        // 2. 中景：下壓中等 (22vh)，中速拉開距離
-        { sel: ".about_citybuilding_5, .about_citybuilding_6", fromY: "22vh" },
-        
-        // 3. 前景：下壓最多 (35vh)，快速竄出，形成深度視差
-        { sel: ".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", fromY: "35vh" }
-      ];
+// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (Queen 同款原理，動態拉開距離) ---
+      var cityTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
 
-      var parallaxTriggerEl = exists(".about_bottom_area") ? ".about_bottom_area" : exists(".about_city") ? ".about_city" : "body";
+      // 1. 遠景：移動最慢 (10vh)
+      gsap.set(".about_moutain, .about_backlayer", { y: "10vh" });
+      tweenIf(".about_moutain, .about_backlayer", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
 
-      cityPerspectiveLayers.forEach(function (layer) {
-        var targets = layer.sel.split(", ").map(function(s){ return s.trim(); }).filter(exists);
-        if (targets.length) {
-          gsap.fromTo(targets,
-            { y: layer.fromY },
-            {
-              y: "0vh",       // 滾動到 50% 時全部準確歸位到原本位置
-              ease: "none",
-              scrollTrigger: {
-                trigger: parallaxTriggerEl,
-                start: "top 100%", // 當城市容器頂部進入螢幕底部時開始
-                end: "top 40%",    // 滾動至螢幕 40% 位置時完成拉開
-                scrub: true
-              }
-            }
-          );
-        }
-      });
+      // 2. 中景：中速移動 (20vh)
+      gsap.set(".about_citybuilding_5, .about_citybuilding_6", { y: "20vh" });
+      tweenIf(".about_citybuilding_5, .about_citybuilding_6", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
+
+      // 3. 前景：移動最快 (35vh)，向下滾動時快速向上推升，將與背景的垂直距離逐漸拉開
+      gsap.set(".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", { y: "35vh" });
+      tweenIf(".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
 
 // --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
