@@ -2,6 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Synchronized Mountain-triggered City Parallax
+   - Slow Rising Balloon Parallax (.about_balloon Downwards y-offset)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -109,6 +110,18 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
+      // --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon) ---
+      tweenIf(".about_balloon", stable({
+        y: () => 40 * vh,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_balloon",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      }));
+
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
@@ -133,12 +146,12 @@
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-            ease: "power2.out", // 關鍵 1：改為 Ease Out 減速曲線
+            ease: "power2.out",
             scrollTrigger: {
               trigger: mountainTrigger,
               start: "top " + (item.start || "100%"),
               end: "top " + (item.end || "40%"),
-              scrub: 1 // 關鍵 2：加上 1 秒滾動慣性緩衝（數值越小越緊貼，可試 0.5 到 1.5）
+              scrub: 1
             }
           }));
         }
