@@ -1,7 +1,6 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
-   - Parallax tweens & Config-based City Layer Reveals
-   - City Buildings Perspective Parallax Growth (Queen Principle)
+   - Parallax tweens & Config-based City Layer Reveals (Full Array Engine)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -111,39 +110,37 @@
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED) ---
       var cityReveals = [
-        { sel: ".about_cityqueen", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
-        { sel: ".about_doggod",    from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",   from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" }
+        // 角色與特殊物件
+        { sel: ".about_cityqueen",       from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_doggod",          from: { x: "3vw" },  to: { x: "0vw" }, start: "100%", end: "20%" },
+        { sel: ".about_crystal",         from: { y: "10vh" }, to: { y: "0vh" }, start: "80%",  end: "30%" },
+
+        // 所有城市與背景圖層（每一個都有微調過不同的從屬深淺 y 距離）
+        { sel: ".about_moutain",         from: { y: "8vh" },  to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_backlayer",       from: { y: "12vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_5",  from: { y: "18vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_6",  from: { y: "22vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_2",  from: { y: "26vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_3",  from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_4",  from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "50%" },
+        { sel: ".about_citybuilding_1",  from: { y: "40vh" }, to: { y: "0vh" }, start: "100%", end: "50%" }
       ];
+
+      var sharedCityTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "none",
             scrollTrigger: {
-              trigger: item.sel,
+              trigger: sharedCityTrigger, // 關鍵：統一綁定到最外層有真實高度的區域
               start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "30%"),
+              end: "top " + (item.end || "50%"),
               scrub: true
             }
           }));
         }
       });
-
-// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (Queen 同款原理，動態拉開距離) ---
-      var cityTrigger = exists(".about_bottom_area") ? ".about_bottom_area" : "body";
-
-      // 1. 遠景：移動最慢 (10vh)
-      gsap.set(".about_moutain, .about_backlayer", { y: "10vh" });
-      tweenIf(".about_moutain, .about_backlayer", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
-
-      // 2. 中景：中速移動 (20vh)
-      gsap.set(".about_citybuilding_5, .about_citybuilding_6", { y: "20vh" });
-      tweenIf(".about_citybuilding_5, .about_citybuilding_6", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
-
-      // 3. 前景：移動最快 (35vh)，向下滾動時快速向上推升，將與背景的垂直距離逐漸拉開
-      gsap.set(".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", { y: "35vh" });
-      tweenIf(".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", stable({ y: "0vh", ease: "none", scrollTrigger: { trigger: cityTrigger, start: "top 100%", end: "top 50%", scrub: true } }));
 
 // --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
