@@ -1,6 +1,7 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
+   - City Buildings Fast Pop-up Growth (0.1s + 0.02s Stagger)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -129,17 +130,48 @@
         }
       });
 
-// --- 2.45. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
+// --- 2.45. CITY BUILDINGS FAST POP-UP GROWTH (0.1s + 0.02s STAGGER) ---
+      var cityGrowthSelectors = [
+        ".about_citybuilding_1",
+        ".about_citybuilding_4",
+        ".about_citybuilding_3",
+        ".about_citybuilding_6",
+        ".about_citybuilding_5",
+        ".about_citybuilding_2",
+        ".about_backlayer",
+        ".about_moutain"
+      ];
+
+      var validGrowthTargets = cityGrowthSelectors.filter(exists);
+
+      if (validGrowthTargets.length) {
+        gsap.fromTo(validGrowthTargets,
+          { y: "30vh" }, // 初始預設隱藏於下方 30vh
+          {
+            y: "0vh",
+            duration: 0.1,      // 0.1 秒極速向上彈起
+            stagger: 0.02,      // 每個圖層間隔 0.02 秒依次出現
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".about_city",
+              start: "top 80%",  // 當城市頂部進到畫面 80% 位置時一體觸發
+              toggleActions: "play reverse play reverse"
+            }
+          }
+        );
+      }
+
+// --- 2.46. CITY ROCKET LAUNCH (1s TIME-BASED WITH EASING) ---
       if (exists(".about_cityrocket")) {
         gsap.fromTo(".about_cityrocket",
-          { y: "30vh" }, // Starting position (below original spot)
+          { y: "30vh" },
           {
             y: "0vh",
             duration: 1.0,
             ease: "power3.out",
             scrollTrigger: {
               trigger: ".about_cityrocket",
-              start: "top 80%", // Launch triggers when rocket top reaches 80% of viewport
+              start: "top 80%",
               toggleActions: "play reverse play reverse"
             }
           }
