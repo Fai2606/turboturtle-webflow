@@ -113,10 +113,10 @@
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
       var cityReveals = [
-        { sel: ".about_cityqueen",       from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_cityqueen",       from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "60%" },
         { sel: ".about_doggod",          from: { x: "4.5vw" },   to: { x: "0vw" }, start: "100%", end: "20%" },
-        { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "40%" },
-        { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "40%" },
+        { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
+        { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
 
         // 城市建築全體：統一以 mountainTrigger 為 trigger 起點
         { sel: ".about_citybuilding_4",  from: { y: "5vh" },  to: { y: "0vh" }, start: "100%", end: "40%" },
