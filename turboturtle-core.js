@@ -109,15 +109,15 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (全圖層統一以 Mountain 為觸發源) ---
+// --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
       var cityReveals = [
-        // 角色與特殊物件 (已納入 Mountain 觸發體系)
+        // 角色與特殊物件
         { sel: ".about_cityqueen",       from: { y: "35vh" },  to: { y: "0vh" }, start: "80%", end: "40%" },
         { sel: ".about_doggod",          from: { x: "4.5vw" }, to: { x: "0vw" }, start: "80%", end: "40%" },
-        { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
-        { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
+        { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%", end: "60%" },
+        { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%", end: "60%" },
 
         // 城市建築全體
         { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "40%" },
@@ -133,12 +133,12 @@
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-            ease: "none",
+            ease: "power2.out", // 關鍵 1：改為 Ease Out 減速曲線
             scrollTrigger: {
-              trigger: mountainTrigger, // 無論什麼圖層，全數統一使用 Mountain 作為基準點
+              trigger: mountainTrigger,
               start: "top " + (item.start || "100%"),
               end: "top " + (item.end || "40%"),
-              scrub: true
+              scrub: 1 // 關鍵 2：加上 1 秒滾動慣性緩衝（數值越小越緊貼，可試 0.5 到 1.5）
             }
           }));
         }
