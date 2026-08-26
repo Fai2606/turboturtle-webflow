@@ -114,7 +114,7 @@
 
       var cityReveals = [
         // 角色與特殊物件 (已納入 Mountain 觸發體系)
-        { sel: ".about_cityqueen",       from: { y: "60vh" },  to: { y: "0vh" }, start: "80%", end: "50%" },
+        { sel: ".about_cityqueen",       from: { y: "35vh" },  to: { y: "0vh" }, start: "80%", end: "40%" },
         { sel: ".about_doggod",          from: { x: "4.5vw" }, to: { x: "0vw" }, start: "80%", end: "40%" },
         { sel: ".about_crystal",         from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
         { sel: ".about_frog",            from: { y: "10vh" },  to: { y: "0vh" }, start: "80%",  end: "60%" },
