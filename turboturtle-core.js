@@ -130,7 +130,7 @@
         }
       });
 
-// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (層級距離拉開) ---
+// --- 2.45. CITY BUILDINGS PERSPECTIVE PARALLAX (視差深度拉開) ---
       var cityPerspectiveLayers = [
         // 1. 遠景：下壓最少 (10vh)，移動最慢
         { sel: ".about_moutain, .about_backlayer", fromY: "10vh" },
@@ -142,18 +142,20 @@
         { sel: ".about_citybuilding_1, .about_citybuilding_2, .about_citybuilding_3, .about_citybuilding_4", fromY: "35vh" }
       ];
 
+      var parallaxTriggerEl = exists(".about_bottom_area") ? ".about_bottom_area" : exists(".about_city") ? ".about_city" : "body";
+
       cityPerspectiveLayers.forEach(function (layer) {
         var targets = layer.sel.split(", ").map(function(s){ return s.trim(); }).filter(exists);
         if (targets.length) {
           gsap.fromTo(targets,
             { y: layer.fromY },
             {
-              y: "0vh",       // 滾動到 50% 時全部準確歸位到 PS 的原始座標
+              y: "0vh",       // 滾動到 50% 時全部準確歸位到原本位置
               ease: "none",
               scrollTrigger: {
-                trigger: ".about_city",
-                start: "top 100%", // 進入畫面底部開始
-                end: "top 50%",    // 滾動至畫面中間完成
+                trigger: parallaxTriggerEl,
+                start: "top 100%", // 當城市容器頂部進入螢幕底部時開始
+                end: "top 40%",    // 滾動至螢幕 40% 位置時完成拉開
                 scrub: true
               }
             }
