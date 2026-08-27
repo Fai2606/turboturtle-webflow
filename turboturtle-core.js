@@ -110,27 +110,27 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 手機極致防抖版) ---
+// --- 2.2. BALLOON SLOW RISING PARALLAX (父級解耦 + 極致平滑版) ---
       if (exists(".about_balloon")) {
-        // 先用 GSAP 強制初始化 3D 屬性
-        gsap.set(".about_balloon", { force3D: true, z: 0.1 });
+        // 1. 強制設定 GPU 獨立渲染層，徹底消除手機版圖層撕裂
+        gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
 
-        gsap.to(".about_balloon", {
-          y: function() {
-            // 使用 window.innerHeight 避免 vh 跳變，手機版縮減倍數避免極端矩陣運算
-            var factor = isMobile ? 1.5 : 2.5;
-            return window.innerHeight * factor;
-          },
-          ease: "none",
-          overwrite: "auto",
-          scrollTrigger: {
-            trigger: ".about_balloon",
-            start: "top bottom",
-            end: isMobile ? "bottom -100%" : "bottom -250%", // 手機版縮短 end 範圍防止過度計算
-            scrub: isMobile ? true : true, // 手機版保持 1:1 即時觸發，避免慣性 lag 造成的補幀閃爍
-            invalidateOnRefresh: true
+        // 2. 使用父級容器作為 Trigger，切斷「自己改變位置影響自己 Trigger」的死鎖迴圈
+        var balloonTrigger = exists(".about_viewport_wrapper") ? ".about_viewport_wrapper" : "body";
+
+        gsap.fromTo(".about_balloon", 
+          { y: "0vh" }, 
+          {
+            y: "120vh", // 向下滑動 120vh，抵抗畫面上升，創造極度緩慢上升的效果
+            ease: "none",
+            scrollTrigger: {
+              trigger: balloonTrigger, // 以父級容器為基準
+              start: "top 30%",       // 當該區域抵達畫面 30% 時開始連動
+              end: "bottom bottom",   // 一直持續到該區域滾動結束，讓氣球停留極久
+              scrub: 0.5              // 給予 0.5 秒微緩衝，消除手機版原生的階梯式抖動
+            }
           }
-        });
+        );
       }
 
 
