@@ -109,7 +109,22 @@
       tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_balloon", stable({ y: () => 250 * vh, ease: "none", scrollTrigger: { trigger: ".about_balloon", start: "top bottom", end: "bottom -250%", scrub: true } }));
+
+// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 手機防抖動修正版) ---
+      tweenIf(".about_balloon", stable({
+        y: function() { 
+          // 改用渲染時固定的螢幕高度，防止手機網址列收合導致 vh 重新計算而閃移抖動
+          return (window.innerHeight || root.innerHeight) * 2.5; 
+        },
+        force3D: true, // 強制開啟 GPU 硬體加速，防止手機瀏覽器圖層閃爍
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".about_balloon",
+          start: "top bottom",
+          end: "bottom -250%",
+          scrub: true
+        }
+      }));
 
 
 
