@@ -2,7 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Synchronized Mountain-triggered City Parallax
-   - Slow Rising Balloon Parallax (.about_balloon Downwards y-offset)
+   - Decoupled & Smooth Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -110,30 +110,25 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON SLOW RISING PARALLAX (父級解耦 + 極致平滑版) ---
+// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 父級解耦 + 極致平滑版) ---
       if (exists(".about_balloon")) {
-        // 1. 強制設定 GPU 獨立渲染層，徹底消除手機版圖層撕裂
         gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
-
-        // 2. 使用父級容器作為 Trigger，切斷「自己改變位置影響自己 Trigger」的死鎖迴圈
         var balloonTrigger = exists(".about_viewport_wrapper") ? ".about_viewport_wrapper" : "body";
 
-        gsap.fromTo(".about_balloon", 
-          { y: "0vh" }, 
+        gsap.fromTo(".about_balloon",
+          { y: "0vh" },
           {
-            y: "120vh", // 向下滑動 120vh，抵抗畫面上升，創造極度緩慢上升的效果
+            y: "120vh",
             ease: "none",
             scrollTrigger: {
-              trigger: balloonTrigger, // 以父級容器為基準
-              start: "top 30%",       // 當該區域抵達畫面 30% 時開始連動
-              end: "bottom bottom",   // 一直持續到該區域滾動結束，讓氣球停留極久
-              scrub: 0.5              // 給予 0.5 秒微緩衝，消除手機版原生的階梯式抖動
+              trigger: balloonTrigger,
+              start: "top 30%",
+              end: "bottom bottom",
+              scrub: 0.5
             }
           }
         );
       }
-
-
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
