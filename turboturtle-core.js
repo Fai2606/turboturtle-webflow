@@ -110,21 +110,28 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 手機防抖動修正版) ---
-      tweenIf(".about_balloon", stable({
-        y: function() { 
-          // 改用渲染時固定的螢幕高度，防止手機網址列收合導致 vh 重新計算而閃移抖動
-          return (window.innerHeight || root.innerHeight) * 2.5; 
-        },
-        force3D: true, // 強制開啟 GPU 硬體加速，防止手機瀏覽器圖層閃爍
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".about_balloon",
-          start: "top bottom",
-          end: "bottom -250%",
-          scrub: true
-        }
-      }));
+// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 手機極致防抖版) ---
+      if (exists(".about_balloon")) {
+        // 先用 GSAP 強制初始化 3D 屬性
+        gsap.set(".about_balloon", { force3D: true, z: 0.1 });
+
+        gsap.to(".about_balloon", {
+          y: function() {
+            // 使用 window.innerHeight 避免 vh 跳變，手機版縮減倍數避免極端矩陣運算
+            var factor = isMobile ? 1.5 : 2.5;
+            return window.innerHeight * factor;
+          },
+          ease: "none",
+          overwrite: "auto",
+          scrollTrigger: {
+            trigger: ".about_balloon",
+            start: "top bottom",
+            end: isMobile ? "bottom -100%" : "bottom -250%", // 手機版縮短 end 範圍防止過度計算
+            scrub: isMobile ? true : true, // 手機版保持 1:1 即時觸發，避免慣性 lag 造成的補幀閃爍
+            invalidateOnRefresh: true
+          }
+        });
+      }
 
 
 
