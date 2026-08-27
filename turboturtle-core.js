@@ -109,26 +109,8 @@
       tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_balloon", stable({ y: () => 200 * vh, ease: "power2.out", scrollTrigger: { trigger: ".about_balloon", start: "top bottom", end: "bottom -250%", scrub: true } }));
 
-// --- 2.2. BALLOON SLOW RISING PARALLAX (.about_balloon 父級解耦 + 極致平滑版) ---
-      if (exists(".about_balloon")) {
-        gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
-        var balloonTrigger = exists(".about_viewport_wrapper") ? ".about_viewport_wrapper" : "body";
-
-        gsap.fromTo(".about_balloon",
-          { y: "0vh" },
-          {
-            y: "120vh",
-            ease: "none",
-            scrollTrigger: {
-              trigger: balloonTrigger,
-              start: "top 30%",
-              end: "bottom bottom",
-              scrub: 0.5
-            }
-          }
-        );
-      }
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
