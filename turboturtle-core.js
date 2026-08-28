@@ -2,7 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Synchronized Mountain-triggered City Parallax
-   - Decoupled & Smooth Slow Rising Balloon Parallax (.about_balloon)
+   - Decoupled & Smooth 50% Slower Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -110,6 +110,24 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
+// --- 2.2. BALLOON 50% SLOWER RISING PARALLAX (.about_balloon) ---
+      if (exists(".about_balloon")) {
+        gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
+
+        gsap.fromTo(".about_balloon",
+          { y: "0vh" },
+          {
+            y: "50vh", // Pushes balloon downwards by 50% of screen height as user scrolls past
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".about_balloon",
+              start: "top bottom", // Starts as soon as top edge touches screen bottom
+              end: "bottom top",   // Ends when bottom edge leaves screen top
+              scrub: true
+            }
+          }
+        );
+      }
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (Ease Out 減速收尾 + 滾動緩衝) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
@@ -118,10 +136,9 @@
         // 角色與特殊物件
         { sel: ".about_cityqueen",       from: { y: "35vh" },  to: { y: "0vh" }, start: "80%", end: "30%" },
         { sel: ".about_doggod",          from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%", end: "30%" },
-        { sel: ".about_crystal",         from: { y: "-20vh" },  to: { y: "0vh" }, start: "100%", end: "20%" },
+        { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
         { sel: ".about_frog",            from: { y: "15vh" },  to: { y: "0vh" }, start: "60%", end: "40%" },
-        { sel: ".about_violincat",       from: { x: "3vw" }, to: { x: "0vw" }, start: "60%", end: "30%" },
-         
+        { sel: ".about_violincat",       from: { x: "3vw" },   to: { x: "0vw" }, start: "60%", end: "30%" },
 
         // 城市建築全體
         { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
@@ -131,7 +148,7 @@
         { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "100vh" },  to: { y: "0vh" }, start: "100%", end: "35%" }
+        { sel: ".about_eyetower",        from: { y: "100vh" }, to: { y: "0vh" }, start: "100%", end: "35%" }
       ];
 
       cityReveals.forEach(function (item) {
