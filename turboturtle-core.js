@@ -132,7 +132,7 @@
         { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "40vh" },  to: { y: "0vh" }, start: "70%", end: "30%" }
+        { sel: ".about_eyetower",        from: { y: "40vh" },  to: { y: "0vh" }, start: "75%", end: "40%" }
       ];
 
       cityReveals.forEach(function (item) {
