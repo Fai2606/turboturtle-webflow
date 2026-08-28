@@ -150,10 +150,10 @@
         { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_eyetower",        from: { y: "100vh" }, to: { y: "0vh" }, start: "100%", end: "35%" },
-        { sel: ".about_citytree_1",      from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_2",      from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_3",      from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_4",      from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
+        { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
          
       
       ];
