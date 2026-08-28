@@ -117,7 +117,7 @@
         gsap.fromTo(".about_balloon",
           { y: "0vh" },
           {
-            y: "50vh", // Pushes balloon downwards by 50% of screen height as user scrolls past
+            y: "100vh", // Pushes balloon downwards by 50% of screen height as user scrolls past
             ease: "none",
             scrollTrigger: {
               trigger: ".about_balloon",
