@@ -120,7 +120,7 @@
         { sel: ".about_doggod",          from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%", end: "30%" },
         { sel: ".about_crystal",         from: { y: "15vh" },  to: { y: "0vh" }, start: "70%", end: "40%" },
         { sel: ".about_frog",            from: { y: "15vh" },  to: { y: "0vh" }, start: "70%", end: "40%" },
-        { sel: ".about_violincat",       from: { x: "3vw" }, to: { x: "0vw" }, start: "70%", end: "30%" },
+        { sel: ".about_violincat",       from: { x: "3vw" }, to: { x: "0vw" }, start: "60%", end: "30%" },
          
 
         // 城市建築全體
