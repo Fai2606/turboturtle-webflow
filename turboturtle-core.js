@@ -2,7 +2,7 @@
    - Core Lenis + GSAP ScrollTrigger
    - Parallax tweens & Config-based City Layer Reveals
    - Synchronized Mountain-triggered City Parallax
-   - Decoupled & Smooth 50% Slower Rising Balloon Parallax (.about_balloon)
+   - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -110,19 +110,20 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON 50% SLOWER RISING PARALLAX (.about_balloon) ---
+// --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
 
         gsap.fromTo(".about_balloon",
-          { y: "0vh" },
+          { y: "0vh", yPercent: 0 },
           {
-            y: "100vh", // Pushes balloon downwards by 50% of screen height as user scrolls past
+            y: "50vh",       // Offset 50% of viewport height
+            yPercent: 50,   // Offset 50% of balloon height
             ease: "none",
             scrollTrigger: {
               trigger: ".about_balloon",
-              start: "top bottom", // Starts as soon as top edge touches screen bottom
-              end: "bottom top",   // Ends when bottom edge leaves screen top
+              start: "top bottom", // Starts the moment balloon enters screen bottom
+              end: "bottom top",   // Ends the moment balloon fully leaves screen top
               scrub: true
             }
           }
