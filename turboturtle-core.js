@@ -164,25 +164,29 @@
         }
       });
 
-// --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE) ---
+// --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE 修正版) ---
       var launchTargets = [
-        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "60%" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "60%" },
-        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
+        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" }, start: "80%" },
+        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%" },
+        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" }, start: "80%" }, // 明確定義起點 y: 15vh
+        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" }, start: "80%" },  // 明確定義起點 x: 3vw
+        { sel: ".about_eyetower",   from: { y: "80vh" },  to: { y: "0vh" }, start: "80%" },
+        { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" }, start: "80%" }
       ];
 
       launchTargets.forEach(function (item) {
         if (exists(item.sel)) {
+          // 強制設定 GPU 加速防止渲染凍結
+          gsap.set(item.sel, { force3D: true });
+
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             duration: 1.0,
             ease: "power3.out",
             scrollTrigger: {
               trigger: item.sel,
               start: "top " + (item.start || "80%"),
-              toggleActions: "play reverse play reverse"
+              toggleActions: "play reverse play reverse",
+              invalidateOnRefresh: true
             }
           }));
         }
