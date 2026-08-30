@@ -281,7 +281,7 @@
 
 // --- 4.5. CONTINUOUS GALAXY PARALLAX FIX ---
       tweenIf(".about_galaxy", {
-        y: () => (isMobile ? -80 * vh : -80 * vh),
+        y: () => (isMobile ? -70 * vh : -70 * vh),
         ease: "none",
         force3D: true,
         scrollTrigger: {
