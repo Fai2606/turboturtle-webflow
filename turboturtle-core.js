@@ -264,30 +264,26 @@
       var galaxy = q(".about_galaxy");
             if (galaxy) {
               var isFixed = getComputedStyle(galaxy).position === "fixed";
-              
-              // 1. INCREASE RATIO: Speed up the upward motion (e.g., 0.08 on mobile / 0.15 on desktop)
-              var ratio = isMobile ? 0.08 : 0.10; 
-              
+              var ratio = isMobile ? 0.08 : 0.15; // Speed multiplier
+      
               gsap.set(galaxy, { y: 0, force3D: true });
-              
+      
               ScrollTrigger.create({
-                trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger, 
-                start: "top bottom", 
-                
-                // 2. EXTEND END POINT: Keeps the speed going further down without stopping early
-                end: "bottom -100%", 
-                
-                scrub: 0.5, 
-                pin: isFixed ? false : galaxy, 
-                pinSpacing: false, 
+                trigger: "body",       // Key Fix 1: Bind to the entire body length
+                start: "top top",      // Key Fix 2: Start immediately from page top
+                end: "bottom bottom",  // Key Fix 3: Keep calculating until the absolute bottom of page
+                scrub: true,
+                pin: isFixed ? false : galaxy,
+                pinSpacing: false,
                 invalidateOnRefresh: true,
-                onUpdate: function (self) { 
-                  gsap.set(galaxy, { y: -(self.scroll() - self.start) * ratio }); 
+                onUpdate: function (self) {
+                  // Moves dynamically as a factor of page scroll, never freezing midway
+                  gsap.set(galaxy, { y: -(self.scroll() * ratio) });
                 }
               });
-              
+      
               ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
-         }
+      }
 
 // --- 5. VIDEO VISIBILITY ---
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
