@@ -4,7 +4,7 @@
    - Synchronized Mountain-triggered City Parallax
    - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
-   - Standalone Time-Based Triggers (Rocket, Queen, Dog God, Crystal, Frog, Violin Cat)
+   - Standalone Time-Based Triggers (Rocket, Queen, Dog God, Crystal, Frog, Violin Cat, Eye Tower, Trees)
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -141,12 +141,7 @@
         { sel: ".about_citybuilding_5",  from: { y: "20vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "100vh" }, to: { y: "0vh" }, start: "100%", end: "35%" },
-        { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
+        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -170,7 +165,12 @@
         { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
         { sel: ".about_crystal",    from: { y: "-20vh" }, to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
         { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" }
+        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
+        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" }, start: "top 80%", duration: 1.0, ease: "power3.out" },
+        { sel: ".about_citytree_1", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
+        { sel: ".about_citytree_2", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
+        { sel: ".about_citytree_3", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
+        { sel: ".about_citytree_4", from: { y: "50vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" }
       ];
 
       standaloneItems.forEach(function (item) {
@@ -384,7 +384,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       var maxW = r.height * 0.4;
       for (var i = 0; i < trail.length - 1; i++) {
-        var p1 = trail[i], p2 = trail[i+1], dx = p1.x - p1.x, dy = p2.y - p1.y;
+        var p1 = trail[i], p2 = trail[i+1], dx = p2.x - p1.x, dy = p2.y - p1.y;
         if (Math.hypot(dx,dy) < 1) continue;
         var alpha = 1 - (performance.now() - p1.t) / fadeTime;
         if (alpha <= 0) continue;
