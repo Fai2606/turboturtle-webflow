@@ -5,6 +5,7 @@
    - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Triggers (.about_cityqueen, .about_doggod, .about_frog, .about_violincat, .about_eyetower, .about_cityrocket)
+   - Displacement Fix: immediateRender: false + Post-Load Layout Refresh
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -110,25 +111,7 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
-      if (exists(".about_balloon")) {
-        gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
 
-        gsap.fromTo(".about_balloon",
-          { y: "0vh", yPercent: 0 },
-          {
-            y: "50vh",
-            yPercent: 50,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about_balloon",
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true
-            }
-          }
-        );
-      }
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED PARALLAX) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
@@ -153,13 +136,16 @@
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
+          gsap.set(item.sel, item.from); // Explicit initial transform
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "power2.out",
+            immediateRender: false, // Prevents displacement jump on first render
             scrollTrigger: {
               trigger: mountainTrigger,
               start: "top " + (item.start || "100%"),
               end: "top " + (item.end || "40%"),
-              scrub: 1
+              scrub: 1,
+              invalidateOnRefresh: true
             }
           }));
         }
@@ -171,17 +157,17 @@
         { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
         { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "80%" },
         { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "80%" },
-      
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
 
       launchTargets.forEach(function (item) {
         if (exists(item.sel)) {
-          gsap.set(item.sel, { force3D: true });
+          gsap.set(item.sel, Object.assign({ force3D: true }, item.from)); // Pre-set initial position
 
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             duration: 1.0,
             ease: "power3.out",
+            immediateRender: false, // Fix displacement jump on refresh
             scrollTrigger: {
               trigger: item.sel,
               start: "top " + (item.start || "80%"),
@@ -207,6 +193,7 @@
       gsap.utils.toArray(".fadeup").forEach(function (el) {
         gsap.fromTo(el, { opacity: 0, y: 40 }, {
           opacity: 1, y: 0, duration: 1, ease: "power3.out",
+          immediateRender: false,
           scrollTrigger: { trigger: el, start: "top 80%", end: "top 10%", toggleActions: "play reverse play reverse" }
         });
       });
@@ -302,7 +289,13 @@
         });
       }
 
-      root.addEventListener("load", function(){ ScrollTrigger.refresh(); });
+      // Force a clean recalculation once window assets and fitCityScene finish
+      root.addEventListener("load", function() {
+        setTimeout(function() {
+          if (root.ScrollTrigger) root.ScrollTrigger.refresh(true);
+        }, 100);
+      });
+
       console.log("[TT] Booting UFO...");
       bootUFO();
 
