@@ -148,7 +148,7 @@
         { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "50vh" },  to: { y: "0vh" }, start: "80%", end: "30%" },
+        { sel: ".about_eyetower",        from: { y: "50vh" },  to: { y: "0vh" }, start: "85%", end: "30%" },
       ];
 
       cityReveals.forEach(function (item) {
