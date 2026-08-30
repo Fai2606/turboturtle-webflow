@@ -147,7 +147,8 @@
         { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
+        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_eyetower",        from: { y: "50vh" },  to: { y: "0vh" }, start: "80%", end: "30%" },
       ];
 
       cityReveals.forEach(function (item) {
@@ -170,7 +171,7 @@
         { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
         { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "80%" },
         { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "80%" },
-        { sel: ".about_eyetower",   from: { y: "50vh" },  to: { y: "0vh" },  start: "80%" },
+      
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
 
