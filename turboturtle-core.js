@@ -137,18 +137,17 @@
         { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
 
         // 城市建築全體
-        { sel: ".about_citybuilding_4",  from: { y: "3vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_3",  from: { y: "6vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_6",  from: { y: "9vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_5",  from: { y: "12vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_2",  from: { y: "15vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_backlayer",       from: { y: "18vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_mountain",        from: { y: "21vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_1",      from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_2",      from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_3",      from: { y: "60vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_4",      from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "80vh" },  to: { y: "0vh" },  start: "82%", end: "30%" }
+        { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_3",  from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_6",  from: { y: "15vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_5",  from: { y: "20vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -167,10 +166,11 @@
 
 // --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE) ---
       var launchTargets = [
-        { sel: ".about_cityqueen",  from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_doggod",     from: { x: "4.5vw" }, to: { x: "0vw" },  start: "80%" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "65%" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "65%" },
+        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" },  start: "80%" },
+        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
+        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "60%" },
+        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "60%" },
+        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" },  start: "80%" },
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
 
