@@ -266,7 +266,7 @@
               var isFixed = getComputedStyle(galaxy).position === "fixed";
               
               // 1. INCREASE RATIO: Speed up the upward motion (e.g., 0.08 on mobile / 0.15 on desktop)
-              var ratio = isMobile ? 0.08 : 0.15; 
+              var ratio = isMobile ? 0.08 : 0.10; 
               
               gsap.set(galaxy, { y: 0, force3D: true });
               
