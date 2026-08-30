@@ -263,26 +263,21 @@
 
       var galaxy = q(".about_galaxy");
             if (galaxy) {
-              var isFixed = getComputedStyle(galaxy).position === "fixed";
-              var ratio = isMobile ? 0.08 : 0.15; // Speed multiplier
+              // Speed control: Higher percentage = faster upward movement
+              var moveDistance = isMobile ? "-80vh" : "-150vh"; 
       
-              gsap.set(galaxy, { y: 0, force3D: true });
-      
-              ScrollTrigger.create({
-                trigger: "body",       // Key Fix 1: Bind to the entire body length
-                start: "top top",      // Key Fix 2: Start immediately from page top
-                end: "bottom bottom",  // Key Fix 3: Keep calculating until the absolute bottom of page
-                scrub: true,
-                pin: isFixed ? false : galaxy,
-                pinSpacing: false,
-                invalidateOnRefresh: true,
-                onUpdate: function (self) {
-                  // Moves dynamically as a factor of page scroll, never freezing midway
-                  gsap.set(galaxy, { y: -(self.scroll() * ratio) });
+              gsap.to(galaxy, {
+                y: moveDistance,
+                ease: "none",
+                force3D: true,
+                scrollTrigger: {
+                  trigger: "body",         // Tracks whole document
+                  start: "top top",        // Begins at the very top
+                  end: "bottom bottom",    // Runs all the way to page end
+                  scrub: 0.5,              // Smooth 0.5s catch-up interpolation
+                  invalidateOnRefresh: true
                 }
               });
-      
-              ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
       }
 
 // --- 5. VIDEO VISIBILITY ---
