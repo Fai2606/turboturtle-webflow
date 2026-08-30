@@ -168,8 +168,8 @@
 // --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE) ---
       var launchTargets = [
         { sel: ".about_cityqueen",  from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_doggod",     from: { x: "5vw" }, to: { x: "0vw" },  start: "75%" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "60%" },
+        { sel: ".about_doggod",     from: { x: "4.5vw" }, to: { x: "0vw" },  start: "80%" },
+        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "65%" },
         { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "65%" },
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
