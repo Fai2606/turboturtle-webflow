@@ -117,7 +117,7 @@
         gsap.fromTo(".about_balloon",
           { y: "0vh", yPercent: 0 },
           {
-            y: "100vh",
+            y: "50vh",
             yPercent: 50,
             ease: "none",
             scrollTrigger: {
