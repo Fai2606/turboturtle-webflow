@@ -4,7 +4,7 @@
    - Synchronized Mountain-triggered City Parallax
    - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
-   - Rocket-style Independent Standalone Launch Triggers (.about_cityqueen, .about_doggod, .about_frog, .about_violincat, .about_eyetower, .about_cityrocket)
+   - Rocket Standalone Launch Triggers (.about_cityqueen, .about_doggod, .about_frog, .about_violincat, .about_eyetower, .about_cityrocket)
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -168,21 +168,24 @@
       var launchTargets = [
         { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" },  start: "80%" },
         { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "60%" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "60%" },
-        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" },  start: "80%" },
+        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "80%" },
+        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "80%" },
+        { sel: ".about_eyetower",   from: { y: "50vh" },  to: { y: "0vh" },  start: "80%" },
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
 
       launchTargets.forEach(function (item) {
         if (exists(item.sel)) {
+          gsap.set(item.sel, { force3D: true });
+
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             duration: 1.0,
             ease: "power3.out",
             scrollTrigger: {
               trigger: item.sel,
               start: "top " + (item.start || "80%"),
-              toggleActions: "play reverse play reverse"
+              toggleActions: "play reverse play reverse",
+              invalidateOnRefresh: true
             }
           }));
         }
