@@ -4,7 +4,7 @@
    - Synchronized Mountain-triggered City Parallax
    - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
-   - Standalone Time-Based Triggers (Rocket, Queen, Dog God, Crystal, Frog, Violin Cat, Eye Tower, Trees)
+   - Rocket-style Independent Standalone Launch Triggers (.about_cityqueen, .about_doggod, .about_frog, .about_violincat, .about_eyetower, .about_cityrocket)
    - Jetman & Surprised Dolphin launch
    - Jetplane & Bigfly arcs & UFO chase + Akira trail
 */
@@ -117,23 +117,25 @@
         gsap.fromTo(".about_balloon",
           { y: "0vh", yPercent: 0 },
           {
-            y: "50vh",       // Offset 50% of viewport height
-            yPercent: 50,   // Offset 50% of balloon height
+            y: "50vh",
+            yPercent: 50,
             ease: "none",
             scrollTrigger: {
               trigger: ".about_balloon",
-              start: "top bottom", // Starts the moment balloon enters screen bottom
-              end: "bottom top",   // Ends the moment balloon fully leaves screen top
+              start: "top bottom",
+              end: "bottom top",
               scrub: true
             }
           }
         );
       }
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (BUILDINGS ONLY) ---
+// --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED PARALLAX) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
       var cityReveals = [
+        { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
+
         // 城市建築全體
         { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citybuilding_3",  from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
@@ -141,7 +143,11 @@
         { sel: ".about_citybuilding_5",  from: { y: "20vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
+        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
@@ -158,29 +164,24 @@
         }
       });
 
-// --- 2.46. STANDALONE TIME-BASED TRIGGERS (ROCKET ENGINE MECHANISM) ---
-      var standaloneItems = [
-        { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" }, start: "top 80%", duration: 1.0, ease: "power3.out" },
-        { sel: ".about_cityqueen",  from: { y: "25vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_crystal",    from: { y: "-20vh" }, to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
-        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" }, start: "top 80%", duration: 1.0, ease: "power3.out" },
-        { sel: ".about_citytree_1", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
-        { sel: ".about_citytree_2", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
-        { sel: ".about_citytree_3", from: { y: "80vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.9, ease: "power3.out" },
-        { sel: ".about_citytree_4", from: { y: "50vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" }
+// --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE) ---
+      var launchTargets = [
+        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" },  start: "80%" },
+        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
+        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "60%" },
+        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "60%" },
+        { sel: ".about_eyetower",   from: { y: "100vh" }, to: { y: "0vh" },  start: "80%" },
+        { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
       ];
 
-      standaloneItems.forEach(function (item) {
+      launchTargets.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-            duration: item.duration,
-            ease: item.ease,
+            duration: 1.0,
+            ease: "power3.out",
             scrollTrigger: {
               trigger: item.sel,
-              start: item.start,
+              start: "top " + (item.start || "80%"),
               toggleActions: "play reverse play reverse"
             }
           }));
