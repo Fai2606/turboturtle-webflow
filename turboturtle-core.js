@@ -262,17 +262,32 @@
       }
 
       var galaxy = q(".about_galaxy");
-      if (galaxy) {
-        var isFixed = getComputedStyle(galaxy).position === "fixed";
-        var ratio = isMobile ? 0.015 : 0.025;
-        gsap.set(galaxy, { y: 0, force3D: true });
-        ScrollTrigger.create({
-          trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger, start: "top bottom", end: "bottom top",
-          scrub: 0.5, pin: isFixed ? false : galaxy, pinSpacing: false, invalidateOnRefresh: true,
-          onUpdate: function (self) { gsap.set(galaxy, { y: -(self.scroll() - self.start) * ratio }); }
-        });
-        ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
-      }
+            if (galaxy) {
+              var isFixed = getComputedStyle(galaxy).position === "fixed";
+              
+              // 1. INCREASE RATIO: Speed up the upward motion (e.g., 0.08 on mobile / 0.15 on desktop)
+              var ratio = isMobile ? 0.08 : 0.15; 
+              
+              gsap.set(galaxy, { y: 0, force3D: true });
+              
+              ScrollTrigger.create({
+                trigger: exists(".about_underwater") ? ".about_underwater" : parallaxTrigger, 
+                start: "top bottom", 
+                
+                // 2. EXTEND END POINT: Keeps the speed going further down without stopping early
+                end: "bottom -100%", 
+                
+                scrub: 0.5, 
+                pin: isFixed ? false : galaxy, 
+                pinSpacing: false, 
+                invalidateOnRefresh: true,
+                onUpdate: function (self) { 
+                  gsap.set(galaxy, { y: -(self.scroll() - self.start) * ratio }); 
+                }
+              });
+              
+              ScrollTrigger.addEventListener("refresh", function () { gsap.set(galaxy, { y: 0 }); });
+         }
 
 // --- 5. VIDEO VISIBILITY ---
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
