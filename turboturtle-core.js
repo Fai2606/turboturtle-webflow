@@ -1,8 +1,8 @@
 /* turboturtle-combined.js
    - Core Lenis + GSAP ScrollTrigger
-   - Parallax tweens & Config-based City Layer Reveals
-   - Synchronized Mountain-triggered Descending City Parallax (From Top to Webflow Default)
-   - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
+   - Parallax tweens & Descending City Layer Reveals (High to Original Webflow Position)
+   - Synchronized Mountain-triggered City Parallax
+   - Continuous 50% Slow Rising Balloon Parallax (.about_balloon)
    - Highlight Reveal & Reusable Fadeup trigger
    - Rocket Standalone Launch Trigger
    - Jetman & Surprised Dolphin launch
@@ -110,61 +110,61 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
+// --- 2.2. BALLOON 50% SLOWER RISING PARALLAX (.about_balloon 全程勻速) ---
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
 
         gsap.fromTo(".about_balloon",
           { y: "0vh", yPercent: 0 },
           {
-            y: "50vh",
-            yPercent: 50,
+            y: "50vh",       // 向下推抵 50% 螢幕高度
+            yPercent: 50,   // 向下推抵 50% 氣球自身高度，全程精確維持 50% 慢速上升
             ease: "none",
             scrollTrigger: {
               trigger: ".about_balloon",
-              start: "top bottom",
-              end: "bottom top",
+              start: "top bottom", // 進入視窗底部開始
+              end: "bottom top",   // 徹底離開視窗頂部結束
               scrub: true
             }
           }
         );
       }
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (顯著高處沉降歸位版) ---
+// --- 2.4. CITY LAYER REVEALS ENGINE (由高處下降回歸 Webflow 原始排版位置) ---
       var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
 
       var cityReveals = [
-        // 角色與特殊物件 (從較高處降落歸位)
-        { sel: ".about_cityqueen",       from: { y: "-60vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_doggod",          from: { x: "10vw" },  to: { x: "0vw" }, start: "100%", end: "0%" },
-        { sel: ".about_crystal",         from: { y: "-40vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_frog",            from: { y: "-50vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_violincat",       from: { x: "8vw" },   to: { x: "0vw" }, start: "100%", end: "0%" },
+        // 角色與特殊物件
+        { sel: ".about_cityqueen",       from: { y: "-35vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_doggod",          from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%",   end: "30%" },
+        { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
+        { sel: ".about_frog",            from: { y: "-15vh" }, to: { y: "0vh" }, start: "100%", end: "40%" },
+        { sel: ".about_violincat",       from: { x: "3vw" },   to: { x: "0vw" }, start: "60%",   end: "30%" },
 
-        // 城市建築全體 (由 -40vh 至 -100vh 的高處平滑沉降至 Webflow 原位)
-        { sel: ".about_citybuilding_4",  from: { y: "-40vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citybuilding_3",  from: { y: "-50vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citybuilding_6",  from: { y: "-60vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citybuilding_5",  from: { y: "-70vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citybuilding_2",  from: { y: "-80vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_backlayer",       from: { y: "-90vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_mountain",        from: { y: "-100vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_eyetower",        from: { y: "-80vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citytree_1",      from: { y: "-60vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citytree_2",      from: { y: "-60vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citytree_3",      from: { y: "-60vh" }, to: { y: "0vh" }, start: "100%", end: "0%" },
-        { sel: ".about_citytree_4",      from: { y: "-50vh" }, to: { y: "0vh" }, start: "100%", end: "0%" }
+        // 城市建築全體：from 使用負值（-vh），代表由高處往下沉降回歸 Webflow 原始 0vh 位置
+        { sel: ".about_citybuilding_4",  from: { y: "-5vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_3",  from: { y: "-10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_6",  from: { y: "-15vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_5",  from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_2",  from: { y: "-25vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_backlayer",       from: { y: "-30vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_mountain",        from: { y: "-35vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_eyetower",        from: { y: "-40vh" }, to: { y: "0vh" }, start: "100%", end: "35%" },
+        { sel: ".about_citytree_1",      from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_2",      from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_3",      from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_4",      from: { y: "-15vh" }, to: { y: "0vh" }, start: "100%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
-            ease: "none",
+            ease: "power2.out",
             scrollTrigger: {
               trigger: mountainTrigger,
               start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "0%"),
-              scrub: true
+              end: "top " + (item.end || "40%"),
+              scrub: 1
             }
           }));
         }
