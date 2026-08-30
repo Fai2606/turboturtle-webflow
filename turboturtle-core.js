@@ -162,8 +162,8 @@
             ease: "power2.out",
             scrollTrigger: {
               trigger: mountainTrigger,
-              start: "top " + (item.start || "100%"),
-              end: "top " + (item.end || "40%"),
+              start: "top " + (item.start || "80%"),
+              end: "top " + (item.end || "20%"),
               scrub: 1
             }
           }));
