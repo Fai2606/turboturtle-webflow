@@ -166,7 +166,7 @@
 // --- 2.46. STANDALONE TIME-BASED TRIGGERS (ROCKET ENGINE MECHANISM) ---
       var standaloneItems = [
         { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" }, start: "top 80%", duration: 1.0, ease: "power3.out" },
-        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
+        { sel: ".about_cityqueen",  from: { y: "25vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
         { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
         { sel: ".about_crystal",    from: { y: "-20vh" }, to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
         { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" }, start: "top 80%", duration: 0.8, ease: "power3.out" },
