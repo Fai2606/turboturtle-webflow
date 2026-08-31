@@ -132,7 +132,7 @@
       }
 
 // --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED PARALLAX) ---
-      var mountainTrigger = exists(".about_moutain") ? ".about_moutain" : exists(".about_mountain") ? ".about_mountain" : "body";
+      var mountainTrigger = exists(".about_mountain") ? ".about_mountain" : ".about_bottom_area";
 
       var cityReveals = [
         { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
