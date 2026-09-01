@@ -119,6 +119,15 @@
           end: "bottom top",         // Animation ENDS when the BOTTOM of citymoon exits the TOP of the viewport
           scrub: true 
      } }));
+     tweenIf(".about_cityballoon", stable({ 
+        y: () => 25 * vh, 
+        ease: "none", 
+        scrollTrigger: { 
+          trigger: ".about_cityballoon", 
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true 
+     } }));
        
 
 // --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
