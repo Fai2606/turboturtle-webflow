@@ -1,14 +1,4 @@
-/* turboturtle-combined.js
-   - Core Lenis + GSAP ScrollTrigger (Throttled Mobile Touch)
-   - Parallax tweens & Config-based City Layer Reveals
-   - Synchronized Mountain-triggered City Parallax
-   - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
-   - Highlight Reveal & Reusable Fadeup trigger
-   - Rocket Standalone Launch Triggers (.about_cityqueen, .about_doggod, .about_frog, .about_violincat, .about_eyetower, .about_cityrocket)
-   - Continuous Full-Page Galaxy Background Parallax Fix (.about_galaxy)
-   - Jetman & Surprised Dolphin launch
-   - Jetplane & Bigfly arcs & UFO chase + Akira trail
-*/
+/* turboturtle-combined.js */
 (function (root) {
   if (!root) return;
 
@@ -20,9 +10,9 @@
   var lastWidth = root.innerWidth;
 
   root.addEventListener("resize", function () {
-    vw = root.innerWidth / 100;
-    vh = root.innerHeight / 100;
-    if (root.innerWidth !== lastWidth) {
+    if (Math.abs(root.innerWidth - lastWidth) > 50) {
+      vw = root.innerWidth / 100;
+      vh = root.innerHeight / 100;
       lastWidth = root.innerWidth;
       if (root.ScrollTrigger) root.ScrollTrigger.refresh();
     }
@@ -43,33 +33,31 @@
 
   startWhenReady(120);
 
-  function q(sel)   { return document.querySelector(sel); }
+  function q(sel) { return document.querySelector(sel); }
   function exists(s){ return !!q(s); }
   function tweenIf(sel, vars) { if (exists(sel)) gsap.to(sel, vars); }
 
   function startCore() {
-    console.log("[TT] startCore entered");
     try {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      ScrollTrigger.config({ ignoreMobileResize: true });
+      // Disable GSAP touch intervention on mobile native scroll
+      ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
 
-// --- 1. LENIS (Smooth Scroll - Mobile Dampened) ---
-      lenis = new root.Lenis({ 
-        lerp: 0.08, 
-        smoothWheel: true, 
-        smoothTouch: true, 
-        wheelMultiplier: 1, 
-        touchMultiplier: 0.85, 
-        touchInertiaMultiplier: 12,
-        infinite: false 
+      // Configured Lenis for zero-lag mobile momentum
+      lenis = new root.Lenis({
+        lerp: isMobile ? 0.12 : 0.08,
+        smoothWheel: true,
+        smoothTouch: false, // Prevents scroll jumping on mobile fling
+        touchMultiplier: 1.5,
+        infinite: false
       });
       root.lenis = lenis;
 
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(500, 33); // Prevents lag jump teleports on mobile chrome drops
+      gsap.ticker.lagSmoothing(0);
 
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
@@ -77,111 +65,84 @@
           return (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
         },
         getBoundingClientRect: function () { return { top: 0, left: 0, width: innerWidth, height: innerHeight }; },
-        pinType: document.body.style.transform ? "transform" : "fixed"
+        pinType: "transform"
       });
 
       lenis.on("scroll", ScrollTrigger.update);
       ScrollTrigger.addEventListener("refresh", function () { if (lenis.resize) lenis.resize(); });
 
-// --- 2. PARALLAX TWEENS ---
       var parallaxTrigger = exists(".parallax-wrapper") ? ".parallax-wrapper" : "body";
 
       function stable(vars) {
         vars.overwrite = "auto";
+        vars.force3D = true;
         if (!vars.scrollTrigger) vars.scrollTrigger = {};
         vars.scrollTrigger.invalidateOnRefresh = true;
         return vars;
       }
 
-      tweenIf(".about_planet", stable({ y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
+      // Parallax Tweens
+      tweenIf(".about_planet", stable({ y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
       tweenIf(".spacecats", stable({ x: () => -3 * vw, y: () => 40 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5, fastScrollEnd: true } }));
-      tweenIf(".about_saturn", stable({ x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
-      tweenIf(".satellitemove", stable({ x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
-      tweenIf(".about_watermoon", stable({ yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
-      tweenIf(".about_section_1", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
-      tweenIf(".about_section_2", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".lakeshrink", stable({ scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
-      tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_giant_squid", stable({ x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: 0.5 } }));
-      tweenIf(".about_bigbigfly", stable({ x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: 0.5 } }));
-      tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
-      tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
-      tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
-      tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: 0.5 } }));
-      tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: 0.5 } }));
-      tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
-      tweenIf(".footer_credit", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: 0.5 } })); 
-      tweenIf(".about_citymoon", stable({ 
-        y: () => 10 * vh, 
-        ease: "none", 
-        scrollTrigger: { 
-          trigger: ".about_citymoon", 
-          start: "top bottom", 
-          end: "bottom top", 
-          scrub: 0.5 
-        } 
-      }));
-      tweenIf(".about_cityballoon", stable({ 
-        y: () => 30 * vh, 
-        ease: "none", 
-        scrollTrigger: { 
-          trigger: ".about_cityballoon", 
-          start: "top bottom", 
-          end: "bottom top", 
-          scrub: 0.5 
-        } 
-      }));
+      tweenIf(".about_saturn", stable({ x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+      tweenIf(".satellitemove", stable({ x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+      tweenIf(".about_watermoon", stable({ yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_section_1", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+      tweenIf(".about_section_2", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".lakeshrink", stable({ scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_giant_squid", stable({ x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: true } }));
+      tweenIf(".about_bigbigfly", stable({ x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: true } }));
+      tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+      tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
+      tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
+      tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".footer_credit", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: true } })); 
+      tweenIf(".about_citymoon", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_citymoon", start: "top bottom", end: "bottom top", scrub: true } }));
+      tweenIf(".about_cityballoon", stable({ y: () => 30 * vh, ease: "none", scrollTrigger: { trigger: ".about_cityballoon", start: "top bottom", end: "bottom top", scrub: true } }));
 
-// --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1, willChange: "transform" });
-
         gsap.fromTo(".about_balloon",
           { y: "0vh", yPercent: 0 },
           {
-            y: "50vh",
-            yPercent: 50,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about_balloon",
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 0.5
-            }
+            y: "50vh", yPercent: 50, ease: "none",
+            scrollTrigger: { trigger: ".about_balloon", start: "top bottom", end: "bottom top", scrub: true }
           }
         );
       }
 
-// --- 2.4. CITY LAYER REVEALS ENGINE (SCRUB-BASED PARALLAX) ---
+      // City Layer Reveals
       var mountainTrigger = exists(".about_mountain") ? ".about_mountain" : ".about_bottom_area";
-
       var cityReveals = [
-        { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
-        { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_3",  from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_6",  from: { y: "15vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_5",  from: { y: "20vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citybuilding_2",  from: { y: "25vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_backlayer",       from: { y: "30vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_mountain",        from: { y: "35vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_1",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_2",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_3",      from: { y: "80vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_citytree_4",      from: { y: "50vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
-        { sel: ".about_eyetower",        from: { y: "50vh" },  to: { y: "0vh" }, start: "85%", end: "30%" },
+        { sel: ".about_crystal", from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
+        { sel: ".about_citybuilding_4", from: { y: "5vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_3", from: { y: "10vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_6", from: { y: "15vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_5", from: { y: "20vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citybuilding_2", from: { y: "25vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_backlayer", from: { y: "30vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_mountain", from: { y: "35vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_1", from: { y: "80vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_2", from: { y: "80vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_3", from: { y: "80vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_citytree_4", from: { y: "50vh" }, to: { y: "0vh" }, start: "100%", end: "30%" },
+        { sel: ".about_eyetower", from: { y: "50vh" }, to: { y: "0vh" }, start: "85%", end: "30%" }
       ];
 
       cityReveals.forEach(function (item) {
         if (exists(item.sel)) {
-          gsap.set(item.sel, item.from);
+          gsap.set(item.sel, Object.assign({ force3D: true }, item.from));
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             ease: "power2.out",
             immediateRender: false,
@@ -196,19 +157,18 @@
         }
       });
 
-// --- 2.46. INDEPENDENT LAUNCH TRIGGERS (ROCKET-STYLE ENGINE) ---
+      // Rocket Triggers
       var launchTargets = [
-        { sel: ".about_cityqueen",  from: { y: "35vh" },  to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_doggod",     from: { x: "4.6vw" }, to: { x: "0vw" },  start: "70%" },
-        { sel: ".about_frog",       from: { y: "15vh" },  to: { y: "0vh" },  start: "80%" },
-        { sel: ".about_violincat",  from: { x: "3vw" },   to: { x: "0vw" },  start: "80%" },
-        { sel: ".about_cityrocket", from: { y: "30vh" },  to: { y: "0vh" },  start: "80%" }
+        { sel: ".about_cityqueen", from: { y: "35vh" }, to: { y: "0vh" }, start: "80%" },
+        { sel: ".about_doggod", from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%" },
+        { sel: ".about_frog", from: { y: "15vh" }, to: { y: "0vh" }, start: "80%" },
+        { sel: ".about_violincat", from: { x: "3vw" }, to: { x: "0vw" }, start: "80%" },
+        { sel: ".about_cityrocket", from: { y: "30vh" }, to: { y: "0vh" }, start: "80%" }
       ];
 
       launchTargets.forEach(function (item) {
         if (exists(item.sel)) {
           gsap.set(item.sel, Object.assign({ force3D: true }, item.from));
-
           gsap.fromTo(item.sel, item.from, Object.assign({}, item.to, {
             duration: 1.0,
             ease: "power3.out",
@@ -223,7 +183,7 @@
         }
       });
 
-// --- 2.5. BLACK HIGHLIGHT ANIMATION ---
+      // Highlight Animation
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
         ScrollTrigger.create({
           trigger: el, start: "top 85%", end: "bottom 0%",
@@ -234,19 +194,18 @@
         });
       });
 
-// --- 2.6. REUSABLE FADEUP ANIMATION ---
+      // Fadeup Animation
       gsap.utils.toArray(".fadeup").forEach(function (el) {
         gsap.fromTo(el, { opacity: 0, y: 40 }, {
-          opacity: 1, y: 0, duration: 1, ease: "power3.out",
+          opacity: 1, y: 0, duration: 1, ease: "power3.out", force3D: true,
           immediateRender: false,
           scrollTrigger: { trigger: el, start: "top 80%", end: "top 10%", toggleActions: "play reverse play reverse" }
         });
       });
 
-// --- 3. JETMAN & SURPRISED DOLPHIN ANIMATION ---
+      // Jetman & Dolphin
       var jetman = q(".about_jetman");
       var dolphin = q(".about_dolphin");
-
       if (jetman) {
         var hoverTween;
         function startHover() { hoverTween = gsap.to(jetman, { y: "-=15", duration: 1, ease: "sine.inOut", yoyo: true, repeat: -1 }); }
@@ -268,11 +227,11 @@
         });
       }
 
-// --- 4. COMPLEX FLIGHT PATHS ---
+      // Jetplane
       var jet = q(".about_jetplane");
       if (jet) {
         ScrollTrigger.create({
-          trigger: ".about_jetplane", start: "top 20%", end: "bottom 50%", scrub: 0.5, invalidateOnRefresh: true,
+          trigger: ".about_jetplane", start: "top 20%", end: "bottom 50%", scrub: true, invalidateOnRefresh: true,
           onUpdate: function (self) {
             var t = self.progress; var x = 145 * vw * t;
             var arc = (isMobile ? 26 : 36) * vh; var climbY = -arc * Math.pow(t, 2.2);
@@ -288,39 +247,40 @@
             var prevRot = parseFloat(jet.dataset.prevRot || "0");
             var smooth = prevRot + (targetRot - prevRot) * 0.15;
             jet.dataset.prevRot = smooth;
-            jet.style.transform = "translate(" + x + "px," + y + "px) rotate(" + smooth + "deg)";
+            jet.style.transform = "translate3d(" + x + "px," + y + "px, 0) rotate(" + smooth + "deg)";
           }
         });
       }
 
+      // Big Fly
       var fly = q(".about_bigfly");
       if (fly) {
         ScrollTrigger.create({
-          trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: 0.5, invalidateOnRefresh: true,
+          trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: true, invalidateOnRefresh: true,
           onUpdate: function (self) {
             var t = self.progress; var x = 80 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh; var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
-            fly.style.transform = "translate(" + x + "px," + y + "px) rotate(-10deg)";
+            fly.style.transform = "translate3d(" + x + "px," + y + "px, 0) rotate(-10deg)";
           }
         });
       }
 
-// --- 4.5. CONTINUOUS GALAXY PARALLAX FIX ---
+      // Galaxy Parallax
       tweenIf(".about_galaxy", {
-        y: () => (isMobile ? -70 * vh : -70 * vh),
+        y: () => -70 * vh,
         ease: "none",
         force3D: true,
         scrollTrigger: {
           trigger: ".about_viewport_wrapper",
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.5,
+          scrub: true,
           invalidateOnRefresh: true
         }
       });
 
-// --- 5. VIDEO VISIBILITY ---
+      // Offscreen Video Auto Pause
       var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
       if (vids.length) {
         vids.forEach(function (v) { v.setAttribute("playsinline", ""); v.setAttribute("muted", ""); });
@@ -335,22 +295,15 @@
         });
       }
 
-      root.addEventListener("load", function() {
-        setTimeout(function() {
-          if (root.ScrollTrigger) root.ScrollTrigger.refresh(true);
-        }, 100);
-      });
-
-      console.log("[TT] Booting UFO...");
       bootUFO();
 
     } catch (e) { console.error("[TT] startCore crashed", e); }
   }
 
-  // --- 6. UFO MODULE ---
+  // UFO Trail Engine
   function bootUFO() {
     var host = document.querySelector(".about_womanufo");
-    if (!host) { console.warn("[TT] UFO: .about_womanufo not found"); return; }
+    if (!host) return;
 
     var velocity = isMobile ? 1 : 3;
     var maxAmpVal = isMobile ? 20 * vh : 80 * vh;
@@ -361,12 +314,12 @@
 
     var target = { x: 0, y: getBaseY(), rot: 0 };
     var actual = { x: 0, y: getBaseY(), rot: 0 };
-
     var lastProgress = 0;
+
     if (root.ScrollTrigger) {
       root.ScrollTrigger.create({
         trigger: ".parallax-wrapper", start: "top top", end: (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
-        scrub: 0.5, onUpdate: function (self) { lastProgress = self.progress; target.x = 130 * vw * self.progress; }
+        scrub: true, onUpdate: function (self) { lastProgress = self.progress; target.x = 130 * vw * self.progress; }
       });
     }
 
@@ -411,7 +364,7 @@
     }
     var ctx = canvas.getContext("2d");
     function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
-    resizeCanvas(); root.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
     var trail = [], trailMax = 40, fadeTime = 800;
     function loop() {
@@ -438,7 +391,6 @@
     }
 
     requestAnimationFrame(loop);
-    console.log("[TT] UFO booted");
   }
 
 })(window);
