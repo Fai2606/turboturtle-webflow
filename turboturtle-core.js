@@ -163,7 +163,8 @@
         { sel: ".about_doggod", from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%" },
         { sel: ".about_frog", from: { y: "15vh" }, to: { y: "0vh" }, start: "80%" },
         { sel: ".about_violincat", from: { x: "3vw" }, to: { x: "0vw" }, start: "80%" },
-        { sel: ".about_cityrocket", from: { y: "30vh" }, to: { y: "0vh" }, start: "80%" }
+        { sel: ".about_cityrocket", from: { y: "30vh" }, to: { y: "0vh" }, start: "80%" },
+        { sel: ".about_cityrocket_2", from: { y: "20vh" }, to: { y: "0vh" }, start: "75%" }
       ];
 
       launchTargets.forEach(function (item) {
