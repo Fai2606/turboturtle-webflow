@@ -111,7 +111,7 @@
       tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
       tweenIf(".about_citymoon", stable({ 
-        y: () => -25 * vh, // Adjust this number to change speed (-40 = faster, -15 = slower)
+        y: () => -15 * vh, // Adjust this number to change speed (-40 = faster, -15 = slower)
         ease: "none", 
         scrollTrigger: { 
           trigger: ".about_citymoon", // Uses its own DOM element, NOT parallax-wrapper!
@@ -120,7 +120,7 @@
           scrub: true 
      } }));
      tweenIf(".about_cityballoon", stable({ 
-        y: () => 25 * vh, 
+        y: () => 30 * vh, 
         ease: "none", 
         scrollTrigger: { 
           trigger: ".about_cityballoon", 
