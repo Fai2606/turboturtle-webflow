@@ -1,5 +1,5 @@
 /* turboturtle-combined.js
-   - Core Lenis + GSAP ScrollTrigger
+   - Core Lenis + GSAP ScrollTrigger (Throttled Mobile Touch)
    - Parallax tweens & Config-based City Layer Reveals
    - Synchronized Mountain-triggered City Parallax
    - Constant 50% Slow Rising Balloon Parallax (.about_balloon)
@@ -56,12 +56,20 @@
 
       ScrollTrigger.config({ ignoreMobileResize: true });
 
-// --- 1. LENIS (Smooth Scroll) ---
-      lenis = new root.Lenis({ lerp: 0.1, smoothWheel: true, smoothTouch: false, wheelMultiplier: 1, touchMultiplier: 1, infinite: false });
+// --- 1. LENIS (Smooth Scroll - Mobile Dampened) ---
+      lenis = new root.Lenis({ 
+        lerp: 0.08, 
+        smoothWheel: true, 
+        smoothTouch: true, 
+        wheelMultiplier: 1, 
+        touchMultiplier: 0.85, 
+        touchInertiaMultiplier: 12,
+        infinite: false 
+      });
       root.lenis = lenis;
 
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
+      gsap.ticker.lagSmoothing(500, 33); // Prevents lag jump teleports on mobile chrome drops
 
       ScrollTrigger.scrollerProxy(window, {
         scrollTop: function (value) {
@@ -85,51 +93,52 @@
         return vars;
       }
 
-      tweenIf(".about_planet", stable({ y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+      tweenIf(".about_planet", stable({ y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
       tweenIf(".spacecats", stable({ x: () => -3 * vw, y: () => 40 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5, fastScrollEnd: true } }));
-      tweenIf(".about_saturn", stable({ x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
-      tweenIf(".satellitemove", stable({ x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
-      tweenIf(".about_watermoon", stable({ yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-      tweenIf(".about_section_1", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
-      tweenIf(".about_section_2", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".lakeshrink", stable({ scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-      tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_giant_squid", stable({ x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: true } }));
-      tweenIf(".about_bigbigfly", stable({ x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: true } }));
-      tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-      tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-      tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-      tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
-      tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
-      tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
-      tweenIf(".footer_credit", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: true } })); 
+      tweenIf(".about_saturn", stable({ x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
+      tweenIf(".satellitemove", stable({ x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
+      tweenIf(".about_watermoon", stable({ yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
+      tweenIf(".about_section_1", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
+      tweenIf(".about_section_2", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".lakeshrink", stable({ scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".duckswim", stable({ x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_turtle2", stable({ x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
+      tweenIf(".about_turtle1", stable({ x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_nessie", stable({ x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_giant_squid", stable({ x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: 0.5 } }));
+      tweenIf(".about_bigbigfly", stable({ x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: 0.5 } }));
+      tweenIf(".about_turtle3", stable({ x: () => 30 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
+      tweenIf(".about_turtle4", stable({ x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
+      tweenIf(".about_chickenfish", stable({ x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_flyduck", stable({ x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_octopus1", stable({ x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_octopus2", stable({ x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: 0.5 } }));
+      tweenIf(".about_bubble", stable({ y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: 0.5 } }));
+      tweenIf(".about_bigbubble", stable({ y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: 0.5 } }));
+      tweenIf(".about_small_planet1", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".about_small_planet2", stable({ y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".footer_ask", stable({ y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: 0.5 } }));
+      tweenIf(".footer_credit", stable({ y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: 0.5 } })); 
       tweenIf(".about_citymoon", stable({ 
-        y: () => 10 * vh, // Adjust this number to change speed (-40 = faster, -15 = slower)
+        y: () => 10 * vh, 
         ease: "none", 
         scrollTrigger: { 
-          trigger: ".about_citymoon", // Uses its own DOM element, NOT parallax-wrapper!
-          start: "top bottom",       // Animation STARTS as soon as the TOP of citymoon touches the BOTTOM of the viewport
-          end: "bottom top",         // Animation ENDS when the BOTTOM of citymoon exits the TOP of the viewport
-          scrub: true 
-     } }));
-     tweenIf(".about_cityballoon", stable({ 
+          trigger: ".about_citymoon", 
+          start: "top bottom", 
+          end: "bottom top", 
+          scrub: 0.5 
+        } 
+      }));
+      tweenIf(".about_cityballoon", stable({ 
         y: () => 30 * vh, 
         ease: "none", 
         scrollTrigger: { 
           trigger: ".about_cityballoon", 
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true 
-     } }));
-       
+          start: "top bottom", 
+          end: "bottom top", 
+          scrub: 0.5 
+        } 
+      }));
 
 // --- 2.2. BALLOON CONSTANT 50% SLOWER RISING PARALLAX (.about_balloon) ---
       if (exists(".about_balloon")) {
@@ -145,7 +154,7 @@
               trigger: ".about_balloon",
               start: "top bottom",
               end: "bottom top",
-              scrub: true
+              scrub: 0.5
             }
           }
         );
@@ -156,8 +165,6 @@
 
       var cityReveals = [
         { sel: ".about_crystal",         from: { y: "-20vh" }, to: { y: "0vh" }, start: "100%", end: "20%" },
-
-        // 城市建築全體
         { sel: ".about_citybuilding_4",  from: { y: "5vh" },   to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citybuilding_3",  from: { y: "10vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
         { sel: ".about_citybuilding_6",  from: { y: "15vh" },  to: { y: "0vh" }, start: "100%", end: "30%" },
@@ -265,7 +272,7 @@
       var jet = q(".about_jetplane");
       if (jet) {
         ScrollTrigger.create({
-          trigger: ".about_jetplane", start: "top 20%", end: "bottom 50%", scrub: true, invalidateOnRefresh: true,
+          trigger: ".about_jetplane", start: "top 20%", end: "bottom 50%", scrub: 0.5, invalidateOnRefresh: true,
           onUpdate: function (self) {
             var t = self.progress; var x = 145 * vw * t;
             var arc = (isMobile ? 26 : 36) * vh; var climbY = -arc * Math.pow(t, 2.2);
@@ -289,7 +296,7 @@
       var fly = q(".about_bigfly");
       if (fly) {
         ScrollTrigger.create({
-          trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: true, invalidateOnRefresh: true,
+          trigger: ".about_bigfly", start: "-20% bottom", end: "bottom -20%", scrub: 0.5, invalidateOnRefresh: true,
           onUpdate: function (self) {
             var t = self.progress; var x = 80 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh; var climbY = -arc * Math.pow(t, 2.1);
@@ -308,7 +315,7 @@
           trigger: ".about_viewport_wrapper",
           start: "top top",
           end: "bottom bottom",
-          scrub: true,
+          scrub: 0.5,
           invalidateOnRefresh: true
         }
       });
@@ -359,7 +366,7 @@
     if (root.ScrollTrigger) {
       root.ScrollTrigger.create({
         trigger: ".parallax-wrapper", start: "top top", end: (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
-        scrub: true, onUpdate: function (self) { lastProgress = self.progress; target.x = 130 * vw * self.progress; }
+        scrub: 0.5, onUpdate: function (self) { lastProgress = self.progress; target.x = 130 * vw * self.progress; }
       });
     }
 
