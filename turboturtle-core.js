@@ -1355,9 +1355,10 @@
   // HOMEPAGE SECTION 2
   // Layered City / Collage Reveal
   // -------------------------------------------------------------
-  function initHomeSection2() {
+function initHomeSection2() {
   var section = q(".home_section2");
   var city = q(".home_section2_city");
+  var buildingTrigger = q(".home2_building9");
 
   if (
     !section ||
@@ -1372,140 +1373,120 @@
   // HOME SECTION 2 — STRUCTURAL CITY LAYERS
   // =============================================================
   //
-  // IMPORTANT:
-  // Set the starting transforms IMMEDIATELY.
+  // Webflow positions are the FINAL settled positions.
+  // building9 is the visual trigger because building12 is too tall.
   //
-  // This prevents:
-  // normal position -> sudden jump -> animation
-  //
-  // and ensures ScrollTrigger is animating an already displaced layer.
+  // Dinosaur + 5centcat share the clocktower's vertical layer motion.
+  // Their horizontal entrance is handled separately below.
   // =============================================================
 
-// =============================================================
-// HOME SECTION 2 — STRUCTURAL CITY LAYERS
-// =============================================================
-//
-// Use building9 as the visual trigger.
-// building12 is too tall and causes the animation to begin too early.
-//
-// The Webflow position remains the FINAL settled position.
-// Each layer starts below it and rises into place as building9
-// enters the viewport.
-// =============================================================
-
-var buildingTrigger = q(".home2_building9");
-
-if (buildingTrigger) {
-
-  var structuralLayers = [
-    {
-      targets: ".home2_building12",
-      y: "10vh"
-    },
-    {
-      targets: ".home2_building9",
-      y: "14vh"
-    },
-    {
-      targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
-      y: "18vh"
-    },
-    {
-      targets:
-        ".home2_bridge, .home2_train, .home2_building2",
-      y: "24vh"
-    },
-    {
-      targets: ".home2_mount4",
-      y: "30vh"
-    },
-    {
-      targets: ".home2_building1",
-      y: "36vh"
-    },
-    {
-      targets:
-        ".home2_triangle, .home2_mushroom",
-      y: "44vh"
-    },
-    {
-      targets:
-        ".home2_oceanball, .home2_whale",
-      y: "52vh"
-    }
-  ];
-
-  structuralLayers.forEach(function (layer) {
-    var elements = gsap.utils.toArray(layer.targets);
-
-    if (!elements.length) return;
-
-    // Starting position before the skyline enters.
-    gsap.set(elements, {
-      y: layer.y,
-      force3D: true
-    });
-
-    gsap.to(elements, {
-      y: 0,
-
-      // Linear scrub feels more like the old reference site:
-      // direct relationship between scroll and construction.
-      ease: "none",
-
-      force3D: true,
-
-      scrollTrigger: {
-        trigger: buildingTrigger,
-
-        // Animation begins when building9 itself becomes visible.
-        start: "top 95%",
-
-        // Fully settles when building9 reaches roughly
-        // the middle-upper area of the viewport.
-        end: "top 35%",
-
-        scrub: 0.7,
-
-        invalidateOnRefresh: true,
-
-        onToggle: function (self) {
-          elements.forEach(function (el) {
-            el.style.willChange =
-              self.isActive
-                ? "transform"
-                : "auto";
-          });
-        }
+  if (buildingTrigger) {
+    var structuralLayers = [
+      {
+        targets: ".home2_building12",
+        y: "10vh"
+      },
+      {
+        targets: ".home2_building9",
+        y: "14vh"
+      },
+      {
+        targets:
+          ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
+        y: "18vh"
+      },
+      {
+        targets:
+          ".home2_bridge, .home2_train, .home2_building2",
+        y: "24vh"
+      },
+      {
+        targets: ".home2_mount4",
+        y: "30vh"
+      },
+      {
+        targets: ".home2_building1",
+        y: "36vh"
+      },
+      {
+        targets:
+          ".home2_triangle, .home2_mushroom",
+        y: "44vh"
+      },
+      {
+        targets:
+          ".home2_oceanball, .home2_whale",
+        y: "52vh"
       }
-    });
-  });
+    ];
 
-}
+    structuralLayers.forEach(function (layer) {
+      var elements = gsap.utils.toArray(layer.targets);
+
+      if (!elements.length) return;
+
+      // Set the starting vertical depth immediately.
+      gsap.set(elements, {
+        y: layer.y,
+        force3D: true
+      });
+
+      // Scroll back into the exact Webflow-designed position.
+      gsap.to(elements, {
+        y: 0,
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: buildingTrigger,
+
+          // Starts as building9 enters the viewport.
+          start: "top 95%",
+
+          // Fully settles higher up the viewport.
+          end: "top 35%",
+
+          scrub: 0.7,
+          invalidateOnRefresh: true,
+
+          onToggle: function (self) {
+            elements.forEach(function (el) {
+              el.style.willChange =
+                self.isActive
+                  ? "transform"
+                  : "auto";
+            });
+          }
+        }
+      });
+    });
+  }
+
 
   // =============================================================
   // HOME SECTION 2 — CHARACTERS / SMALL OBJECTS
   // =============================================================
   //
-  // These behave like Queen / Frog etc. in About Us.
+  // Most objects use the About Us "queen-style" entrance.
   //
-  // Their hidden/displaced position is also established immediately
-  // so there is NO position flash when the trigger fires.
+  // Dinosaur + 5centcat are special:
+  // their Y comes from the structural clocktower layer above,
+  // and ONLY their X is animated here.
+  //
+  // This prevents two GSAP tweens from fighting over Y.
   // =============================================================
 
   var popObjects = [
     {
       sel: ".home2_dinosaur",
       from: {
-        x: "10vw",
-        y: 0
+        x: "10vw"
       }
     },
     {
       sel: ".home2_5centcat",
       from: {
-        x: "-6vw",
-        y: "6vh"
+        x: "-6vw"
       }
     },
     {
@@ -1560,6 +1541,7 @@ if (buildingTrigger) {
     }
   ];
 
+
   popObjects.forEach(function (item) {
     var elements = gsap.utils.toArray(item.sel);
 
@@ -1567,40 +1549,13 @@ if (buildingTrigger) {
 
     elements.forEach(function (el) {
 
-      // ---------------------------------------------------------
-      // Set initial position immediately.
-      // This is the main fix for the position flash.
-      // ---------------------------------------------------------
       var initialState = {
         force3D: true
       };
 
-      if (item.from.x !== undefined) {
-        initialState.x = item.from.x;
-      } else {
-        initialState.x = 0;
-      }
-
-      if (item.from.y !== undefined) {
-        initialState.y = item.from.y;
-      } else {
-        initialState.y = 0;
-      }
-
-      gsap.set(el, initialState);
-
-
-      // ---------------------------------------------------------
-      // Animate into Webflow's original position.
-      // ---------------------------------------------------------
-      gsap.to(el, {
-        x: 0,
-        y: 0,
-
+      var endState = {
         duration: 1.05,
-
         ease: "power3.out",
-
         force3D: true,
 
         scrollTrigger: {
@@ -1614,28 +1569,64 @@ if (buildingTrigger) {
           invalidateOnRefresh: true,
 
           onEnter: function () {
-            el.style.willChange = "transform";
+            el.style.willChange =
+              "transform";
           },
 
           onEnterBack: function () {
-            el.style.willChange = "transform";
+            el.style.willChange =
+              "transform";
           },
 
           onLeave: function () {
-            el.style.willChange = "auto";
+            el.style.willChange =
+              "auto";
           },
 
           onLeaveBack: function () {
-            el.style.willChange = "auto";
+            el.style.willChange =
+              "auto";
           }
         }
-      });
+      };
+
+
+      // ---------------------------------------------------------
+      // Only animate X if X was specifically defined.
+      //
+      // Dinosaur + 5centcat:
+      // X is animated here.
+      // Y continues being controlled by the clocktower layer.
+      // ---------------------------------------------------------
+      if (item.from.x !== undefined) {
+        initialState.x = item.from.x;
+        endState.x = 0;
+      }
+
+
+      // ---------------------------------------------------------
+      // Only animate Y if Y was specifically defined.
+      //
+      // We intentionally DO NOT automatically set y: 0.
+      // ---------------------------------------------------------
+      if (item.from.y !== undefined) {
+        initialState.y = item.from.y;
+        endState.y = 0;
+      }
+
+
+      // Establish starting state before trigger activates.
+      gsap.set(el, initialState);
+
+      // Animate only the axis/axes this object owns.
+      gsap.to(el, endState);
+
     });
   });
 
 
   // =============================================================
-  // Refresh after initial positions have been established.
+  // Refresh after all starting positions are established
   // =============================================================
   requestAnimationFrame(function () {
     ScrollTrigger.refresh();
