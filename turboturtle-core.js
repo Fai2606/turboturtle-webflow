@@ -486,24 +486,25 @@
 
   depthGroups.forEach(function (group) {
     var elements = gsap.utils.toArray(group.targets);
-    if (!elements.length) return;
+    if (!elements.length || group.travel === 0) return;
 
-  gsap.fromTo(
-    elements,
-    { y: () => group.travel * vh },
-    {
-      y: () => -group.travel * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
+    gsap.fromTo(
+      elements,
+      { y: () => group.travel * vh },
+      {
+        y: () => -group.travel * vh,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
       }
-    }
-  );
+    );
+  });
 
   requestAnimationFrame(function () {
     ScrollTrigger.refresh();
