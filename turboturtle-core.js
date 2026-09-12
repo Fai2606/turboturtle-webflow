@@ -480,8 +480,8 @@
     { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 14 },
     { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 20 },
     { targets: ".home2_mount4, .home2_spacecat", travel: 28 },
-    { targets: ".home2_building1 .home2_spark, .home2_crystal, .home2_pickle", travel: 36 },
-    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat,", travel: 46 }
+    { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle", travel: 36 },
+    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 46 }
   ];
 
   depthGroups.forEach(function (group) {
