@@ -476,105 +476,110 @@ function initHomeSection1() {
   var moon = q(".home1_moon");
   var cloud = q(".home1_cloud");
   var pyramid = q(".home1_pyramid");
+  var kv = q(".home_section1 .KV");
 
   if (!section || !gsap || !ScrollTrigger) return;
 
-  // -------------------------------------------------------------
-  // 1. INTRO LOCK
-  // User cannot scroll during the short moon bounce intro
-  // -------------------------------------------------------------
+  gsap.set(cloud, { zIndex: 10 });
+  gsap.set(kv, { zIndex: 5 });
+  gsap.set(moon, { zIndex: 3 });
+  gsap.set(pyramid, { zIndex: 2 });
+
+  // Intro: lock scroll + moon bounce
   if (lenis) lenis.stop();
 
   var intro = gsap.timeline({
     onComplete: function () {
       if (lenis) lenis.start();
+      ScrollTrigger.refresh();
     }
   });
 
   if (moon) {
     intro
       .set(moon, { y: 0, force3D: true })
-      .to(moon, {
-        y: "-8vh",
-        duration: 0.45,
-        ease: "power2.out"
-      })
-      .to(moon, {
-        y: "0vh",
-        duration: 0.6,
-        ease: "bounce.out"
-      });
+      .to(moon, { y: "-8vh", duration: 0.45, ease: "power2.out" })
+      .to(moon, { y: "0vh", duration: 0.6, ease: "bounce.out" });
   } else {
-    intro.to({}, { duration: 0.9 });
+    intro.to({}, { duration: 1 });
   }
 
-  // -------------------------------------------------------------
-  // 2. SCROLL STAGE
-  //
-  // Cloud rises fastest.
-  // Pyramid + moon rise slower.
-  // Cloud eventually covers them.
-  // Reverse naturally when scrolling back.
-  // -------------------------------------------------------------
-
-  if (cloud) {
-    gsap.to(cloud, {
-      y: () => -75 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  if (pyramid) {
-    gsap.to(pyramid, {
-      y: () => -28 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  if (moon) {
-    gsap.to(moon, {
-      y: () => -22 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  // Optional text movement
-  tweenIf(".home_section1 .KV", {
-    y: () => -18 * vh,
-    ease: "none",
-    force3D: true,
-    scrollTrigger: {
+  // Keep text on screen while Section 1 scrolls
+  if (kv) {
+    ScrollTrigger.create({
       trigger: section,
       start: "top top",
       end: "bottom top",
-      scrub: 1,
-      invalidateOnRefresh: true
-    }
-  });
+      pin: kv,
+      pinSpacing: false,
+      invalidateOnRefresh: true,
+
+      onUpdate: function () {
+        if (!cloud) return;
+
+        var c = cloud.getBoundingClientRect();
+        var k = kv.getBoundingClientRect();
+
+        // Only remove after cloud has completely covered the text
+        kv.style.visibility =
+          c.top <= k.top && c.bottom >= k.bottom
+            ? "hidden"
+            : "visible";
+      },
+
+      onLeaveBack: function () {
+        kv.style.visibility = "visible";
+      }
+    });
+  }
+
+  // Cloud moves upward fastest and covers everything
+  if (cloud) {
+    gsap.to(cloud, {
+      y: () => -110 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  // Pyramid moves upward, but slower than cloud
+  if (pyramid) {
+    gsap.to(pyramid, {
+      y: () => -35 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  // Moon moves slower than normal page scroll
+  if (moon) {
+    gsap.to(moon, {
+      y: () => 25 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
 }
 
   
