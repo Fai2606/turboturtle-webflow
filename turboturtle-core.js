@@ -482,7 +482,7 @@
       { targets: ".home2_bridge, .home2_train, .home2_building2", travel: 20 },
       { targets: ".home2_mount4, .home2_spacecat", travel: 27 },
       { targets: ".home2_building1", travel: 34 },
-      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillarm, .home2_jupiter, .home2_cat", travel: 45 }
+      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillarm, .home2_jupiter, .home2_cat", travel: 45 }  
     ];
 
     depthGroups.forEach(function (group) {
@@ -544,13 +544,9 @@
     // Other heads-up animations
     var popObjects = [
       { sel: ".home2_statue", y: "12vh" },
-      { sel: ".home2_spacecat", y: "10vh" },
       { sel: ".home2_spark", y: "10vh" },
       { sel: ".home2_crystal", y: "10vh" },
-      { sel: ".home2_pickle", y: "10vh" },
-      { sel: ".home2_pillar", y: "15vh" },
-      { sel: ".home2_jupiter", y: "10vh" },
-      { sel: ".home2_cat", y: "10vh" }
+      { sel: ".home2_pickle", y: "10vh" }
     ];
 
     popObjects.forEach(function (item) {
