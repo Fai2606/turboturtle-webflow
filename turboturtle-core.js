@@ -470,108 +470,46 @@
   // =============================================================
   // HOMEPAGE SECTION 2
   // =============================================================
-  function initHomeSection2() {
-    var section = q(".home_section2");
-    if (!section || !gsap || !ScrollTrigger) return;
+ function initHomeSection2() {
+  var section = q(".home_section2");
+  if (!section || !gsap || !ScrollTrigger) return;
 
-    // Continuous depth parallax
-    var depthGroups = [
-      { targets: ".home2_building12", travel: 0 },
-      { targets: ".home2_building9", travel: 10 },
-      { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 14 },
-      { targets: ".home2_bridge, .home2_train, .home2_building2", travel: 20 },
-      { targets: ".home2_mount4, .home2_spacecat", travel: 27 },
-      { targets: ".home2_building1", travel: 34 },
-      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillarm, .home2_jupiter, .home2_cat", travel: 45 }  
-    ];
+  var depthGroups = [
+    { targets: ".home2_building12", travel: 0 },
+    { targets: ".home2_building9", travel: 8 },
+    { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 14 },
+    { targets: ".home2_bridge, .home2_train, .home2_building2", travel: 20 },
+    { targets: ".home2_mount4, .home2_spacecat", travel: 28 },
+    { targets: ".home2_building1", travel: 36 },
+    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat, .home2_statue, .home2_spark, .home2_crystal, .home2_pickle", travel: 46 }
+  ];
 
-    depthGroups.forEach(function (group) {
-      var elements = gsap.utils.toArray(group.targets);
-      if (!elements.length) return;
+  depthGroups.forEach(function (group) {
+    var elements = gsap.utils.toArray(group.targets);
+    if (!elements.length) return;
 
-      gsap.fromTo(
-        elements,
-        { yPercent: group.travel },
-        {
-          yPercent: -group.travel,
-          ease: "none",
-          force3D: true,
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1,
-            invalidateOnRefresh: true
-          }
-        }
-      );
-    });
-
-    // Dinosaur — right to left
-    var dinosaur = q(".home2_dinosaur");
-
-    if (dinosaur) {
-      gsap.set(dinosaur, { x: "10vw" });
-      gsap.to(dinosaur, {
-        x: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: dinosaur,
-          start: "top 70%",
-          toggleActions: "play reverse play reverse"
-        }
-      });
-    }
-
-    // 5cent cat — left to right
-    var fiveCentCat = q(".home2_5centcat");
-
-    if (fiveCentCat) {
-      gsap.set(fiveCentCat, { x: "-6vw" });
-      gsap.to(fiveCentCat, {
-        x: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: fiveCentCat,
-          start: "top 70%",
-          toggleActions: "play reverse play reverse"
-        }
-      });
-    }
-
-    // Other heads-up animations
-    var popObjects = [
-      { sel: ".home2_statue", y: "12vh" },
-      { sel: ".home2_spark", y: "10vh" },
-      { sel: ".home2_crystal", y: "10vh" },
-      { sel: ".home2_pickle", y: "10vh" }
-    ];
-
-    popObjects.forEach(function (item) {
-      var el = q(item.sel);
-      if (!el) return;
-
-      gsap.set(el, { y: item.y, force3D: true });
-
-      gsap.to(el, {
-        y: 0,
-        duration: 1,
-        ease: "power3.out",
+    gsap.fromTo(
+      elements,
+      { yPercent: group.travel },
+      {
+        yPercent: -group.travel,
+        ease: "none",
         force3D: true,
         scrollTrigger: {
-          trigger: el,
-          start: "top 75%",
-          toggleActions: "play reverse play reverse"
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
         }
-      });
-    });
+      }
+    );
+  });
 
-    requestAnimationFrame(function () {
-      ScrollTrigger.refresh();
-    });
-  }
+  requestAnimationFrame(function () {
+    ScrollTrigger.refresh();
+  });
+}
 
   // =============================================================
   // UFO TRAIL ENGINE
