@@ -1376,7 +1376,7 @@ function initHomeSection2() {
     {
       targets:
         ".home2_building12, .home2_building9",
-      travel: 8
+      travel: 10
     },
     {
       targets:
@@ -1390,7 +1390,7 @@ function initHomeSection2() {
     },
     {
       targets:
-        ".home2_mount4",
+        ".home2_mount4, .home2_spacecat",
       travel: 27
     },
     {
@@ -1400,13 +1400,8 @@ function initHomeSection2() {
     },
     {
       targets:
-        ".home2_triangle, .home2_mushroom",
-      travel: 42
-    },
-    {
-      targets:
-        ".home2_oceanball, .home2_whale",
-      travel: 50
+        ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar",
+      travel: 45
     }
   ];
 
@@ -1515,7 +1510,7 @@ function initHomeSection2() {
     },
     {
       sel: ".home2_pillar",
-      y: "12vh"
+      y: "15vh"
     },
     {
       sel: ".home2_jupiter",
@@ -1545,7 +1540,7 @@ function initHomeSection2() {
 
       scrollTrigger: {
         trigger: el,
-        start: "top 70%",
+        start: "top 75%",
         toggleActions: "play reverse play reverse"
       }
     });
