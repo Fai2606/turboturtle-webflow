@@ -475,13 +475,13 @@
   if (!section || !gsap || !ScrollTrigger) return;
 
   var depthGroups = [
-    { targets: ".home2_building12", travel: -20 },
-    { targets: ".home2_building9", travel: 10 },
-    { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 20 },
-    { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 30 },
-    { targets: ".home2_mount4, .home2_spacecat", travel: 36 },
-    { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle", travel: 48 },
-    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 60 }
+    { targets: ".home2_building12", travel: -40 },
+    { targets: ".home2_building9", travel: 20 },
+    { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 40 },
+    { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 60 },
+    { targets: ".home2_mount4, .home2_spacecat", travel: 80 },
+    { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle", travel: 100 },
+    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 120 }
   ];
 
   depthGroups.forEach(function (group) {
