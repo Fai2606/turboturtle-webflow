@@ -1381,41 +1381,57 @@
   // and ensures ScrollTrigger is animating an already displaced layer.
   // =============================================================
 
+// =============================================================
+// HOME SECTION 2 — STRUCTURAL CITY LAYERS
+// =============================================================
+//
+// Use building9 as the visual trigger.
+// building12 is too tall and causes the animation to begin too early.
+//
+// The Webflow position remains the FINAL settled position.
+// Each layer starts below it and rises into place as building9
+// enters the viewport.
+// =============================================================
+
+var buildingTrigger = q(".home2_building9");
+
+if (buildingTrigger) {
+
   var structuralLayers = [
     {
       targets: ".home2_building12",
-      y: "12vh"
+      y: "10vh"
     },
     {
       targets: ".home2_building9",
-      y: "18vh"
+      y: "14vh"
     },
     {
       targets: ".home2_clocktower",
-      y: "24vh"
+      y: "18vh"
     },
     {
       targets:
         ".home2_bridge, .home2_train, .home2_building2",
-      y: "32vh"
+      y: "24vh"
     },
     {
       targets: ".home2_mount4",
-      y: "40vh"
+      y: "30vh"
     },
     {
       targets: ".home2_building1",
-      y: "48vh"
+      y: "36vh"
     },
     {
       targets:
         ".home2_triangle, .home2_mushroom",
-      y: "58vh"
+      y: "44vh"
     },
     {
       targets:
         ".home2_oceanball, .home2_whale",
-      y: "70vh"
+      y: "52vh"
     }
   ];
 
@@ -1424,7 +1440,7 @@
 
     if (!elements.length) return;
 
-    // Establish starting position NOW.
+    // Starting position before the skyline enters.
     gsap.set(elements, {
       y: layer.y,
       force3D: true
@@ -1432,19 +1448,24 @@
 
     gsap.to(elements, {
       y: 0,
+
+      // Linear scrub feels more like the old reference site:
+      // direct relationship between scroll and construction.
       ease: "none",
+
       force3D: true,
 
       scrollTrigger: {
-        trigger: city,
+        trigger: buildingTrigger,
 
-        // Start as soon as the city begins entering viewport.
-        start: "top bottom",
+        // Animation begins when building9 itself becomes visible.
+        start: "top 95%",
 
-        // Keep movement going for much longer.
-        end: "top 15%",
+        // Fully settles when building9 reaches roughly
+        // the middle-upper area of the viewport.
+        end: "top 35%",
 
-        scrub: 1,
+        scrub: 0.7,
 
         invalidateOnRefresh: true,
 
@@ -1460,6 +1481,7 @@
     });
   });
 
+}
 
   // =============================================================
   // HOME SECTION 2 — CHARACTERS / SMALL OBJECTS
