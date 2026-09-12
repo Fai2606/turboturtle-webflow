@@ -474,18 +474,23 @@
 function initHomeSection1() {
   var section = q(".home_section1");
   var moon = q(".home1_moon");
+  var realMoon = q(".home1_realmoon");
   var cloud = q(".home1_cloud");
   var pyramid = q(".home1_pyramid");
-  var kv = q(".home_section1 .KV");
+  var text = q(".home_KV");
 
   if (!section || !gsap || !ScrollTrigger) return;
 
-  gsap.set(cloud, { zIndex: 10 });
-  gsap.set(kv, { zIndex: 5 });
-  gsap.set(moon, { zIndex: 3 });
-  gsap.set(pyramid, { zIndex: 2 });
+  // Layer order
+  if (realMoon) gsap.set(realMoon, { zIndex: 2 });
+  if (moon) gsap.set(moon, { zIndex: 3 });
+  if (pyramid) gsap.set(pyramid, { zIndex: 3 });
+  if (text) gsap.set(text, { zIndex: 5 });
+  if (cloud) gsap.set(cloud, { zIndex: 10 });
 
-  // Intro: lock scroll + moon bounce
+  // -------------------------------------------------------------
+  // INTRO — lock scroll + moon bounce
+  // -------------------------------------------------------------
   if (lenis) lenis.stop();
 
   var intro = gsap.timeline({
@@ -499,44 +504,48 @@ function initHomeSection1() {
     intro
       .set(moon, { y: 0, force3D: true })
       .to(moon, { y: "-8vh", duration: 0.45, ease: "power2.out" })
-      .to(moon, { y: "0vh", duration: 0.6, ease: "bounce.out" });
+      .to(moon, { y: 0, duration: 0.6, ease: "bounce.out" });
   } else {
     intro.to({}, { duration: 1 });
   }
 
-  // Keep text on screen while Section 1 scrolls
-  if (kv) {
+  // -------------------------------------------------------------
+  // TEXT — stay fixed in middle until Section 1 finishes
+  // -------------------------------------------------------------
+  if (text) {
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
       end: "bottom top",
-      pin: kv,
+      pin: text,
       pinSpacing: false,
+      anticipatePin: 1,
       invalidateOnRefresh: true,
 
-      onUpdate: function () {
-        if (!cloud) return;
+      onEnter: function () {
+        text.style.visibility = "visible";
+      },
 
-        var c = cloud.getBoundingClientRect();
-        var k = kv.getBoundingClientRect();
+      onEnterBack: function () {
+        text.style.visibility = "visible";
+      },
 
-        // Only remove after cloud has completely covered the text
-        kv.style.visibility =
-          c.top <= k.top && c.bottom >= k.bottom
-            ? "hidden"
-            : "visible";
+      onLeave: function () {
+        text.style.visibility = "hidden";
       },
 
       onLeaveBack: function () {
-        kv.style.visibility = "visible";
+        text.style.visibility = "visible";
       }
     });
   }
 
-  // Cloud moves upward fastest and covers everything
+  // -------------------------------------------------------------
+  // CLOUD — moves up fast and covers text / pyramid / moon
+  // -------------------------------------------------------------
   if (cloud) {
     gsap.to(cloud, {
-      y: () => -110 * vh,
+      y: () => -115 * vh,
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -549,10 +558,12 @@ function initHomeSection1() {
     });
   }
 
-  // Pyramid moves upward, but slower than cloud
+  // -------------------------------------------------------------
+  // PYRAMID — moves up slower than cloud
+  // -------------------------------------------------------------
   if (pyramid) {
     gsap.to(pyramid, {
-      y: () => -35 * vh,
+      y: () => -30 * vh,
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -565,10 +576,12 @@ function initHomeSection1() {
     });
   }
 
-  // Moon moves slower than normal page scroll
-  if (moon) {
-    gsap.to(moon, {
-      y: () => 25 * vh,
+  // -------------------------------------------------------------
+  // REAL MOON — drifts downward / moves slower than page scroll
+  // -------------------------------------------------------------
+  if (realMoon) {
+    gsap.to(realMoon, {
+      y: () => 55 * vh,
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -580,6 +593,9 @@ function initHomeSection1() {
       }
     });
   }
+
+  // home1_moon has NO scroll movement.
+  // It only performs the opening bounce.
 }
 
   
