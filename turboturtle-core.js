@@ -1356,259 +1356,267 @@
   // Layered City / Collage Reveal
   // -------------------------------------------------------------
   function initHomeSection2() {
-    var section = q(".home_section2");
-    var city = q(".home_section2_city");
+  var section = q(".home_section2");
+  var city = q(".home_section2_city");
 
-    if (
-      !section ||
-      !city ||
-      !gsap ||
-      !ScrollTrigger
-    ) {
-      return;
-    }
-
-    // -----------------------------------------------------------
-    // LARGE STRUCTURAL PLANES
-    //
-    // Rear layers travel less.
-    // Foreground layers travel more.
-    //
-    // Grouped elements use identical motion.
-    // -----------------------------------------------------------
-    var structuralLayers = [
-      {
-        targets: ".home2_building12",
-        y: "8vh"
-      },
-      {
-        targets: ".home2_building9",
-        y: "12vh"
-      },
-      {
-        targets: ".home2_clocktower",
-        y: "16vh"
-      },
-      {
-        targets:
-          ".home2_bridge, .home2_train, .home2_building2",
-        y: "22vh"
-      },
-      {
-        targets: ".home2_mount4",
-        y: "28vh"
-      },
-      {
-        targets: ".home2_building1",
-        y: "34vh"
-      },
-      {
-        targets:
-          ".home2_triangle, .home2_mushroom",
-        y: "42vh"
-      },
-      {
-        targets:
-          ".home2_oceanball, .home2_whale",
-        y: "52vh"
-      }
-    ];
-
-    structuralLayers.forEach(
-      function (layer) {
-        var elements =
-          gsap.utils.toArray(
-            layer.targets
-          );
-
-        if (!elements.length) {
-          return;
-        }
-
-        gsap.fromTo(
-          elements,
-          {
-            y: layer.y,
-            force3D: true
-          },
-          {
-            y: 0,
-            ease: "power2.out",
-            force3D: true,
-            immediateRender: false,
-
-            scrollTrigger: {
-              trigger: city,
-
-              // Begin before the scene
-              // fully reaches the viewport
-              start: "top 115%",
-
-              // Scene assembled around
-              // upper-middle viewport
-              end: "top 28%",
-
-              scrub: 1,
-              invalidateOnRefresh: true,
-              fastScrollEnd: true,
-
-              onToggle: function (self) {
-                elements.forEach(
-                  function (el) {
-                    el.style.willChange =
-                      self.isActive
-                        ? "transform"
-                        : "auto";
-                  }
-                );
-              }
-            }
-          }
-        );
-      }
-    );
-
-    // -----------------------------------------------------------
-    // SMALL OBJECTS / CHARACTERS
-    //
-    // Queen-style reveal:
-    // short entrance animation,
-    // not continuous scrub.
-    // -----------------------------------------------------------
-    var popObjects = [
-      {
-        sel: ".home2_dinosaur",
-        from: {
-          y: "12vh"
-        }
-      },
-      {
-        sel: ".home2_5centcat",
-        from: {
-          y: "14vh"
-        }
-      },
-      {
-        sel: ".home2_statue",
-        from: {
-          y: "15vh"
-        }
-      },
-      {
-        sel: ".home2_spacecat",
-        from: {
-          x: "4vw",
-          y: "4vh"
-        }
-      },
-      {
-        sel: ".home2_spark",
-        from: {
-          y: "12vh"
-        }
-      },
-      {
-        sel: ".home2_crystal",
-        from: {
-          y: "14vh"
-        }
-      },
-      {
-        sel: ".home2_pickle",
-        from: {
-          y: "12vh"
-        }
-      },
-      {
-        sel: ".home2_pillar",
-        from: {
-          y: "16vh"
-        }
-      },
-      {
-        sel: ".home2_jupiter",
-        from: {
-          x: "4vw",
-          y: "6vh"
-        }
-      },
-      {
-        sel: ".home2_cat",
-        from: {
-          y: "12vh"
-        }
-      }
-    ];
-
-    popObjects.forEach(
-      function (item) {
-        var elements =
-          gsap.utils.toArray(
-            item.sel
-          );
-
-        if (!elements.length) {
-          return;
-        }
-
-        elements.forEach(
-          function (el) {
-            var fromVars =
-              Object.assign(
-                {
-                  force3D: true
-                },
-                item.from
-              );
-
-            gsap.fromTo(
-              el,
-              fromVars,
-              {
-                x: 0,
-                y: 0,
-                duration: 1.05,
-                ease: "power3.out",
-                force3D: true,
-                immediateRender: false,
-
-                scrollTrigger: {
-                  trigger: el,
-                  start: "top 86%",
-                  toggleActions:
-                    "play reverse play reverse",
-
-                  invalidateOnRefresh: true,
-
-                  onEnter: function () {
-                    el.style.willChange =
-                      "transform";
-                  },
-
-                  onEnterBack:
-                    function () {
-                      el.style.willChange =
-                        "transform";
-                    },
-
-                  onLeave: function () {
-                    el.style.willChange =
-                      "auto";
-                  },
-
-                  onLeaveBack:
-                    function () {
-                      el.style.willChange =
-                        "auto";
-                    }
-                }
-              }
-            );
-          }
-        );
-      }
-    );
+  if (
+    !section ||
+    !city ||
+    !gsap ||
+    !ScrollTrigger
+  ) {
+    return;
   }
+
+  // =============================================================
+  // HOME SECTION 2 — STRUCTURAL CITY LAYERS
+  // =============================================================
+  //
+  // IMPORTANT:
+  // Set the starting transforms IMMEDIATELY.
+  //
+  // This prevents:
+  // normal position -> sudden jump -> animation
+  //
+  // and ensures ScrollTrigger is animating an already displaced layer.
+  // =============================================================
+
+  var structuralLayers = [
+    {
+      targets: ".home2_building12",
+      y: "12vh"
+    },
+    {
+      targets: ".home2_building9",
+      y: "18vh"
+    },
+    {
+      targets: ".home2_clocktower",
+      y: "24vh"
+    },
+    {
+      targets:
+        ".home2_bridge, .home2_train, .home2_building2",
+      y: "32vh"
+    },
+    {
+      targets: ".home2_mount4",
+      y: "40vh"
+    },
+    {
+      targets: ".home2_building1",
+      y: "48vh"
+    },
+    {
+      targets:
+        ".home2_triangle, .home2_mushroom",
+      y: "58vh"
+    },
+    {
+      targets:
+        ".home2_oceanball, .home2_whale",
+      y: "70vh"
+    }
+  ];
+
+  structuralLayers.forEach(function (layer) {
+    var elements = gsap.utils.toArray(layer.targets);
+
+    if (!elements.length) return;
+
+    // Establish starting position NOW.
+    gsap.set(elements, {
+      y: layer.y,
+      force3D: true
+    });
+
+    gsap.to(elements, {
+      y: 0,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: city,
+
+        // Start as soon as the city begins entering viewport.
+        start: "top bottom",
+
+        // Keep movement going for much longer.
+        end: "top 15%",
+
+        scrub: 1,
+
+        invalidateOnRefresh: true,
+
+        onToggle: function (self) {
+          elements.forEach(function (el) {
+            el.style.willChange =
+              self.isActive
+                ? "transform"
+                : "auto";
+          });
+        }
+      }
+    });
+  });
+
+
+  // =============================================================
+  // HOME SECTION 2 — CHARACTERS / SMALL OBJECTS
+  // =============================================================
+  //
+  // These behave like Queen / Frog etc. in About Us.
+  //
+  // Their hidden/displaced position is also established immediately
+  // so there is NO position flash when the trigger fires.
+  // =============================================================
+
+  var popObjects = [
+    {
+      sel: ".home2_dinosaur",
+      from: {
+        y: "16vh"
+      }
+    },
+    {
+      sel: ".home2_5centcat",
+      from: {
+        y: "18vh"
+      }
+    },
+    {
+      sel: ".home2_statue",
+      from: {
+        y: "20vh"
+      }
+    },
+    {
+      sel: ".home2_spacecat",
+      from: {
+        x: "5vw",
+        y: "6vh"
+      }
+    },
+    {
+      sel: ".home2_spark",
+      from: {
+        y: "16vh"
+      }
+    },
+    {
+      sel: ".home2_crystal",
+      from: {
+        y: "18vh"
+      }
+    },
+    {
+      sel: ".home2_pickle",
+      from: {
+        y: "16vh"
+      }
+    },
+    {
+      sel: ".home2_pillar",
+      from: {
+        y: "20vh"
+      }
+    },
+    {
+      sel: ".home2_jupiter",
+      from: {
+        x: "5vw",
+        y: "8vh"
+      }
+    },
+    {
+      sel: ".home2_cat",
+      from: {
+        y: "16vh"
+      }
+    }
+  ];
+
+  popObjects.forEach(function (item) {
+    var elements = gsap.utils.toArray(item.sel);
+
+    if (!elements.length) return;
+
+    elements.forEach(function (el) {
+
+      // ---------------------------------------------------------
+      // Set initial position immediately.
+      // This is the main fix for the position flash.
+      // ---------------------------------------------------------
+      var initialState = {
+        force3D: true
+      };
+
+      if (item.from.x !== undefined) {
+        initialState.x = item.from.x;
+      } else {
+        initialState.x = 0;
+      }
+
+      if (item.from.y !== undefined) {
+        initialState.y = item.from.y;
+      } else {
+        initialState.y = 0;
+      }
+
+      gsap.set(el, initialState);
+
+
+      // ---------------------------------------------------------
+      // Animate into Webflow's original position.
+      // ---------------------------------------------------------
+      gsap.to(el, {
+        x: 0,
+        y: 0,
+
+        duration: 1.05,
+
+        ease: "power3.out",
+
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: el,
+
+          start: "top 88%",
+
+          toggleActions:
+            "play reverse play reverse",
+
+          invalidateOnRefresh: true,
+
+          onEnter: function () {
+            el.style.willChange = "transform";
+          },
+
+          onEnterBack: function () {
+            el.style.willChange = "transform";
+          },
+
+          onLeave: function () {
+            el.style.willChange = "auto";
+          },
+
+          onLeaveBack: function () {
+            el.style.willChange = "auto";
+          }
+        }
+      });
+    });
+  });
+
+
+  // =============================================================
+  // Refresh after initial positions have been established.
+  // =============================================================
+  requestAnimationFrame(function () {
+    ScrollTrigger.refresh();
+  });
+}
 
   // -------------------------------------------------------------
   // UFO Trail Engine
