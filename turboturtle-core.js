@@ -468,58 +468,58 @@
     }
   }
 
-  // =============================================================
-  // HOMEPAGE SECTION 1
-  // =============================================================
-  function initHomeSection1() {
-    var section = q(".home_section1");
-    if (!section || !gsap || !ScrollTrigger) return;
-  
-    var layers = [
-      { targets: ".home1_moon", from: 0, to: -45 },
-      { targets: ".home1_cloud", from: 0, to: 22 },
-      { targets: ".home1_pyramid", from: 0, to: -18 },
-      { targets: ".home_section1 .KV", from: 0, to: -32 }
-    ];
-  
-    layers.forEach(function (layer) {
-      var elements = gsap.utils.toArray(layer.targets);
-      if (!elements.length) return;
-  
-      gsap.fromTo(
-        elements,
-        { y: () => layer.from * vh },
-        {
-          y: () => layer.to * vh,
-          ease: "none",
-          force3D: true,
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-            invalidateOnRefresh: true
-          }
-        }
-      );
-    });
-  
-    // Text separates slightly like the reference
-    tweenIf(".home_section1 .big_heading", {
-      y: () => -8 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  
-    tweenIf(".home_section1 .body_text", {
-      y: () => 5 * vh,
+// =============================================================
+// HOMEPAGE SECTION 1
+// =============================================================
+function initHomeSection1() {
+  var section = q(".home_section1");
+  var moon = q(".home1_moon");
+  var cloud = q(".home1_cloud");
+  var pyramid = q(".home1_pyramid");
+
+  if (!section || !gsap || !ScrollTrigger) return;
+
+  // -------------------------------------------------------------
+  // 1. INTRO LOCK
+  // User cannot scroll during the short moon bounce intro
+  // -------------------------------------------------------------
+  if (lenis) lenis.stop();
+
+  var intro = gsap.timeline({
+    onComplete: function () {
+      if (lenis) lenis.start();
+    }
+  });
+
+  if (moon) {
+    intro
+      .set(moon, { y: 0, force3D: true })
+      .to(moon, {
+        y: "-8vh",
+        duration: 0.45,
+        ease: "power2.out"
+      })
+      .to(moon, {
+        y: "0vh",
+        duration: 0.6,
+        ease: "bounce.out"
+      });
+  } else {
+    intro.to({}, { duration: 0.9 });
+  }
+
+  // -------------------------------------------------------------
+  // 2. SCROLL STAGE
+  //
+  // Cloud rises fastest.
+  // Pyramid + moon rise slower.
+  // Cloud eventually covers them.
+  // Reverse naturally when scrolling back.
+  // -------------------------------------------------------------
+
+  if (cloud) {
+    gsap.to(cloud, {
+      y: () => -75 * vh,
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -531,6 +531,51 @@
       }
     });
   }
+
+  if (pyramid) {
+    gsap.to(pyramid, {
+      y: () => -28 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  if (moon) {
+    gsap.to(moon, {
+      y: () => -22 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  // Optional text movement
+  tweenIf(".home_section1 .KV", {
+    y: () => -18 * vh,
+    ease: "none",
+    force3D: true,
+    scrollTrigger: {
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+      invalidateOnRefresh: true
+    }
+  });
+}
 
   
   // =============================================================
