@@ -488,23 +488,22 @@
     var elements = gsap.utils.toArray(group.targets);
     if (!elements.length) return;
 
-    gsap.fromTo(
-      elements,
-      { yPercent: group.travel },
-      {
-        yPercent: -group.travel,
-        ease: "none",
-        force3D: true,
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
+  gsap.fromTo(
+    elements,
+    { y: () => group.travel * vh },
+    {
+      y: () => -group.travel * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
       }
-    );
-  });
+    }
+  );
 
   requestAnimationFrame(function () {
     ScrollTrigger.refresh();
