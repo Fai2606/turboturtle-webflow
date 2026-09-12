@@ -1407,7 +1407,7 @@ if (buildingTrigger) {
       y: "14vh"
     },
     {
-      targets: ".home2_clocktower",
+      targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
       y: "18vh"
     },
     {
