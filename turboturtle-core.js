@@ -1497,13 +1497,15 @@ if (buildingTrigger) {
     {
       sel: ".home2_dinosaur",
       from: {
-        y: "16vh"
+        x: "10vw",
+        y: 0
       }
     },
     {
       sel: ".home2_5centcat",
       from: {
-        y: "18vh"
+        x: "-6vw",
+        y: "6vh"
       }
     },
     {
