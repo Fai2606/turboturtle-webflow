@@ -455,6 +455,7 @@
       // -------------------------------------------------------------
       // HOMEPAGE
       // -------------------------------------------------------------
+      initHomeSection1();
       initHomeSection2();
 
       // -------------------------------------------------------------
@@ -467,6 +468,71 @@
     }
   }
 
+  // =============================================================
+  // HOMEPAGE SECTION 1
+  // =============================================================
+  function initHomeSection1() {
+    var section = q(".home_section1");
+    if (!section || !gsap || !ScrollTrigger) return;
+  
+    var layers = [
+      { targets: ".home1_moon", from: 0, to: -45 },
+      { targets: ".home1_cloud", from: 0, to: 22 },
+      { targets: ".home1_pyramid", from: 0, to: -18 },
+      { targets: ".home_section1 .KV", from: 0, to: -32 }
+    ];
+  
+    layers.forEach(function (layer) {
+      var elements = gsap.utils.toArray(layer.targets);
+      if (!elements.length) return;
+  
+      gsap.fromTo(
+        elements,
+        { y: () => layer.from * vh },
+        {
+          y: () => layer.to * vh,
+          ease: "none",
+          force3D: true,
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        }
+      );
+    });
+  
+    // Text separates slightly like the reference
+    tweenIf(".home_section1 .big_heading", {
+      y: () => -8 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  
+    tweenIf(".home_section1 .body_text", {
+      y: () => 5 * vh,
+      ease: "none",
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  
   // =============================================================
   // HOMEPAGE SECTION 2
   // =============================================================
