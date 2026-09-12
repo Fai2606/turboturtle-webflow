@@ -1357,12 +1357,9 @@
   // -------------------------------------------------------------
 function initHomeSection2() {
   var section = q(".home_section2");
-  var city = q(".home_section2_city");
-  var buildingTrigger = q(".home2_building9");
 
   if (
     !section ||
-    !city ||
     !gsap ||
     !ScrollTrigger
   ) {
@@ -1370,264 +1367,191 @@ function initHomeSection2() {
   }
 
   // =============================================================
-  // HOME SECTION 2 — STRUCTURAL CITY LAYERS
-  // =============================================================
-  //
-  // Webflow positions are the FINAL settled positions.
-  // building9 is the visual trigger because building12 is too tall.
-  //
-  // Dinosaur + 5centcat share the clocktower's vertical layer motion.
-  // Their horizontal entrance is handled separately below.
+  // CONTINUOUS DEPTH PARALLAX
+  // Webflow position = middle/reference position
+  // Far layers move less, near layers move more
   // =============================================================
 
-  if (buildingTrigger) {
-    var structuralLayers = [
-      {
-        targets: ".home2_building12",
-        y: "10vh"
-      },
-      {
-        targets: ".home2_building9",
-        y: "14vh"
-      },
-      {
-        targets:
-          ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
-        y: "18vh"
-      },
-      {
-        targets:
-          ".home2_bridge, .home2_train, .home2_building2",
-        y: "24vh"
-      },
-      {
-        targets: ".home2_mount4",
-        y: "30vh"
-      },
-      {
-        targets: ".home2_building1",
-        y: "36vh"
-      },
-      {
-        targets:
-          ".home2_triangle, .home2_mushroom",
-        y: "44vh"
-      },
-      {
-        targets:
-          ".home2_oceanball, .home2_whale",
-        y: "52vh"
-      }
-    ];
+  var depthGroups = [
+    {
+      targets:
+        ".home2_building12, .home2_building9",
+      travel: 8
+    },
+    {
+      targets:
+        ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
+      travel: 14
+    },
+    {
+      targets:
+        ".home2_bridge, .home2_train, .home2_building2",
+      travel: 20
+    },
+    {
+      targets:
+        ".home2_mount4",
+      travel: 27
+    },
+    {
+      targets:
+        ".home2_building1",
+      travel: 34
+    },
+    {
+      targets:
+        ".home2_triangle, .home2_mushroom",
+      travel: 42
+    },
+    {
+      targets:
+        ".home2_oceanball, .home2_whale",
+      travel: 50
+    }
+  ];
 
-    structuralLayers.forEach(function (layer) {
-      var elements = gsap.utils.toArray(layer.targets);
+  depthGroups.forEach(function (group) {
+    var elements = gsap.utils.toArray(group.targets);
 
-      if (!elements.length) return;
+    if (!elements.length) return;
 
-      // Set the starting vertical depth immediately.
-      gsap.set(elements, {
-        y: layer.y,
-        force3D: true
-      });
-
-      // Scroll back into the exact Webflow-designed position.
-      gsap.to(elements, {
-        y: 0,
+    gsap.fromTo(
+      elements,
+      {
+        yPercent: group.travel
+      },
+      {
+        yPercent: -group.travel,
         ease: "none",
         force3D: true,
 
         scrollTrigger: {
-          trigger: buildingTrigger,
-
-          // Starts as building9 enters the viewport.
-          start: "top 95%",
-
-          // Fully settles higher up the viewport.
-          end: "top 35%",
-
-          scrub: 0.7,
-          invalidateOnRefresh: true,
-
-          onToggle: function (self) {
-            elements.forEach(function (el) {
-              el.style.willChange =
-                self.isActive
-                  ? "transform"
-                  : "auto";
-            });
-          }
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
         }
-      });
+      }
+    );
+  });
+
+
+  // =============================================================
+  // DINOSAUR — right to left
+  // Trigger when it reaches about 30% from bottom
+  // =============================================================
+
+  var dinosaur = q(".home2_dinosaur");
+
+  if (dinosaur) {
+    gsap.set(dinosaur, {
+      x: "10vw"
+    });
+
+    gsap.to(dinosaur, {
+      x: 0,
+      duration: 1,
+      ease: "power3.out",
+
+      scrollTrigger: {
+        trigger: dinosaur,
+        start: "top 70%",
+        toggleActions: "play reverse play reverse"
+      }
     });
   }
 
 
   // =============================================================
-  // HOME SECTION 2 — CHARACTERS / SMALL OBJECTS
+  // 5CENT CAT — left to right
   // =============================================================
-  //
-  // Most objects use the About Us "queen-style" entrance.
-  //
-  // Dinosaur + 5centcat are special:
-  // their Y comes from the structural clocktower layer above,
-  // and ONLY their X is animated here.
-  //
-  // This prevents two GSAP tweens from fighting over Y.
+
+  var fiveCentCat = q(".home2_5centcat");
+
+  if (fiveCentCat) {
+    gsap.set(fiveCentCat, {
+      x: "-6vw"
+    });
+
+    gsap.to(fiveCentCat, {
+      x: 0,
+      duration: 1,
+      ease: "power3.out",
+
+      scrollTrigger: {
+        trigger: fiveCentCat,
+        start: "top 70%",
+        toggleActions: "play reverse play reverse"
+      }
+    });
+  }
+
+
+  // =============================================================
+  // OTHER OBJECT HEADS-UP ANIMATIONS
   // =============================================================
 
   var popObjects = [
     {
-      sel: ".home2_dinosaur",
-      from: {
-        x: "10vw"
-      }
-    },
-    {
-      sel: ".home2_5centcat",
-      from: {
-        x: "-6vw"
-      }
-    },
-    {
       sel: ".home2_statue",
-      from: {
-        y: "20vh"
-      }
+      y: "12vh"
     },
     {
       sel: ".home2_spacecat",
-      from: {
-        x: "5vw",
-        y: "6vh"
-      }
+      y: "10vh"
     },
     {
       sel: ".home2_spark",
-      from: {
-        y: "16vh"
-      }
+      y: "10vh"
     },
     {
       sel: ".home2_crystal",
-      from: {
-        y: "18vh"
-      }
+      y: "10vh"
     },
     {
       sel: ".home2_pickle",
-      from: {
-        y: "16vh"
-      }
+      y: "10vh"
     },
     {
       sel: ".home2_pillar",
-      from: {
-        y: "20vh"
-      }
+      y: "12vh"
     },
     {
       sel: ".home2_jupiter",
-      from: {
-        x: "5vw",
-        y: "8vh"
-      }
+      y: "10vh"
     },
     {
       sel: ".home2_cat",
-      from: {
-        y: "16vh"
-      }
+      y: "10vh"
     }
   ];
 
-
   popObjects.forEach(function (item) {
-    var elements = gsap.utils.toArray(item.sel);
+    var el = q(item.sel);
 
-    if (!elements.length) return;
+    if (!el) return;
 
-    elements.forEach(function (el) {
+    gsap.set(el, {
+      y: item.y,
+      force3D: true
+    });
 
-      var initialState = {
-        force3D: true
-      };
+    gsap.to(el, {
+      y: 0,
+      duration: 1,
+      ease: "power3.out",
+      force3D: true,
 
-      var endState = {
-        duration: 1.05,
-        ease: "power3.out",
-        force3D: true,
-
-        scrollTrigger: {
-          trigger: el,
-
-          start: "top 88%",
-
-          toggleActions:
-            "play reverse play reverse",
-
-          invalidateOnRefresh: true,
-
-          onEnter: function () {
-            el.style.willChange =
-              "transform";
-          },
-
-          onEnterBack: function () {
-            el.style.willChange =
-              "transform";
-          },
-
-          onLeave: function () {
-            el.style.willChange =
-              "auto";
-          },
-
-          onLeaveBack: function () {
-            el.style.willChange =
-              "auto";
-          }
-        }
-      };
-
-
-      // ---------------------------------------------------------
-      // Only animate X if X was specifically defined.
-      //
-      // Dinosaur + 5centcat:
-      // X is animated here.
-      // Y continues being controlled by the clocktower layer.
-      // ---------------------------------------------------------
-      if (item.from.x !== undefined) {
-        initialState.x = item.from.x;
-        endState.x = 0;
+      scrollTrigger: {
+        trigger: el,
+        start: "top 70%",
+        toggleActions: "play reverse play reverse"
       }
-
-
-      // ---------------------------------------------------------
-      // Only animate Y if Y was specifically defined.
-      //
-      // We intentionally DO NOT automatically set y: 0.
-      // ---------------------------------------------------------
-      if (item.from.y !== undefined) {
-        initialState.y = item.from.y;
-        endState.y = 0;
-      }
-
-
-      // Establish starting state before trigger activates.
-      gsap.set(el, initialState);
-
-      // Animate only the axis/axes this object owns.
-      gsap.to(el, endState);
-
     });
   });
 
 
-  // =============================================================
-  // Refresh after all starting positions are established
-  // =============================================================
   requestAnimationFrame(function () {
     ScrollTrigger.refresh();
   });
