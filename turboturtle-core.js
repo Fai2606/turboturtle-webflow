@@ -475,7 +475,7 @@
   if (!section || !gsap || !ScrollTrigger) return;
 
   var depthGroups = [
-    { targets: ".home2_building12", travel: -40 },
+    { targets: ".home2_building12", travel: -5 },
     { targets: ".home2_building9", travel: 20 },
     { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 40 },
     { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 60 },
