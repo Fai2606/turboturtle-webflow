@@ -476,12 +476,13 @@
 
     // Continuous depth parallax
     var depthGroups = [
-      { targets: ".home2_building12, .home2_building9", travel: 10 },
+      { targets: ".home2_building12", travel: 0 },
+      { targets: ".home2_building9", travel: 10 },
       { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 14 },
       { targets: ".home2_bridge, .home2_train, .home2_building2", travel: 20 },
       { targets: ".home2_mount4, .home2_spacecat", travel: 27 },
       { targets: ".home2_building1", travel: 34 },
-      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar", travel: 45 }
+      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillarm, .home2_jupiter, .home2_cat", travel: 45 }
     ];
 
     depthGroups.forEach(function (group) {
