@@ -512,33 +512,7 @@ function initHomeSection1() {
   // -------------------------------------------------------------
   // TEXT — stay fixed in middle until Section 1 finishes
   // -------------------------------------------------------------
-  if (text) {
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: "bottom top",
-      pin: text,
-      pinSpacing: false,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
 
-      onEnter: function () {
-        text.style.visibility = "visible";
-      },
-
-      onEnterBack: function () {
-        text.style.visibility = "visible";
-      },
-
-      onLeave: function () {
-        text.style.visibility = "hidden";
-      },
-
-      onLeaveBack: function () {
-        text.style.visibility = "visible";
-      }
-    });
-  }
 
   // -------------------------------------------------------------
   // CLOUD — moves up fast and covers text / pyramid / moon
@@ -581,7 +555,7 @@ function initHomeSection1() {
   // -------------------------------------------------------------
   if (realMoon) {
     gsap.to(realMoon, {
-      y: () => 55 * vh,
+      y: () => 95 * vh,
       ease: "none",
       force3D: true,
       scrollTrigger: {
