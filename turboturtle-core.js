@@ -477,20 +477,18 @@ function initHomeSection1() {
   var realMoon = q(".home1_realmoon");
   var cloud = q(".home1_cloud");
   var pyramid = q(".home1_pyramid");
-  var text = q(".home_KV");
+  var text = q(".home_kv");
 
   if (!section || !gsap || !ScrollTrigger) return;
 
   // Layer order
   if (realMoon) gsap.set(realMoon, { zIndex: 2 });
-  if (moon) gsap.set(moon, { zIndex: 3 });
   if (pyramid) gsap.set(pyramid, { zIndex: 3 });
   if (text) gsap.set(text, { zIndex: 5 });
+  if (moon) gsap.set(moon, { zIndex: 7 });
   if (cloud) gsap.set(cloud, { zIndex: 10 });
 
-  // -------------------------------------------------------------
-  // INTRO — lock scroll + moon bounce
-  // -------------------------------------------------------------
+  // Intro — lock scroll + moon bounce
   if (lenis) lenis.stop();
 
   var intro = gsap.timeline({
@@ -509,14 +507,7 @@ function initHomeSection1() {
     intro.to({}, { duration: 1 });
   }
 
-  // -------------------------------------------------------------
-  // TEXT — stay fixed in middle until Section 1 finishes
-  // -------------------------------------------------------------
-
-
-  // -------------------------------------------------------------
-  // CLOUD — moves up fast and covers text / pyramid / moon
-  // -------------------------------------------------------------
+  // Cloud — fastest layer
   if (cloud) {
     gsap.to(cloud, {
       y: () => -115 * vh,
@@ -532,9 +523,7 @@ function initHomeSection1() {
     });
   }
 
-  // -------------------------------------------------------------
-  // PYRAMID — moves up slower than cloud
-  // -------------------------------------------------------------
+  // Pyramid — slower than cloud
   if (pyramid) {
     gsap.to(pyramid, {
       y: () => -30 * vh,
@@ -550,12 +539,18 @@ function initHomeSection1() {
     });
   }
 
-  // -------------------------------------------------------------
-  // REAL MOON — drifts downward / moves slower than page scroll
-  // -------------------------------------------------------------
+  // Real moon — compensates most of the page scroll,
+  // therefore visually moves upward very slowly
   if (realMoon) {
     gsap.to(realMoon, {
-      y: () => 95 * vh,
+      y: function () {
+        var scrollDistance = Math.max(
+          section.offsetHeight - window.innerHeight,
+          window.innerHeight
+        );
+
+        return scrollDistance * 0.82;
+      },
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -568,10 +563,8 @@ function initHomeSection1() {
     });
   }
 
-  // home1_moon has NO scroll movement.
-  // It only performs the opening bounce.
+  // home1_moon only does intro bounce.
 }
-
   
   // =============================================================
   // HOMEPAGE SECTION 2
