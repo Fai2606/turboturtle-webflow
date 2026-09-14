@@ -471,6 +471,22 @@
 // =============================================================
 // HOMEPAGE SECTION 1
 // =============================================================
+
+// KV stays fixed during Section 1
+var kv = q(".kv.homepage");
+
+if (kv) {
+  ScrollTrigger.create({
+    trigger: section,
+    start: "top top",
+    end: "bottom top",
+    pin: kv,
+    pinSpacing: false,
+    anticipatePin: 1,
+    invalidateOnRefresh: true
+  });
+}
+  
 function initHomeSection1() {
   var section = q(".home_section1");
   var moon = q(".home1_moon");
@@ -544,12 +560,10 @@ function initHomeSection1() {
   if (realMoon) {
     gsap.to(realMoon, {
       y: function () {
-        var scrollDistance = Math.max(
-          section.offsetHeight - window.innerHeight,
-          window.innerHeight
-        );
-
-        return scrollDistance * 0.82;
+        var scrollDistance =
+          section.offsetHeight - window.innerHeight;
+  
+        return scrollDistance * 0.92;
       },
       ease: "none",
       force3D: true,
@@ -557,7 +571,7 @@ function initHomeSection1() {
         trigger: section,
         start: "top top",
         end: "bottom top",
-        scrub: 1,
+        scrub: true,
         invalidateOnRefresh: true
       }
     });
