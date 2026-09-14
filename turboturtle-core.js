@@ -472,18 +472,27 @@
 // HOMEPAGE SECTION 1
 // =============================================================
 
-// KV stays fixed during Section 1
+// KV stays visually still without pinning
 var kv = q(".kv.homepage");
 
 if (kv) {
-  ScrollTrigger.create({
-    trigger: section,
-    start: "top top",
-    end: "bottom top",
-    pin: kv,
-    pinSpacing: false,
-    anticipatePin: 1,
-    invalidateOnRefresh: true
+  gsap.to(kv, {
+    y: function () {
+      return Math.max(0, section.offsetHeight - window.innerHeight);
+    },
+    ease: "none",
+    force3D: true,
+    scrollTrigger: {
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+      invalidateOnRefresh: true,
+      onEnter: function () { gsap.set(kv, { autoAlpha: 1 }); },
+      onEnterBack: function () { gsap.set(kv, { autoAlpha: 1 }); },
+      onLeave: function () { gsap.set(kv, { autoAlpha: 0 }); },
+      onLeaveBack: function () { gsap.set(kv, { autoAlpha: 1 }); }
+    }
   });
 }
   
