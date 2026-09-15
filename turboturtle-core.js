@@ -742,61 +742,60 @@ if (goose) {
   // =============================================================
   // HOMEPAGE SECTION 4
   // =============================================================
-  function initHomeSection4() {
-    var pulse = q(".home4_pulse");
-    var wave = q("#home4-liquid-wave");
-  
-    if (pulse) {
-      gsap.to(pulse, {
-        y: "+=450",
-        duration: 3,
-        ease: "none",
-        repeat: -1,
-        force3D: true
-      });
-    }
-  
-    if (wave) {
-      gsap.set(wave, {
-        transformOrigin: "50% 100%",
-        scaleX: 0.08,
-        scaleY: 1.35
-      });
-  
-      gsap.timeline({
-        repeat: -1,
-        repeatDelay: 0.2
-      })
-      .to(wave, {
-        scaleX: 1.2,
-        scaleY: 0.8,
-        duration: 0.7,
-        ease: "power2.out"
-      })
-      .to(wave, {
-        scaleX: 2.3,
-        scaleY: 0.35,
-        y: 18,
-        duration: 1.2,
-        ease: "sine.out"
-      })
-      .to(wave, {
-        scaleX: 3.2,
-        scaleY: 0.05,
-        y: 30,
-        duration: 0.8,
-        ease: "sine.in",
-        onComplete: function () {
-          gsap.set(wave, {
-            scaleX: 0.08,
-            scaleY: 1.35,
-            y: 0
-          });
-        }
-      });
-    }
+function initHomeSection4() {
+  var pulse = q(".home4_pulse");
+  var wave = q("#home4-liquid-wave");
+
+  if (pulse) {
+    gsap.to(pulse, {
+      y: "+=450",
+      duration: 3,
+      ease: "none",
+      repeat: -1,
+      force3D: true
+    });
   }
 
+  if (wave) {
+    gsap.set(wave, {
+      transformOrigin: "50% 100%",
+      scaleX: 0.08,
+      scaleY: 1.35
+    });
+
+    gsap.timeline({
+      repeat: -1,
+      repeatDelay: 0.2
+    })
+    .to(wave, {
+      scaleX: 1.2,
+      scaleY: 0.8,
+      duration: 0.7,
+      ease: "power2.out"
+    })
+    .to(wave, {
+      scaleX: 2.3,
+      scaleY: 0.35,
+      y: 18,
+      duration: 1.2,
+      ease: "sine.out"
+    })
+    .to(wave, {
+      scaleX: 3.2,
+      scaleY: 0.05,
+      y: 30,
+      duration: 0.8,
+      ease: "sine.in",
+      onComplete: function () {
+        gsap.set(wave, {
+          scaleX: 0.08,
+          scaleY: 1.35,
+          y: 0
+        });
+      }
+    });
+  }
+}
 
   
   // =============================================================
