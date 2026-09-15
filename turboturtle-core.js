@@ -742,57 +742,39 @@ if (goose) {
   // =============================================================
   // HOMEPAGE SECTION 4
   // =============================================================
-  function initHomeSection4() {
-    var pulse = q(".home4_pulse");
-    var wave = q("#home4-liquid-wave");
-  
-    if (pulse) {
-      gsap.to(pulse, {
-        y: "+=450",
-        duration: 3,
-        ease: "none",
-        repeat: -1,
-        force3D: true
-      });
-    }
-  
-    if (wave) {
-      gsap.set(wave, {
-        transformOrigin: "50% 100%",
-        scaleX: 0.15,
-        scaleY: 0.4,
-        y: 120
-      });
-  
-      gsap.timeline({ repeat: -1 })
-        .to(wave, {
-          y: -120,
-          scaleX: 0.4,
-          scaleY: 1.4,
-          duration: 0.5,
-          ease: "power2.out"
-        })
-        .to(wave, {
-          y: -40,
-          scaleX: 3,
-          scaleY: 0.7,
-          duration: 0.8,
-          ease: "power2.out"
-        })
-        .to(wave, {
-          y: 20,
-          scaleX: 7,
-          scaleY: 0.15,
-          duration: 1.3,
-          ease: "sine.out"
-        })
-        .set(wave, {
-          y: 120,
-          scaleX: 0.15,
-          scaleY: 0.4
-        });
-    }
+function initHomeSection4() {
+  var pulse = q(".home4_pulse");
+  var noise = q("#home4-liquid-noise");
+  var displace = q("#home4-liquid-displace");
+
+  if (pulse) {
+    gsap.to(pulse, {
+      y: "+=450",
+      duration: 3,
+      ease: "none",
+      repeat: -1,
+      force3D: true
+    });
   }
+
+  if (noise && displace) {
+    var t = { x: 0.0015, y: 0.008, scale: 22 };
+
+    gsap.to(t, {
+      x: 0.003,
+      y: 0.014,
+      scale: 38,
+      duration: 5,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1,
+      onUpdate: function () {
+        noise.setAttribute("baseFrequency", t.x + " " + t.y);
+        displace.setAttribute("scale", t.scale);
+      }
+    });
+  }
+}
   
   // =============================================================
   // UFO TRAIL ENGINE
