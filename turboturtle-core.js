@@ -682,7 +682,7 @@ if (goose) {
       { sel: ".home3_jet",     x: 90, y:  -5, r:  0 },
       { sel: ".home3_turtle",  x: 20, y:   6, r: -5 },
       { sel: ".home3_lion",    x: 12, y:  -3, r: -2 },
-      { sel: ".home3_bear",    x:  5, y:   0, r:  0 }
+      { sel: ".home3_bear",    x: 10, y:  30, r:  0 }
     ];
   
     movers.forEach(function (item) {
