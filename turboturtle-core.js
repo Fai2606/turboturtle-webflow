@@ -663,6 +663,46 @@ if (goose) {
     });
   }
 
+  
+  // =============================================================
+  // HOMEPAGE SECTION 3
+  // =============================================================
+  function initHomeSection3() {
+    var section = q(".home_section3");
+    if (!section || !gsap || !ScrollTrigger) return;
+  
+    var movers = [
+      { sel: ".home3_fish2", x: 18 },
+      { sel: ".home3_fish1", x: 24 },
+      { sel: ".home3_dolphin", x: 14 },
+      { sel: ".home3_shark", x: 16 },
+      { sel: ".home3_cat", x: 22 },
+      { sel: ".home3_moon", x: 10 },
+      { sel: ".home3_jet", x: 30 },
+      { sel: ".home3_turtle", x: 20 },
+      { sel: ".home3_lion", x: 12 },
+      { sel: ".home3_bear", x: 14 }
+    ];
+  
+    movers.forEach(function (item) {
+      tweenIf(item.sel, {
+        x: () => item.x * vw,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    });
+  }
+
+
+
+  
   // =============================================================
   // UFO TRAIL ENGINE
   // =============================================================
