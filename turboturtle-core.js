@@ -673,16 +673,16 @@ if (goose) {
     if (!section || !gsap || !ScrollTrigger) return;
   
     var movers = [
-      { sel: ".home3_fish2",   x: 70, y:  -4,  r:  0 },
-      { sel: ".home3_fish1",   x: 80, y:   3,  r:  0 },
-      { sel: ".home3_dolphin", x: 16, y:  -6,  r:  0 },
-      { sel: ".home3_shark",   x: 12, y:   4,  r:  0 },
-      { sel: ".home3_cat",     x: 40, y: -12,  r:  0 },
-      { sel: ".home3_moon",    x: 0,  y:  30,  r:  0 },
-      { sel: ".home3_jet",     x: 90, y:  -5,  r:  0 },
-      { sel: ".home3_turtle",  x: 20, y:   6,  r: -5 },
-      { sel: ".home3_lion",    x: 12, y:  -3,  r: -2 },
-      { sel: ".home3_bear",    x: 5,  y:   0,  r:  0 }
+      { sel: ".home3_fish2",   x: 70, y:  -4, r:  0 },
+      { sel: ".home3_fish1",   x: 80, y:   3, r:  0 },
+      { sel: ".home3_dolphin", x: 16, y:  -6, r:  0 },
+      { sel: ".home3_shark",   x: 12, y:   4, r:  0 },
+      { sel: ".home3_cat",     x: 40, y: -12, r:  0 },
+      { sel: ".home3_moon",    x:  0, y:  30, r:  0 },
+      { sel: ".home3_jet",     x: 90, y:  -5, r:  0 },
+      { sel: ".home3_turtle",  x: 20, y:   6, r: -5 },
+      { sel: ".home3_lion",    x: 12, y:  -3, r: -2 },
+      { sel: ".home3_bear",    x:  5, y:   0, r:  0 }
     ];
   
     movers.forEach(function (item) {
@@ -701,24 +701,26 @@ if (goose) {
         }
       });
     });
+  
+    var galaxy = q(".home3_galaxy");
+  
+    if (galaxy) {
+      gsap.to(galaxy, {
+        y: () => -35 * vh,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    }
   }
 
-  var galaxy = q(".home3_galaxy");
 
-  if (galaxy) {
-    gsap.to(galaxy, {
-      y: () => -70 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
 
 
   
