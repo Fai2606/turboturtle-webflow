@@ -519,10 +519,12 @@
     var pyramid = q(".home1_pyramid");
     var text = q(".home_kv");
     var goose = q(".home1_goose");
+    var galaxy = q(".home1_galaxy");
 
     if (!section || !gsap || !ScrollTrigger) return;
 
     // Layer order
+    if (galaxy) gsap.set(galaxy, { zIndex: 1 });
     if (realMoon) gsap.set(realMoon, { zIndex: 2 });
     if (pyramid) gsap.set(pyramid, { zIndex: 3 });
     if (text) gsap.set(text, { zIndex: 5 });
