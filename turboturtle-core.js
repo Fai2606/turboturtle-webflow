@@ -742,39 +742,77 @@ if (goose) {
   // =============================================================
   // HOMEPAGE SECTION 4
   // =============================================================
-function initHomeSection4() {
-  var pulse = q(".home4_pulse");
-  var noise = q("#home4-liquid-noise");
-  var displace = q("#home4-liquid-displace");
-
-  if (pulse) {
-    gsap.to(pulse, {
-      y: "+=450",
-      duration: 3,
-      ease: "none",
-      repeat: -1,
-      force3D: true
+  function initHomeSection4() {
+    var pulse = q(".home4_pulse");
+    var wave = q("#home4-top-wave");
+  
+    if (pulse) {
+      gsap.to(pulse, {
+        y: "+=450",
+        duration: 3,
+        ease: "none",
+        repeat: -1,
+        force3D: true
+      });
+    }
+  
+    if (!wave || !MorphSVGPlugin) return;
+  
+    var waveA =
+      "M0,430 " +
+      "C320,425 520,405 760,410 " +
+      "C980,415 1160,390 1360,400 " +
+      "C1540,410 1690,380 1810,395 " +
+      "C1870,402 1900,410 1925,414 " +
+      "C1950,410 1980,402 2040,395 " +
+      "C2160,380 2310,410 2490,400 " +
+      "C2690,390 2870,415 3090,410 " +
+      "C3330,405 3530,425 3838,430 " +
+      "L3838,485 L0,485 Z";
+  
+    var waveB =
+      "M0,430 " +
+      "C280,410 500,420 760,397 " +
+      "C980,380 1160,415 1360,390 " +
+      "C1530,370 1690,405 1810,385 " +
+      "C1870,375 1905,402 1925,410 " +
+      "C1945,402 1980,375 2040,385 " +
+      "C2160,405 2320,370 2490,390 " +
+      "C2690,415 2870,380 3090,397 " +
+      "C3350,420 3560,410 3838,430 " +
+      "L3838,485 L0,485 Z";
+  
+    var waveC =
+      "M0,430 " +
+      "C300,438 520,392 760,420 " +
+      "C990,440 1170,382 1360,412 " +
+      "C1530,435 1700,392 1810,405 " +
+      "C1875,414 1905,422 1925,424 " +
+      "C1945,422 1975,414 2040,405 " +
+      "C2150,392 2320,435 2490,412 " +
+      "C2680,382 2860,440 3090,420 " +
+      "C3330,392 3550,438 3838,430 " +
+      "L3838,485 L0,485 Z";
+  
+    gsap.timeline({
+      repeat: -1
+    })
+    .to(wave, {
+      morphSVG: waveB,
+      duration: 3.2,
+      ease: "sine.inOut"
+    })
+    .to(wave, {
+      morphSVG: waveC,
+      duration: 3.6,
+      ease: "sine.inOut"
+    })
+    .to(wave, {
+      morphSVG: waveA,
+      duration: 3.4,
+      ease: "sine.inOut"
     });
   }
-
-  if (noise && displace) {
-    var t = { x: 0.0015, y: 0.008, scale: 22 };
-
-    gsap.to(t, {
-      x: 0.003,
-      y: 0.014,
-      scale: 38,
-      duration: 5,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: -1,
-      onUpdate: function () {
-        noise.setAttribute("baseFrequency", t.x + " " + t.y);
-        displace.setAttribute("scale", t.scale);
-      }
-    });
-  }
-}
   
   // =============================================================
   // UFO TRAIL ENGINE
