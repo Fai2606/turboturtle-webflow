@@ -759,41 +759,37 @@ function initHomeSection4() {
   if (wave) {
     gsap.set(wave, {
       transformOrigin: "50% 100%",
-      scaleX: 0.08,
-      scaleY: 1.35
+      scaleX: 0.12,
+      scaleY: 1.15,
+      force3D: true
     });
 
-    gsap.timeline({
-      repeat: -1,
-      repeatDelay: 0.2
-    })
-    .to(wave, {
-      scaleX: 1.2,
-      scaleY: 0.8,
-      duration: 0.7,
-      ease: "power2.out"
-    })
-    .to(wave, {
-      scaleX: 2.3,
-      scaleY: 0.35,
-      y: 18,
-      duration: 1.2,
-      ease: "sine.out"
-    })
-    .to(wave, {
-      scaleX: 3.2,
-      scaleY: 0.05,
-      y: 30,
-      duration: 0.8,
-      ease: "sine.in",
-      onComplete: function () {
-        gsap.set(wave, {
-          scaleX: 0.08,
-          scaleY: 1.35,
-          y: 0
-        });
-      }
-    });
+    gsap.timeline({ repeat: -1 })
+      .to(wave, {
+        scaleX: 1,
+        scaleY: 0.9,
+        duration: 0.55,
+        ease: "power2.out"
+      })
+      .to(wave, {
+        scaleX: 3,
+        scaleY: 0.55,
+        y: 30,
+        duration: 0.9,
+        ease: "sine.out"
+      })
+      .to(wave, {
+        scaleX: 6,
+        scaleY: 0.12,
+        y: 55,
+        duration: 1,
+        ease: "sine.in"
+      })
+      .set(wave, {
+        scaleX: 0.12,
+        scaleY: 1.15,
+        y: 0
+      });
   }
 }
 
