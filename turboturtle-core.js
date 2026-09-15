@@ -588,7 +588,7 @@
             section.offsetHeight - window.innerHeight
           );
 
-          return scrollDistance * 0.92;
+          return scrollDistance * 0.6;
         },
         ease: "none",
         force3D: true,
