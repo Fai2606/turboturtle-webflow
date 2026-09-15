@@ -742,57 +742,57 @@ if (goose) {
   // =============================================================
   // HOMEPAGE SECTION 4
   // =============================================================
-function initHomeSection4() {
-  var pulse = q(".home4_pulse");
-  var wave = q("#home4-liquid-wave");
-
-  if (pulse) {
-    gsap.to(pulse, {
-      y: "+=450",
-      duration: 3,
-      ease: "none",
-      repeat: -1,
-      force3D: true
-    });
-  }
-
-  if (wave) {
-    gsap.set(wave, {
-      transformOrigin: "50% 100%",
-      scaleX: 0.12,
-      scaleY: 1.15,
-      force3D: true
-    });
-
-    gsap.timeline({ repeat: -1 })
-      .to(wave, {
-        scaleX: 1,
-        scaleY: 0.9,
-        duration: 0.55,
-        ease: "power2.out"
-      })
-      .to(wave, {
-        scaleX: 3,
-        scaleY: 0.55,
-        y: 30,
-        duration: 0.9,
-        ease: "sine.out"
-      })
-      .to(wave, {
-        scaleX: 6,
-        scaleY: 0.12,
-        y: 55,
-        duration: 1,
-        ease: "sine.in"
-      })
-      .set(wave, {
-        scaleX: 0.12,
-        scaleY: 1.15,
-        y: 0
+  function initHomeSection4() {
+    var pulse = q(".home4_pulse");
+    var wave = q("#home4-liquid-wave");
+  
+    if (pulse) {
+      gsap.to(pulse, {
+        y: "+=450",
+        duration: 3,
+        ease: "none",
+        repeat: -1,
+        force3D: true
       });
+    }
+  
+    if (wave) {
+      gsap.set(wave, {
+        transformOrigin: "50% 100%",
+        scaleX: 0.15,
+        scaleY: 0.4,
+        y: 120
+      });
+  
+      gsap.timeline({ repeat: -1 })
+        .to(wave, {
+          y: -120,
+          scaleX: 0.4,
+          scaleY: 1.4,
+          duration: 0.5,
+          ease: "power2.out"
+        })
+        .to(wave, {
+          y: -40,
+          scaleX: 3,
+          scaleY: 0.7,
+          duration: 0.8,
+          ease: "power2.out"
+        })
+        .to(wave, {
+          y: 20,
+          scaleX: 7,
+          scaleY: 0.15,
+          duration: 1.3,
+          ease: "sine.out"
+        })
+        .set(wave, {
+          y: 120,
+          scaleX: 0.15,
+          scaleY: 0.4
+        });
+    }
   }
-}
-
   
   // =============================================================
   // UFO TRAIL ENGINE
