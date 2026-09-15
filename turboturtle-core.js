@@ -579,46 +579,42 @@
       });
     }
 
-    // Real moon — slow upward movement without easing
-    if (realMoon) {
-      gsap.to(realMoon, {
-        y: function () {
-          var scrollDistance = Math.max(
-            0,
-            section.offsetHeight - window.innerHeight
-          );
-
-          return scrollDistance * 0.6;
-        },
-        ease: "none",
-        force3D: true,
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          invalidateOnRefresh: true
-        }
-      });
+// Real moon — stay on screen longer
+if (realMoon) {
+  gsap.to(realMoon, {
+    y: function () {
+      var scrollDistance = Math.max(0, section.offsetHeight - window.innerHeight);
+      return scrollDistance * 0.82;
+    },
+    ease: "none",
+    force3D: true,
+    scrollTrigger: {
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+      invalidateOnRefresh: true
     }
+  });
+}
 
-    // Goose — lower-right to upper-left, around 10 o'clock
-    if (goose) {
-      gsap.to(goose, {
-        x: () => -145 * vw,
-        y: () => -85 * vh,
-        rotation: -12,
-        ease: "none",
-        force3D: true,
-        scrollTrigger: {
-          trigger: goose,
-          start: "top bottom",
-          end: "bottom -20%",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
-      });
+// Goose — slightly faster
+if (goose) {
+  gsap.to(goose, {
+    x: () => -145 * vw,
+    y: () => -85 * vh,
+    rotation: -12,
+    ease: "none",
+    force3D: true,
+    scrollTrigger: {
+      trigger: goose,
+      start: "top bottom",
+      end: "bottom 30%",
+      scrub: 1,
+      invalidateOnRefresh: true
     }
+  });
+}
 
     // home1_moon only does the intro bounce.
   }
