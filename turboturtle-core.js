@@ -746,7 +746,6 @@ if (goose) {
     var pulse = q(".home4_pulse");
     var liquid = q("#home4-liquid-path");
   
-    // Drop pulse
     if (pulse) {
       gsap.to(pulse, {
         y: "+=450",
@@ -757,71 +756,43 @@ if (goose) {
       });
     }
   
-    // Liquid impact + outward flow
     if (liquid && MorphSVGPlugin) {
       var original = liquid.getAttribute("d");
   
       var impact1 =
-        "M0,405 " +
-        "C400,395 700,380 1000,365 " +
-        "C1250,350 1450,345 1650,320 " +
-        "C1780,300 1850,245 1905,175 " +
-        "C1915,155 1920,110 1920,95 " +
-        "C1920,110 1925,155 1935,175 " +
-        "C1990,245 2060,300 2190,320 " +
-        "C2390,345 2590,350 2840,365 " +
-        "C3140,380 3440,395 3840,405 " +
-        "L3840,801 L0,801 Z";
+        "M0,405 C400,395 700,380 1000,365 C1250,350 1450,345 1650,320 C1780,300 1850,245 1905,175 C1915,155 1920,110 1920,95 C1920,110 1925,155 1935,175 C1990,245 2060,300 2190,320 C2390,345 2590,350 2840,365 C3140,380 3440,395 3840,405 L3840,801 L0,801 Z";
   
       var spread1 =
-        "M0,420 " +
-        "C350,410 650,390 950,370 " +
-        "C1200,350 1400,330 1600,305 " +
-        "C1740,285 1830,260 1920,245 " +
-        "C2010,260 2100,285 2240,305 " +
-        "C2440,330 2640,350 2890,370 " +
-        "C3190,390 3490,410 3840,420 " +
-        "L3840,801 L0,801 Z";
+        "M0,420 C350,410 650,390 950,370 C1200,350 1400,330 1600,305 C1740,285 1830,260 1920,245 C2010,260 2100,285 2240,305 C2440,330 2640,350 2890,370 C3190,390 3490,410 3840,420 L3840,801 L0,801 Z";
   
       var spread2 =
-        "M0,405 " +
-        "C300,392 600,405 900,385 " +
-        "C1180,365 1450,345 1680,330 " +
-        "C1800,320 1870,310 1920,305 " +
-        "C1970,310 2040,320 2160,330 " +
-        "C2390,345 2660,365 2940,385 " +
-        "C3240,405 3540,392 3840,405 " +
-        "L3840,801 L0,801 Z";
+        "M0,405 C300,392 600,405 900,385 C1180,365 1450,345 1680,330 C1800,320 1870,310 1920,305 C1970,310 2040,320 2160,330 C2390,345 2660,365 2940,385 C3240,405 3540,392 3840,405 L3840,801 L0,801 Z";
   
-      var liquidTL = gsap.timeline({
-        repeat: -1,
-        repeatDelay: 0
+      gsap.timeline({
+        repeat: -1
+      })
+      .to(liquid, {
+        morphSVG: impact1,
+        duration: 0.45,
+        ease: "power2.in"
+      })
+      .to(liquid, {
+        morphSVG: spread1,
+        duration: 0.65,
+        ease: "power2.out"
+      })
+      .to(liquid, {
+        morphSVG: spread2,
+        duration: 0.75,
+        ease: "sine.inOut"
+      })
+      .to(liquid, {
+        morphSVG: original,
+        duration: 1.15,
+        ease: "sine.inOut"
       });
-  
-      liquidTL
-        .to(liquid, {
-          morphSVG: impact1,
-          duration: 0.45,
-          ease: "power2.in"
-        })
-        .to(liquid, {
-          morphSVG: spread1,
-          duration: 0.65,
-          ease: "power2.out"
-        })
-        .to(liquid, {
-          morphSVG: spread2,
-          duration: 0.75,
-          ease: "sine.inOut"
-        })
-        .to(liquid, {
-          morphSVG: original,
-          duration: 1.1,
-          ease: "sine.inOut"
-        });
     }
   }
-
 
 
   
