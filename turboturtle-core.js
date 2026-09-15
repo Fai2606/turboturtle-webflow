@@ -496,6 +496,7 @@
       // -------------------------------------------------------------
       initHomeSection1();
       initHomeSection2();
+      initHomeSection3();
 
       // -------------------------------------------------------------
       // ABOUT US UFO
@@ -672,21 +673,23 @@ if (goose) {
     if (!section || !gsap || !ScrollTrigger) return;
   
     var movers = [
-      { sel: ".home3_fish2", x: 18 },
-      { sel: ".home3_fish1", x: 24 },
-      { sel: ".home3_dolphin", x: 14 },
-      { sel: ".home3_shark", x: 16 },
-      { sel: ".home3_cat", x: 22 },
-      { sel: ".home3_moon", x: 10 },
-      { sel: ".home3_jet", x: 30 },
-      { sel: ".home3_turtle", x: 20 },
-      { sel: ".home3_lion", x: 12 },
-      { sel: ".home3_bear", x: 14 }
+      { sel: ".home3_fish2",   x: 18, y: -4,  r:  0 },
+      { sel: ".home3_fish1",   x: 24, y:  3,  r:  0 },
+      { sel: ".home3_dolphin", x: 14, y: -6,  r:  0 },
+      { sel: ".home3_shark",   x: 16, y:  4,  r:  0 },
+      { sel: ".home3_cat",     x: 22, y: -8,  r:  0 },
+      { sel: ".home3_moon",    x: 10, y:  5,  r:  0 },
+      { sel: ".home3_jet",     x: 30, y: -12, r:  0 },
+      { sel: ".home3_turtle",  x: 20, y:  6,  r:  0 },
+      { sel: ".home3_lion",    x: 12, y: -3,  r:  0 },
+      { sel: ".home3_bear",    x: 5, y:  4,  r:  0 }
     ];
   
     movers.forEach(function (item) {
       tweenIf(item.sel, {
         x: () => item.x * vw,
+        y: () => item.y * vh,
+        rotation: item.r,
         ease: "none",
         force3D: true,
         scrollTrigger: {
@@ -699,7 +702,6 @@ if (goose) {
       });
     });
   }
-
 
 
   
