@@ -706,7 +706,7 @@ if (goose) {
   
     if (galaxy) {
       gsap.to(galaxy, {
-        y: () => -35 * vh,
+        y: () => 50 * vh,
         ease: "none",
         force3D: true,
         scrollTrigger: {
