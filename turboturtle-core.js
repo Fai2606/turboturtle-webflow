@@ -497,6 +497,7 @@
       initHomeSection1();
       initHomeSection2();
       initHomeSection3();
+      initHomeSection4();
 
       // -------------------------------------------------------------
       // ABOUT US UFO
@@ -737,6 +738,22 @@ if (goose) {
     }
   }
 
+  
+  // =============================================================
+  // HOMEPAGE SECTION 4
+  // =============================================================
+  function initHomeSection4() {
+    var pulse = q(".home4_pulse");
+    if (!pulse || !gsap) return;
+  
+    gsap.to(pulse, {
+      y: "+=450",
+      duration: 3,
+      ease: "none",
+      repeat: -1,
+      force3D: true
+    });
+  }
 
 
 
