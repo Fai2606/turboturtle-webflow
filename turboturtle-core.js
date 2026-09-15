@@ -661,6 +661,21 @@ if (goose) {
       );
     });
 
+    
+    var oceanBall = q(".home2_oceanball");
+
+    if (oceanBall) {
+      gsap.to(oceanBall, {
+        yPercent: -3,
+        rotation: 1.5,
+        duration: 2.4,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        force3D: true
+      });
+    }
+
     requestAnimationFrame(function () {
       ScrollTrigger.refresh();
     });
