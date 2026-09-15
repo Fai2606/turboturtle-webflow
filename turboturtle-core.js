@@ -55,6 +55,7 @@
         touchMultiplier: 1.5,
         infinite: false
       });
+
       root.lenis = lenis;
 
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
@@ -72,7 +73,9 @@
       });
 
       lenis.on("scroll", ScrollTrigger.update);
-      ScrollTrigger.addEventListener("refresh", function () { if (lenis.resize) lenis.resize(); });
+      ScrollTrigger.addEventListener("refresh", function () {
+        if (lenis.resize) lenis.resize();
+      });
 
       var parallaxTrigger = exists(".parallax-wrapper") ? ".parallax-wrapper" : "body";
 
@@ -80,6 +83,7 @@
       function stable(vars) {
         vars.overwrite = "auto";
         vars.force3D = true;
+
         if (!vars.scrollTrigger) vars.scrollTrigger = {};
         if (vars.scrollTrigger.scrub === true) vars.scrollTrigger.scrub = 1;
         if (!vars.scrollTrigger.start) vars.scrollTrigger.start = "top 120%";
@@ -88,6 +92,7 @@
         vars.scrollTrigger.fastScrollEnd = true;
 
         var userOnToggle = vars.scrollTrigger.onToggle;
+
         vars.scrollTrigger.onToggle = function (self) {
           if (vars.targetEl) {
             var els = typeof vars.targetEl === "string"
@@ -98,13 +103,16 @@
               el.style.willChange = self.isActive ? "transform" : "auto";
             });
           }
+
           if (userOnToggle) userOnToggle(self);
         };
 
         return vars;
       }
 
-      // Liquid Morph
+      // -------------------------------------------------------------
+      // LIQUID MORPH
+      // -------------------------------------------------------------
       if (exists("#liquid-stream") && MorphSVGPlugin) {
         var drippedPath = "M395,120 C380,250 370,400 395,520 C400,530 400,530 405,520 C430,400 420,250 405,120 Z";
 
@@ -154,10 +162,22 @@
 
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1 });
+
         gsap.fromTo(
           ".about_balloon",
           { y: "0vh", yPercent: 0 },
-          { y: "50vh", yPercent: 50, ease: "none", scrollTrigger: { trigger: ".about_balloon", start: "top 120%", end: "bottom top", scrub: 1, fastScrollEnd: true } }
+          {
+            y: "50vh",
+            yPercent: 50,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".about_balloon",
+              start: "top 120%",
+              end: "bottom top",
+              scrub: 1,
+              fastScrollEnd: true
+            }
+          }
         );
       }
 
@@ -373,13 +393,18 @@
           onUpdate: function (self) {
             var t = self.progress;
             var x = 145 * vw * t;
+
             var arc = (isMobile ? 26 : 36) * vh;
             var climbY = -arc * Math.pow(t, 2.2);
+
             var dipEnd = 0.18;
             var dipAmp = (isMobile ? 6 : 9) * vh;
             var dipY = (t < dipEnd) ? dipAmp * Math.sin(Math.PI * (t / dipEnd)) : 0;
+
             var y = -5 * vw + dipY + climbY;
+
             var dClimb = -arc * 2.2 * Math.pow(Math.max(t, 0.0001), 1.2);
+
             var dDip = (t < dipEnd)
               ? dipAmp * (Math.PI / dipEnd) * Math.cos(Math.PI * (t / dipEnd))
               : 0;
@@ -395,7 +420,9 @@
             var smooth = prevRot + (targetRot - prevRot) * 0.15;
 
             jet.dataset.prevRot = smooth;
-            jet.style.transform = "translate3d(" + x + "px," + y + "px, 0) rotate(" + smooth + "deg)";
+
+            jet.style.transform =
+              "translate3d(" + x + "px," + y + "px, 0) rotate(" + smooth + "deg)";
           }
         });
       }
@@ -420,13 +447,25 @@
             var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
 
-            fly.style.transform = "translate3d(" + x + "px," + y + "px, 0) rotate(-10deg)";
+            fly.style.transform =
+              "translate3d(" + x + "px," + y + "px, 0) rotate(-10deg)";
           }
         });
       }
 
       // Galaxy Parallax
-      tweenIf(".about_galaxy", { y: () => -70 * vh, ease: "none", force3D: true, scrollTrigger: { trigger: ".about_viewport_wrapper", start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true } });
+      tweenIf(".about_galaxy", {
+        y: () => -70 * vh,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".about_viewport_wrapper",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
 
       // -------------------------------------------------------------
       // OFFSCREEN VIDEO AUTO PAUSE
@@ -468,170 +507,165 @@
     }
   }
 
-// =============================================================
-// HOMEPAGE SECTION 1
-// =============================================================
-
-// KV stays visually still without pinning
-var kv = q(".kv.homepage");
-
-if (kv) {
-  gsap.to(kv, {
-    y: function () {
-      return Math.max(0, section.offsetHeight - window.innerHeight);
-    },
-    ease: "none",
-    force3D: true,
-    scrollTrigger: {
-      trigger: section,
-      start: "top top",
-      end: "bottom top",
-      scrub: true,
-      invalidateOnRefresh: true,
-      onEnter: function () { gsap.set(kv, { autoAlpha: 1 }); },
-      onEnterBack: function () { gsap.set(kv, { autoAlpha: 1 }); },
-      onLeave: function () { gsap.set(kv, { autoAlpha: 0 }); },
-      onLeaveBack: function () { gsap.set(kv, { autoAlpha: 1 }); }
-    }
-  });
-}
-  
-function initHomeSection1() {
-  var section = q(".home_section1");
-  var moon = q(".home1_moon");
-  var realMoon = q(".home1_realmoon");
-  var cloud = q(".home1_cloud");
-  var pyramid = q(".home1_pyramid");
-  var text = q(".home_kv");
-
-  if (!section || !gsap || !ScrollTrigger) return;
-
-  // Layer order
-  if (realMoon) gsap.set(realMoon, { zIndex: 2 });
-  if (pyramid) gsap.set(pyramid, { zIndex: 3 });
-  if (text) gsap.set(text, { zIndex: 5 });
-  if (moon) gsap.set(moon, { zIndex: 7 });
-  if (cloud) gsap.set(cloud, { zIndex: 10 });
-
-  // Intro — lock scroll + moon bounce
-  if (lenis) lenis.stop();
-
-  var intro = gsap.timeline({
-    onComplete: function () {
-      if (lenis) lenis.start();
-      ScrollTrigger.refresh();
-    }
-  });
-
-  if (moon) {
-    intro
-      .set(moon, { y: 0, force3D: true })
-      .to(moon, { y: "-8vh", duration: 0.45, ease: "power2.out" })
-      .to(moon, { y: 0, duration: 0.6, ease: "bounce.out" });
-  } else {
-    intro.to({}, { duration: 1 });
-  }
-
-  // Cloud — fastest layer
-  if (cloud) {
-    gsap.to(cloud, {
-      y: () => -115 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  // Pyramid — slower than cloud
-  if (pyramid) {
-    gsap.to(pyramid, {
-      y: () => -30 * vh,
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  // Real moon — compensates most of the page scroll,
-  // therefore visually moves upward very slowly
-  if (realMoon) {
-    gsap.to(realMoon, {
-      y: function () {
-        var scrollDistance =
-          section.offsetHeight - window.innerHeight;
-  
-        return scrollDistance * 0.92;
-      },
-      ease: "none",
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: true,
-        invalidateOnRefresh: true
-      }
-    });
-  }
-
-  // home1_moon only does intro bounce.
-}
-  
   // =============================================================
-  // HOMEPAGE SECTION 2
+  // HOMEPAGE SECTION 1
   // =============================================================
- function initHomeSection2() {
-  var section = q(".home_section2");
-  if (!section || !gsap || !ScrollTrigger) return;
+  function initHomeSection1() {
+    var section = q(".home_section1");
+    var moon = q(".home1_moon");
+    var realMoon = q(".home1_realmoon");
+    var cloud = q(".home1_cloud");
+    var pyramid = q(".home1_pyramid");
+    var text = q(".home_kv");
+    var goose = q(".home1_goose");
 
-  var depthGroups = [
-    { targets: ".home2_building12", travel: 0 },
-    { targets: ".home2_building9", travel: 15 },
-    { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 30 },
-    { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 45 },
-    { targets: ".home2_mount4, .home2_spacecat", travel: 60 },
-    { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle", travel: 75 },
-    { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 90 }
-  ];
+    if (!section || !gsap || !ScrollTrigger) return;
 
-  depthGroups.forEach(function (group) {
-    var elements = gsap.utils.toArray(group.targets);
-    if (!elements.length || group.travel === 0) return;
+    // Layer order
+    if (realMoon) gsap.set(realMoon, { zIndex: 2 });
+    if (pyramid) gsap.set(pyramid, { zIndex: 3 });
+    if (text) gsap.set(text, { zIndex: 5 });
+    if (moon) gsap.set(moon, { zIndex: 7 });
+    if (cloud) gsap.set(cloud, { zIndex: 10 });
 
-    gsap.fromTo(
-      elements,
-      { y: () => group.travel * vh },
-      {
-        y: () => -group.travel * vh,
+    // Intro — lock scroll + moon bounce
+    if (lenis) lenis.stop();
+
+    var intro = gsap.timeline({
+      onComplete: function () {
+        if (lenis) lenis.start();
+        ScrollTrigger.refresh();
+      }
+    });
+
+    if (moon) {
+      intro
+        .set(moon, { y: 0, force3D: true })
+        .to(moon, { y: "-8vh", duration: 0.45, ease: "power2.out" })
+        .to(moon, { y: 0, duration: 0.6, ease: "bounce.out" });
+    } else {
+      intro.to({}, { duration: 1 });
+    }
+
+    // Cloud — fastest layer
+    if (cloud) {
+      gsap.to(cloud, {
+        y: () => -115 * vh,
         ease: "none",
         force3D: true,
         scrollTrigger: {
           trigger: section,
-          start: "top bottom",
+          start: "top top",
           end: "bottom top",
           scrub: 1,
           invalidateOnRefresh: true
         }
-      }
-    );
-  });
+      });
+    }
 
-  requestAnimationFrame(function () {
-    ScrollTrigger.refresh();
-  });
-}
+    // Pyramid — slower than cloud
+    if (pyramid) {
+      gsap.to(pyramid, {
+        y: () => -30 * vh,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    }
+
+    // Real moon — slow upward movement without easing
+    if (realMoon) {
+      gsap.to(realMoon, {
+        y: function () {
+          var scrollDistance = Math.max(
+            0,
+            section.offsetHeight - window.innerHeight
+          );
+
+          return scrollDistance * 0.92;
+        },
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      });
+    }
+
+    // Goose — lower-right to upper-left, around 10 o'clock
+    if (goose) {
+      gsap.to(goose, {
+        x: () => -145 * vw,
+        y: () => -85 * vh,
+        rotation: -12,
+        ease: "none",
+        force3D: true,
+        scrollTrigger: {
+          trigger: goose,
+          start: "top bottom",
+          end: "bottom -20%",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    }
+
+    // home1_moon only does the intro bounce.
+  }
+
+  // =============================================================
+  // HOMEPAGE SECTION 2
+  // =============================================================
+  function initHomeSection2() {
+    var section = q(".home_section2");
+    if (!section || !gsap || !ScrollTrigger) return;
+
+    var depthGroups = [
+      { targets: ".home2_building12", travel: 0 },
+      { targets: ".home2_building9", travel: 15 },
+      { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 30 },
+      { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 45 },
+      { targets: ".home2_mount4, .home2_spacecat", travel: 60 },
+      { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle", travel: 75 },
+      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 90 }
+    ];
+
+    depthGroups.forEach(function (group) {
+      var elements = gsap.utils.toArray(group.targets);
+      if (!elements.length || group.travel === 0) return;
+
+      gsap.fromTo(
+        elements,
+        { y: () => group.travel * vh },
+        {
+          y: () => -group.travel * vh,
+          ease: "none",
+          force3D: true,
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        }
+      );
+    });
+
+    requestAnimationFrame(function () {
+      ScrollTrigger.refresh();
+    });
+  }
 
   // =============================================================
   // UFO TRAIL ENGINE
@@ -645,10 +679,22 @@ function initHomeSection1() {
     var tiltDiv = 3;
     var chaseSpeed = isMobile ? 0.08 : 0.15;
 
-    function getBaseY() { return -5 * vh; }
+    function getBaseY() {
+      return -5 * vh;
+    }
 
-    var target = { x: 0, y: getBaseY(), rot: 0 };
-    var actual = { x: 0, y: getBaseY(), rot: 0 };
+    var target = {
+      x: 0,
+      y: getBaseY(),
+      rot: 0
+    };
+
+    var actual = {
+      x: 0,
+      y: getBaseY(),
+      rot: 0
+    };
+
     var lastProgress = 0;
 
     if (root.ScrollTrigger) {
@@ -657,6 +703,7 @@ function initHomeSection1() {
         start: "top top",
         end: (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
         scrub: 1,
+
         onUpdate: function (self) {
           lastProgress = self.progress;
           target.x = 130 * vw * self.progress;
@@ -668,7 +715,17 @@ function initHomeSection1() {
       if (lastProgress > 0) return;
 
       var max = (document.documentElement.scrollHeight - innerHeight) || 1;
-      target.x = 130 * vw * Math.max(0, Math.min(1, (root.pageYOffset || 0) / max));
+
+      target.x =
+        130 *
+        vw *
+        Math.max(
+          0,
+          Math.min(
+            1,
+            (root.pageYOffset || 0) / max
+          )
+        );
     }
 
     var lastScroll = 0;
@@ -677,22 +734,30 @@ function initHomeSection1() {
     var idleMax = 30;
 
     function updateBounceTilt() {
-      var scrollPos = (typeof lenis?.scroll === "number")
-        ? lenis.scroll
-        : (root.pageYOffset || 0);
+      var scrollPos =
+        (typeof lenis?.scroll === "number")
+          ? lenis.scroll
+          : (root.pageYOffset || 0);
 
       var deltaY = scrollPos - lastScroll;
       lastScroll = scrollPos;
 
       ensureX();
 
-      var amplitude = Math.min(Math.abs(deltaY) * velocity, maxAmpVal);
+      var amplitude =
+        Math.min(
+          Math.abs(deltaY) * velocity,
+          maxAmpVal
+        );
+
       var horizontal = target.x / vw;
-      var scale = (horizontal <= 30)
-        ? 0
-        : (horizontal >= 100)
-          ? 1
-          : (horizontal - 30) / 70;
+
+      var scale =
+        (horizontal <= 30)
+          ? 0
+          : (horizontal >= 100)
+            ? 1
+            : (horizontal - 30) / 70;
 
       if (Math.abs(deltaY) < 1) {
         idleFrames++;
@@ -711,10 +776,22 @@ function initHomeSection1() {
       } else {
         idleFrames = 0;
         bouncePhase += 0.1;
-        target.y = getBaseY() + Math.sin(bouncePhase) * amplitude * scale;
+
+        target.y =
+          getBaseY() +
+          Math.sin(bouncePhase) *
+          amplitude *
+          scale;
       }
 
-      target.rot = Math.max(-20, Math.min(deltaY / tiltDiv, 20)) * scale;
+      target.rot =
+        Math.max(
+          -20,
+          Math.min(
+            deltaY / tiltDiv,
+            20
+          )
+        ) * scale;
 
       requestAnimationFrame(updateBounceTilt);
     }
@@ -736,7 +813,10 @@ function initHomeSection1() {
         background: "transparent"
       });
 
-      (document.querySelector(".fixed_screen_area") || document.body).appendChild(canvas);
+      (
+        document.querySelector(".fixed_screen_area") ||
+        document.body
+      ).appendChild(canvas);
     }
 
     var ctx = canvas.getContext("2d");
@@ -776,32 +856,55 @@ function initHomeSection1() {
 
       if (trail.length > trailMax) trail.shift();
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
       var maxW = r.height * 0.4;
 
       for (var i = 0; i < trail.length - 1; i++) {
         var p1 = trail[i];
         var p2 = trail[i + 1];
+
         var dx = p2.x - p1.x;
         var dy = p2.y - p1.y;
 
         if (Math.hypot(dx, dy) < 1) continue;
 
-        var alpha = 1 - (performance.now() - p1.t) / fadeTime;
+        var alpha =
+          1 -
+          (performance.now() - p1.t) /
+          fadeTime;
+
         if (alpha <= 0) continue;
 
-        ctx.strokeStyle = "rgba(225,255,0," + alpha + ")";
-        ctx.lineWidth = 10 + (maxW - 10) * alpha;
+        ctx.strokeStyle =
+          "rgba(225,255,0," +
+          alpha +
+          ")";
+
+        ctx.lineWidth =
+          10 +
+          (maxW - 10) *
+          alpha;
 
         ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
+
+        ctx.moveTo(
+          p1.x,
+          p1.y
+        );
+
         ctx.quadraticCurveTo(
           p1.x + dx * 0.5,
           p1.y + dy * 0.5,
           p2.x,
           p2.y
         );
+
         ctx.stroke();
       }
 
