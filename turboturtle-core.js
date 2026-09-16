@@ -499,6 +499,7 @@
       initHomeSection3();
       initHomeSection4();
       initHomeSection5();
+      initHomeSection6();
 
       // -------------------------------------------------------------
       // ABOUT US UFO
@@ -1179,6 +1180,24 @@ function initHomeSection5() {
     ScrollTrigger.refresh();
   });
 }
+
+  // =============================================================
+  // HOMEPAGE SECTION 6
+  // =============================================================
+  function initHomeSection6() {
+    var weirdSunHorn = q(".home6_weirdsunhorn");
+  
+    if (!weirdSunHorn || !gsap) return;
+  
+    gsap.to(weirdSunHorn, {
+      rotation: 360,
+      duration: 12,
+      ease: "none",
+      repeat: -1,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
+  }
 
   
   // =============================================================
