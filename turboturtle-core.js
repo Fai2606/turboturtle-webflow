@@ -1408,31 +1408,36 @@ function initHomeSection6() {
     }
 
 
-  // ==========================================================
-  // EMPEROR
-  // 1 SECOND DELAY — NORMAL EASE OUT
-  // ==========================================================
-  
-  if (emperor) {
-  
-    home6BuildTL.to(emperor, {
-  
-      yPercent: 0,
-  
-      duration: 1.6,
-  
-      ease: "power3.out",
-  
-      force3D: true
-  
-    }, 1);
-  
-  }
-  
-  // =============================================================
-  // UFO TRAIL ENGINE
-  // =============================================================
-  function bootUFO() {
+    // ==========================================================
+    // EMPEROR
+    // 1 SECOND DELAY — SAME SMOOTH EASE AS OTHERS
+    // ==========================================================
+
+    if (emperor) {
+
+      home6BuildTL.to(emperor, {
+
+        yPercent: 0,
+
+        duration: 1.6,
+
+        ease: "power3.out",
+
+        force3D: true
+
+      }, 1);
+
+    }
+
+  } // closes: if (home6TallPillar)
+
+} // closes: initHomeSection6()
+
+
+// =============================================================
+// UFO TRAIL ENGINE
+// =============================================================
+function bootUFO() {
     var host = document.querySelector(".about_womanufo");
     if (!host) return;
 
