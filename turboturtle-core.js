@@ -839,7 +839,7 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // PLANET / JUPITER / BALL
-  // Very subtle orbital movement
+  // Orbit + subtle upward parallax
   // Jupiter = slowest
   // -------------------------------------------------------------
   ScrollTrigger.create({
@@ -853,26 +853,29 @@ function initHomeSection5() {
       var t = self.progress;
       var arc = Math.sin(Math.PI * t);
 
+      // PLANET — strongest orbit
       if (planet) {
         gsap.set(planet, {
-          x: (-12 * vw) * t,
-          y: (-3 * vh) * t - (3 * vh * arc),
+          xPercent: -38 * t,
+          y: (-110 * t) - (25 * arc),
           force3D: true
         });
       }
 
+      // BALL — medium
       if (ball) {
         gsap.set(ball, {
-          x: (-9 * vw) * t,
-          y: (-2 * vh) * t - (2.5 * vh * arc),
+          xPercent: -24 * t,
+          y: (-85 * t) - (18 * arc),
           force3D: true
         });
       }
 
+      // JUPITER — slowest
       if (jupiter) {
         gsap.set(jupiter, {
-          x: (5 * vw) * t,
-          y: (2 * vh) * t + (1.5 * vh * arc),
+          xPercent: 10 * t,
+          y: (-55 * t) - (10 * arc),
           force3D: true
         });
       }
@@ -882,22 +885,25 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // SATELLITE
-  // Starts later + slower
-  // Left → Right toward 2 o'clock
+  // Later + slower, flying toward 2 o'clock
   // -------------------------------------------------------------
   if (satellite) {
     gsap.to(satellite, {
-      x: () => 105 * vw,
-      y: () => -38 * vh,
+      x: function () {
+        return window.innerWidth * 1.05;
+      },
+      y: function () {
+        return -window.innerHeight * 0.32;
+      },
       rotation: -6,
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
         trigger: section,
-        start: "top 55%",
-        end: "bottom 10%",
-        scrub: 2,
+        start: "top 50%",
+        end: "bottom 5%",
+        scrub: 2.2,
         invalidateOnRefresh: true
       }
     });
@@ -906,18 +912,18 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // ROCKET TIP
-  // Starts later + falls slower
+  // Later + slower + only 130px
   // -------------------------------------------------------------
   if (rocketTip) {
     gsap.to(rocketTip, {
-      y: 200,
+      y: 130,
       duration: 1.8,
       ease: "power3.in",
       force3D: true,
 
       scrollTrigger: {
         trigger: rocketTip,
-        start: "top 45%",
+        start: "top 40%",
         toggleActions: "play reverse play reverse"
       }
     });
@@ -926,7 +932,7 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // BURGER
-  // Small rhythmic left/right hopping
+  // Small rhythmic hopping left / right
   // -------------------------------------------------------------
   if (burger) {
     gsap.timeline({
@@ -934,53 +940,46 @@ function initHomeSection5() {
       repeatDelay: 0.7
     })
 
-    // hop left
     .to(burger, {
       x: -6,
-      y: -6,
+      y: -5,
       duration: 0.22,
       ease: "power2.out"
     })
 
     .to(burger, {
-      x: -6,
       y: 0,
       duration: 0.22,
       ease: "power2.in"
     })
 
-    // tiny pause
     .to(burger, {
       duration: 0.15
     })
 
-    // hop right
     .to(burger, {
       x: 6,
-      y: -6,
+      y: -5,
       duration: 0.22,
       ease: "power2.out"
     })
 
     .to(burger, {
-      x: 6,
       y: 0,
       duration: 0.22,
       ease: "power2.in"
     })
 
-    // return center
     .to(burger, {
       x: 0,
-      duration: 0.3,
+      duration: 0.28,
       ease: "power2.out"
     });
   }
 
 
   // -------------------------------------------------------------
-  // BEAR
-  // Move right only 30px
+  // BEAR — 30px
   // -------------------------------------------------------------
   if (bear) {
     gsap.to(bear, {
@@ -999,13 +998,16 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // BLOOD CELL
-  // Slow flight toward 2 o'clock + rotation
+  // BLOOD CELL — toward 2 o'clock
   // -------------------------------------------------------------
   if (bloodcell) {
     gsap.to(bloodcell, {
-      x: () => 32 * vw,
-      y: () => -28 * vh,
+      x: function () {
+        return window.innerWidth * 0.3;
+      },
+      y: function () {
+        return -window.innerHeight * 0.25;
+      },
       rotation: 220,
       ease: "none",
       force3D: true,
@@ -1022,8 +1024,7 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // JETMAN
-  // Same behaviour as About Us
+  // JETMAN — same as About Us
   // -------------------------------------------------------------
   if (jetman) {
     var home5JetHover;
@@ -1052,8 +1053,12 @@ function initHomeSection5() {
         }
 
         gsap.to(jetman, {
-          x: "100vw",
-          y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
+          x: function () {
+            return window.innerWidth;
+          },
+          y: function () {
+            return -window.innerHeight;
+          },
           rotation: -50,
           duration: 1.1,
           ease: "power2.in"
@@ -1086,7 +1091,7 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // UMBRELLA CAT
-  // Cover reaches 30% from top → cat flies downward
+  // Cover reaches 30% from top → fly down
   // -------------------------------------------------------------
   if (umbrellaCat && cover) {
     gsap.timeline({
@@ -1100,7 +1105,9 @@ function initHomeSection5() {
     })
 
     .to(umbrellaCat, {
-      y: () => 125 * vh,
+      y: function () {
+        return window.innerHeight * 1.25;
+      },
       ease: "none",
       force3D: true,
       duration: 1
