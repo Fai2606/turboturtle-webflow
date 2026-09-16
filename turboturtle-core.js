@@ -1437,119 +1437,116 @@ function initHomeSection6() {
     });
 
 
-    // ========================================================
-    // UFO + LIGHT
-    // ========================================================
+// ========================================================
+// UFO + LIGHT
+// ========================================================
 
-    var home6UFO = q(".home6_ufo");
-    var home6Light = q(".home6_light");
+var home6UFO = q(".home6_ufo");
+var home6Light = q(".home6_light");
+
+if (home6UFO && home6TallPillar) {
+
+  // Light hidden initially
+  if (home6Light) {
+    gsap.set(home6Light, {
+      scaleX: 0,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
+  }
 
 
-    if (home6UFO) {
+  // ======================================================
+  // UFO TIMELINE
+  // ======================================================
 
-      // UFO begins 150vh ABOVE its final position
-      gsap.set(home6UFO, {
-        y: function() {
-          return -window.innerHeight * 1.5;
-        },
-        force3D: true
-      });
+  var home6UFOTL = gsap.timeline({
+    paused: true
+  });
 
 
-      // LIGHT starts horizontally closed
-      if (home6Light) {
+  // UFO:
+  // from above screen → exact Webflow position
+  home6UFOTL.fromTo(
+    home6UFO,
 
-        gsap.set(home6Light, {
-          scaleX: 0,
-          transformOrigin: "50% 50%",
-          force3D: true
-        });
-
+    {
+      y: function() {
+        return -window.innerHeight * 1.5;
       }
+    },
+
+    {
+      y: 0,
+      duration: 1.3,
+      ease: "power3.out",
+      force3D: true,
+      immediateRender: false
+    },
+
+    0
+  );
 
 
-      // ======================================================
-      // UFO TIMELINE
-      // ======================================================
+  // LIGHT:
+  // starts 0.5 sec before UFO finishes
+  // opens horizontally
+  if (home6Light) {
 
-      var home6UFOTL = gsap.timeline({
-        paused: true
-      });
+    home6UFOTL.to(
+      home6Light,
 
-
-      // UFO flies DOWN
-      // slightly faster than previous 1.5 sec
-      home6UFOTL.to(home6UFO, {
-
-        y: 0,
-
-        duration: 1.3,
+      {
+        scaleX: 1,
+        duration: 0.25,
         ease: "power3.out",
         force3D: true
+      },
 
-      }, 0);
+      0.8
+    );
+
+  }
 
 
-      // LIGHT
-      //
-      // UFO ends = 1.3 sec
-      // Light starts = 0.8 sec
-      //
-      // Therefore light begins 0.5 sec
-      // BEFORE UFO completely stops.
+  // ======================================================
+  // UFO TRIGGER
+  // ======================================================
+
+  ScrollTrigger.create({
+
+    trigger: home6TallPillar,
+
+    // TEMPORARILY EARLIER SO WE CAN SEE IT WORK
+    start: "top 50%",
+
+    invalidateOnRefresh: true,
+
+    onEnter: function() {
+      home6UFOTL.restart();
+    },
+
+    onLeaveBack: function() {
+
+      // Put UFO back at its normal Webflow position
+      home6UFOTL.pause(0);
+
+      gsap.set(home6UFO, {
+        clearProps: "transform"
+      });
 
       if (home6Light) {
-
-        home6UFOTL.to(home6Light, {
-
-          scaleX: 1,
-
-          duration: 0.25,
-          ease: "power3.out",
-          force3D: true
-
-        }, 0.8);
-
+        gsap.set(home6Light, {
+          scaleX: 0,
+          transformOrigin: "50% 50%"
+        });
       }
-
-
-      // ======================================================
-      // UFO TRIGGER
-      // tallpillar reaches 10% FROM TOP
-      // ======================================================
-
-      ScrollTrigger.create({
-
-        trigger: home6TallPillar,
-        start: "top 10%",
-
-        invalidateOnRefresh: true,
-
-        onEnter: function() {
-
-          home6UFOTL.timeScale(1);
-          home6UFOTL.play();
-
-        },
-
-        onEnterBack: function() {
-
-          home6UFOTL.timeScale(1);
-          home6UFOTL.play();
-
-        },
-
-        onLeaveBack: function() {
-
-          home6UFOTL.timeScale(2);
-          home6UFOTL.reverse();
-
-        }
-
-      });
 
     }
 
+  });
+
+}
 
   } // END home6TallPillar
 
