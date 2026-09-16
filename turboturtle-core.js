@@ -974,7 +974,7 @@ function initHomeSection5() {
   // -------------------------------------------------------------
   if (rocketTip) {
     gsap.to(rocketTip, {
-      y: 130,
+      y: 145,
       duration: 1.25,
       ease: "power3.in",
       force3D: true,
