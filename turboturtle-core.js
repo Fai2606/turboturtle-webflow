@@ -1408,83 +1408,26 @@ function initHomeSection6() {
     }
 
 
-    // ==========================================================
-    // EMPEROR
-    // 1 SECOND DELAY
-    // MECHANICAL EJECT + 2 SMALL BOUNCES
-    // ==========================================================
-
-    if (emperor) {
-
-      // Main eject upward to final position
-      home6BuildTL.to(emperor, {
-
-        yPercent: 0,
-
-        duration: 0.72,
-
-        ease: "power3.out",
-
-        force3D: true
-
-      }, 1);
-
-
-      // BOUNCE 1
-      // slightly falls backward
-      home6BuildTL.to(emperor, {
-
-        yPercent: 2,
-
-        duration: 0.14,
-
-        ease: "power2.in"
-
-      });
-
-
-      // rebounds upward slightly
-      home6BuildTL.to(emperor, {
-
-        yPercent: -0.7,
-
-        duration: 0.16,
-
-        ease: "power2.out"
-
-      });
-
-
-      // BOUNCE 2
-      // very tiny fall
-      home6BuildTL.to(emperor, {
-
-        yPercent: 0.35,
-
-        duration: 0.11,
-
-        ease: "power2.in"
-
-      });
-
-
-      // settle exactly at final position
-      home6BuildTL.to(emperor, {
-
-        yPercent: 0,
-
-        duration: 0.12,
-
-        ease: "power2.out"
-
-      });
-
-    }
-
+  // ==========================================================
+  // EMPEROR
+  // 1 SECOND DELAY — NORMAL EASE OUT
+  // ==========================================================
+  
+  if (emperor) {
+  
+    home6BuildTL.to(emperor, {
+  
+      yPercent: 0,
+  
+      duration: 1.6,
+  
+      ease: "power3.out",
+  
+      force3D: true
+  
+    }, 1);
+  
   }
-
-}
-
   
   // =============================================================
   // UFO TRAIL ENGINE
