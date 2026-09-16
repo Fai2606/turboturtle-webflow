@@ -1458,6 +1458,73 @@ function initHomeSection6() {
 
 }
 
+// ==========================================================
+// HOME 6 — UFO ARRIVAL + LIGHT
+// ==========================================================
+
+var home6UFO = q(".home6_ufo");
+var home6Light = q(".home6_light");
+
+if (home6UFO) {
+
+  // UFO starts far above screen
+  gsap.set(home6UFO, {
+    y: "-150vh",
+    force3D: true
+  });
+
+  // Light starts hidden / collapsed from TOP
+  if (home6Light) {
+    gsap.set(home6Light, {
+      scaleY: 0,
+      transformOrigin: "50% 0%",
+      force3D: true
+    });
+  }
+
+  var home6UFOTL = gsap.timeline({
+    paused: true
+  });
+
+  // UFO flies DOWN into its Webflow position
+  home6UFOTL.to(home6UFO, {
+    y: 0,
+    duration: 1.8,
+    ease: "power3.out",
+    force3D: true
+  });
+
+  // Light appears AFTER UFO arrives
+  if (home6Light) {
+    home6UFOTL.to(home6Light, {
+      scaleY: 1,
+      duration: 0.55,
+      ease: "power3.out",
+      force3D: true
+    });
+  }
+
+  ScrollTrigger.create({
+    trigger: home6TallPillar,
+
+    // Tall pillar reaches 10% from TOP
+    start: "top 10%",
+
+    onEnter: function () {
+      home6UFOTL.timeScale(1).play();
+    },
+
+    onLeaveBack: function () {
+      home6UFOTL.timeScale(2).reverse();
+    },
+
+    invalidateOnRefresh: true
+  });
+
+}
+
+  
+
 // =============================================================
 // UFO TRAIL ENGINE
 // =============================================================
