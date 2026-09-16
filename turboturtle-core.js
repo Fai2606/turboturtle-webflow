@@ -1197,6 +1197,7 @@ function initHomeSection6() {
   // ==========================================================
 
   if (weirdSunHorn) {
+
     gsap.set(weirdSunHorn, {
       transformOrigin: "50% 50%",
       force3D: true
@@ -1208,6 +1209,7 @@ function initHomeSection6() {
       ease: "none",
       repeat: -1
     });
+
   }
 
 
@@ -1242,7 +1244,9 @@ function initHomeSection6() {
       .filter(Boolean);
 
 
+    // ========================================================
     // SPECIAL LAYERS
+    // ========================================================
 
     var camel = q(".home6_camel");
     var monster = q(".home6_monster");
@@ -1256,13 +1260,14 @@ function initHomeSection6() {
     // STARTING POSITIONS
     // ========================================================
 
-    // Normal layers
+    // NORMAL — 80% DOWN
     gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
 
-    // Camel
+
+    // CAMEL — 50% DOWN
     if (camel) {
       gsap.set(camel, {
         yPercent: 50,
@@ -1270,7 +1275,8 @@ function initHomeSection6() {
       });
     }
 
-    // Monster — BELOW
+
+    // MONSTER — 50% DOWN
     if (monster) {
       gsap.set(monster, {
         yPercent: 50,
@@ -1278,7 +1284,8 @@ function initHomeSection6() {
       });
     }
 
-    // Rocket
+
+    // ROCKET — 80% DOWN
     if (rocket) {
       gsap.set(rocket, {
         yPercent: 80,
@@ -1286,7 +1293,8 @@ function initHomeSection6() {
       });
     }
 
-    // Emperor
+
+    // EMPEROR — 80% DOWN
     if (emperor) {
       gsap.set(emperor, {
         yPercent: 80,
@@ -1294,7 +1302,8 @@ function initHomeSection6() {
       });
     }
 
-    // Castle Inside
+
+    // CASTLE INSIDE — 80% DOWN
     if (castleinside) {
       gsap.set(castleinside, {
         yPercent: 80,
@@ -1302,7 +1311,8 @@ function initHomeSection6() {
       });
     }
 
-    // Cat
+
+    // CAT — 80% DOWN
     if (cat) {
       gsap.set(cat, {
         yPercent: 80,
@@ -1312,7 +1322,7 @@ function initHomeSection6() {
 
 
     // ========================================================
-    // BUILD TIMELINE
+    // CASTLE BUILD TIMELINE
     // ========================================================
 
     var home6BuildTL = gsap.timeline({
@@ -1321,7 +1331,6 @@ function initHomeSection6() {
 
 
     // NORMAL LAYERS
-
     home6BuildTL.to(home6BuildLayers, {
       yPercent: 0,
       duration: 1.44,
@@ -1332,7 +1341,6 @@ function initHomeSection6() {
 
 
     // CAMEL
-
     if (camel) {
       home6BuildTL.to(camel, {
         yPercent: 0,
@@ -1344,7 +1352,6 @@ function initHomeSection6() {
 
 
     // MONSTER
-
     if (monster) {
       home6BuildTL.to(monster, {
         yPercent: 0,
@@ -1356,7 +1363,6 @@ function initHomeSection6() {
 
 
     // ROCKET — 0.5 SEC DELAY
-
     if (rocket) {
       home6BuildTL.to(rocket, {
         yPercent: 0,
@@ -1367,8 +1373,7 @@ function initHomeSection6() {
     }
 
 
-    // CASTLE INSIDE — MORE DELAY
-
+    // CASTLE INSIDE — 0.8 SEC DELAY
     if (castleinside) {
       home6BuildTL.to(castleinside, {
         yPercent: 0,
@@ -1380,7 +1385,6 @@ function initHomeSection6() {
 
 
     // CAT — 0.5 SEC DELAY
-
     if (cat) {
       home6BuildTL.to(cat, {
         yPercent: 0,
@@ -1391,8 +1395,7 @@ function initHomeSection6() {
     }
 
 
-    // EMPEROR — REDUCED DELAY
-
+    // EMPEROR — 0.65 SEC DELAY
     if (emperor) {
       home6BuildTL.to(emperor, {
         yPercent: 0,
@@ -1404,12 +1407,15 @@ function initHomeSection6() {
 
 
     // ========================================================
-    // BUILD SCROLL TRIGGER
+    // CASTLE BUILD TRIGGER
+    // tallpillar reaches 20% from BOTTOM = 80% from TOP
     // ========================================================
 
     ScrollTrigger.create({
+
       trigger: home6TallPillar,
       start: "top 80%",
+
       invalidateOnRefresh: true,
 
       onEnter: function() {
@@ -1423,121 +1429,138 @@ function initHomeSection6() {
       },
 
       onLeaveBack: function() {
+        // reverse twice as fast
         home6BuildTL.timeScale(2);
         home6BuildTL.reverse();
       }
+
     });
 
 
-// ========================================================
-// UFO + LIGHT
-// ========================================================
+    // ========================================================
+    // UFO + LIGHT
+    // ========================================================
 
-var home6UFO = q(".home6_ufo");
-var home6Light = q(".home6_light");
-
-if (home6UFO) {
-
-  // UFO starts above screen
-  gsap.set(home6UFO, {
-    y: -window.innerHeight * 1.5,
-    force3D: true
-  });
-
-  // Light starts narrow horizontally
-  if (home6Light) {
-    gsap.set(home6Light, {
-      scaleX: 0,
-      transformOrigin: "50% 50%",
-      force3D: true
-    });
-  }
+    var home6UFO = q(".home6_ufo");
+    var home6Light = q(".home6_light");
 
 
-  var home6UFOTL = gsap.timeline({
-    paused: true
-  });
+    if (home6UFO) {
+
+      // UFO begins 150vh ABOVE its final position
+      gsap.set(home6UFO, {
+        y: function() {
+          return -window.innerHeight * 1.5;
+        },
+        force3D: true
+      });
 
 
-  // UFO — slightly faster
-  home6UFOTL.to(home6UFO, {
-    y: 0,
-    duration: 1.5,
-    ease: "power3.out",
-    force3D: true
-  }, 0);
+      // LIGHT starts horizontally closed
+      if (home6Light) {
+
+        gsap.set(home6Light, {
+          scaleX: 0,
+          transformOrigin: "50% 50%",
+          force3D: true
+        });
+
+      }
 
 
-  // LIGHT
-  // UFO finishes at 1.5 sec
-  // Light starts at 1.0 sec = 0.5 sec before UFO stops
-  if (home6Light) {
-    home6UFOTL.to(home6Light, {
-      scaleX: 1,
-      duration: 0.3,
-      ease: "power3.out",
-      force3D: true
-    }, 1.0);
-  }
+      // ======================================================
+      // UFO TIMELINE
+      // ======================================================
+
+      var home6UFOTL = gsap.timeline({
+        paused: true
+      });
 
 
-  ScrollTrigger.create({
-    trigger: home6TallPillar,
-    start: "top 10%",
-    invalidateOnRefresh: true,
+      // UFO flies DOWN
+      // slightly faster than previous 1.5 sec
+      home6UFOTL.to(home6UFO, {
 
-    onEnter: function() {
-      home6UFOTL.timeScale(1);
-      home6UFOTL.play();
-    },
+        y: 0,
 
-    onEnterBack: function() {
-      home6UFOTL.timeScale(1);
-      home6UFOTL.play();
-    },
+        duration: 1.3,
+        ease: "power3.out",
+        force3D: true
 
-    onLeaveBack: function() {
-      home6UFOTL.timeScale(2);
-      home6UFOTL.reverse();
-    }
-  });
+      }, 0);
 
-}
+
+      // LIGHT
+      //
+      // UFO ends = 1.3 sec
+      // Light starts = 0.8 sec
+      //
+      // Therefore light begins 0.5 sec
+      // BEFORE UFO completely stops.
+
+      if (home6Light) {
+
+        home6UFOTL.to(home6Light, {
+
+          scaleX: 1,
+
+          duration: 0.25,
+          ease: "power3.out",
+          force3D: true
+
+        }, 0.8);
+
+      }
 
 
       // ======================================================
       // UFO TRIGGER
+      // tallpillar reaches 10% FROM TOP
       // ======================================================
 
       ScrollTrigger.create({
-        trigger: home6TallPillar,
 
-        // UFO begins when tallpillar reaches 10% from TOP
+        trigger: home6TallPillar,
         start: "top 10%",
 
         invalidateOnRefresh: true,
 
         onEnter: function() {
+
           home6UFOTL.timeScale(1);
           home6UFOTL.play();
+
         },
 
         onEnterBack: function() {
+
           home6UFOTL.timeScale(1);
           home6UFOTL.play();
+
         },
 
         onLeaveBack: function() {
+
           home6UFOTL.timeScale(2);
           home6UFOTL.reverse();
+
         }
+
       });
 
     }
 
-  }
 
-}
+  } // END home6TallPillar
+
+
+} // END initHomeSection6
+
+
+
+
+
+  
 
   
 
