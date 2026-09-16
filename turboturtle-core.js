@@ -751,7 +751,7 @@ if (goose) {
     
     if (section4 && section4City) {
       gsap.to(section4City, {
-        yPercent: -70,
+        yPercent: -80,
         ease: "none",
         force3D: true,
     
@@ -1111,7 +1111,7 @@ function initHomeSection5() {
         }
 
         gsap.to(jetman, {
-          xPercent: 800,
+          xPercent: 1600,
           yPercent: -500,
           rotation: -50,
           duration: 1.1,
