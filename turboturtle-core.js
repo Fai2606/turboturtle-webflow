@@ -751,7 +751,7 @@ if (goose) {
     
     if (section4 && section4City) {
       gsap.to(section4City, {
-        yPercent: -18,
+        yPercent: -40,
         ease: "none",
         force3D: true,
     
