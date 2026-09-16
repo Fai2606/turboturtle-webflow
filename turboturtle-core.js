@@ -1429,56 +1429,80 @@ function initHomeSection6() {
     });
 
 
-    // ========================================================
-    // UFO + LIGHT
-    // ========================================================
+// ========================================================
+// UFO + LIGHT
+// ========================================================
 
-    var home6UFO = q(".home6_ufo");
-    var home6Light = q(".home6_light");
+var home6UFO = q(".home6_ufo");
+var home6Light = q(".home6_light");
 
-    if (home6UFO) {
+if (home6UFO) {
 
-      // UFO starts 1.5 screens ABOVE its Webflow position
-      gsap.set(home6UFO, {
-        y: -window.innerHeight * 1.5,
-        force3D: true
-      });
+  // UFO starts above screen
+  gsap.set(home6UFO, {
+    y: -window.innerHeight * 1.5,
+    force3D: true
+  });
 
-
-      // Light hidden initially
-      if (home6Light) {
-        gsap.set(home6Light, {
-          scaleY: 0,
-          transformOrigin: "50% 0%",
-          force3D: true
-        });
-      }
-
-
-      // UFO timeline
-      var home6UFOTL = gsap.timeline({
-        paused: true
-      });
+  // Light starts narrow horizontally
+  if (home6Light) {
+    gsap.set(home6Light, {
+      scaleX: 0,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
+  }
 
 
-      // UFO flies DOWN
-      home6UFOTL.to(home6UFO, {
-        y: 0,
-        duration: 1.8,
-        ease: "power3.out",
-        force3D: true
-      });
+  var home6UFOTL = gsap.timeline({
+    paused: true
+  });
 
 
-      // LIGHT extends DOWN after UFO arrives
-      if (home6Light) {
-        home6UFOTL.to(home6Light, {
-          scaleY: 1,
-          duration: 0.55,
-          ease: "power3.out",
-          force3D: true
-        });
-      }
+  // UFO — slightly faster
+  home6UFOTL.to(home6UFO, {
+    y: 0,
+    duration: 1.5,
+    ease: "power3.out",
+    force3D: true
+  }, 0);
+
+
+  // LIGHT
+  // UFO finishes at 1.5 sec
+  // Light starts at 1.0 sec = 0.5 sec before UFO stops
+  if (home6Light) {
+    home6UFOTL.to(home6Light, {
+      scaleX: 1,
+      duration: 0.3,
+      ease: "power3.out",
+      force3D: true
+    }, 1.0);
+  }
+
+
+  ScrollTrigger.create({
+    trigger: home6TallPillar,
+    start: "top 10%",
+    invalidateOnRefresh: true,
+
+    onEnter: function() {
+      home6UFOTL.timeScale(1);
+      home6UFOTL.play();
+    },
+
+    onEnterBack: function() {
+      home6UFOTL.timeScale(1);
+      home6UFOTL.play();
+    },
+
+    onLeaveBack: function() {
+      home6UFOTL.timeScale(2);
+      home6UFOTL.reverse();
+    }
+  });
+
+}
 
 
       // ======================================================
