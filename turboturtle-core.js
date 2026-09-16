@@ -1181,215 +1181,307 @@ function initHomeSection5() {
   });
 }
 
-  // =============================================================
-  // HOMEPAGE SECTION 6
-  // =============================================================
-  function initHomeSection6() {
-    var weirdSunHorn = q(".home6_weirdsunhorn");
-  
-    if (!weirdSunHorn || !gsap) return;
-  
+// =============================================================
+// HOMEPAGE SECTION 6
+// =============================================================
+function initHomeSection6() {
+
+  var weirdSunHorn = q(".home6_weirdsunhorn");
+  var home6TallPillar = q(".home6_tallpillar");
+
+  if (!gsap || !ScrollTrigger) return;
+
+
+  // ==========================================================
+  // WEIRD SUN HORN — CONSTANT ROTATION
+  // ==========================================================
+
+  if (weirdSunHorn) {
+
     gsap.set(weirdSunHorn, {
       transformOrigin: "50% 50%",
       force3D: true
     });
-  
+
     gsap.to(weirdSunHorn, {
       rotation: "+=360",
       duration: 24,
       ease: "none",
       repeat: -1
     });
+
   }
-// ============================================================
-// HOME 6 — CASTLE / WORLD BUILD-UP
-// ============================================================
-
-const home6TallPillar = document.querySelector(".home6_tallpillar");
-
-if (home6TallPillar) {
-
-  // NORMAL LAYERS — start 80% of their own height lower
-  // Rocket + Emperor are handled separately because they have delays
-  const home6BuildSelectors = [
-    ".home6_tree",
-    ".home6_bloodcell",
-    ".home6_cone",
-    ".home6_castlepeak",
-    ".home6_conetop",
-    ".home6_sphere",
-    ".home6_tallpillar",
-    ".home6_backcastle",
-    ".home6_building",
-    ".home6_building1",
-    ".home6_biggate",
-    ".home6_giraffe",
-    ".home6_castleinside",
-    ".home6_cat",
-    ".home6_castle",
-    ".home6_pyramid",
-    ".home6_dinosaur"
-  ];
-
-  const home6BuildLayers = home6BuildSelectors
-    .map(selector => document.querySelector(selector))
-    .filter(Boolean);
-
-  const camel = document.querySelector(".home6_camel");
-  const monster = document.querySelector(".home6_monster");
-  const rocket = document.querySelector(".home6_rocket");
-  const emperor = document.querySelector(".home6_emperor");
 
 
   // ==========================================================
-  // STARTING POSITIONS
+  // HOME 6 — CASTLE / WORLD BUILD-UP
   // ==========================================================
 
-  // Normal layers = 80% down
-  gsap.set(home6BuildLayers, {
-    yPercent: 80,
-    force3D: true
-  });
+  if (home6TallPillar) {
 
-  // Camel = 50% down
-  if (camel) {
-    gsap.set(camel, {
-      yPercent: 50,
-      force3D: true
-    });
-  }
+    // ----------------------------------------------------------
+    // ELEMENTS
+    // ----------------------------------------------------------
 
-  // Monster = 50% down
-  if (monster) {
-    gsap.set(monster, {
-      yPercent: 50,
-      force3D: true
-    });
-  }
+    var home6BuildSelectors = [
+      ".home6_tree",
+      ".home6_bloodcell",
+      ".home6_cone",
+      ".home6_castlepeak",
+      ".home6_conetop",
+      ".home6_sphere",
+      ".home6_tallpillar",
+      ".home6_backcastle",
+      ".home6_building",
+      ".home6_building1",
+      ".home6_biggate",
+      ".home6_giraffe",
+      ".home6_castleinside",
+      ".home6_cat",
+      ".home6_castle",
+      ".home6_pyramid",
+      ".home6_dinosaur"
+    ];
 
-  // Rocket = 80% down
-  if (rocket) {
-    gsap.set(rocket, {
+    var home6BuildLayers = home6BuildSelectors
+      .map(function (selector) {
+        return document.querySelector(selector);
+      })
+      .filter(Boolean);
+
+    var camel = q(".home6_camel");
+    var monster = q(".home6_monster");
+    var rocket = q(".home6_rocket");
+    var emperor = q(".home6_emperor");
+
+
+    // ==========================================================
+    // STARTING POSITIONS
+    // ==========================================================
+
+    // Normal layers — 80% down
+    gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
-  }
-
-  // Emperor = 80% down
-  if (emperor) {
-    gsap.set(emperor, {
-      yPercent: 80,
-      force3D: true
-    });
-  }
 
 
-  // ==========================================================
-  // BUILD TIMELINE
-  // ==========================================================
-
-  const home6BuildTL = gsap.timeline({
-    scrollTrigger: {
-      trigger: home6TallPillar,
-
-      // Trigger when tall pillar reaches 20% from screen bottom
-      start: "top 80%",
-
-      toggleActions: "play none none reverse",
-      invalidateOnRefresh: true
+    // Camel — 50% down
+    if (camel) {
+      gsap.set(camel, {
+        yPercent: 50,
+        force3D: true
+      });
     }
-  });
 
 
-  // ----------------------------------------------------------
-  // NORMAL BUILDING LAYERS
-  // ----------------------------------------------------------
-
-  home6BuildTL.to(home6BuildLayers, {
-    yPercent: 0,
-    duration: 1.6,
-    stagger: 0.035,
-    ease: "power3.out",
-    force3D: true
-  }, 0);
+    // Monster — 50% down
+    if (monster) {
+      gsap.set(monster, {
+        yPercent: 50,
+        force3D: true
+      });
+    }
 
 
-  // ----------------------------------------------------------
-  // CAMEL — 50% movement
-  // ----------------------------------------------------------
+    // Rocket — 80% down
+    if (rocket) {
+      gsap.set(rocket, {
+        yPercent: 80,
+        force3D: true
+      });
+    }
 
-  if (camel) {
-    home6BuildTL.to(camel, {
+
+    // Emperor — 80% down
+    if (emperor) {
+      gsap.set(emperor, {
+        yPercent: 80,
+        force3D: true
+      });
+    }
+
+
+    // ==========================================================
+    // BUILD TIMELINE
+    // ==========================================================
+
+    var home6BuildTL = gsap.timeline({
+
+      scrollTrigger: {
+
+        trigger: home6TallPillar,
+
+        // Trigger = 20% from screen bottom
+        start: "top 80%",
+
+        toggleActions: "play none none reverse",
+
+        invalidateOnRefresh: true
+      }
+
+    });
+
+
+    // ==========================================================
+    // NORMAL BUILDING LAYERS
+    // ==========================================================
+
+    home6BuildTL.to(home6BuildLayers, {
+
       yPercent: 0,
+
       duration: 1.6,
+
+      stagger: 0.035,
+
       ease: "power3.out",
+
       force3D: true
+
     }, 0);
+
+
+    // ==========================================================
+    // CAMEL
+    // 50% → original position
+    // ==========================================================
+
+    if (camel) {
+
+      home6BuildTL.to(camel, {
+
+        yPercent: 0,
+
+        duration: 1.6,
+
+        ease: "power3.out",
+
+        force3D: true
+
+      }, 0);
+
+    }
+
+
+    // ==========================================================
+    // MONSTER
+    // 50% → original position
+    // ==========================================================
+
+    if (monster) {
+
+      home6BuildTL.to(monster, {
+
+        yPercent: 0,
+
+        duration: 1.6,
+
+        ease: "power3.out",
+
+        force3D: true
+
+      }, 0);
+
+    }
+
+
+    // ==========================================================
+    // ROCKET
+    // 0.5 SECOND DELAY
+    // ==========================================================
+
+    if (rocket) {
+
+      home6BuildTL.to(rocket, {
+
+        yPercent: 0,
+
+        duration: 1.6,
+
+        ease: "power3.out",
+
+        force3D: true
+
+      }, 0.5);
+
+    }
+
+
+    // ==========================================================
+    // EMPEROR
+    // 1 SECOND DELAY
+    // MECHANICAL EJECT + 2 SMALL BOUNCES
+    // ==========================================================
+
+    if (emperor) {
+
+      // Main eject upward to final position
+      home6BuildTL.to(emperor, {
+
+        yPercent: 0,
+
+        duration: 0.72,
+
+        ease: "power3.out",
+
+        force3D: true
+
+      }, 1);
+
+
+      // BOUNCE 1
+      // slightly falls backward
+      home6BuildTL.to(emperor, {
+
+        yPercent: 2,
+
+        duration: 0.14,
+
+        ease: "power2.in"
+
+      });
+
+
+      // rebounds upward slightly
+      home6BuildTL.to(emperor, {
+
+        yPercent: -0.7,
+
+        duration: 0.16,
+
+        ease: "power2.out"
+
+      });
+
+
+      // BOUNCE 2
+      // very tiny fall
+      home6BuildTL.to(emperor, {
+
+        yPercent: 0.35,
+
+        duration: 0.11,
+
+        ease: "power2.in"
+
+      });
+
+
+      // settle exactly at final position
+      home6BuildTL.to(emperor, {
+
+        yPercent: 0,
+
+        duration: 0.12,
+
+        ease: "power2.out"
+
+      });
+
+    }
+
   }
-
-
-  // ----------------------------------------------------------
-  // MONSTER — 50% movement
-  // ----------------------------------------------------------
-
-  if (monster) {
-    home6BuildTL.to(monster, {
-      yPercent: 0,
-      duration: 1.6,
-      ease: "power3.out",
-      force3D: true
-    }, 0);
-  }
-
-
-  // ----------------------------------------------------------
-  // ROCKET — 0.5 SECOND DELAY
-  // ----------------------------------------------------------
-
-  if (rocket) {
-    home6BuildTL.to(rocket, {
-      yPercent: 0,
-      duration: 1.6,
-      ease: "power3.out",
-      force3D: true
-    }, 0.5);
-  }
-
-
-// ----------------------------------------------------------
-// EMPEROR — 1s DELAY + SUBTLE 2-BOUNCE LANDING
-// ----------------------------------------------------------
-
-if (emperor) {
-
-  // Main mechanical eject upward
-  home6BuildTL.to(emperor, {
-    yPercent: -5,
-    duration: 0.75,
-    ease: "cubic.out",
-    force3D: true
-  }, 1);
-
-  // First small bounce back
-  home6BuildTL.to(emperor, {
-    yPercent: 2.5,
-    duration: 0.18,
-    ease: "cubic.in"
-  });
-
-  // Second smaller bounce
-  home6BuildTL.to(emperor, {
-    yPercent: -1,
-    duration: 0.14,
-    ease: "cubic.out"
-  });
-
-  // Settle at final position
-  home6BuildTL.to(emperor, {
-    yPercent: 0,
-    duration: 0.12,
-    ease: "cubic.inOut"
-  });
 
 }
 
