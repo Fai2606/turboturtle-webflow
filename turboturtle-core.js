@@ -1391,7 +1391,7 @@ function initHomeSection6() {
         duration: 1.44,
         ease: "power3.out",
         force3D: true
-      }, 0.5);
+      }, 1);
     }
 
 
