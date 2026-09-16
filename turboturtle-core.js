@@ -1189,13 +1189,16 @@ function initHomeSection5() {
   
     if (!weirdSunHorn || !gsap) return;
   
-    gsap.to(weirdSunHorn, {
-      rotation: 360,
-      duration: 12,
-      ease: "none",
-      repeat: -1,
+    gsap.set(weirdSunHorn, {
       transformOrigin: "50% 50%",
       force3D: true
+    });
+  
+    gsap.to(weirdSunHorn, {
+      rotation: "+=360",
+      duration: 24,
+      ease: "none",
+      repeat: -1
     });
   }
 
