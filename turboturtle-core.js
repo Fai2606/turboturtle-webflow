@@ -498,6 +498,7 @@
       initHomeSection2();
       initHomeSection3();
       initHomeSection4();
+      initHomeSection5();
 
       // -------------------------------------------------------------
       // ABOUT US UFO
@@ -813,6 +814,290 @@ if (goose) {
     ease: "sine.inOut"
   });
 }
+// =============================================================
+// HOMEPAGE SECTION 5
+// =============================================================
+function initHomeSection5() {
+  var section = q(".home_section5");
+
+  if (!section || !gsap || !ScrollTrigger) return;
+
+  var planet = q(".home5_planet");
+  var jupiter = q(".home5_jupiter");
+  var ball = q(".home5_ball");
+  var satellite = q(".home5_satellite");
+  var rocketTip = q(".home5_rockettip");
+  var burger = q(".home5_burger");
+  var bear = q(".home5_bear");
+  var bloodcell = q(".home5_bloodcell");
+  var jetman = q(".home5_jetman");
+  var umbrellaCat = q(".home5_umbrellacat");
+  var cover = q(".home5_cover");
+
+
+  // -------------------------------------------------------------
+  // PLANET / JUPITER / BALL — ORBITAL SCROLL MOVEMENT
+  // -------------------------------------------------------------
+  ScrollTrigger.create({
+    trigger: section,
+    start: "top bottom",
+    end: "bottom top",
+    scrub: 1,
+    invalidateOnRefresh: true,
+
+    onUpdate: function (self) {
+      var t = self.progress;
+
+      // smooth curved orbital amount
+      var arc = Math.sin(Math.PI * t);
+
+      if (planet) {
+        gsap.set(planet, {
+          x: (-42 * vw) * t,
+          y: (-8 * vh) * t - (10 * vh * arc),
+          force3D: true
+        });
+      }
+
+      if (ball) {
+        gsap.set(ball, {
+          x: (-30 * vw) * t,
+          y: (-5 * vh) * t - (7 * vh * arc),
+          force3D: true
+        });
+      }
+
+      if (jupiter) {
+        gsap.set(jupiter, {
+          x: (38 * vw) * t,
+          y: (18 * vh) * t + (8 * vh * arc),
+          force3D: true
+        });
+      }
+    }
+  });
+
+
+  // -------------------------------------------------------------
+  // SATELLITE — LEFT → RIGHT, 2 O'CLOCK
+  // -------------------------------------------------------------
+  if (satellite) {
+    gsap.to(satellite, {
+      x: () => 120 * vw,
+      y: () => -55 * vh,
+      rotation: -8,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: satellite,
+        start: "top bottom",
+        end: "bottom 20%",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // ROCKET TIP — DROP 200PX
+  // -------------------------------------------------------------
+  if (rocketTip) {
+    gsap.to(rocketTip, {
+      y: 200,
+      duration: 1.15,
+      ease: "power3.out",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: rocketTip,
+        start: "top 70%",
+        toggleActions: "play reverse play reverse"
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // BURGER — CONSTANT SMALL LEFT / RIGHT JUMP
+  // -------------------------------------------------------------
+  if (burger) {
+    gsap.timeline({
+      repeat: -1,
+      repeatDelay: 1.15
+    })
+
+    .to(burger, {
+      x: -8,
+      y: -5,
+      rotation: -4,
+      duration: 0.18,
+      ease: "power2.out"
+    })
+
+    .to(burger, {
+      x: 8,
+      y: 0,
+      rotation: 4,
+      duration: 0.22,
+      ease: "power2.inOut"
+    })
+
+    .to(burger, {
+      x: 0,
+      y: -4,
+      rotation: 0,
+      duration: 0.18,
+      ease: "power2.out"
+    })
+
+    .to(burger, {
+      y: 0,
+      duration: 0.18,
+      ease: "bounce.out"
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // BEAR — MOVE RIGHT 50PX
+  // -------------------------------------------------------------
+  if (bear) {
+    gsap.to(bear, {
+      x: 50,
+      duration: 1,
+      ease: "power3.out",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: bear,
+        start: "top 40%",
+        toggleActions: "play reverse play reverse"
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // BLOOD CELL — SLOWLY FLY TO 2 O'CLOCK
+  // -------------------------------------------------------------
+  if (bloodcell) {
+    gsap.to(bloodcell, {
+      x: () => 32 * vw,
+      y: () => -28 * vh,
+      rotation: 220,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // JETMAN — SAME ANIMATION AS ABOUT US
+  // -------------------------------------------------------------
+  if (jetman) {
+    var home5JetHover;
+
+    function startHome5JetHover() {
+      home5JetHover = gsap.to(jetman, {
+        y: "-=15",
+        duration: 1,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1
+      });
+    }
+
+    startHome5JetHover();
+
+    ScrollTrigger.create({
+      trigger: jetman,
+      start: "top 75%",
+
+      onEnter: function () {
+        gsap.killTweensOf(jetman);
+
+        if (home5JetHover) {
+          home5JetHover.kill();
+        }
+
+        gsap.to(jetman, {
+          x: "100vw",
+          y: () => -100 * Math.tan(45 * Math.PI / 180) + "vw",
+          rotation: -50,
+          duration: 1.1,
+          ease: "power2.in"
+        });
+      },
+
+      onLeaveBack: function () {
+        gsap.killTweensOf(jetman);
+
+        if (home5JetHover) {
+          home5JetHover.kill();
+        }
+
+        gsap.set(jetman, {
+          rotation: 180
+        });
+
+        gsap.to(jetman, {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          duration: 1.4,
+          ease: "power2.out",
+          onComplete: startHome5JetHover
+        });
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
+  // UMBRELLA CAT
+  // Cover reaches 30% from top → cat falls down through screen
+  // -------------------------------------------------------------
+  if (umbrellaCat && cover) {
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: cover,
+        start: "top 30%",
+        end: "+=120%",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    })
+
+    .to(umbrellaCat, {
+      y: () => 125 * vh,
+      ease: "none",
+      force3D: true,
+      duration: 1
+    }, 0)
+
+    .to(umbrellaCat, {
+      autoAlpha: 0,
+      ease: "none",
+      duration: 0.12
+    }, 0.88);
+  }
+
+
+  requestAnimationFrame(function () {
+    ScrollTrigger.refresh();
+  });
+}
+
   
   // =============================================================
   // UFO TRAIL ENGINE
