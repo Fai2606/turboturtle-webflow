@@ -1469,63 +1469,70 @@ var home6Light = q(".home6_light");
 
 if (home6UFO && home6TallPillar) {
 
-  // UFO starts 1.5 screens above its Webflow position
-  gsap.set(home6UFO, {
-    y: function () {
-      return -window.innerHeight * 1.5;
-    },
-    force3D: true
-  });
-
-  // Light starts collapsed
+  // LIGHT — hidden initially
   if (home6Light) {
     gsap.set(home6Light, {
       scaleY: 0,
-      transformOrigin: "50% 0%",
-      force3D: true
+      transformOrigin: "50% 0%"
     });
   }
 
+  // UFO + LIGHT timeline
   var home6UFOTL = gsap.timeline({
-    paused: true
+    scrollTrigger: {
+      trigger: home6TallPillar,
+
+      // TEMPORARY EARLY TRIGGER FOR TESTING
+      start: "top 80%",
+
+      toggleActions: "play none none reverse",
+
+      invalidateOnRefresh: true
+    }
   });
 
-  // UFO comes down
-  home6UFOTL.to(home6UFO, {
-    y: 0,
-    duration: 1.8,
-    ease: "power3.out",
-    force3D: true
-  });
+  // UFO starts above and flies to original Webflow position
+  home6UFOTL.fromTo(
+    home6UFO,
 
-  // Light comes AFTER UFO arrives
-  if (home6Light) {
-    home6UFOTL.to(home6Light, {
-      scaleY: 1,
-      duration: 0.55,
+    {
+      y: function () {
+        return -window.innerHeight * 1.5;
+      }
+    },
+
+    {
+      y: 0,
+      duration: 1.8,
       ease: "power3.out",
       force3D: true
-    });
+    },
+
+    0
+  );
+
+  // Light starts AFTER UFO arrives
+  if (home6Light) {
+
+    home6UFOTL.fromTo(
+      home6Light,
+
+      {
+        scaleY: 0,
+        transformOrigin: "50% 0%"
+      },
+
+      {
+        scaleY: 1,
+        duration: 0.55,
+        ease: "power3.out",
+        force3D: true
+      },
+
+      1.8
+    );
+
   }
-
-  ScrollTrigger.create({
-    trigger: home6TallPillar,
-    start: "top 10%",
-
-    onEnter: function () {
-      home6UFOTL.timeScale(1).play();
-    },
-
-    onEnterBack: function () {
-      home6UFOTL.timeScale(1).play();
-    },
-
-    onLeaveBack: function () {
-      home6UFOTL.timeScale(2).reverse();
-    },
-
-    invalidateOnRefresh: true
-  });
 
 }
 
