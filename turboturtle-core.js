@@ -814,6 +814,8 @@ if (goose) {
     ease: "sine.inOut"
   });
 }
+
+  
 // =============================================================
 // HOMEPAGE SECTION 5
 // =============================================================
@@ -836,7 +838,9 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // PLANET / JUPITER / BALL — ORBITAL SCROLL MOVEMENT
+  // PLANET / JUPITER / BALL
+  // Very subtle orbital movement
+  // Jupiter = slowest
   // -------------------------------------------------------------
   ScrollTrigger.create({
     trigger: section,
@@ -847,30 +851,28 @@ function initHomeSection5() {
 
     onUpdate: function (self) {
       var t = self.progress;
-
-      // smooth curved orbital amount
       var arc = Math.sin(Math.PI * t);
 
       if (planet) {
         gsap.set(planet, {
-          x: (-42 * vw) * t,
-          y: (-8 * vh) * t - (10 * vh * arc),
+          x: (-12 * vw) * t,
+          y: (-3 * vh) * t - (3 * vh * arc),
           force3D: true
         });
       }
 
       if (ball) {
         gsap.set(ball, {
-          x: (-30 * vw) * t,
-          y: (-5 * vh) * t - (7 * vh * arc),
+          x: (-9 * vw) * t,
+          y: (-2 * vh) * t - (2.5 * vh * arc),
           force3D: true
         });
       }
 
       if (jupiter) {
         gsap.set(jupiter, {
-          x: (38 * vw) * t,
-          y: (18 * vh) * t + (8 * vh * arc),
+          x: (5 * vw) * t,
+          y: (2 * vh) * t + (1.5 * vh * arc),
           force3D: true
         });
       }
@@ -879,21 +881,23 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // SATELLITE — LEFT → RIGHT, 2 O'CLOCK
+  // SATELLITE
+  // Starts later + slower
+  // Left → Right toward 2 o'clock
   // -------------------------------------------------------------
   if (satellite) {
     gsap.to(satellite, {
-      x: () => 120 * vw,
-      y: () => -55 * vh,
-      rotation: -8,
+      x: () => 105 * vw,
+      y: () => -38 * vh,
+      rotation: -6,
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
-        trigger: satellite,
-        start: "top bottom",
-        end: "bottom 20%",
-        scrub: 1,
+        trigger: section,
+        start: "top 55%",
+        end: "bottom 10%",
+        scrub: 2,
         invalidateOnRefresh: true
       }
     });
@@ -901,18 +905,19 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // ROCKET TIP — DROP 200PX
+  // ROCKET TIP
+  // Starts later + falls slower
   // -------------------------------------------------------------
   if (rocketTip) {
     gsap.to(rocketTip, {
       y: 200,
-      duration: 1.15,
-      ease: "power3.out",
+      duration: 1.8,
+      ease: "power3.in",
       force3D: true,
 
       scrollTrigger: {
         trigger: rocketTip,
-        start: "top 70%",
+        start: "top 45%",
         toggleActions: "play reverse play reverse"
       }
     });
@@ -920,52 +925,66 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // BURGER — CONSTANT SMALL LEFT / RIGHT JUMP
+  // BURGER
+  // Small rhythmic left/right hopping
   // -------------------------------------------------------------
   if (burger) {
     gsap.timeline({
       repeat: -1,
-      repeatDelay: 1.15
+      repeatDelay: 0.7
     })
 
+    // hop left
     .to(burger, {
-      x: -8,
-      y: -5,
-      rotation: -4,
-      duration: 0.18,
+      x: -6,
+      y: -6,
+      duration: 0.22,
       ease: "power2.out"
     })
 
     .to(burger, {
-      x: 8,
+      x: -6,
       y: 0,
-      rotation: 4,
       duration: 0.22,
-      ease: "power2.inOut"
+      ease: "power2.in"
     })
 
+    // tiny pause
+    .to(burger, {
+      duration: 0.15
+    })
+
+    // hop right
+    .to(burger, {
+      x: 6,
+      y: -6,
+      duration: 0.22,
+      ease: "power2.out"
+    })
+
+    .to(burger, {
+      x: 6,
+      y: 0,
+      duration: 0.22,
+      ease: "power2.in"
+    })
+
+    // return center
     .to(burger, {
       x: 0,
-      y: -4,
-      rotation: 0,
-      duration: 0.18,
+      duration: 0.3,
       ease: "power2.out"
-    })
-
-    .to(burger, {
-      y: 0,
-      duration: 0.18,
-      ease: "bounce.out"
     });
   }
 
 
   // -------------------------------------------------------------
-  // BEAR — MOVE RIGHT 50PX
+  // BEAR
+  // Move right only 30px
   // -------------------------------------------------------------
   if (bear) {
     gsap.to(bear, {
-      x: 50,
+      x: 30,
       duration: 1,
       ease: "power3.out",
       force3D: true,
@@ -980,7 +999,8 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // BLOOD CELL — SLOWLY FLY TO 2 O'CLOCK
+  // BLOOD CELL
+  // Slow flight toward 2 o'clock + rotation
   // -------------------------------------------------------------
   if (bloodcell) {
     gsap.to(bloodcell, {
@@ -994,7 +1014,7 @@ function initHomeSection5() {
         trigger: section,
         start: "top bottom",
         end: "bottom top",
-        scrub: 1,
+        scrub: 1.5,
         invalidateOnRefresh: true
       }
     });
@@ -1002,7 +1022,8 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // JETMAN — SAME ANIMATION AS ABOUT US
+  // JETMAN
+  // Same behaviour as About Us
   // -------------------------------------------------------------
   if (jetman) {
     var home5JetHover;
@@ -1065,7 +1086,7 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // UMBRELLA CAT
-  // Cover reaches 30% from top → cat falls down through screen
+  // Cover reaches 30% from top → cat flies downward
   // -------------------------------------------------------------
   if (umbrellaCat && cover) {
     gsap.timeline({
