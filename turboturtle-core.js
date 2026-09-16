@@ -1209,8 +1209,8 @@ const home6TallPillar = document.querySelector(".home6_tallpillar");
 
 if (home6TallPillar) {
 
-  // NORMAL LAYERS — 80% down
-  // Rocket + Emperor handled separately because they have delays.
+  // NORMAL LAYERS — start 80% of their own height lower
+  // Rocket + Emperor are handled separately because they have delays
   const home6BuildSelectors = [
     ".home6_tree",
     ".home6_bloodcell",
@@ -1240,15 +1240,18 @@ if (home6TallPillar) {
   const rocket = document.querySelector(".home6_rocket");
   const emperor = document.querySelector(".home6_emperor");
 
-  // ----------------------------------------------------------
-  // STARTING POSITIONS
-  // ----------------------------------------------------------
 
+  // ==========================================================
+  // STARTING POSITIONS
+  // ==========================================================
+
+  // Normal layers = 80% down
   gsap.set(home6BuildLayers, {
     yPercent: 80,
     force3D: true
   });
 
+  // Camel = 50% down
   if (camel) {
     gsap.set(camel, {
       yPercent: 50,
@@ -1256,6 +1259,7 @@ if (home6TallPillar) {
     });
   }
 
+  // Monster = 50% down
   if (monster) {
     gsap.set(monster, {
       yPercent: 50,
@@ -1263,6 +1267,7 @@ if (home6TallPillar) {
     });
   }
 
+  // Rocket = 80% down
   if (rocket) {
     gsap.set(rocket, {
       yPercent: 80,
@@ -1270,6 +1275,7 @@ if (home6TallPillar) {
     });
   }
 
+  // Emperor = 80% down
   if (emperor) {
     gsap.set(emperor, {
       yPercent: 80,
@@ -1277,15 +1283,16 @@ if (home6TallPillar) {
     });
   }
 
-  // ----------------------------------------------------------
-  // BUILD ANIMATION
-  // ----------------------------------------------------------
+
+  // ==========================================================
+  // BUILD TIMELINE
+  // ==========================================================
 
   const home6BuildTL = gsap.timeline({
     scrollTrigger: {
       trigger: home6TallPillar,
 
-      // 20% from bottom
+      // Trigger when tall pillar reaches 20% from screen bottom
       start: "top 80%",
 
       toggleActions: "play none none reverse",
@@ -1293,7 +1300,11 @@ if (home6TallPillar) {
     }
   });
 
-  // Normal layers
+
+  // ----------------------------------------------------------
+  // NORMAL BUILDING LAYERS
+  // ----------------------------------------------------------
+
   home6BuildTL.to(home6BuildLayers, {
     yPercent: 0,
     duration: 1.6,
@@ -1302,7 +1313,11 @@ if (home6TallPillar) {
     force3D: true
   }, 0);
 
-  // Camel
+
+  // ----------------------------------------------------------
+  // CAMEL — 50% movement
+  // ----------------------------------------------------------
+
   if (camel) {
     home6BuildTL.to(camel, {
       yPercent: 0,
@@ -1312,7 +1327,11 @@ if (home6TallPillar) {
     }, 0);
   }
 
-  // Monster
+
+  // ----------------------------------------------------------
+  // MONSTER — 50% movement
+  // ----------------------------------------------------------
+
   if (monster) {
     home6BuildTL.to(monster, {
       yPercent: 0,
@@ -1322,7 +1341,11 @@ if (home6TallPillar) {
     }, 0);
   }
 
-  // Rocket — 0.5s delay
+
+  // ----------------------------------------------------------
+  // ROCKET — 0.5 SECOND DELAY
+  // ----------------------------------------------------------
+
   if (rocket) {
     home6BuildTL.to(rocket, {
       yPercent: 0,
@@ -1332,24 +1355,20 @@ if (home6TallPillar) {
     }, 0.5);
   }
 
-  // Emperor — waits 1 second, then mechanically ejects upward.
-  // First overshoots slightly ABOVE final position.
+
+  // ----------------------------------------------------------
+  // EMPEROR — 1 SECOND DELAY + EASE OUT BOUNCE
+  // ----------------------------------------------------------
+
   if (emperor) {
     home6BuildTL.to(emperor, {
-      yPercent: -6,
-      duration: 0.7,
-      ease: "power3.in",
+      yPercent: 0,
+      duration: 1.4,
+      ease: "bounce.out",
       force3D: true
     }, 1);
-
-    // Small bounce-back / mechanical settle
-    home6BuildTL.to(emperor, {
-      yPercent: 0,
-      duration: 0.22,
-      ease: "power2.out",
-      force3D: true
-    });
   }
+
 }
 
   
