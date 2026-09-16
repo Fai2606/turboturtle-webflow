@@ -1458,6 +1458,8 @@ function initHomeSection6() {
 
 }
 
+
+  
 // ==========================================================
 // HOME 6 — UFO ARRIVAL + LIGHT
 // ==========================================================
@@ -1465,15 +1467,17 @@ function initHomeSection6() {
 var home6UFO = q(".home6_ufo");
 var home6Light = q(".home6_light");
 
-if (home6UFO) {
+if (home6UFO && home6TallPillar) {
 
-  // UFO starts far above screen
+  // UFO starts 1.5 screens above its Webflow position
   gsap.set(home6UFO, {
-    y: "-150vh",
+    y: function () {
+      return -window.innerHeight * 1.5;
+    },
     force3D: true
   });
 
-  // Light starts hidden / collapsed from TOP
+  // Light starts collapsed
   if (home6Light) {
     gsap.set(home6Light, {
       scaleY: 0,
@@ -1486,7 +1490,7 @@ if (home6UFO) {
     paused: true
   });
 
-  // UFO flies DOWN into its Webflow position
+  // UFO comes down
   home6UFOTL.to(home6UFO, {
     y: 0,
     duration: 1.8,
@@ -1494,7 +1498,7 @@ if (home6UFO) {
     force3D: true
   });
 
-  // Light appears AFTER UFO arrives
+  // Light comes AFTER UFO arrives
   if (home6Light) {
     home6UFOTL.to(home6Light, {
       scaleY: 1,
@@ -1506,11 +1510,13 @@ if (home6UFO) {
 
   ScrollTrigger.create({
     trigger: home6TallPillar,
-
-    // Tall pillar reaches 10% from TOP
     start: "top 10%",
 
     onEnter: function () {
+      home6UFOTL.timeScale(1).play();
+    },
+
+    onEnterBack: function () {
       home6UFOTL.timeScale(1).play();
     },
 
