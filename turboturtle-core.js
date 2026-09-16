@@ -1197,7 +1197,6 @@ function initHomeSection6() {
   // ==========================================================
 
   if (weirdSunHorn) {
-
     gsap.set(weirdSunHorn, {
       transformOrigin: "50% 50%",
       force3D: true
@@ -1209,7 +1208,6 @@ function initHomeSection6() {
       ease: "none",
       repeat: -1
     });
-
   }
 
 
@@ -1218,6 +1216,10 @@ function initHomeSection6() {
   // ==========================================================
 
   if (home6TallPillar) {
+
+    // ----------------------------------------------------------
+    // NORMAL LAYERS
+    // ----------------------------------------------------------
 
     var home6BuildSelectors = [
       ".home6_tree",
@@ -1232,8 +1234,6 @@ function initHomeSection6() {
       ".home6_building1",
       ".home6_biggate",
       ".home6_giraffe",
-      ".home6_castleinside",
-      ".home6_cat",
       ".home6_castle",
       ".home6_pyramid",
       ".home6_dinosaur"
@@ -1245,21 +1245,30 @@ function initHomeSection6() {
       })
       .filter(Boolean);
 
+
+    // ----------------------------------------------------------
+    // SPECIAL LAYERS
+    // ----------------------------------------------------------
+
     var camel = q(".home6_camel");
     var monster = q(".home6_monster");
     var rocket = q(".home6_rocket");
     var emperor = q(".home6_emperor");
+    var castleinside = q(".home6_castleinside");
+    var cat = q(".home6_cat");
 
 
     // ==========================================================
     // STARTING POSITIONS
     // ==========================================================
 
+    // Normal layers — 80% down
     gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
 
+    // Camel — 50% down
     if (camel) {
       gsap.set(camel, {
         yPercent: 50,
@@ -1267,6 +1276,7 @@ function initHomeSection6() {
       });
     }
 
+    // Monster — 50% down
     if (monster) {
       gsap.set(monster, {
         yPercent: 50,
@@ -1274,6 +1284,7 @@ function initHomeSection6() {
       });
     }
 
+    // Rocket — 80% down
     if (rocket) {
       gsap.set(rocket, {
         yPercent: 80,
@@ -1281,8 +1292,25 @@ function initHomeSection6() {
       });
     }
 
+    // Emperor — 80% down
     if (emperor) {
       gsap.set(emperor, {
+        yPercent: 80,
+        force3D: true
+      });
+    }
+
+    // Castle Inside — 80% down
+    if (castleinside) {
+      gsap.set(castleinside, {
+        yPercent: 80,
+        force3D: true
+      });
+    }
+
+    // Cat — 80% down
+    if (cat) {
+      gsap.set(cat, {
         yPercent: 80,
         force3D: true
       });
@@ -1298,7 +1326,10 @@ function initHomeSection6() {
     });
 
 
-    // NORMAL LAYERS — 10% FASTER
+    // ----------------------------------------------------------
+    // NORMAL LAYERS
+    // ----------------------------------------------------------
+
     home6BuildTL.to(home6BuildLayers, {
       yPercent: 0,
       duration: 1.44,
@@ -1308,7 +1339,10 @@ function initHomeSection6() {
     }, 0);
 
 
+    // ----------------------------------------------------------
     // CAMEL
+    // ----------------------------------------------------------
+
     if (camel) {
       home6BuildTL.to(camel, {
         yPercent: 0,
@@ -1319,7 +1353,10 @@ function initHomeSection6() {
     }
 
 
+    // ----------------------------------------------------------
     // MONSTER
+    // ----------------------------------------------------------
+
     if (monster) {
       home6BuildTL.to(monster, {
         yPercent: 0,
@@ -1330,7 +1367,10 @@ function initHomeSection6() {
     }
 
 
+    // ----------------------------------------------------------
     // ROCKET — 0.5s DELAY
+    // ----------------------------------------------------------
+
     if (rocket) {
       home6BuildTL.to(rocket, {
         yPercent: 0,
@@ -1341,7 +1381,38 @@ function initHomeSection6() {
     }
 
 
-    // EMPEROR — REDUCED DELAY
+    // ----------------------------------------------------------
+    // CASTLE INSIDE — 0.5s DELAY
+    // ----------------------------------------------------------
+
+    if (castleinside) {
+      home6BuildTL.to(castleinside, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0.5);
+    }
+
+
+    // ----------------------------------------------------------
+    // CAT — 0.5s DELAY
+    // ----------------------------------------------------------
+
+    if (cat) {
+      home6BuildTL.to(cat, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0.5);
+    }
+
+
+    // ----------------------------------------------------------
+    // EMPEROR — 0.65s DELAY
+    // ----------------------------------------------------------
+
     if (emperor) {
       home6BuildTL.to(emperor, {
         yPercent: 0,
@@ -1357,47 +1428,30 @@ function initHomeSection6() {
     // ==========================================================
 
     ScrollTrigger.create({
-
       trigger: home6TallPillar,
 
-      // 20% from bottom
+      // Trigger = 20% from bottom
       start: "top 80%",
 
       invalidateOnRefresh: true,
 
-
-      // --------------------------------------------------------
-      // ENTER — NORMAL BUILD SPEED
-      // --------------------------------------------------------
+      // Build up
       onEnter: function () {
-
         home6BuildTL.timeScale(1);
         home6BuildTL.play();
-
       },
 
-
-      // --------------------------------------------------------
-      // ENTER AGAIN FROM ABOVE
-      // --------------------------------------------------------
+      // Build up again when scrolling back down
       onEnterBack: function () {
-
         home6BuildTL.timeScale(1);
         home6BuildTL.play();
-
       },
 
-
-      // --------------------------------------------------------
-      // SCROLL BACK UP — 2X FASTER
-      // --------------------------------------------------------
+      // Go back down — 2X speed
       onLeaveBack: function () {
-
         home6BuildTL.timeScale(2);
         home6BuildTL.reverse();
-
       }
-
     });
 
   }
