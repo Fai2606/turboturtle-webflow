@@ -1219,10 +1219,6 @@ function initHomeSection6() {
 
   if (home6TallPillar) {
 
-    // ----------------------------------------------------------
-    // ELEMENTS
-    // ----------------------------------------------------------
-
     var home6BuildSelectors = [
       ".home6_tree",
       ".home6_bloodcell",
@@ -1259,14 +1255,11 @@ function initHomeSection6() {
     // STARTING POSITIONS
     // ==========================================================
 
-    // Normal layers — 80% down
     gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
 
-
-    // Camel — 50% down
     if (camel) {
       gsap.set(camel, {
         yPercent: 50,
@@ -1274,8 +1267,6 @@ function initHomeSection6() {
       });
     }
 
-
-    // Monster — 50% down
     if (monster) {
       gsap.set(monster, {
         yPercent: 50,
@@ -1283,8 +1274,6 @@ function initHomeSection6() {
       });
     }
 
-
-    // Rocket — 80% down
     if (rocket) {
       gsap.set(rocket, {
         yPercent: 80,
@@ -1292,8 +1281,6 @@ function initHomeSection6() {
       });
     }
 
-
-    // Emperor — 80% down
     if (emperor) {
       gsap.set(emperor, {
         yPercent: 80,
@@ -1307,132 +1294,115 @@ function initHomeSection6() {
     // ==========================================================
 
     var home6BuildTL = gsap.timeline({
+      paused: true
+    });
 
-      scrollTrigger: {
 
-        trigger: home6TallPillar,
+    // NORMAL LAYERS — 10% FASTER
+    home6BuildTL.to(home6BuildLayers, {
+      yPercent: 0,
+      duration: 1.44,
+      stagger: 0.035,
+      ease: "power3.out",
+      force3D: true
+    }, 0);
 
-        // Trigger = 20% from screen bottom
-        start: "top 80%",
 
-        toggleActions: "play none none reverse",
+    // CAMEL
+    if (camel) {
+      home6BuildTL.to(camel, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
 
-        invalidateOnRefresh: true
+
+    // MONSTER
+    if (monster) {
+      home6BuildTL.to(monster, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
+
+
+    // ROCKET — 0.5s DELAY
+    if (rocket) {
+      home6BuildTL.to(rocket, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0.5);
+    }
+
+
+    // EMPEROR — REDUCED DELAY
+    if (emperor) {
+      home6BuildTL.to(emperor, {
+        yPercent: 0,
+        duration: 1.44,
+        ease: "power3.out",
+        force3D: true
+      }, 0.65);
+    }
+
+
+    // ==========================================================
+    // SCROLL TRIGGER
+    // ==========================================================
+
+    ScrollTrigger.create({
+
+      trigger: home6TallPillar,
+
+      // 20% from bottom
+      start: "top 80%",
+
+      invalidateOnRefresh: true,
+
+
+      // --------------------------------------------------------
+      // ENTER — NORMAL BUILD SPEED
+      // --------------------------------------------------------
+      onEnter: function () {
+
+        home6BuildTL.timeScale(1);
+        home6BuildTL.play();
+
+      },
+
+
+      // --------------------------------------------------------
+      // ENTER AGAIN FROM ABOVE
+      // --------------------------------------------------------
+      onEnterBack: function () {
+
+        home6BuildTL.timeScale(1);
+        home6BuildTL.play();
+
+      },
+
+
+      // --------------------------------------------------------
+      // SCROLL BACK UP — 2X FASTER
+      // --------------------------------------------------------
+      onLeaveBack: function () {
+
+        home6BuildTL.timeScale(2);
+        home6BuildTL.reverse();
+
       }
 
     });
 
+  }
 
-    // ==========================================================
-    // NORMAL BUILDING LAYERS
-    // ==========================================================
-
-    home6BuildTL.to(home6BuildLayers, {
-
-      yPercent: 0,
-
-      duration: 1.6,
-
-      stagger: 0.035,
-
-      ease: "power3.out",
-
-      force3D: true
-
-    }, 0);
-
-
-    // ==========================================================
-    // CAMEL
-    // 50% → original position
-    // ==========================================================
-
-    if (camel) {
-
-      home6BuildTL.to(camel, {
-
-        yPercent: 0,
-
-        duration: 1.6,
-
-        ease: "power3.out",
-
-        force3D: true
-
-      }, 0);
-
-    }
-
-
-    // ==========================================================
-    // MONSTER
-    // 50% → original position
-    // ==========================================================
-
-    if (monster) {
-
-      home6BuildTL.to(monster, {
-
-        yPercent: 0,
-
-        duration: 1.6,
-
-        ease: "power3.out",
-
-        force3D: true
-
-      }, 0);
-
-    }
-
-
-    // ==========================================================
-    // ROCKET
-    // 0.5 SECOND DELAY
-    // ==========================================================
-
-    if (rocket) {
-
-      home6BuildTL.to(rocket, {
-
-        yPercent: 0,
-
-        duration: 1.6,
-
-        ease: "power3.out",
-
-        force3D: true
-
-      }, 0.5);
-
-    }
-
-
-    // ==========================================================
-    // EMPEROR
-    // 1 SECOND DELAY — SAME SMOOTH EASE AS OTHERS
-    // ==========================================================
-
-    if (emperor) {
-
-      home6BuildTL.to(emperor, {
-
-        yPercent: 0,
-
-        duration: 1.6,
-
-        ease: "power3.out",
-
-        force3D: true
-
-      }, 1);
-
-    }
-
-  } // closes: if (home6TallPillar)
-
-} // closes: initHomeSection6()
-
+}
 
 // =============================================================
 // UFO TRAIL ENGINE
