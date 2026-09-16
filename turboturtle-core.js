@@ -746,15 +746,15 @@ if (goose) {
     var pulse = q(".home4_pulse");
     var wave = q("#home4-top-wave");
   
-    if (pulse) {
-      gsap.to(pulse, {
-        y: "+=450",
-        duration: 3,
-        ease: "none",
-        repeat: -1,
-        force3D: true
-      });
-    }
+  if (pulse) {
+    gsap.to(pulse, {
+      y: "+=450",
+      duration: 3,
+      ease: "power3.in",
+      repeat: -1,
+      force3D: true
+    });
+  }
   
     if (!wave || !MorphSVGPlugin) return;
   
