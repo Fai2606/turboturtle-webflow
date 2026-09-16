@@ -746,6 +746,24 @@ if (goose) {
   function initHomeSection4() {
     var pulse = q(".home4_pulse");
     var wave = q("#home4-top-wave");
+    var section4 = q(".home_section4");
+    var section4City = q(".home_section4_city");
+    
+    if (section4 && section4City) {
+      gsap.to(section4City, {
+        yPercent: -18,
+        ease: "none",
+        force3D: true,
+    
+        scrollTrigger: {
+          trigger: section4,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    }
   
   if (pulse) {
     gsap.to(pulse, {
@@ -835,12 +853,12 @@ function initHomeSection5() {
   var jetman = q(".home5_jetman");
   var umbrellaCat = q(".home5_umbrellacat");
   var cover = q(".home5_cover");
+  var galaxy = q(".home5_galaxy");
 
 
   // -------------------------------------------------------------
-  // PLANET / JUPITER / BALL
-  // Orbit + subtle upward parallax
-  // Jupiter = slowest
+  // PLANET / BALL / JUPITER
+  // BOTH orbital motion + upward parallax
   // -------------------------------------------------------------
   ScrollTrigger.create({
     trigger: section,
@@ -851,31 +869,52 @@ function initHomeSection5() {
 
     onUpdate: function (self) {
       var t = self.progress;
+
+      // curved orbital arc
       var arc = Math.sin(Math.PI * t);
 
-      // PLANET — strongest orbit
+
+      // PLANET
+      // strongest orbital movement
       if (planet) {
         gsap.set(planet, {
-          xPercent: -38 * t,
-          y: (-110 * t) - (25 * arc),
+          xPercent: -85 * t,
+
+          // upward parallax + orbital curve
+          yPercent:
+            (-55 * t) -
+            (22 * arc),
+
           force3D: true
         });
       }
 
-      // BALL — medium
+
+      // BALL
+      // medium orbital movement
       if (ball) {
         gsap.set(ball, {
-          xPercent: -24 * t,
-          y: (-85 * t) - (18 * arc),
+          xPercent: -70 * t,
+
+          yPercent:
+            (-48 * t) -
+            (18 * arc),
+
           force3D: true
         });
       }
 
-      // JUPITER — slowest
+
+      // JUPITER
+      // visible, but slowest / heaviest
       if (jupiter) {
         gsap.set(jupiter, {
-          xPercent: 10 * t,
-          y: (-55 * t) - (10 * arc),
+          xPercent: 35 * t,
+
+          yPercent:
+            (-30 * t) +
+            (10 * arc),
+
           force3D: true
         });
       }
@@ -884,25 +923,43 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
+  // GALAXY
+  // Compensates for scrolling so it stays visible longer
+  // -------------------------------------------------------------
+  if (galaxy) {
+    gsap.to(galaxy, {
+      yPercent: 35,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+
+  // -------------------------------------------------------------
   // SATELLITE
-  // Later + slower, flying toward 2 o'clock
+  // Later + slower
+  // Left → right, toward 2 o'clock
   // -------------------------------------------------------------
   if (satellite) {
     gsap.to(satellite, {
-      x: function () {
-        return window.innerWidth * 1.05;
-      },
-      y: function () {
-        return -window.innerHeight * 0.32;
-      },
+      xPercent: 750,
+      yPercent: -250,
       rotation: -6,
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
         trigger: section,
-        start: "top 50%",
-        end: "bottom 5%",
+        start: "top 45%",
+        end: "bottom 0%",
         scrub: 2.2,
         invalidateOnRefresh: true
       }
@@ -912,12 +969,13 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // ROCKET TIP
-  // Later + slower + only 130px
+  // 130px downward
+  // Slightly faster now
   // -------------------------------------------------------------
   if (rocketTip) {
     gsap.to(rocketTip, {
       y: 130,
-      duration: 1.8,
+      duration: 1.25,
       ease: "power3.in",
       force3D: true,
 
@@ -932,58 +990,60 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // BURGER
-  // Small rhythmic hopping left / right
+  // 原地彈幾下 → pause → repeat
+  // NO left/right movement
   // -------------------------------------------------------------
   if (burger) {
     gsap.timeline({
       repeat: -1,
-      repeatDelay: 0.7
+      repeatDelay: 1.4
     })
 
+    // bounce 1
     .to(burger, {
-      x: -6,
-      y: -5,
-      duration: 0.22,
+      y: -9,
+      duration: 0.18,
       ease: "power2.out"
     })
-
     .to(burger, {
       y: 0,
       duration: 0.22,
-      ease: "power2.in"
+      ease: "bounce.out"
     })
 
+    // bounce 2
     .to(burger, {
-      duration: 0.15
-    })
-
-    .to(burger, {
-      x: 6,
-      y: -5,
-      duration: 0.22,
+      y: -7,
+      duration: 0.16,
       ease: "power2.out"
     })
-
     .to(burger, {
       y: 0,
-      duration: 0.22,
-      ease: "power2.in"
+      duration: 0.2,
+      ease: "bounce.out"
     })
 
+    // bounce 3 — smallest
     .to(burger, {
-      x: 0,
-      duration: 0.28,
+      y: -4,
+      duration: 0.14,
       ease: "power2.out"
+    })
+    .to(burger, {
+      y: 0,
+      duration: 0.18,
+      ease: "bounce.out"
     });
   }
 
 
   // -------------------------------------------------------------
-  // BEAR — 30px
+  // BEAR
+  // move right 25px
   // -------------------------------------------------------------
   if (bear) {
     gsap.to(bear, {
-      x: 30,
+      x: 25,
       duration: 1,
       ease: "power3.out",
       force3D: true,
@@ -998,16 +1058,13 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // BLOOD CELL — toward 2 o'clock
+  // BLOOD CELL
+  // slowly toward 2 o'clock + rotate
   // -------------------------------------------------------------
   if (bloodcell) {
     gsap.to(bloodcell, {
-      x: function () {
-        return window.innerWidth * 0.3;
-      },
-      y: function () {
-        return -window.innerHeight * 0.25;
-      },
+      xPercent: 300,
+      yPercent: -220,
       rotation: 220,
       ease: "none",
       force3D: true,
@@ -1024,7 +1081,8 @@ function initHomeSection5() {
 
 
   // -------------------------------------------------------------
-  // JETMAN — same as About Us
+  // JETMAN
+  // Same animation as About Us
   // -------------------------------------------------------------
   if (jetman) {
     var home5JetHover;
@@ -1053,12 +1111,8 @@ function initHomeSection5() {
         }
 
         gsap.to(jetman, {
-          x: function () {
-            return window.innerWidth;
-          },
-          y: function () {
-            return -window.innerHeight;
-          },
+          xPercent: 800,
+          yPercent: -500,
           rotation: -50,
           duration: 1.1,
           ease: "power2.in"
@@ -1077,6 +1131,8 @@ function initHomeSection5() {
         });
 
         gsap.to(jetman, {
+          xPercent: 0,
+          yPercent: 0,
           x: 0,
           y: 0,
           rotation: 0,
@@ -1091,7 +1147,7 @@ function initHomeSection5() {
 
   // -------------------------------------------------------------
   // UMBRELLA CAT
-  // Cover reaches 30% from top → fly down
+  // cover reaches 30% from top → cat flies downward
   // -------------------------------------------------------------
   if (umbrellaCat && cover) {
     gsap.timeline({
@@ -1105,9 +1161,7 @@ function initHomeSection5() {
     })
 
     .to(umbrellaCat, {
-      y: function () {
-        return window.innerHeight * 1.25;
-      },
+      yPercent: 900,
       ease: "none",
       force3D: true,
       duration: 1
