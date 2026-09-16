@@ -1201,83 +1201,133 @@ function initHomeSection5() {
       repeat: -1
     });
   }
-  // ============================================================
-  // HOME 6 — CASTLE / WORLD BUILD-UP
-  // ============================================================
-  
-  const home6TallPillar = document.querySelector(".home6_tallpillar");
-  
-  if (home6TallPillar) {
-  
-    // These layers rise into their original Webflow positions.
-    // EXCLUDED:
-    // .home6_camel
-    // .home6_lake
-    // .home6_ground
-    // .home6_mount
-  
-    const home6BuildSelectors = [
-      ".home6_tree",
-      ".home6_bloodcell",
-      ".home6_cone",
-      ".home6_castlepeak",
-      ".home6_conetop",
-      ".home6_sphere",
-      ".home6_tallpillar",
-      ".home6_backcastle",
-      ".home6_building",
-      ".home6_building1",
-      ".home6_biggate",
-      ".home6_emperor",
-      ".home6_giraffe",
-      ".home6_castleinside",
-      ".home6_cat",
-      ".home6_castle",
-      ".home6_pyramid",
-      ".home6_rocket",
-      ".home6_dinosaur",
-      ".home6_monster"
-    ];
-  
-    const home6BuildLayers = home6BuildSelectors
-      .map(selector => document.querySelector(selector))
-      .filter(Boolean);
-  
-    // Move every layer downward by its OWN rendered height.
-    // yPercent: 100 = exactly one full element-height downward.
-    gsap.set(home6BuildLayers, {
-      yPercent: 100,
+// ============================================================
+// HOME 6 — CASTLE / WORLD BUILD-UP
+// ============================================================
+
+const home6TallPillar = document.querySelector(".home6_tallpillar");
+
+if (home6TallPillar) {
+
+  // NORMAL LAYERS — start 80% of their own height lower
+  const home6BuildSelectors = [
+    ".home6_tree",
+    ".home6_bloodcell",
+    ".home6_cone",
+    ".home6_castlepeak",
+    ".home6_conetop",
+    ".home6_sphere",
+    ".home6_tallpillar",
+    ".home6_backcastle",
+    ".home6_building",
+    ".home6_building1",
+    ".home6_biggate",
+    ".home6_giraffe",
+    ".home6_castleinside",
+    ".home6_cat",
+    ".home6_castle",
+    ".home6_pyramid",
+    ".home6_rocket",
+    ".home6_dinosaur"
+  ];
+
+  const home6BuildLayers = home6BuildSelectors
+    .map(selector => document.querySelector(selector))
+    .filter(Boolean);
+
+  const camel = document.querySelector(".home6_camel");
+  const monster = document.querySelector(".home6_monster");
+  const emperor = document.querySelector(".home6_emperor");
+
+  // ----------------------------------------------------------
+  // STARTING POSITIONS
+  // ----------------------------------------------------------
+
+  // Most objects = 80% down
+  gsap.set(home6BuildLayers, {
+    yPercent: 80,
+    force3D: true
+  });
+
+  // Camel = only 50% down
+  if (camel) {
+    gsap.set(camel, {
+      yPercent: 50,
       force3D: true
     });
-  
-    // Animate everything back to its Webflow-designed position.
-    gsap.to(home6BuildLayers, {
-      yPercent: 0,
-  
-      duration: 1.6,
-  
-      // Small stagger makes the city feel like it is assembling,
-      // rather than every object moving identically.
-      stagger: 0.035,
-  
-      ease: "power3.out",
-  
-      force3D: true,
-  
-      scrollTrigger: {
-        trigger: home6TallPillar,
-  
-        // Tall pillar reaches 30% ABOVE THE BOTTOM
-        // = 70% down from viewport top.
-        start: "top 70%",
-  
-        toggleActions: "play none none reverse",
-  
-        invalidateOnRefresh: true
-      }
-    });
-  
   }
+
+  // Monster = only 50% down
+  if (monster) {
+    gsap.set(monster, {
+      yPercent: 50,
+      force3D: true
+    });
+  }
+
+  // Emperor = 80% down
+  if (emperor) {
+    gsap.set(emperor, {
+      yPercent: 80,
+      force3D: true
+    });
+  }
+
+  // ----------------------------------------------------------
+  // BUILD ANIMATION
+  // ----------------------------------------------------------
+
+  const home6BuildTL = gsap.timeline({
+    scrollTrigger: {
+      trigger: home6TallPillar,
+
+      // Start when tallpillar reaches 10% from bottom
+      start: "top 90%",
+
+      toggleActions: "play none none reverse",
+      invalidateOnRefresh: true
+    }
+  });
+
+  // Main layers
+  home6BuildTL.to(home6BuildLayers, {
+    yPercent: 0,
+    duration: 1.6,
+    stagger: 0.035,
+    ease: "power3.out",
+    force3D: true
+  }, 0);
+
+  // Camel
+  if (camel) {
+    home6BuildTL.to(camel, {
+      yPercent: 0,
+      duration: 1.6,
+      ease: "power3.out",
+      force3D: true
+    }, 0);
+  }
+
+  // Monster
+  if (monster) {
+    home6BuildTL.to(monster, {
+      yPercent: 0,
+      duration: 1.6,
+      ease: "power3.out",
+      force3D: true
+    }, 0);
+  }
+
+  // Emperor — DELAYED 0.5 SECOND
+  if (emperor) {
+    home6BuildTL.to(emperor, {
+      yPercent: 0,
+      duration: 1.6,
+      ease: "power3.out",
+      force3D: true
+    }, 0.5);
+  }
+}
 
   
   // =============================================================
