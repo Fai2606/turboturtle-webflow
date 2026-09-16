@@ -1212,6 +1212,30 @@ function initHomeSection6() {
 
   }
 
+  // ==========================================================
+  // WEIRD SUN — SLOW PARALLAX
+  // ==========================================================
+  
+  var weirdSun = q(".home6_weirdsun");
+  
+  if (weirdSun) {
+  
+    gsap.to(weirdSun, {
+      y: 180,
+      ease: "none",
+      force3D: true,
+  
+      scrollTrigger: {
+        trigger: weirdSun,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    });
+  
+  }
+
 
   // ==========================================================
   // HOME 6 — CASTLE BUILD-UP
