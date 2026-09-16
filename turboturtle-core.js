@@ -1356,18 +1356,40 @@ if (home6TallPillar) {
   }
 
 
-  // ----------------------------------------------------------
-  // EMPEROR — 1 SECOND DELAY + EASE OUT BOUNCE
-  // ----------------------------------------------------------
+// ----------------------------------------------------------
+// EMPEROR — 1s DELAY + SUBTLE 2-BOUNCE LANDING
+// ----------------------------------------------------------
 
-  if (emperor) {
-    home6BuildTL.to(emperor, {
-      yPercent: 0,
-      duration: 1.4,
-      ease: "bounce.out",
-      force3D: true
-    }, 1);
-  }
+if (emperor) {
+
+  // Main mechanical eject upward
+  home6BuildTL.to(emperor, {
+    yPercent: -5,
+    duration: 0.75,
+    ease: "cubic.out",
+    force3D: true
+  }, 1);
+
+  // First small bounce back
+  home6BuildTL.to(emperor, {
+    yPercent: 2.5,
+    duration: 0.18,
+    ease: "cubic.in"
+  });
+
+  // Second smaller bounce
+  home6BuildTL.to(emperor, {
+    yPercent: -1,
+    duration: 0.14,
+    ease: "cubic.out"
+  });
+
+  // Settle at final position
+  home6BuildTL.to(emperor, {
+    yPercent: 0,
+    duration: 0.12,
+    ease: "cubic.inOut"
+  });
 
 }
 
