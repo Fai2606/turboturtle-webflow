@@ -1219,6 +1219,8 @@ function initHomeSection6() {
 
   if (home6TallPillar) {
 
+    // Tall pillar removed from this group because
+    // we want it to rise more slowly.
     var home6BuildSelectors = [
       ".home6_tree",
       ".home6_bloodcell",
@@ -1226,7 +1228,6 @@ function initHomeSection6() {
       ".home6_castlepeak",
       ".home6_conetop",
       ".home6_sphere",
-      ".home6_tallpillar",
       ".home6_backcastle",
       ".home6_building",
       ".home6_building1",
@@ -1260,14 +1261,21 @@ function initHomeSection6() {
     // STARTING POSITIONS
     // ========================================================
 
-    // NORMAL — 80% DOWN
+    // Normal layers — 80% down
     gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
 
 
-    // CAMEL — 50% DOWN
+    // Tall pillar — 80% down
+    gsap.set(home6TallPillar, {
+      yPercent: 80,
+      force3D: true
+    });
+
+
+    // Camel — 50% down
     if (camel) {
       gsap.set(camel, {
         yPercent: 50,
@@ -1276,7 +1284,7 @@ function initHomeSection6() {
     }
 
 
-    // MONSTER — 50% DOWN
+    // Monster — 50% down
     if (monster) {
       gsap.set(monster, {
         yPercent: 50,
@@ -1285,7 +1293,7 @@ function initHomeSection6() {
     }
 
 
-    // ROCKET — 80% DOWN
+    // Rocket — 80% down
     if (rocket) {
       gsap.set(rocket, {
         yPercent: 80,
@@ -1294,7 +1302,7 @@ function initHomeSection6() {
     }
 
 
-    // EMPEROR — 80% DOWN
+    // Emperor — 80% down
     if (emperor) {
       gsap.set(emperor, {
         yPercent: 80,
@@ -1303,7 +1311,7 @@ function initHomeSection6() {
     }
 
 
-    // CASTLE INSIDE — 80% DOWN
+    // Castle Inside — 80% down
     if (castleinside) {
       gsap.set(castleinside, {
         yPercent: 80,
@@ -1312,7 +1320,7 @@ function initHomeSection6() {
     }
 
 
-    // CAT — 80% DOWN
+    // Cat — 80% down
     if (cat) {
       gsap.set(cat, {
         yPercent: 80,
@@ -1330,11 +1338,20 @@ function initHomeSection6() {
     });
 
 
-    // NORMAL LAYERS
+    // NORMAL LAYERS — slightly slower
     home6BuildTL.to(home6BuildLayers, {
       yPercent: 0,
-      duration: 1.44,
+      duration: 1.6,
       stagger: 0.035,
+      ease: "power3.out",
+      force3D: true
+    }, 0);
+
+
+    // TALL PILLAR — slower than everything else
+    home6BuildTL.to(home6TallPillar, {
+      yPercent: 0,
+      duration: 2.1,
       ease: "power3.out",
       force3D: true
     }, 0);
@@ -1344,7 +1361,7 @@ function initHomeSection6() {
     if (camel) {
       home6BuildTL.to(camel, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -1355,7 +1372,7 @@ function initHomeSection6() {
     if (monster) {
       home6BuildTL.to(monster, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -1366,7 +1383,7 @@ function initHomeSection6() {
     if (rocket) {
       home6BuildTL.to(rocket, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.5);
@@ -1377,7 +1394,7 @@ function initHomeSection6() {
     if (castleinside) {
       home6BuildTL.to(castleinside, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.8);
@@ -1388,7 +1405,7 @@ function initHomeSection6() {
     if (cat) {
       home6BuildTL.to(cat, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.5);
@@ -1399,7 +1416,7 @@ function initHomeSection6() {
     if (emperor) {
       home6BuildTL.to(emperor, {
         yPercent: 0,
-        duration: 1.44,
+        duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.65);
@@ -1408,7 +1425,6 @@ function initHomeSection6() {
 
     // ========================================================
     // CASTLE BUILD TRIGGER
-    // tallpillar reaches 20% from BOTTOM = 80% from TOP
     // ========================================================
 
     ScrollTrigger.create({
@@ -1429,7 +1445,6 @@ function initHomeSection6() {
       },
 
       onLeaveBack: function() {
-        // reverse twice as fast
         home6BuildTL.timeScale(2);
         home6BuildTL.reverse();
       }
@@ -1437,124 +1452,185 @@ function initHomeSection6() {
     });
 
 
-// ========================================================
-// UFO + LIGHT
-// ========================================================
+    // ========================================================
+    // UFO + LIGHT
+    // ========================================================
 
-var home6UFO = q(".home6_ufo");
-var home6Light = q(".home6_light");
-
-if (home6UFO && home6TallPillar) {
-
-  // Light hidden initially
-  if (home6Light) {
-    gsap.set(home6Light, {
-      scaleX: 0,
-      transformOrigin: "50% 50%",
-      force3D: true
-    });
-  }
+    var home6UFO = q(".home6_ufo");
+    var home6Light = q(".home6_light");
 
 
-  // ======================================================
-  // UFO TIMELINE
-  // ======================================================
+    if (home6UFO) {
 
-  var home6UFOTL = gsap.timeline({
-    paused: true
-  });
-
-
-  // UFO:
-  // from above screen → exact Webflow position
-  home6UFOTL.fromTo(
-    home6UFO,
-
-    {
-      y: function() {
-        return -window.innerHeight * 1.5;
-      }
-    },
-
-    {
-      y: 0,
-      duration: 1.3,
-      ease: "power3.out",
-      force3D: true,
-      immediateRender: false
-    },
-
-    0
-  );
-
-
-  // LIGHT:
-  // starts 0.5 sec before UFO finishes
-  // opens horizontally
-  if (home6Light) {
-
-    home6UFOTL.to(
-      home6Light,
-
-      {
-        scaleX: 1,
-        duration: 0.25,
-        ease: "power3.out",
-        force3D: true
-      },
-
-      0.8
-    );
-
-  }
-
-
-  // ======================================================
-  // UFO TRIGGER
-  // ======================================================
-
-  ScrollTrigger.create({
-
-    trigger: home6TallPillar,
-
-    // TEMPORARILY EARLIER SO WE CAN SEE IT WORK
-    start: "top 50%",
-
-    invalidateOnRefresh: true,
-
-    onEnter: function() {
-      home6UFOTL.restart();
-    },
-
-    onLeaveBack: function() {
-
-      // Put UFO back at its normal Webflow position
-      home6UFOTL.pause(0);
+      // ======================================================
+      // INITIAL STATE
+      //
+      // UFO:
+      // - parked 1.5 screens above
+      // - completely invisible
+      //
+      // LIGHT:
+      // - horizontally closed
+      // - invisible
+      // ======================================================
 
       gsap.set(home6UFO, {
-        clearProps: "transform"
+        y: function() {
+          return -window.innerHeight * 1.5;
+        },
+        autoAlpha: 0,
+        force3D: true
       });
+
 
       if (home6Light) {
         gsap.set(home6Light, {
           scaleX: 0,
-          transformOrigin: "50% 50%"
+          autoAlpha: 0,
+          transformOrigin: "50% 50%",
+          force3D: true
         });
       }
 
+
+      // ======================================================
+      // UFO ENTER
+      // ======================================================
+
+      function showHome6UFO() {
+
+        // Kill any reverse animation still running
+        gsap.killTweensOf(home6UFO);
+
+        if (home6Light) {
+          gsap.killTweensOf(home6Light);
+        }
+
+
+        // Make UFO visible WHILE it is still above screen
+        gsap.set(home6UFO, {
+          autoAlpha: 1
+        });
+
+
+        var enterTL = gsap.timeline();
+
+
+        // UFO flies down to Webflow destination
+        enterTL.to(home6UFO, {
+          y: 0,
+          duration: 1.3,
+          ease: "power3.out",
+          force3D: true
+        }, 0);
+
+
+        // Light begins 0.5 sec before UFO stops
+        if (home6Light) {
+
+          enterTL.set(home6Light, {
+            autoAlpha: 1
+          }, 0.8);
+
+
+          // Horizontal reveal — fast
+          enterTL.to(home6Light, {
+            scaleX: 1,
+            duration: 0.25,
+            ease: "power3.out",
+            force3D: true
+          }, 0.8);
+
+        }
+
+      }
+
+
+      // ======================================================
+      // UFO EXIT — SCROLLING BACK UP
+      // ======================================================
+
+      function hideHome6UFO() {
+
+        gsap.killTweensOf(home6UFO);
+
+        if (home6Light) {
+          gsap.killTweensOf(home6Light);
+        }
+
+
+        var exitTL = gsap.timeline();
+
+
+        // Light disappears quickly first
+        if (home6Light) {
+
+          exitTL.to(home6Light, {
+            scaleX: 0,
+            autoAlpha: 0,
+            duration: 0.18,
+            ease: "power2.in",
+            force3D: true
+          }, 0);
+
+        }
+
+
+        // UFO flies back ABOVE screen
+        exitTL.to(home6UFO, {
+          y: function() {
+            return -window.innerHeight * 1.5;
+          },
+          duration: 0.9,
+          ease: "power3.in",
+          force3D: true
+        }, 0);
+
+
+        // Only hide AFTER it has gone above screen
+        exitTL.set(home6UFO, {
+          autoAlpha: 0
+        });
+
+      }
+
+
+      // ======================================================
+      // UFO SCROLL TRIGGER
+      //
+      // DOWN:
+      // tallpillar reaches 10% from TOP
+      // → UFO appears and flies down
+      //
+      // UP:
+      // cross same point
+      // → UFO flies back up and disappears
+      // ======================================================
+
+      ScrollTrigger.create({
+
+        trigger: home6TallPillar,
+        start: "top 10%",
+
+        invalidateOnRefresh: true,
+
+        onEnter: function() {
+          showHome6UFO();
+        },
+
+        onLeaveBack: function() {
+          hideHome6UFO();
+        }
+
+      });
+
     }
 
-  });
-
-}
 
   } // END home6TallPillar
 
 
 } // END initHomeSection6
-
-
-
 
 
   
