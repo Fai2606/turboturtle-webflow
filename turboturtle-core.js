@@ -1112,9 +1112,9 @@ function initHomeSection5() {
 
         gsap.to(jetman, {
           xPercent: 1600,
-          yPercent: -500,
+          yPercent: -1000,
           rotation: -50,
-          duration: 1.1,
+          duration: 1,
           ease: "power2.in"
         });
       },
