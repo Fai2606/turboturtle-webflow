@@ -1209,7 +1209,8 @@ const home6TallPillar = document.querySelector(".home6_tallpillar");
 
 if (home6TallPillar) {
 
-  // NORMAL LAYERS — start 80% of their own height lower
+  // NORMAL LAYERS — 80% down
+  // Rocket + Emperor handled separately because they have delays.
   const home6BuildSelectors = [
     ".home6_tree",
     ".home6_bloodcell",
@@ -1227,7 +1228,6 @@ if (home6TallPillar) {
     ".home6_cat",
     ".home6_castle",
     ".home6_pyramid",
-    ".home6_rocket",
     ".home6_dinosaur"
   ];
 
@@ -1237,19 +1237,18 @@ if (home6TallPillar) {
 
   const camel = document.querySelector(".home6_camel");
   const monster = document.querySelector(".home6_monster");
+  const rocket = document.querySelector(".home6_rocket");
   const emperor = document.querySelector(".home6_emperor");
 
   // ----------------------------------------------------------
   // STARTING POSITIONS
   // ----------------------------------------------------------
 
-  // Most objects = 80% down
   gsap.set(home6BuildLayers, {
     yPercent: 80,
     force3D: true
   });
 
-  // Camel = only 50% down
   if (camel) {
     gsap.set(camel, {
       yPercent: 50,
@@ -1257,7 +1256,6 @@ if (home6TallPillar) {
     });
   }
 
-  // Monster = only 50% down
   if (monster) {
     gsap.set(monster, {
       yPercent: 50,
@@ -1265,7 +1263,13 @@ if (home6TallPillar) {
     });
   }
 
-  // Emperor = 80% down
+  if (rocket) {
+    gsap.set(rocket, {
+      yPercent: 80,
+      force3D: true
+    });
+  }
+
   if (emperor) {
     gsap.set(emperor, {
       yPercent: 80,
@@ -1281,15 +1285,15 @@ if (home6TallPillar) {
     scrollTrigger: {
       trigger: home6TallPillar,
 
-      // Start when tallpillar reaches 10% from bottom
-      start: "top 90%",
+      // 20% from bottom
+      start: "top 80%",
 
       toggleActions: "play none none reverse",
       invalidateOnRefresh: true
     }
   });
 
-  // Main layers
+  // Normal layers
   home6BuildTL.to(home6BuildLayers, {
     yPercent: 0,
     duration: 1.6,
@@ -1318,14 +1322,33 @@ if (home6TallPillar) {
     }, 0);
   }
 
-  // Emperor — DELAYED 0.5 SECOND
-  if (emperor) {
-    home6BuildTL.to(emperor, {
+  // Rocket — 0.5s delay
+  if (rocket) {
+    home6BuildTL.to(rocket, {
       yPercent: 0,
       duration: 1.6,
       ease: "power3.out",
       force3D: true
     }, 0.5);
+  }
+
+  // Emperor — waits 1 second, then mechanically ejects upward.
+  // First overshoots slightly ABOVE final position.
+  if (emperor) {
+    home6BuildTL.to(emperor, {
+      yPercent: -6,
+      duration: 0.7,
+      ease: "power3.in",
+      force3D: true
+    }, 1);
+
+    // Small bounce-back / mechanical settle
+    home6BuildTL.to(emperor, {
+      yPercent: 0,
+      duration: 0.22,
+      ease: "power2.out",
+      force3D: true
+    });
   }
 }
 
