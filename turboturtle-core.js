@@ -1137,14 +1137,12 @@ function initHomeSection5() {
   // ============================================================
   // UMBRELLA CAT
   //
-  // CORRECT LOGIC:
-  //
-  // - Cat hidden at default
-  // - Fall starts BEFORE screenshot A
-  // - Screenshot A corresponds roughly to 70% fall progress
-  // - Down-scroll advances the fall
-  // - Up-scroll NEVER reverses the fall
-  // - Cat exits bottom and disappears
+  // - Invisible initially
+  // - Fall starts earlier than screenshot position
+  // - Screenshot position should be around 70% through fall
+  // - DOWN scroll advances fall
+  // - UP scroll does NOT reverse fall
+  // - Below viewport = instantly hidden
   // ============================================================
 
   if (umbrellaCat) {
@@ -1153,18 +1151,15 @@ function initHomeSection5() {
     var umbrellaFinished = false;
 
     var umbrellaProgress = 0;
-
-    var umbrellaStartScroll = 0;
     var umbrellaLastScroll = 0;
 
     var umbrellaStartY = 0;
     var umbrellaTravel = 0;
-
     var umbrellaHeight = 0;
 
 
     // ----------------------------------------------------------
-    // DEFAULT
+    // DEFAULT STATE
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
@@ -1177,7 +1172,7 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // START THE FALL
+    // START FALL
     // ----------------------------------------------------------
 
     function startUmbrellaFall() {
@@ -1185,14 +1180,14 @@ function initHomeSection5() {
       if (umbrellaStarted || umbrellaFinished) return;
 
       umbrellaStarted = true;
-
       umbrellaProgress = 0;
 
-      umbrellaStartScroll = ScrollTrigger.scroll();
-      umbrellaLastScroll = umbrellaStartScroll;
+      // IMPORTANT:
+      // Use actual browser scroll position.
+      umbrellaLastScroll = window.scrollY;
 
 
-      // Measure WITHOUT relying on this position again later.
+      // Measure cat in its original Webflow position.
       var rect = umbrellaCat.getBoundingClientRect();
 
       umbrellaHeight =
@@ -1202,32 +1197,48 @@ function initHomeSection5() {
 
 
       // --------------------------------------------------------
-      // Put cat completely ABOVE viewport.
+      // We want the cat to BEGIN completely above viewport.
       // --------------------------------------------------------
 
       var desiredTop =
-        -umbrellaHeight - 10;
+        -umbrellaHeight - 20;
 
 
+      // Since the cat is absolutely positioned inside
+      // home_section5_city, calculate the transform required
+      // ONCE from its current published position.
       umbrellaStartY =
         desiredTop - rect.top;
 
 
       // --------------------------------------------------------
-      // Distance from above viewport to completely below.
+      // Total visual fall distance:
+      //
+      // above viewport
+      //       ↓
+      // whole viewport
+      //       ↓
+      // below viewport
       // --------------------------------------------------------
 
       umbrellaTravel =
         window.innerHeight +
-        umbrellaHeight * 2 +
+        (umbrellaHeight * 2) +
         40;
 
 
+      // Put it above screen BEFORE making visible.
       gsap.set(umbrellaCat, {
         y: umbrellaStartY,
         rotation: 0,
-        visibility: "visible",
         force3D: true
+      });
+
+
+      // Now reveal.
+      // It is still above screen, so there should be no pop.
+      gsap.set(umbrellaCat, {
+        visibility: "visible"
       });
     }
 
@@ -1242,23 +1253,23 @@ function initHomeSection5() {
 
 
       var currentScroll =
-        ScrollTrigger.scroll();
+        window.scrollY;
 
 
       var delta =
         currentScroll - umbrellaLastScroll;
 
 
+      // Always remember current page position.
       umbrellaLastScroll =
         currentScroll;
 
 
       // --------------------------------------------------------
-      // UPWARD SCROLL:
-      // FREEZE.
+      // UP SCROLL
       //
-      // Do not subtract progress.
-      // Do not reverse.
+      // Freeze.
+      // DO NOT reverse.
       // --------------------------------------------------------
 
       if (self.direction !== 1 || delta <= 0) {
@@ -1269,7 +1280,11 @@ function initHomeSection5() {
       // --------------------------------------------------------
       // FALL SPEED
       //
-      // Full fall takes about 70% viewport of DOWN scrolling.
+      // Whole fall requires about 70% viewport height
+      // of additional DOWN scrolling.
+      //
+      // Smaller = faster.
+      // Larger  = slower.
       // --------------------------------------------------------
 
       var scrollNeeded =
@@ -1280,18 +1295,17 @@ function initHomeSection5() {
         delta / scrollNeeded;
 
 
-      umbrellaProgress =
-        Math.min(umbrellaProgress, 1);
+      if (umbrellaProgress > 1) {
+        umbrellaProgress = 1;
+      }
 
 
       // --------------------------------------------------------
-      // IMPORTANT:
+      // POSITION
       //
-      // Use LINEAR position here.
+      // Linear is intentional.
       //
-      // Your hand scrolling already determines the speed.
-      // This avoids the cat sitting above for ages and then
-      // suddenly shooting downward.
+      // The user's scroll controls the movement directly.
       // --------------------------------------------------------
 
       var p =
@@ -1302,7 +1316,7 @@ function initHomeSection5() {
 
         y:
           umbrellaStartY +
-          umbrellaTravel * p,
+          (umbrellaTravel * p),
 
         rotation:
           10 * p,
@@ -1312,7 +1326,7 @@ function initHomeSection5() {
 
 
       // --------------------------------------------------------
-      // FINISH
+      // FINISHED
       // --------------------------------------------------------
 
       if (umbrellaProgress >= 1) {
@@ -1327,11 +1341,7 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // MASTER SCROLL RANGE
-    //
-    // We use Section 5 itself because it is stable.
-    //
-    // The fall STARTS considerably before screenshot A.
+    // MASTER SECTION 5 WATCHER
     // ----------------------------------------------------------
 
     ScrollTrigger.create({
@@ -1347,24 +1357,23 @@ function initHomeSection5() {
       onUpdate: function(self) {
 
         // ------------------------------------------------------
-        // NOT STARTED YET
+        // WAITING FOR FALL
         // ------------------------------------------------------
 
         if (!umbrellaStarted && !umbrellaFinished) {
 
-          // Never start when scrolling upward.
+          // Never activate while scrolling upward.
           if (self.direction !== 1) {
             return;
           }
 
 
           // ----------------------------------------------------
-          // CALIBRATION
+          // START EARLIER.
           //
-          // Start at ~28% through Section 5's ScrollTrigger
-          // journey.
-          //
-          // This is intentionally EARLIER than screenshot A.
+          // Screenshot position is NOT the beginning.
+          // By screenshot position we want the cat to already
+          // be approximately 70% through the fall.
           // ----------------------------------------------------
 
           if (self.progress >= 0.28) {
@@ -1377,7 +1386,7 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // ALREADY FALLING
+        // FALLING
         // ------------------------------------------------------
 
         updateUmbrellaFall(self);
