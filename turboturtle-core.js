@@ -1181,6 +1181,78 @@ function initHomeSection5() {
   });
 }
 
+// ==========================================================
+// UMBRELLA CAT — SCROLL FALL
+// ==========================================================
+
+var home5UmbrellaCat = q(".home5_umbrellacat");
+var home5Cover = q(".home5_cover");
+
+if (home5UmbrellaCat && home5Cover) {
+
+  // Initial state:
+  // above the viewport + invisible
+  gsap.set(home5UmbrellaCat, {
+    y: function() {
+      return -window.innerHeight * 1.2;
+    },
+    rotation: 0,
+    opacity: 0,
+    visibility: "hidden",
+    transformOrigin: "50% 50%",
+    force3D: true
+  });
+
+
+  // Scroll-controlled falling animation
+  var umbrellaCatFall = gsap.timeline({
+    scrollTrigger: {
+      trigger: home5Cover,
+
+      // Start falling when cover enters viewport
+      start: "top bottom",
+
+      // Finish when cover leaves viewport
+      end: "bottom top",
+
+      // Animation follows scroll
+      scrub: 1,
+
+      invalidateOnRefresh: true
+    }
+  });
+
+
+  // Make visible right at beginning
+  umbrellaCatFall.set(home5UmbrellaCat, {
+    visibility: "visible",
+    opacity: 1
+  }, 0);
+
+
+  // Fall from ABOVE screen to BELOW screen
+  // + rotate clockwise 10 degrees
+  umbrellaCatFall.to(home5UmbrellaCat, {
+    y: function() {
+      return window.innerHeight * 1.2;
+    },
+    rotation: 10,
+    ease: "none",
+    force3D: true
+  }, 0);
+
+
+  // Invisible once completely below screen
+  umbrellaCatFall.set(home5UmbrellaCat, {
+    opacity: 0,
+    visibility: "hidden"
+  });
+
+}
+
+
+  
+
 // =============================================================
 // HOMEPAGE SECTION 6
 // =============================================================
