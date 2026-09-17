@@ -854,7 +854,6 @@ function initHomeSection5() {
   var bloodcell = q(".home5_bloodcell");
   var jetman = q(".home5_jetman");
   var umbrellaCat = q(".home5_umbrellacat");
-  var cover = q(".home5_cover");
   var galaxy = q(".home5_galaxy");
 
 
@@ -1119,7 +1118,6 @@ function initHomeSection5() {
           rotation: 180
         });
 
-
         gsap.to(jetman, {
           xPercent: 0,
           yPercent: 0,
@@ -1139,102 +1137,96 @@ function initHomeSection5() {
   // ============================================================
   // UMBRELLA CAT
   //
-  // LOGIC:
+  // CORRECT LOGIC:
   //
-  // 1. Cat is hidden normally.
-  //
-  // 2. It stays in its NORMAL document position, so scrolling
-  //    naturally carries that position upward.
-  //
-  // 3. Once its natural position has passed ABOVE the viewport,
-  //    the falling mode becomes armed.
-  //
-  // 4. Further DOWNWARD scrolling brings the cat from above the
-  //    viewport, through the screen, to below the viewport.
-  //
-  // 5. Upward scrolling DOES NOT reverse the cat.
-  //
-  // 6. Once it reaches below the viewport it is hidden and the
-  //    sequence is finished.
+  // - Cat hidden at default
+  // - Fall starts BEFORE screenshot A
+  // - Screenshot A corresponds roughly to 70% fall progress
+  // - Down-scroll advances the fall
+  // - Up-scroll NEVER reverses the fall
+  // - Cat exits bottom and disappears
   // ============================================================
 
-  if (umbrellaCat && cover) {
+  if (umbrellaCat) {
 
-    var umbrellaState = 0;
-    // 0 = waiting
-    // 1 = falling
-    // 2 = finished
+    var umbrellaStarted = false;
+    var umbrellaFinished = false;
 
     var umbrellaProgress = 0;
+
+    var umbrellaStartScroll = 0;
     var umbrellaLastScroll = 0;
 
-    var umbrellaHeight = 0;
-    var umbrellaStartTop = 0;
-    var umbrellaEndTop = 0;
+    var umbrellaStartY = 0;
     var umbrellaTravel = 0;
 
-    var umbrellaOriginalY = 0;
+    var umbrellaHeight = 0;
 
 
     // ----------------------------------------------------------
-    // INITIAL STATE
+    // DEFAULT
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
       visibility: "hidden",
       opacity: 1,
+      y: 0,
       rotation: 0,
       force3D: true
     });
 
 
     // ----------------------------------------------------------
-    // START FALL
+    // START THE FALL
     // ----------------------------------------------------------
 
     function startUmbrellaFall() {
 
-      if (umbrellaState !== 0) return;
+      if (umbrellaStarted || umbrellaFinished) return;
 
-      umbrellaState = 1;
+      umbrellaStarted = true;
 
-      umbrellaLastScroll = ScrollTrigger.scroll();
+      umbrellaProgress = 0;
 
+      umbrellaStartScroll = ScrollTrigger.scroll();
+      umbrellaLastScroll = umbrellaStartScroll;
+
+
+      // Measure WITHOUT relying on this position again later.
       var rect = umbrellaCat.getBoundingClientRect();
 
-      umbrellaHeight = rect.height || umbrellaCat.offsetHeight || 100;
+      umbrellaHeight =
+        rect.height ||
+        umbrellaCat.offsetHeight ||
+        120;
 
 
-      // Current natural position of cat.
-      //
-      // We want to move it so it begins completely ABOVE
-      // the viewport.
-      umbrellaStartTop = -umbrellaHeight - 20;
+      // --------------------------------------------------------
+      // Put cat completely ABOVE viewport.
+      // --------------------------------------------------------
+
+      var desiredTop =
+        -umbrellaHeight - 10;
 
 
-      // Finish completely BELOW viewport.
-      umbrellaEndTop =
-        window.innerHeight +
-        umbrellaHeight +
-        20;
+      umbrellaStartY =
+        desiredTop - rect.top;
 
+
+      // --------------------------------------------------------
+      // Distance from above viewport to completely below.
+      // --------------------------------------------------------
 
       umbrellaTravel =
-        umbrellaEndTop -
-        umbrellaStartTop;
-
-
-      // Translation required to place the DOM element at our
-      // fixed visual starting point above the viewport.
-      umbrellaOriginalY =
-        umbrellaStartTop -
-        rect.top;
+        window.innerHeight +
+        umbrellaHeight * 2 +
+        40;
 
 
       gsap.set(umbrellaCat, {
-        visibility: "visible",
-        y: umbrellaOriginalY,
+        y: umbrellaStartY,
         rotation: 0,
+        visibility: "visible",
         force3D: true
       });
     }
@@ -1244,44 +1236,44 @@ function initHomeSection5() {
     // UPDATE FALL
     // ----------------------------------------------------------
 
-    function updateUmbrellaFall() {
+    function updateUmbrellaFall(self) {
 
-      if (umbrellaState !== 1) return;
+      if (!umbrellaStarted || umbrellaFinished) return;
 
 
-      var currentScroll = ScrollTrigger.scroll();
+      var currentScroll =
+        ScrollTrigger.scroll();
+
 
       var delta =
-        currentScroll -
-        umbrellaLastScroll;
+        currentScroll - umbrellaLastScroll;
 
 
-      // Always update the reference scroll position.
-      umbrellaLastScroll = currentScroll;
+      umbrellaLastScroll =
+        currentScroll;
 
 
       // --------------------------------------------------------
-      // CRITICAL:
+      // UPWARD SCROLL:
+      // FREEZE.
       //
-      // Ignore upward scrolling completely.
-      // Cat never reverses.
+      // Do not subtract progress.
+      // Do not reverse.
       // --------------------------------------------------------
 
-      if (delta <= 0) {
+      if (self.direction !== 1 || delta <= 0) {
         return;
       }
 
 
-      // How much DOWN-scroll is needed for the whole fall.
+      // --------------------------------------------------------
+      // FALL SPEED
       //
-      // 0.75 = relatively quick fall.
-      //
-      // smaller number = faster
-      // larger number  = slower
+      // Full fall takes about 70% viewport of DOWN scrolling.
       // --------------------------------------------------------
 
       var scrollNeeded =
-        window.innerHeight * 0.75;
+        window.innerHeight * 0.70;
 
 
       umbrellaProgress +=
@@ -1292,30 +1284,40 @@ function initHomeSection5() {
         Math.min(umbrellaProgress, 1);
 
 
-      // Power1.in equivalent.
-      var eased =
-        umbrellaProgress * umbrellaProgress;
+      // --------------------------------------------------------
+      // IMPORTANT:
+      //
+      // Use LINEAR position here.
+      //
+      // Your hand scrolling already determines the speed.
+      // This avoids the cat sitting above for ages and then
+      // suddenly shooting downward.
+      // --------------------------------------------------------
 
-
-      var currentY =
-        umbrellaOriginalY +
-        (umbrellaTravel * eased);
+      var p =
+        umbrellaProgress;
 
 
       gsap.set(umbrellaCat, {
-        y: currentY,
-        rotation: 10 * eased,
+
+        y:
+          umbrellaStartY +
+          umbrellaTravel * p,
+
+        rotation:
+          10 * p,
+
         force3D: true
       });
 
 
       // --------------------------------------------------------
-      // FINISHED
+      // FINISH
       // --------------------------------------------------------
 
       if (umbrellaProgress >= 1) {
 
-        umbrellaState = 2;
+        umbrellaFinished = true;
 
         gsap.set(umbrellaCat, {
           visibility: "hidden"
@@ -1325,40 +1327,47 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // DETECT WHEN THE CAT'S NORMAL POSITION HAS GONE ABOVE
+    // MASTER SCROLL RANGE
     //
-    // We use COVER as the stable ScrollTrigger.
-    // We do NOT use the transformed/invisible cat as trigger.
+    // We use Section 5 itself because it is stable.
+    //
+    // The fall STARTS considerably before screenshot A.
     // ----------------------------------------------------------
 
     ScrollTrigger.create({
 
-      trigger: cover,
+      trigger: section,
 
       start: "top bottom",
       end: "bottom top",
 
+      invalidateOnRefresh: true,
+
+
       onUpdate: function(self) {
 
         // ------------------------------------------------------
-        // WAITING
+        // NOT STARTED YET
         // ------------------------------------------------------
 
-        if (umbrellaState === 0) {
+        if (!umbrellaStarted && !umbrellaFinished) {
 
-          // Only arm while scrolling DOWN.
+          // Never start when scrolling upward.
           if (self.direction !== 1) {
             return;
           }
 
 
-          var rect =
-            umbrellaCat.getBoundingClientRect();
+          // ----------------------------------------------------
+          // CALIBRATION
+          //
+          // Start at ~28% through Section 5's ScrollTrigger
+          // journey.
+          //
+          // This is intentionally EARLIER than screenshot A.
+          // ----------------------------------------------------
 
-
-          // Cat's NATURAL position has completely gone
-          // above the viewport.
-          if (rect.bottom <= 0) {
+          if (self.progress >= 0.28) {
 
             startUmbrellaFall();
 
@@ -1368,17 +1377,15 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // FALLING
+        // ALREADY FALLING
         // ------------------------------------------------------
 
-        if (umbrellaState === 1) {
-
-          updateUmbrellaFall();
-        }
+        updateUmbrellaFall(self);
       }
     });
 
   }
+
 
 } // END initHomeSection5
 
