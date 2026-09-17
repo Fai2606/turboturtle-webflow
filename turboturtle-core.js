@@ -1120,79 +1120,133 @@ function initHomeSection5() {
   }
 
 
-  // ============================================================
-  // UMBRELLA CAT — ONE-WAY FALL
-  // ============================================================
-  
-  if (umbrellaCat) {
-  
-    // Invisible by default.
-    // IMPORTANT: visibility does not affect layout/normal scrolling.
-    gsap.set(umbrellaCat, {
-      visibility: "hidden",
-      opacity: 1,
-      y: 0,
-      rotation: 0,
-      force3D: true
-    });
-  
-  
-    // ----------------------------------------------------------
-    // WATCH THE CAT'S NATURAL PAGE POSITION
-    //
-    // When scrolling naturally pushes the cat ABOVE the screen,
-    // fire the fall ONCE.
-    // ----------------------------------------------------------
-  
-    ScrollTrigger.create({
-      trigger: umbrellaCat,
-  
-      // Trigger once the BOTTOM of the cat has gone above viewport.
-      start: "bottom top",
-  
-      once: true,
-  
-      onEnter: function () {
-  
-        // At this moment the actual DOM cat is already above screen.
-        var rect = umbrellaCat.getBoundingClientRect();
-  
-        // Distance required to move from its current offscreen
-        // position all the way through + below the viewport.
-        var fallDistance =
-          window.innerHeight - rect.top + umbrellaCat.offsetHeight + 80;
-  
-  
-        // Make it visible WHILE it is still above screen.
-        // User cannot see this visibility change.
+// ============================================================
+// UMBRELLA CAT — DOWN-SCROLL ONLY FALL
+// ============================================================
+
+if (umbrellaCat) {
+
+  var catFalling = false;
+  var catFinished = false;
+
+  var catStartScroll = 0;
+  var catStartY = 0;
+  var catFallY = 0;
+
+  // Invisible at default.
+  // Keep it in its NORMAL Webflow/page position.
+  gsap.set(umbrellaCat, {
+    visibility: "hidden",
+    opacity: 1,
+    y: 0,
+    rotation: 0,
+    force3D: true
+  });
+
+
+  ScrollTrigger.create({
+    trigger: umbrellaCat,
+
+    // Wait until the cat itself has naturally moved
+    // completely ABOVE the viewport.
+    start: "bottom top",
+
+    onEnter: function () {
+
+      if (catFinished || catFalling) return;
+
+      catFalling = true;
+
+      // Current scroll position when cat leaves top.
+      catStartScroll = ScrollTrigger.scroll();
+
+      // Where the cat currently is.
+      var rect = umbrellaCat.getBoundingClientRect();
+
+      // Put the cat just ABOVE the viewport.
+      catStartY = -rect.height - 20;
+
+      // Total distance from above viewport
+      // to completely below viewport.
+      catFallY =
+        window.innerHeight +
+        rect.height +
+        40;
+
+      // Convert from its natural document position
+      // to our viewport starting position.
+      gsap.set(umbrellaCat, {
+        visibility: "visible",
+        y: catStartY - rect.top,
+        rotation: 0
+      });
+    },
+
+
+    onUpdate: function (self) {
+
+      if (!catFalling || catFinished) return;
+
+      // ------------------------------------------------------
+      // IMPORTANT:
+      // ONLY react while scrolling DOWN.
+      // ------------------------------------------------------
+
+      if (self.direction !== 1) {
+        return;
+      }
+
+
+      var currentScroll = ScrollTrigger.scroll();
+
+      var travelled =
+        currentScroll - catStartScroll;
+
+
+      // How much scrolling is required for the entire fall.
+      //
+      // Smaller = cat falls faster relative to scroll.
+      // Larger  = cat falls slower.
+      var scrollDistance = window.innerHeight * 0.65;
+
+
+      var progress =
+        travelled / scrollDistance;
+
+      progress = Math.max(0, Math.min(1, progress));
+
+
+      // Slight acceleration like reference Power1.in.
+      var eased = progress * progress;
+
+
+      gsap.set(umbrellaCat, {
+        y:
+          (catStartY - umbrellaCat.getBoundingClientRect().top) +
+          (catFallY * eased),
+
+        rotation: 10 * eased,
+
+        force3D: true
+      });
+
+
+      // ------------------------------------------------------
+      // FINISHED
+      // ------------------------------------------------------
+
+      if (progress >= 1) {
+
+        catFinished = true;
+        catFalling = false;
+
         gsap.set(umbrellaCat, {
-          visibility: "visible"
-        });
-  
-  
-        // Now physically fall through the viewport.
-        gsap.to(umbrellaCat, {
-          y: "+=" + fallDistance,
-          rotation: 10,
-  
-          // Fast, accelerating fall.
-          duration: 1.35,
-          ease: "power2.in",
-  
-          force3D: true,
-  
-          onComplete: function () {
-  
-            // It is now below the screen.
-            // Hide immediately.
-            gsap.set(umbrellaCat, {
-              visibility: "hidden"
-            });
-          }
+          visibility: "hidden"
         });
       }
-    });
-  }
+    }
+  });
+}
 
 
 
