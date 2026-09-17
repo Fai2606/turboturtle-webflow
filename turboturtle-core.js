@@ -1137,21 +1137,16 @@ function initHomeSection5() {
   // ============================================================
   // UMBRELLA CAT
   //
-  // ORIGINAL WEBFLOW POSITIONING IS PRESERVED.
-  //
-  // Cat stays position:absolute inside home_section5_city.
-  //
   // DOWN:
-  // page moves cat upward
-  // +
-  // our Y transform compensates for that movement
-  // +
-  // additional Y makes the cat visibly FALL downward
+  // - falls downward
+  // - drifts gently LEFT
+  // - rotates anticlockwise to -15deg
   //
   // UP:
-  // exact reverse
+  // - exact reverse
   //
-  // Repeatable forever.
+  // Cat stays absolute in its original Webflow parent.
+  // Parent scroll movement is compensated.
   // ============================================================
 
   if (umbrellaCat) {
@@ -1166,9 +1161,7 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // REMOVE OLD FIXED-POSITION STYLES
-    //
-    // Important because previous version set these inline.
+    // REMOVE OLD INLINE EXPERIMENTAL STYLES
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
@@ -1177,10 +1170,14 @@ function initHomeSection5() {
     });
 
 
-    // Restore original Webflow state.
+    // ----------------------------------------------------------
+    // DEFAULT
+    // ----------------------------------------------------------
+
     gsap.set(umbrellaCat, {
       visibility: "hidden",
       opacity: 1,
+      x: 0,
       rotation: 0,
       force3D: true
     });
@@ -1200,7 +1197,6 @@ function initHomeSection5() {
         window.scrollY;
 
 
-      // Measure original Webflow position.
       var rect =
         umbrellaCat.getBoundingClientRect();
 
@@ -1216,10 +1212,7 @@ function initHomeSection5() {
 
 
       // --------------------------------------------------------
-      // Put cat completely ABOVE viewport at progress 0.
-      //
-      // This is the same positioning method from the version
-      // where the cat successfully appeared.
+      // START COMPLETELY ABOVE VIEWPORT
       // --------------------------------------------------------
 
       var desiredTop =
@@ -1232,6 +1225,7 @@ function initHomeSection5() {
 
 
       gsap.set(umbrellaCat, {
+        x: 0,
         y: umbrellaStartY,
         rotation: 0,
         visibility: "hidden",
@@ -1257,7 +1251,7 @@ function initHomeSection5() {
       onUpdate: function(self) {
 
         // ------------------------------------------------------
-        // WAIT UNTIL SAME WORKING START AREA
+        // WAIT UNTIL WORKING START AREA
         // ------------------------------------------------------
 
         if (!umbrellaReady) {
@@ -1271,10 +1265,7 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // HOW FAR HAVE WE SCROLLED SINCE CAT START?
-        //
-        // Positive scrolling down.
-        // Negative scrolling back up.
+        // SCROLL DISTANCE
         // ------------------------------------------------------
 
         var scrollDistance =
@@ -1284,10 +1275,6 @@ function initHomeSection5() {
 
         // ------------------------------------------------------
         // FALL DURATION
-        //
-        // Full fall takes 1.15 viewport heights of scrolling.
-        //
-        // This is intentionally not too fast.
         // ------------------------------------------------------
 
         var scrollNeeded =
@@ -1307,20 +1294,7 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // CRITICAL FIX
-        //
-        // The parent is naturally moving UP by approximately
-        // scrollDistance.
-        //
-        // Therefore first compensate:
-        //
-        //      + scrollDistance
-        //
-        // That visually cancels the parent's upward movement.
-        //
-        // Then add our actual downward FALL:
-        //
-        //      + fallDistance * progress
+        // COMPENSATE FOR PARENT MOVING UP
         // ------------------------------------------------------
 
         var parentCompensation =
@@ -1328,15 +1302,7 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // ACTUAL FALL DISTANCE
-        //
-        // Make the cat physically travel:
-        //
-        // 1.55 viewport heights
-        //
-        // PLUS its own height.
-        //
-        // This sends it properly through and below the screen.
+        // DOWNWARD FALL
         // ------------------------------------------------------
 
         var fallDistance =
@@ -1356,15 +1322,33 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // MOVE
+        // NEW: GENTLE LEFT SWING
+        //
+        // At full fall:
+        // approximately 6% of viewport width to the left.
+        // ------------------------------------------------------
+
+        var leftMovement =
+          -window.innerWidth *
+          0.06 *
+          progress;
+
+
+        // ------------------------------------------------------
+        // MOVE CAT
         // ------------------------------------------------------
 
         gsap.set(umbrellaCat, {
 
-          y: finalY,
+          x:
+            leftMovement,
 
+          y:
+            finalY,
+
+          // 0deg -> -15deg anticlockwise
           rotation:
-            12 * progress,
+            -15 * progress,
 
           force3D: true
         });
@@ -1373,11 +1357,8 @@ function initHomeSection5() {
         // ------------------------------------------------------
         // VISIBILITY
         //
-        // ONLY hidden at the very top.
-        //
-        // NEVER hidden at bottom.
-        //
-        // The cat must physically leave the viewport.
+        // Hidden only while completely above.
+        // Never artificially hide at bottom.
         // ------------------------------------------------------
 
         if (progress <= 0) {
@@ -1396,7 +1377,7 @@ function initHomeSection5() {
 
 
       // --------------------------------------------------------
-      // ABOVE SECTION
+      // RESET ABOVE SECTION
       // --------------------------------------------------------
 
       onLeaveBack: function() {
@@ -1405,6 +1386,7 @@ function initHomeSection5() {
 
 
         gsap.set(umbrellaCat, {
+          x: 0,
           y: umbrellaStartY,
           rotation: 0,
           visibility: "hidden"
