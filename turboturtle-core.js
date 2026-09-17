@@ -1330,7 +1330,7 @@ function initHomeSection5() {
 
         var leftMovement =
           -window.innerWidth *
-          0.06 *
+          0.1 *
           progress;
 
 
@@ -1348,7 +1348,7 @@ function initHomeSection5() {
 
           // 0deg -> -15deg anticlockwise
           rotation:
-            -15 * progress,
+            -25 * progress,
 
           force3D: true
         });
