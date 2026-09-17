@@ -1122,56 +1122,44 @@ function initHomeSection5() {
 
   // ============================================================
   // UMBRELLA CAT
-  //
-  // Based directly on original reference:
-  //
-  // tl.to(umbrellaManContainer, 10, {
-  //   pixi: { y: 2560 },
-  //   ease: Power1.easeIn
-  // });
-  //
-  // No opacity.
-  // No visibility switching.
-  // Scroll directly controls the fall.
   // ============================================================
-
+  
   if (umbrellaCat && cover) {
-
-    // Keep Webflow's designed starting position.
-    // We only control the additional Y translation.
+  
     gsap.set(umbrellaCat, {
       y: 0,
+      rotation: 0,
       force3D: true
     });
-
+  
     gsap.to(umbrellaCat, {
-
-      // Original reference uses y:2560 in its 2560px
-      // Pixi composition.
-      //
-      // For our responsive DOM version, use viewport height
-      // so the travel distance scales with the browser.
       y: function () {
-        return window.innerHeight * 1.35;
+        return window.innerHeight * 1.5;
       },
-
+  
+      rotation: 10,
+  
+      // Reference uses Power1.easeIn
       ease: "power1.in",
+  
       force3D: true,
-
+  
       scrollTrigger: {
         trigger: cover,
-
-        // Equivalent idea to the original:
-        // ele: [rel, '50%', '80%']
-        start: "top 50%",
-        end: "bottom 80%",
-
+  
+        // Start when cover reaches middle-ish of viewport
+        start: "top 55%",
+  
+        // IMPORTANT:
+        // guaranteed forward scroll distance
+        end: "+=100%",
+  
         scrub: true,
+  
         invalidateOnRefresh: true
       }
     });
   }
-
 } // END initHomeSection5
 
   
