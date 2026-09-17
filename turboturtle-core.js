@@ -1146,41 +1146,6 @@ function initHomeSection5() {
   }
 
 
-  // -------------------------------------------------------------
-  // UMBRELLA CAT
-  // cover reaches 30% from top → cat flies downward
-  // -------------------------------------------------------------
-  if (umbrellaCat && cover) {
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: cover,
-        start: "top 30%",
-        end: "+=120%",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    })
-
-    .to(umbrellaCat, {
-      yPercent: 900,
-      ease: "none",
-      force3D: true,
-      duration: 1
-    }, 0)
-
-    .to(umbrellaCat, {
-      autoAlpha: 0,
-      ease: "none",
-      duration: 0.12
-    }, 0.88);
-  }
-
-
-  requestAnimationFrame(function () {
-    ScrollTrigger.refresh();
-  });
-}
-
 // ==========================================================
 // UMBRELLA CAT — SCROLL FALL
 // ==========================================================
