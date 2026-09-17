@@ -839,7 +839,6 @@ if (goose) {
 // HOMEPAGE SECTION 5
 // =============================================================
 function initHomeSection5() {
-
   var section = q(".home_section5");
 
   if (!section || !gsap || !ScrollTrigger) return;
@@ -858,564 +857,320 @@ function initHomeSection5() {
   var galaxy = q(".home5_galaxy");
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // PLANET / BALL / JUPITER
-  // Orbital motion + upward parallax
-  // -------------------------------------------------------------
+  // ============================================================
 
   ScrollTrigger.create({
-
     trigger: section,
     start: "top bottom",
     end: "bottom top",
     scrub: 1,
     invalidateOnRefresh: true,
 
-    onUpdate: function(self) {
-
+    onUpdate: function (self) {
       var t = self.progress;
       var arc = Math.sin(Math.PI * t);
 
-
-      // PLANET
       if (planet) {
-
         gsap.set(planet, {
-
           xPercent: -85 * t,
-
-          yPercent:
-            (-55 * t) -
-            (22 * arc),
-
+          yPercent: (-55 * t) - (22 * arc),
           force3D: true
-
         });
-
       }
 
-
-      // BALL
       if (ball) {
-
         gsap.set(ball, {
-
           xPercent: -70 * t,
-
-          yPercent:
-            (-48 * t) -
-            (18 * arc),
-
+          yPercent: (-48 * t) - (18 * arc),
           force3D: true
-
         });
-
       }
 
-
-      // JUPITER
       if (jupiter) {
-
         gsap.set(jupiter, {
-
           xPercent: 35 * t,
-
-          yPercent:
-            (-30 * t) +
-            (10 * arc),
-
+          yPercent: (-30 * t) + (10 * arc),
           force3D: true
-
         });
-
       }
-
     }
-
   });
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // GALAXY
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (galaxy) {
-
     gsap.to(galaxy, {
-
       yPercent: 35,
-
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
-
         trigger: section,
         start: "top bottom",
         end: "bottom top",
-
         scrub: 1,
-
         invalidateOnRefresh: true
-
       }
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // SATELLITE
-  // Left → right, toward 2 o'clock
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (satellite) {
-
     gsap.to(satellite, {
-
       xPercent: 750,
       yPercent: -250,
       rotation: -6,
-
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
-
         trigger: section,
-
         start: "top 45%",
         end: "bottom 0%",
-
         scrub: 2.2,
-
         invalidateOnRefresh: true
-
       }
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // ROCKET TIP
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (rocketTip) {
-
     gsap.to(rocketTip, {
-
       y: 145,
-
       duration: 1.25,
       ease: "power3.in",
       force3D: true,
 
       scrollTrigger: {
-
         trigger: rocketTip,
-
         start: "top 40%",
-
         toggleActions: "play reverse play reverse"
-
       }
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // BURGER
-  // Bounce 3 times → pause → repeat
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (burger) {
-
     gsap.timeline({
-
       repeat: -1,
       repeatDelay: 1.4
-
     })
 
-    // bounce 1
     .to(burger, {
-
       y: -9,
       duration: 0.18,
       ease: "power2.out"
-
     })
 
     .to(burger, {
-
       y: 0,
       duration: 0.22,
       ease: "bounce.out"
-
     })
 
-
-    // bounce 2
     .to(burger, {
-
       y: -7,
       duration: 0.16,
       ease: "power2.out"
-
     })
 
     .to(burger, {
-
       y: 0,
       duration: 0.2,
       ease: "bounce.out"
-
     })
 
-
-    // bounce 3
     .to(burger, {
-
       y: -4,
       duration: 0.14,
       ease: "power2.out"
-
     })
 
     .to(burger, {
-
       y: 0,
       duration: 0.18,
       ease: "bounce.out"
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // BEAR
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (bear) {
-
     gsap.to(bear, {
-
       x: 25,
-
       duration: 1,
       ease: "power3.out",
       force3D: true,
 
       scrollTrigger: {
-
         trigger: bear,
-
         start: "top 40%",
-
         toggleActions: "play reverse play reverse"
-
       }
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // BLOOD CELL
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (bloodcell) {
-
     gsap.to(bloodcell, {
-
       xPercent: 300,
       yPercent: -220,
       rotation: 220,
-
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
-
         trigger: section,
-
         start: "top bottom",
         end: "bottom top",
-
         scrub: 1.5,
-
         invalidateOnRefresh: true
-
       }
-
     });
-
   }
 
 
-  // -------------------------------------------------------------
+  // ============================================================
   // JETMAN
-  // -------------------------------------------------------------
+  // ============================================================
 
   if (jetman) {
-
     var home5JetHover;
 
-
     function startHome5JetHover() {
-
       home5JetHover = gsap.to(jetman, {
-
         y: "-=15",
-
         duration: 1,
         ease: "sine.inOut",
-
         yoyo: true,
         repeat: -1
-
       });
-
     }
-
 
     startHome5JetHover();
 
-
     ScrollTrigger.create({
-
       trigger: jetman,
-
       start: "top 75%",
 
-
-      // FLY AWAY
-      onEnter: function() {
-
+      onEnter: function () {
         gsap.killTweensOf(jetman);
 
         if (home5JetHover) {
           home5JetHover.kill();
         }
-
 
         gsap.to(jetman, {
-
           xPercent: 1600,
           yPercent: -1000,
-
           rotation: -50,
-
           duration: 1,
           ease: "power2.in"
-
         });
-
       },
 
-
-      // RETURN
-      onLeaveBack: function() {
-
+      onLeaveBack: function () {
         gsap.killTweensOf(jetman);
 
         if (home5JetHover) {
           home5JetHover.kill();
         }
-
 
         gsap.set(jetman, {
           rotation: 180
         });
 
-
         gsap.to(jetman, {
-
           xPercent: 0,
           yPercent: 0,
-
           x: 0,
           y: 0,
-
           rotation: 0,
-
           duration: 1.4,
           ease: "power2.out",
 
           onComplete: startHome5JetHover
-
         });
-
       }
-
     });
-
   }
 
 
-  // =============================================================
-  // UMBRELLA CAT — SCROLL FALL
+  // ============================================================
+  // UMBRELLA CAT
   //
-  // Trigger = home5_cover
+  // Based directly on original reference:
   //
-  // START:
-  // completely above viewport + invisible
+  // tl.to(umbrellaManContainer, 10, {
+  //   pixi: { y: 2560 },
+  //   ease: Power1.easeIn
+  // });
   //
-  // DURING:
-  // falls through screen following scroll
-  // rotates clockwise 10 degrees
-  //
-  // END:
-  // completely below viewport + invisible
-  // =============================================================
+  // No opacity.
+  // No visibility switching.
+  // Scroll directly controls the fall.
+  // ============================================================
 
   if (umbrellaCat && cover) {
 
-
-    // -----------------------------------------------------------
-    // CALCULATE REAL START POSITION
-    // -----------------------------------------------------------
-
-    function getCatStartY() {
-
-      gsap.set(umbrellaCat, {
-        y: 0,
-        rotation: 0
-      });
-
-      var rect = umbrellaCat.getBoundingClientRect();
-
-      // Entire cat 30px ABOVE viewport
-      return -(rect.top + rect.height + 30);
-
-    }
-
-
-    // -----------------------------------------------------------
-    // CALCULATE REAL END POSITION
-    // -----------------------------------------------------------
-
-    function getCatEndY() {
-
-      gsap.set(umbrellaCat, {
-        y: 0
-      });
-
-      var rect = umbrellaCat.getBoundingClientRect();
-
-      // Entire cat 30px BELOW viewport
-      return window.innerHeight - rect.top + 30;
-
-    }
-
-
-    // -----------------------------------------------------------
-    // INITIAL STATE
-    // -----------------------------------------------------------
-
+    // Keep Webflow's designed starting position.
+    // We only control the additional Y translation.
     gsap.set(umbrellaCat, {
-
-      y: getCatStartY,
-
-      rotation: 0,
-
-      autoAlpha: 0,
-
-      transformOrigin: "50% 50%",
-
+      y: 0,
       force3D: true
-
     });
 
+    gsap.to(umbrellaCat, {
 
-    // -----------------------------------------------------------
-    // FALL TIMELINE
-    // -----------------------------------------------------------
+      // Original reference uses y:2560 in its 2560px
+      // Pixi composition.
+      //
+      // For our responsive DOM version, use viewport height
+      // so the travel distance scales with the browser.
+      y: function () {
+        return window.innerHeight * 1.35;
+      },
 
-    var umbrellaCatFall = gsap.timeline({
+      ease: "power1.in",
+      force3D: true,
 
       scrollTrigger: {
-
         trigger: cover,
 
-        // Start later than previous version
-        start: "top 55%",
+        // Equivalent idea to the original:
+        // ele: [rel, '50%', '80%']
+        start: "top 50%",
+        end: "bottom 80%",
 
-        // Medium fall distance:
-        // slower than previous +=45%
-        end: "+=85%",
-
-        // Smooth but still follows scrolling
-        scrub: 0.45,
-
+        scrub: true,
         invalidateOnRefresh: true
-
       }
-
     });
-
-
-    // -----------------------------------------------------------
-    // MAKE VISIBLE
-    //
-    // Cat is already physically ABOVE viewport,
-    // so user does not see it pop in.
-    // -----------------------------------------------------------
-
-    umbrellaCatFall.set(umbrellaCat, {
-
-      autoAlpha: 1
-
-    }, 0);
-
-
-    // -----------------------------------------------------------
-    // FALL
-    //
-    // above viewport
-    //       ↓
-    //       ↓
-    //   through screen
-    //       ↓
-    //       ↓
-    // below viewport
-    //
-    // + slight clockwise rotation
-    // -----------------------------------------------------------
-
-    umbrellaCatFall.to(umbrellaCat, {
-
-      y: getCatEndY,
-
-      rotation: 10,
-
-      ease: "none",
-
-      force3D: true
-
-    }, 0);
-
-
-    // -----------------------------------------------------------
-    // HIDE ONLY AFTER COMPLETELY BELOW SCREEN
-    // -----------------------------------------------------------
-
-    umbrellaCatFall.set(umbrellaCat, {
-
-      autoAlpha: 0
-
-    });
-
-
-  } // END UMBRELLA CAT
-
+  }
 
 } // END initHomeSection5
 
