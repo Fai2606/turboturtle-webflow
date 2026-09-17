@@ -1046,7 +1046,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: -9,
-
       duration: 0.18,
       ease: "power2.out"
 
@@ -1055,7 +1054,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: 0,
-
       duration: 0.22,
       ease: "bounce.out"
 
@@ -1066,7 +1064,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: -7,
-
       duration: 0.16,
       ease: "power2.out"
 
@@ -1075,7 +1072,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: 0,
-
       duration: 0.2,
       ease: "bounce.out"
 
@@ -1086,7 +1082,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: -4,
-
       duration: 0.14,
       ease: "power2.out"
 
@@ -1095,7 +1090,6 @@ function initHomeSection5() {
     .to(burger, {
 
       y: 0,
-
       duration: 0.18,
       ease: "bounce.out"
 
@@ -1202,10 +1196,7 @@ function initHomeSection5() {
       start: "top 75%",
 
 
-      // ---------------------------------------------------------
       // FLY AWAY
-      // ---------------------------------------------------------
-
       onEnter: function() {
 
         gsap.killTweensOf(jetman);
@@ -1230,10 +1221,7 @@ function initHomeSection5() {
       },
 
 
-      // ---------------------------------------------------------
       // RETURN
-      // ---------------------------------------------------------
-
       onLeaveBack: function() {
 
         gsap.killTweensOf(jetman);
@@ -1273,27 +1261,59 @@ function initHomeSection5() {
 
 
   // =============================================================
-  // UMBRELLA CAT — FAST SCROLL FALL
+  // UMBRELLA CAT — SCROLL FALL
   //
-  // BEFORE:
-  // invisible + above screen
+  // Trigger = home5_cover
   //
-  // TRIGGER:
-  // home5_cover reaches 75% viewport
+  // START:
+  // completely above viewport + invisible
   //
   // DURING:
-  // cat quickly falls through entire viewport
-  // movement follows scroll
-  // rotates clockwise 10deg
+  // falls through screen following scroll
+  // rotates clockwise 10 degrees
   //
-  // AFTER:
-  // below screen + invisible
-  //
-  // SCROLL BACK:
-  // naturally reverses
+  // END:
+  // completely below viewport + invisible
   // =============================================================
 
   if (umbrellaCat && cover) {
+
+
+    // -----------------------------------------------------------
+    // CALCULATE REAL START POSITION
+    // -----------------------------------------------------------
+
+    function getCatStartY() {
+
+      gsap.set(umbrellaCat, {
+        y: 0,
+        rotation: 0
+      });
+
+      var rect = umbrellaCat.getBoundingClientRect();
+
+      // Entire cat 30px ABOVE viewport
+      return -(rect.top + rect.height + 30);
+
+    }
+
+
+    // -----------------------------------------------------------
+    // CALCULATE REAL END POSITION
+    // -----------------------------------------------------------
+
+    function getCatEndY() {
+
+      gsap.set(umbrellaCat, {
+        y: 0
+      });
+
+      var rect = umbrellaCat.getBoundingClientRect();
+
+      // Entire cat 30px BELOW viewport
+      return window.innerHeight - rect.top + 30;
+
+    }
 
 
     // -----------------------------------------------------------
@@ -1302,9 +1322,7 @@ function initHomeSection5() {
 
     gsap.set(umbrellaCat, {
 
-      y: function() {
-        return -window.innerHeight * 1.25;
-      },
+      y: getCatStartY,
 
       rotation: 0,
 
@@ -1327,16 +1345,15 @@ function initHomeSection5() {
 
         trigger: cover,
 
-        // Start when cover reaches 75% down viewport
-        start: "top 75%",
+        // Start later than previous version
+        start: "top 55%",
 
-        // IMPORTANT:
-        // whole fall happens during a short scroll distance
-        end: "+=45%",
+        // Medium fall distance:
+        // slower than previous +=45%
+        end: "+=85%",
 
-        // Still follows scroll,
-        // but reacts much faster than before
-        scrub: 0.25,
+        // Smooth but still follows scrolling
+        scrub: 0.45,
 
         invalidateOnRefresh: true
 
@@ -1346,10 +1363,10 @@ function initHomeSection5() {
 
 
     // -----------------------------------------------------------
-    // MAKE CAT VISIBLE
+    // MAKE VISIBLE
     //
-    // This happens while the cat is still ABOVE the viewport,
-    // so user will not see it suddenly appear.
+    // Cat is already physically ABOVE viewport,
+    // so user does not see it pop in.
     // -----------------------------------------------------------
 
     umbrellaCatFall.set(umbrellaCat, {
@@ -1362,20 +1379,20 @@ function initHomeSection5() {
     // -----------------------------------------------------------
     // FALL
     //
-    // ABOVE VIEWPORT
-    //      ↓
-    //      ↓
-    //      ↓
-    // BELOW VIEWPORT
+    // above viewport
+    //       ↓
+    //       ↓
+    //   through screen
+    //       ↓
+    //       ↓
+    // below viewport
     //
-    // + 10deg clockwise rotation
+    // + slight clockwise rotation
     // -----------------------------------------------------------
 
     umbrellaCatFall.to(umbrellaCat, {
 
-      y: function() {
-        return window.innerHeight * 1.25;
-      },
+      y: getCatEndY,
 
       rotation: 10,
 
@@ -1387,7 +1404,7 @@ function initHomeSection5() {
 
 
     // -----------------------------------------------------------
-    // HIDE AFTER IT HAS FALLEN BELOW SCREEN
+    // HIDE ONLY AFTER COMPLETELY BELOW SCREEN
     // -----------------------------------------------------------
 
     umbrellaCatFall.set(umbrellaCat, {
@@ -1397,7 +1414,7 @@ function initHomeSection5() {
     });
 
 
-  } // END umbrella cat
+  } // END UMBRELLA CAT
 
 
 } // END initHomeSection5
