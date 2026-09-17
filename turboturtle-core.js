@@ -1137,68 +1137,76 @@ function initHomeSection5() {
   // ============================================================
   // UMBRELLA CAT
   //
-  // IMPORTANT:
+  // ORIGINAL WEBFLOW POSITIONING IS PRESERVED.
   //
-  // Cat normally belongs to .home_section5_city, which itself
-  // moves upward with the document.
+  // Cat stays position:absolute inside home_section5_city.
   //
-  // During this animation we switch the cat to FIXED positioning.
-  // Therefore the parent can no longer drag the cat away.
+  // DOWN:
+  // page moves cat upward
+  // +
+  // our Y transform compensates for that movement
+  // +
+  // additional Y makes the cat visibly FALL downward
   //
-  // DOWN = FALL
-  // UP   = RISE
-  // REPEATABLE
+  // UP:
+  // exact reverse
+  //
+  // Repeatable forever.
   // ============================================================
 
   if (umbrellaCat) {
 
-    var umbrellaActive = false;
+    var umbrellaReady = false;
 
     var umbrellaTriggerScroll = 0;
 
-    var umbrellaWidth = 0;
+    var umbrellaStartY = 0;
+    var umbrellaStartRectTop = 0;
     var umbrellaHeight = 0;
-    var umbrellaLeft = 0;
-
-    var umbrellaStartTop = 0;
-    var umbrellaEndTop = 0;
 
 
     // ----------------------------------------------------------
-    // DEFAULT
+    // REMOVE OLD FIXED-POSITION STYLES
+    //
+    // Important because previous version set these inline.
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
+      clearProps:
+        "position,top,left,right,bottom,width,zIndex,transform"
+    });
+
+
+    // Restore original Webflow state.
+    gsap.set(umbrellaCat, {
       visibility: "hidden",
       opacity: 1,
+      rotation: 0,
       force3D: true
     });
 
 
     // ----------------------------------------------------------
-    // ACTIVATE
+    // PREPARE
     // ----------------------------------------------------------
 
-    function activateUmbrellaCat() {
+    function prepareUmbrellaCat() {
 
-      if (umbrellaActive) return;
+      if (umbrellaReady) return;
 
-      umbrellaActive = true;
+      umbrellaReady = true;
 
-      umbrellaTriggerScroll = window.scrollY;
+      umbrellaTriggerScroll =
+        window.scrollY;
 
 
-      // --------------------------------------------------------
-      // Measure the ORIGINAL Webflow element BEFORE switching
-      // it to fixed positioning.
-      // --------------------------------------------------------
-
+      // Measure original Webflow position.
       var rect =
         umbrellaCat.getBoundingClientRect();
 
 
-      umbrellaWidth =
-        rect.width;
+      umbrellaStartRectTop =
+        rect.top;
 
 
       umbrellaHeight =
@@ -1207,154 +1215,33 @@ function initHomeSection5() {
         120;
 
 
-      umbrellaLeft =
-        rect.left;
-
-
       // --------------------------------------------------------
-      // VIEWPORT COORDINATES
+      // Put cat completely ABOVE viewport at progress 0.
       //
-      // Start completely above screen.
-      // End WELL below screen.
+      // This is the same positioning method from the version
+      // where the cat successfully appeared.
       // --------------------------------------------------------
 
-      umbrellaStartTop =
-        -umbrellaHeight - 80;
+      var desiredTop =
+        -umbrellaHeight - 40;
 
 
-      umbrellaEndTop =
-        window.innerHeight +
-        umbrellaHeight +
-        300;
+      umbrellaStartY =
+        desiredTop -
+        umbrellaStartRectTop;
 
-
-      // --------------------------------------------------------
-      // DETACH VISUALLY FROM MOVING PARENT
-      //
-      // We do NOT physically move it in the DOM.
-      // position:fixed makes its coordinates viewport-relative.
-      // --------------------------------------------------------
 
       gsap.set(umbrellaCat, {
-
-        position: "fixed",
-
-        top: umbrellaStartTop,
-        left: umbrellaLeft,
-
-        width: umbrellaWidth,
-
-        right: "auto",
-        bottom: "auto",
-
-        y: 0,
-
+        y: umbrellaStartY,
         rotation: 0,
-
         visibility: "hidden",
-
-        zIndex: 50,
-
         force3D: true
       });
     }
 
 
     // ----------------------------------------------------------
-    // UPDATE
-    // ----------------------------------------------------------
-
-    function updateUmbrellaCat() {
-
-      if (!umbrellaActive) return;
-
-
-      // --------------------------------------------------------
-      // CURRENT SCROLL RELATIVE TO ACTIVATION
-      //
-      // Positive when scrolling down.
-      // Negative when scrolling back above activation.
-      // --------------------------------------------------------
-
-      var scrollDifference =
-        window.scrollY -
-        umbrellaTriggerScroll;
-
-
-      // --------------------------------------------------------
-      // SPEED
-      //
-      // 1 viewport of scrolling = whole fall.
-      //
-      // Increase 1.0 -> slower.
-      // Decrease 1.0 -> faster.
-      // --------------------------------------------------------
-
-      var scrollNeeded =
-        window.innerHeight * 1.0;
-
-
-      var progress =
-        scrollDifference /
-        scrollNeeded;
-
-
-      progress =
-        Math.max(
-          0,
-          Math.min(1, progress)
-        );
-
-
-      // --------------------------------------------------------
-      // POSITION
-      // --------------------------------------------------------
-
-      var top =
-        umbrellaStartTop +
-        (
-          umbrellaEndTop -
-          umbrellaStartTop
-        ) * progress;
-
-
-      gsap.set(umbrellaCat, {
-
-        top: top,
-
-        rotation:
-          12 * progress,
-
-        force3D: true
-      });
-
-
-      // --------------------------------------------------------
-      // VISIBILITY
-      //
-      // Only hide while completely ABOVE.
-      //
-      // We deliberately DO NOT hide at progress 1.
-      // The cat physically ends hundreds of pixels below screen.
-      // --------------------------------------------------------
-
-      if (progress <= 0) {
-
-        gsap.set(umbrellaCat, {
-          visibility: "hidden"
-        });
-
-      } else {
-
-        gsap.set(umbrellaCat, {
-          visibility: "visible"
-        });
-      }
-    }
-
-
-    // ----------------------------------------------------------
-    // MASTER SECTION 5 WATCHER
+    // MASTER SCROLL WATCHER
     // ----------------------------------------------------------
 
     ScrollTrigger.create({
@@ -1370,47 +1257,157 @@ function initHomeSection5() {
       onUpdate: function(self) {
 
         // ------------------------------------------------------
-        // ACTIVATE AT SAME APPROXIMATE POINT THAT WAS WORKING
+        // WAIT UNTIL SAME WORKING START AREA
         // ------------------------------------------------------
 
-        if (!umbrellaActive) {
+        if (!umbrellaReady) {
 
           if (self.progress < 0.28) {
             return;
           }
 
-          activateUmbrellaCat();
+          prepareUmbrellaCat();
         }
 
 
-        updateUmbrellaCat();
+        // ------------------------------------------------------
+        // HOW FAR HAVE WE SCROLLED SINCE CAT START?
+        //
+        // Positive scrolling down.
+        // Negative scrolling back up.
+        // ------------------------------------------------------
+
+        var scrollDistance =
+          window.scrollY -
+          umbrellaTriggerScroll;
+
+
+        // ------------------------------------------------------
+        // FALL DURATION
+        //
+        // Full fall takes 1.15 viewport heights of scrolling.
+        //
+        // This is intentionally not too fast.
+        // ------------------------------------------------------
+
+        var scrollNeeded =
+          window.innerHeight * 1.15;
+
+
+        var progress =
+          scrollDistance /
+          scrollNeeded;
+
+
+        progress =
+          Math.max(
+            0,
+            Math.min(1, progress)
+          );
+
+
+        // ------------------------------------------------------
+        // CRITICAL FIX
+        //
+        // The parent is naturally moving UP by approximately
+        // scrollDistance.
+        //
+        // Therefore first compensate:
+        //
+        //      + scrollDistance
+        //
+        // That visually cancels the parent's upward movement.
+        //
+        // Then add our actual downward FALL:
+        //
+        //      + fallDistance * progress
+        // ------------------------------------------------------
+
+        var parentCompensation =
+          Math.max(0, scrollDistance);
+
+
+        // ------------------------------------------------------
+        // ACTUAL FALL DISTANCE
+        //
+        // Make the cat physically travel:
+        //
+        // 1.55 viewport heights
+        //
+        // PLUS its own height.
+        //
+        // This sends it properly through and below the screen.
+        // ------------------------------------------------------
+
+        var fallDistance =
+          (window.innerHeight * 1.55) +
+          umbrellaHeight;
+
+
+        var fallMovement =
+          fallDistance *
+          progress;
+
+
+        var finalY =
+          umbrellaStartY +
+          parentCompensation +
+          fallMovement;
+
+
+        // ------------------------------------------------------
+        // MOVE
+        // ------------------------------------------------------
+
+        gsap.set(umbrellaCat, {
+
+          y: finalY,
+
+          rotation:
+            12 * progress,
+
+          force3D: true
+        });
+
+
+        // ------------------------------------------------------
+        // VISIBILITY
+        //
+        // ONLY hidden at the very top.
+        //
+        // NEVER hidden at bottom.
+        //
+        // The cat must physically leave the viewport.
+        // ------------------------------------------------------
+
+        if (progress <= 0) {
+
+          gsap.set(umbrellaCat, {
+            visibility: "hidden"
+          });
+
+        } else {
+
+          gsap.set(umbrellaCat, {
+            visibility: "visible"
+          });
+        }
       },
 
 
       // --------------------------------------------------------
-      // RESET WHEN WE SCROLL ABOVE SECTION 5
-      //
-      // This allows the whole sequence to work again when
-      // returning to Section 5.
+      // ABOVE SECTION
       // --------------------------------------------------------
 
       onLeaveBack: function() {
 
-        if (!umbrellaActive) return;
+        if (!umbrellaReady) return;
 
 
-        umbrellaActive = false;
-
-
-        // Remove the inline fixed-position properties and return
-        // the element to its Webflow-designed absolute state.
         gsap.set(umbrellaCat, {
-
-          clearProps:
-            "position,top,left,right,bottom,width,zIndex,transform",
-
-          visibility: "hidden",
-          opacity: 1
+          y: umbrellaStartY,
+          rotation: 0,
+          visibility: "hidden"
         });
       }
 
