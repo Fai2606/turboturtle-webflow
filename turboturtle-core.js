@@ -881,6 +881,7 @@ function initHomeSection5() {
       if (planet) {
 
         gsap.set(planet, {
+
           xPercent: -85 * t,
 
           yPercent:
@@ -888,6 +889,7 @@ function initHomeSection5() {
             (22 * arc),
 
           force3D: true
+
         });
 
       }
@@ -897,6 +899,7 @@ function initHomeSection5() {
       if (ball) {
 
         gsap.set(ball, {
+
           xPercent: -70 * t,
 
           yPercent:
@@ -904,6 +907,7 @@ function initHomeSection5() {
             (18 * arc),
 
           force3D: true
+
         });
 
       }
@@ -913,6 +917,7 @@ function initHomeSection5() {
       if (jupiter) {
 
         gsap.set(jupiter, {
+
           xPercent: 35 * t,
 
           yPercent:
@@ -920,6 +925,7 @@ function initHomeSection5() {
             (10 * arc),
 
           force3D: true
+
         });
 
       }
@@ -938,15 +944,20 @@ function initHomeSection5() {
     gsap.to(galaxy, {
 
       yPercent: 35,
+
       ease: "none",
       force3D: true,
 
       scrollTrigger: {
+
         trigger: section,
         start: "top bottom",
         end: "bottom top",
+
         scrub: 1,
+
         invalidateOnRefresh: true
+
       }
 
     });
@@ -971,11 +982,16 @@ function initHomeSection5() {
       force3D: true,
 
       scrollTrigger: {
+
         trigger: section,
+
         start: "top 45%",
         end: "bottom 0%",
+
         scrub: 2.2,
+
         invalidateOnRefresh: true
+
       }
 
     });
@@ -992,14 +1008,19 @@ function initHomeSection5() {
     gsap.to(rocketTip, {
 
       y: 145,
+
       duration: 1.25,
       ease: "power3.in",
       force3D: true,
 
       scrollTrigger: {
+
         trigger: rocketTip,
+
         start: "top 40%",
+
         toggleActions: "play reverse play reverse"
+
       }
 
     });
@@ -1015,47 +1036,69 @@ function initHomeSection5() {
   if (burger) {
 
     gsap.timeline({
+
       repeat: -1,
       repeatDelay: 1.4
+
     })
 
     // bounce 1
     .to(burger, {
+
       y: -9,
+
       duration: 0.18,
       ease: "power2.out"
+
     })
 
     .to(burger, {
+
       y: 0,
+
       duration: 0.22,
       ease: "bounce.out"
+
     })
+
 
     // bounce 2
     .to(burger, {
+
       y: -7,
+
       duration: 0.16,
       ease: "power2.out"
+
     })
 
     .to(burger, {
+
       y: 0,
+
       duration: 0.2,
       ease: "bounce.out"
+
     })
+
 
     // bounce 3
     .to(burger, {
+
       y: -4,
+
       duration: 0.14,
       ease: "power2.out"
+
     })
 
     .to(burger, {
+
       y: 0,
+
       duration: 0.18,
       ease: "bounce.out"
+
     });
 
   }
@@ -1070,14 +1113,19 @@ function initHomeSection5() {
     gsap.to(bear, {
 
       x: 25,
+
       duration: 1,
       ease: "power3.out",
       force3D: true,
 
       scrollTrigger: {
+
         trigger: bear,
+
         start: "top 40%",
+
         toggleActions: "play reverse play reverse"
+
       }
 
     });
@@ -1101,11 +1149,16 @@ function initHomeSection5() {
       force3D: true,
 
       scrollTrigger: {
+
         trigger: section,
+
         start: "top bottom",
         end: "bottom top",
+
         scrub: 1.5,
+
         invalidateOnRefresh: true
+
       }
 
     });
@@ -1127,8 +1180,10 @@ function initHomeSection5() {
       home5JetHover = gsap.to(jetman, {
 
         y: "-=15",
+
         duration: 1,
         ease: "sine.inOut",
+
         yoyo: true,
         repeat: -1
 
@@ -1143,8 +1198,13 @@ function initHomeSection5() {
     ScrollTrigger.create({
 
       trigger: jetman,
+
       start: "top 75%",
 
+
+      // ---------------------------------------------------------
+      // FLY AWAY
+      // ---------------------------------------------------------
 
       onEnter: function() {
 
@@ -1159,6 +1219,7 @@ function initHomeSection5() {
 
           xPercent: 1600,
           yPercent: -1000,
+
           rotation: -50,
 
           duration: 1,
@@ -1168,6 +1229,10 @@ function initHomeSection5() {
 
       },
 
+
+      // ---------------------------------------------------------
+      // RETURN
+      // ---------------------------------------------------------
 
       onLeaveBack: function() {
 
@@ -1187,8 +1252,10 @@ function initHomeSection5() {
 
           xPercent: 0,
           yPercent: 0,
+
           x: 0,
           y: 0,
+
           rotation: 0,
 
           duration: 1.4,
@@ -1206,49 +1273,53 @@ function initHomeSection5() {
 
 
   // =============================================================
-  // UMBRELLA CAT — SCROLL-CONTROLLED FALL
-  //
-  // Trigger = home5_cover
+  // UMBRELLA CAT — FAST SCROLL FALL
   //
   // BEFORE:
-  // above screen + invisible
+  // invisible + above screen
+  //
+  // TRIGGER:
+  // home5_cover reaches 75% viewport
   //
   // DURING:
-  // visible
-  // falls according to scroll
+  // cat quickly falls through entire viewport
+  // movement follows scroll
   // rotates clockwise 10deg
   //
   // AFTER:
   // below screen + invisible
   //
-  // Scrolling upward naturally reverses everything.
+  // SCROLL BACK:
+  // naturally reverses
   // =============================================================
 
   if (umbrellaCat && cover) {
 
-    var catStartY = function() {
-      return -window.innerHeight * 1.2;
-    };
 
-    var catEndY = function() {
-      return window.innerHeight * 1.2;
-    };
+    // -----------------------------------------------------------
+    // INITIAL STATE
+    // -----------------------------------------------------------
 
-
-    // Initial position
     gsap.set(umbrellaCat, {
 
-      y: catStartY,
+      y: function() {
+        return -window.innerHeight * 1.25;
+      },
+
       rotation: 0,
 
-      opacity: 0,
-      visibility: "hidden",
+      autoAlpha: 0,
 
       transformOrigin: "50% 50%",
+
       force3D: true
 
     });
 
+
+    // -----------------------------------------------------------
+    // FALL TIMELINE
+    // -----------------------------------------------------------
 
     var umbrellaCatFall = gsap.timeline({
 
@@ -1256,10 +1327,16 @@ function initHomeSection5() {
 
         trigger: cover,
 
-        start: "top bottom",
-        end: "bottom top",
+        // Start when cover reaches 75% down viewport
+        start: "top 75%",
 
-        scrub: 1,
+        // IMPORTANT:
+        // whole fall happens during a short scroll distance
+        end: "+=45%",
+
+        // Still follows scroll,
+        // but reacts much faster than before
+        scrub: 0.25,
 
         invalidateOnRefresh: true
 
@@ -1269,49 +1346,61 @@ function initHomeSection5() {
 
 
     // -----------------------------------------------------------
-    // 0% — make visible while still above screen
+    // MAKE CAT VISIBLE
+    //
+    // This happens while the cat is still ABOVE the viewport,
+    // so user will not see it suddenly appear.
     // -----------------------------------------------------------
 
     umbrellaCatFall.set(umbrellaCat, {
 
-      visibility: "visible",
-      opacity: 1
+      autoAlpha: 1
 
     }, 0);
 
 
     // -----------------------------------------------------------
     // FALL
+    //
+    // ABOVE VIEWPORT
+    //      ↓
+    //      ↓
+    //      ↓
+    // BELOW VIEWPORT
+    //
+    // + 10deg clockwise rotation
     // -----------------------------------------------------------
 
     umbrellaCatFall.to(umbrellaCat, {
 
-      y: catEndY,
+      y: function() {
+        return window.innerHeight * 1.25;
+      },
 
       rotation: 10,
 
       ease: "none",
+
       force3D: true
 
     }, 0);
 
 
     // -----------------------------------------------------------
-    // END — below screen, then invisible
+    // HIDE AFTER IT HAS FALLEN BELOW SCREEN
     // -----------------------------------------------------------
 
     umbrellaCatFall.set(umbrellaCat, {
 
-      opacity: 0,
-      visibility: "hidden"
+      autoAlpha: 0
 
     });
 
-  }
+
+  } // END umbrella cat
 
 
 } // END initHomeSection5
-
 
   
 
