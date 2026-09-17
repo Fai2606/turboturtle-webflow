@@ -1187,6 +1187,7 @@ function initHomeSection5() {
 function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
+  var weirdSun = q(".home6_weirdsun");
   var home6TallPillar = q(".home6_tallpillar");
 
   if (!window.gsap || !window.ScrollTrigger) return;
@@ -1212,19 +1213,18 @@ function initHomeSection6() {
 
   }
 
+
   // ==========================================================
   // WEIRD SUN — SLOW PARALLAX
   // ==========================================================
-  
-  var weirdSun = q(".home6_weirdsun");
-  
+
   if (weirdSun) {
-  
+
     gsap.to(weirdSun, {
       y: 180,
       ease: "none",
       force3D: true,
-  
+
       scrollTrigger: {
         trigger: weirdSun,
         start: "top bottom",
@@ -1233,7 +1233,7 @@ function initHomeSection6() {
         invalidateOnRefresh: true
       }
     });
-  
+
   }
 
 
@@ -1243,8 +1243,6 @@ function initHomeSection6() {
 
   if (home6TallPillar) {
 
-    // Tall pillar removed from this group because
-    // we want it to rise more slowly.
     var home6BuildSelectors = [
       ".home6_tree",
       ".home6_bloodcell",
@@ -1372,7 +1370,7 @@ function initHomeSection6() {
     }, 0);
 
 
-    // TALL PILLAR — slower than everything else
+    // TALL PILLAR — slower
     home6BuildTL.to(home6TallPillar, {
       yPercent: 0,
       duration: 2.1,
@@ -1488,32 +1486,30 @@ function initHomeSection6() {
 
       // ======================================================
       // INITIAL STATE
-      //
-      // UFO:
-      // - parked 1.5 screens above
-      // - completely invisible
-      //
-      // LIGHT:
-      // - horizontally closed
-      // - invisible
+      // UFO = above screen + invisible
+      // LIGHT = closed + invisible
       // ======================================================
 
       gsap.set(home6UFO, {
         y: function() {
           return -window.innerHeight * 1.5;
         },
-        autoAlpha: 0,
+        visibility: "hidden",
+        opacity: 0,
         force3D: true
       });
 
 
       if (home6Light) {
+
         gsap.set(home6Light, {
           scaleX: 0,
-          autoAlpha: 0,
+          visibility: "hidden",
+          opacity: 0,
           transformOrigin: "50% 50%",
           force3D: true
         });
+
       }
 
 
@@ -1523,7 +1519,6 @@ function initHomeSection6() {
 
       function showHome6UFO() {
 
-        // Kill any reverse animation still running
         gsap.killTweensOf(home6UFO);
 
         if (home6Light) {
@@ -1531,16 +1526,18 @@ function initHomeSection6() {
         }
 
 
-        // Make UFO visible WHILE it is still above screen
+        // UFO is already above screen.
+        // Make visible before it starts flying.
         gsap.set(home6UFO, {
-          autoAlpha: 1
+          visibility: "visible",
+          opacity: 1
         });
 
 
         var enterTL = gsap.timeline();
 
 
-        // UFO flies down to Webflow destination
+        // UFO flies down
         enterTL.to(home6UFO, {
           y: 0,
           duration: 1.3,
@@ -1549,15 +1546,16 @@ function initHomeSection6() {
         }, 0);
 
 
-        // Light begins 0.5 sec before UFO stops
+        // Light starts 0.5 sec before UFO finishes
         if (home6Light) {
 
           enterTL.set(home6Light, {
-            autoAlpha: 1
+            visibility: "visible",
+            opacity: 1
           }, 0.8);
 
 
-          // Horizontal reveal — fast
+          // Fast horizontal reveal
           enterTL.to(home6Light, {
             scaleX: 1,
             duration: 0.25,
@@ -1571,7 +1569,7 @@ function initHomeSection6() {
 
 
       // ======================================================
-      // UFO EXIT — SCROLLING BACK UP
+      // UFO EXIT
       // ======================================================
 
       function hideHome6UFO() {
@@ -1586,21 +1584,25 @@ function initHomeSection6() {
         var exitTL = gsap.timeline();
 
 
-        // Light disappears quickly first
+        // Light closes quickly
         if (home6Light) {
 
           exitTL.to(home6Light, {
             scaleX: 0,
-            autoAlpha: 0,
+            opacity: 0,
             duration: 0.18,
             ease: "power2.in",
             force3D: true
           }, 0);
 
+          exitTL.set(home6Light, {
+            visibility: "hidden"
+          });
+
         }
 
 
-        // UFO flies back ABOVE screen
+        // UFO flies back above screen
         exitTL.to(home6UFO, {
           y: function() {
             return -window.innerHeight * 1.5;
@@ -1611,30 +1613,27 @@ function initHomeSection6() {
         }, 0);
 
 
-        // Only hide AFTER it has gone above screen
+        // Hide only after it has left the screen
         exitTL.set(home6UFO, {
-          autoAlpha: 0
+          visibility: "hidden",
+          opacity: 0
         });
 
       }
 
 
       // ======================================================
-      // UFO SCROLL TRIGGER
+      // UFO TRIGGER
       //
-      // DOWN:
-      // tallpillar reaches 10% from TOP
-      // → UFO appears and flies down
-      //
-      // UP:
-      // cross same point
-      // → UFO flies back up and disappears
+      // TEMP: tallpillar reaches 20% from bottom.
+      // This is intentionally earlier so UFO trigger is reliable.
       // ======================================================
 
       ScrollTrigger.create({
 
         trigger: home6TallPillar,
-        start: "top 10%",
+
+        start: "top 80%",
 
         invalidateOnRefresh: true,
 
@@ -1655,7 +1654,6 @@ function initHomeSection6() {
 
 
 } // END initHomeSection6
-
 
   
 
