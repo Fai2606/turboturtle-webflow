@@ -1138,18 +1138,18 @@ function initHomeSection5() {
   // UMBRELLA CAT
   //
   // DOWN:
-  // - enters from above
+  // - waits ABOVE screen and INVISIBLE
   // - falls downward
   // - drifts slightly left
   // - rotates anticlockwise to -15deg
-  // - disappears ONLY after completely leaving bottom
+  // - invisible after completely leaving bottom
   //
   // UP:
-  // - reappears when entering from bottom
-  // - rises back up
+  // - reappears when physically entering from bottom
+  // - rises upward
   // - returns right
   // - rotates back to 0deg
-  // - disappears after completely leaving top
+  // - invisible again when it reaches the waiting/top state
   //
   // Fully reversible / repeatable.
   // ============================================================
@@ -1176,7 +1176,7 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // DEFAULT
+    // DEFAULT — ALWAYS INVISIBLE
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
@@ -1219,11 +1219,16 @@ function initHomeSection5() {
 
 
       // --------------------------------------------------------
-      // START COMPLETELY ABOVE VIEWPORT
+      // START FARTHER ABOVE VIEWPORT
+      //
+      // Previous = -40px
+      // New      = -100px
+      //
+      // Gives us more safety space above the screen.
       // --------------------------------------------------------
 
       var desiredTop =
-        -umbrellaHeight - 40;
+        -umbrellaHeight - 100;
 
 
       umbrellaStartY =
@@ -1264,6 +1269,13 @@ function initHomeSection5() {
         if (!umbrellaReady) {
 
           if (self.progress < 0.28) {
+
+            // Extra safety:
+            // cat must remain invisible while waiting.
+            gsap.set(umbrellaCat, {
+              visibility: "hidden"
+            });
+
             return;
           }
 
@@ -1358,34 +1370,43 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // VISIBILITY
+        // VISIBILITY — IMPORTANT FIX
         //
-        // IMPORTANT:
+        // progress 0 = ALWAYS hidden.
         //
-        // Do NOT use progress to decide when to disappear.
+        // This prevents the cat sitting visibly at the top
+        // before the actual fall begins.
         //
-        // Instead look at where the cat ACTUALLY is
-        // on the user's screen.
-        //
-        // This makes it work properly on 1920 and other sizes.
+        // Once movement begins, visibility is determined by
+        // the cat's REAL viewport position.
         // ------------------------------------------------------
 
-        var catRect =
-          umbrellaCat.getBoundingClientRect();
+        if (progress <= 0.001) {
+
+          gsap.set(umbrellaCat, {
+            visibility: "hidden"
+          });
+
+        } else {
+
+          var catRect =
+            umbrellaCat.getBoundingClientRect();
 
 
-        var catIsOnScreen =
-          catRect.bottom > 0 &&
-          catRect.top < window.innerHeight;
+          var catIsOnScreen =
+            catRect.bottom > 0 &&
+            catRect.top < window.innerHeight;
 
 
-        gsap.set(umbrellaCat, {
+          gsap.set(umbrellaCat, {
 
-          visibility:
-            catIsOnScreen
-              ? "visible"
-              : "hidden"
-        });
+            visibility:
+              catIsOnScreen
+                ? "visible"
+                : "hidden"
+          });
+
+        }
 
       },
 
