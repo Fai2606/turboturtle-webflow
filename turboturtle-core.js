@@ -1465,7 +1465,7 @@ if (lakeWater1 && lakeWater2) {
       xPercent: "+=100",
 
       // SLOW FLOW
-      duration: 30,
+      duration: 45,
 
       ease: "none",
       repeat: -1,
