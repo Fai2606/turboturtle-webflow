@@ -1138,15 +1138,20 @@ function initHomeSection5() {
   // UMBRELLA CAT
   //
   // DOWN:
+  // - enters from above
   // - falls downward
-  // - drifts gently LEFT
+  // - drifts slightly left
   // - rotates anticlockwise to -15deg
+  // - disappears ONLY after completely leaving bottom
   //
   // UP:
-  // - exact reverse
+  // - reappears when entering from bottom
+  // - rises back up
+  // - returns right
+  // - rotates back to 0deg
+  // - disappears after completely leaving top
   //
-  // Cat stays absolute in its original Webflow parent.
-  // Parent scroll movement is compensated.
+  // Fully reversible / repeatable.
   // ============================================================
 
   if (umbrellaCat) {
@@ -1161,7 +1166,7 @@ function initHomeSection5() {
 
 
     // ----------------------------------------------------------
-    // REMOVE OLD INLINE EXPERIMENTAL STYLES
+    // REMOVE OLD EXPERIMENTAL INLINE STYLES
     // ----------------------------------------------------------
 
     gsap.set(umbrellaCat, {
@@ -1178,6 +1183,7 @@ function initHomeSection5() {
       visibility: "hidden",
       opacity: 1,
       x: 0,
+      y: 0,
       rotation: 0,
       force3D: true
     });
@@ -1197,6 +1203,7 @@ function initHomeSection5() {
         window.scrollY;
 
 
+      // Measure original Webflow position.
       var rect =
         umbrellaCat.getBoundingClientRect();
 
@@ -1322,20 +1329,17 @@ function initHomeSection5() {
 
 
         // ------------------------------------------------------
-        // NEW: GENTLE LEFT SWING
-        //
-        // At full fall:
-        // approximately 6% of viewport width to the left.
+        // LEFT DRIFT
         // ------------------------------------------------------
 
         var leftMovement =
           -window.innerWidth *
-          0.1 *
+          0.06 *
           progress;
 
 
         // ------------------------------------------------------
-        // MOVE CAT
+        // APPLY MOVEMENT
         // ------------------------------------------------------
 
         gsap.set(umbrellaCat, {
@@ -1346,9 +1350,8 @@ function initHomeSection5() {
           y:
             finalY,
 
-          // 0deg -> -15deg anticlockwise
           rotation:
-            -25 * progress,
+            -15 * progress,
 
           force3D: true
         });
@@ -1357,22 +1360,33 @@ function initHomeSection5() {
         // ------------------------------------------------------
         // VISIBILITY
         //
-        // Hidden only while completely above.
-        // Never artificially hide at bottom.
+        // IMPORTANT:
+        //
+        // Do NOT use progress to decide when to disappear.
+        //
+        // Instead look at where the cat ACTUALLY is
+        // on the user's screen.
+        //
+        // This makes it work properly on 1920 and other sizes.
         // ------------------------------------------------------
 
-        if (progress <= 0) {
+        var catRect =
+          umbrellaCat.getBoundingClientRect();
 
-          gsap.set(umbrellaCat, {
-            visibility: "hidden"
-          });
 
-        } else {
+        var catIsOnScreen =
+          catRect.bottom > 0 &&
+          catRect.top < window.innerHeight;
 
-          gsap.set(umbrellaCat, {
-            visibility: "visible"
-          });
-        }
+
+        gsap.set(umbrellaCat, {
+
+          visibility:
+            catIsOnScreen
+              ? "visible"
+              : "hidden"
+        });
+
       },
 
 
