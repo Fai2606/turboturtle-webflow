@@ -1460,7 +1460,7 @@ if (lakeWater1 && lakeWater2) {
     [lakeWater1, lakeWater2],
     {
       xPercent: "+=100",
-      duration: 30,
+      duration: 45,
       ease: "none",
       repeat: -1,
       force3D: true
