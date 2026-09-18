@@ -1431,43 +1431,49 @@ function initHomeSection6() {
   if (!window.gsap || !window.ScrollTrigger) return;
 
 
-  // ==========================================================
-  // LAKE WATER — CONTINUOUS FLOW
-  // ==========================================================
+// ==========================================================
+// LAKE WATER — FLOW INSIDE STATIONARY MASK
+//
+// MASK / home6_lake DOES NOT MOVE
+// WATER moves LEFT → RIGHT
+// ==========================================================
 
-  if (lakeWater1 && lakeWater2) {
+if (lakeWater1 && lakeWater2) {
 
-    // Water 1 begins in the visible lake.
-    gsap.set(lakeWater1, {
-      xPercent: 0,
+  // Water 1 = visible image
+  //
+  // Water 2 is positioned at left:100% in Webflow,
+  // so xPercent:-200 brings it one image-width to the LEFT
+  // of Water 1.
+  gsap.set(lakeWater1, {
+    xPercent: 0,
+    force3D: true
+  });
+
+  gsap.set(lakeWater2, {
+    xPercent: -200,
+    force3D: true
+  });
+
+
+  // Move BOTH water textures to the RIGHT.
+  //
+  // The home6_lake container and SVG mask NEVER move.
+  gsap.to(
+    [lakeWater1, lakeWater2],
+    {
+      xPercent: "+=100",
+
+      // SLOW FLOW
+      duration: 30,
+
+      ease: "none",
+      repeat: -1,
       force3D: true
-    });
+    }
+  );
 
-    // Water 2 is already positioned at Left: 100% in Webflow.
-    // So xPercent 0 keeps it immediately to the right.
-    gsap.set(lakeWater2, {
-      xPercent: 0,
-      force3D: true
-    });
-
-
-    // Move BOTH images left together.
-    //
-    // For now this is deliberately the simple test version.
-    // We first confirm that the water moves correctly.
-    gsap.to(
-      [lakeWater1, lakeWater2],
-      {
-        xPercent: -100,
-        duration: 12,
-        ease: "none",
-        repeat: -1,
-        force3D: true
-      }
-    );
-
-  }
-
+}
 
   // ==========================================================
   // WEIRD SUN HORN — CONSTANT ROTATION
