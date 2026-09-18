@@ -1424,7 +1424,49 @@ function initHomeSection6() {
   var weirdSun = q(".home6_weirdsun");
   var home6TallPillar = q(".home6_tallpillar");
 
+  // WATER
+  var lakeWater1 = q(".home6_lake_water1");
+  var lakeWater2 = q(".home6_lake_water2");
+
   if (!window.gsap || !window.ScrollTrigger) return;
+
+
+  // ==========================================================
+  // LAKE WATER — CONTINUOUS FLOW
+  // ==========================================================
+
+  if (lakeWater1 && lakeWater2) {
+
+    // Water 1 begins in the visible lake.
+    gsap.set(lakeWater1, {
+      xPercent: 0,
+      force3D: true
+    });
+
+    // Water 2 is already positioned at Left: 100% in Webflow.
+    // So xPercent 0 keeps it immediately to the right.
+    gsap.set(lakeWater2, {
+      xPercent: 0,
+      force3D: true
+    });
+
+
+    // Move BOTH images left together.
+    //
+    // For now this is deliberately the simple test version.
+    // We first confirm that the water moves correctly.
+    gsap.to(
+      [lakeWater1, lakeWater2],
+      {
+        xPercent: -100,
+        duration: 12,
+        ease: "none",
+        repeat: -1,
+        force3D: true
+      }
+    );
+
+  }
 
 
   // ==========================================================
@@ -1594,7 +1636,7 @@ function initHomeSection6() {
     });
 
 
-    // NORMAL LAYERS — slightly slower
+    // NORMAL LAYERS
     home6BuildTL.to(home6BuildLayers, {
       yPercent: 0,
       duration: 1.6,
@@ -1604,7 +1646,7 @@ function initHomeSection6() {
     }, 0);
 
 
-    // TALL PILLAR — slower
+    // TALL PILLAR
     home6BuildTL.to(home6TallPillar, {
       yPercent: 0,
       duration: 2.1,
@@ -1720,8 +1762,6 @@ function initHomeSection6() {
 
       // ======================================================
       // INITIAL STATE
-      // UFO = above screen + invisible
-      // LIGHT = closed + invisible
       // ======================================================
 
       gsap.set(home6UFO, {
@@ -1760,8 +1800,6 @@ function initHomeSection6() {
         }
 
 
-        // UFO is already above screen.
-        // Make visible before it starts flying.
         gsap.set(home6UFO, {
           visibility: "visible",
           opacity: 1
@@ -1789,7 +1827,6 @@ function initHomeSection6() {
           }, 0.8);
 
 
-          // Fast horizontal reveal
           enterTL.to(home6Light, {
             scaleX: 1,
             duration: 0.25,
@@ -1847,7 +1884,6 @@ function initHomeSection6() {
         }, 0);
 
 
-        // Hide only after it has left the screen
         exitTL.set(home6UFO, {
           visibility: "hidden",
           opacity: 0
@@ -1858,9 +1894,6 @@ function initHomeSection6() {
 
       // ======================================================
       // UFO TRIGGER
-      //
-      // TEMP: tallpillar reaches 20% from bottom.
-      // This is intentionally earlier so UFO trigger is reliable.
       // ======================================================
 
       ScrollTrigger.create({
@@ -1888,7 +1921,6 @@ function initHomeSection6() {
 
 
 } // END initHomeSection6
-
   
 
   
