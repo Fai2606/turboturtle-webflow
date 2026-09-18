@@ -1433,48 +1433,40 @@ function initHomeSection6() {
 
 // ==========================================================
 // LAKE WATER — FLOW INSIDE STATIONARY MASK
-//
-// MASK / home6_lake DOES NOT MOVE
-// WATER moves LEFT → RIGHT
+// LEFT → RIGHT / SLOW / SEAM FIX
 // ==========================================================
 
 if (lakeWater1 && lakeWater2) {
 
-  // Water 1 = visible image
-  //
-  // Water 2 is positioned at left:100% in Webflow,
-  // so xPercent:-200 brings it one image-width to the LEFT
-  // of Water 1.
-  gsap.set(lakeWater1, {
-    xPercent: 0,
+  // Slight scale prevents tiny edge gaps during GPU rendering
+  gsap.set([lakeWater1, lakeWater2], {
+    scale: 1.002,
+    transformOrigin: "50% 50%",
     force3D: true
+  });
+
+  gsap.set(lakeWater1, {
+    xPercent: 0
   });
 
   gsap.set(lakeWater2, {
     xPercent: -200,
-    force3D: true
+
+    // 2px overlap with Water 1
+    x: 2
   });
 
-
-  // Move BOTH water textures to the RIGHT.
-  //
-  // The home6_lake container and SVG mask NEVER move.
   gsap.to(
     [lakeWater1, lakeWater2],
     {
       xPercent: "+=100",
-
-      // SLOW FLOW
-      duration: 45,
-
+      duration: 30,
       ease: "none",
       repeat: -1,
       force3D: true
     }
   );
-
 }
-
   // ==========================================================
   // WEIRD SUN HORN — CONSTANT ROTATION
   // ==========================================================
