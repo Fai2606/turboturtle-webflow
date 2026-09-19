@@ -1960,6 +1960,8 @@ function initHomeSection7() {
   // ELEMENTS
   // ============================================================
 
+  var universe  = q(".home7_universe");
+
   var balloon   = q(".home7_balloon");
   var moon      = q(".home7_moon");
   var satellite = q(".home7_satellite");
@@ -1971,11 +1973,24 @@ function initHomeSection7() {
   var heroBear  = q(".home7_herobear");
   var rocket    = q(".home7_rocket");
 
+  var whiteCover = q(".home7_whitecover");
+
+
+  // ============================================================
+  // INITIAL STATE
+  // Webflow can stay opacity 0 for your convenience.
+  // JS immediately makes it 100% when page loads.
+  // ============================================================
+
+  if (whiteCover) {
+    gsap.set(whiteCover, {
+      opacity: 1
+    });
+  }
+
 
   // ============================================================
   // MASTER SCROLL
-  // Same successful format as HOME 5:
-  // ScrollTrigger.create → onUpdate → gsap.set
   // ============================================================
 
   ScrollTrigger.create({
@@ -1994,8 +2009,23 @@ function initHomeSection7() {
 
 
       // ========================================================
+      // UNIVERSE
+      // Move upward faster than normal page scrolling
+      // ========================================================
+
+      if (universe) {
+
+        gsap.set(universe, {
+          y: -35 * vh * p,
+          force3D: true
+        });
+
+      }
+
+
+      // ========================================================
       // BALLOON
-      // 4 O'CLOCK ↘
+      // 4 O'CLOCK
       // ========================================================
 
       if (balloon) {
@@ -2011,8 +2041,8 @@ function initHomeSection7() {
 
       // ========================================================
       // MOON
-      // 8 O'CLOCK ↙
-      // 1.1x SPEED
+      // 8 O'CLOCK
+      // 1.1x
       // ========================================================
 
       if (moon) {
@@ -2028,7 +2058,7 @@ function initHomeSection7() {
 
       // ========================================================
       // SATELLITE
-      // 10 O'CLOCK ↖
+      // 10 O'CLOCK
       // ========================================================
 
       if (satellite) {
@@ -2044,41 +2074,41 @@ function initHomeSection7() {
 
       // ========================================================
       // FISH HERO 1
-      // 10–11 O'CLOCK ↖
-      // 2.5x SPEED
+      // 1x
       // ========================================================
 
-      // FISH HERO 1 — 1x SPEED
       if (fish1) {
+
         gsap.set(fish1, {
           x: -18 * vw * p,
           y: -55 * vh * p,
           rotation: -3 * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // FISH HERO 2
-      // 10–11 O'CLOCK ↖
-      // 3x SPEED
+      // 2x
       // ========================================================
-    
+
       if (fish2) {
+
         gsap.set(fish2, {
           x: -32 * vw * p,
           y: -104 * vh * p,
           rotation: -4 * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // LONGNECK
-      // 11 O'CLOCK ↖
-      // +15° CLOCKWISE
+      // +15 DEG CLOCKWISE
       // ========================================================
 
       if (longneck) {
@@ -2095,15 +2125,15 @@ function initHomeSection7() {
 
       // ========================================================
       // HERO BEAR
-      // 6 O'CLOCK ↓
-      // Downward movement keeps bear visible longer
+      // 6 O'CLOCK
+      // 1.2x
       // ========================================================
 
       if (heroBear) {
 
         gsap.set(heroBear, {
           x: 0,
-          y: 55 * vh * p,
+          y: 66 * vh * p,
           force3D: true
         });
 
@@ -2112,8 +2142,8 @@ function initHomeSection7() {
 
       // ========================================================
       // ROCKET
-      // 12 O'CLOCK ↑
-      // 1.5x SPEED
+      // 12 O'CLOCK
+      // 1.5x
       // ========================================================
 
       if (rocket) {
@@ -2130,10 +2160,6 @@ function initHomeSection7() {
 
   });
 
-
-  // ============================================================
-  // REFRESH
-  // ============================================================
 
   requestAnimationFrame(function() {
     ScrollTrigger.refresh();
