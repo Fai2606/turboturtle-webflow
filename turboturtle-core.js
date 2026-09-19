@@ -2179,7 +2179,7 @@ function initHomeSection6() {
 
       y: 0,
 
-      duration: 1,
+      duration: 1.2,
 
       ease: "power3.out",
 
