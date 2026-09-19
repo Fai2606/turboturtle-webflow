@@ -2334,7 +2334,7 @@ function initHomeSection6() {
 
       trigger: weirdSun,
 
-      start: "top 20%",
+      start: "top 8%",
 
       invalidateOnRefresh: true,
 
