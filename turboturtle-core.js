@@ -1453,42 +1453,38 @@ function initHomeSection6() {
   if (!window.gsap || !window.ScrollTrigger) return;
 
 
-// ==========================================================
-// LAKE WATER — FLOW INSIDE STATIONARY MASK
-// LEFT → RIGHT / SLOW / SEAM FIX
-// ==========================================================
+  // ==========================================================
+  // LAKE WATER
+  // LEFT → RIGHT / SLOW / SEAM FIX
+  // ==========================================================
 
-if (lakeWater1 && lakeWater2) {
+  if (lakeWater1 && lakeWater2) {
 
-  // Slight scale prevents tiny edge gaps during GPU rendering
-  gsap.set([lakeWater1, lakeWater2], {
-    scale: 1.002,
-    transformOrigin: "50% 50%",
-    force3D: true
-  });
+    gsap.set([lakeWater1, lakeWater2], {
+      scale: 1.002,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
 
-  gsap.set(lakeWater1, {
-    xPercent: 0
-  });
+    gsap.set(lakeWater1, {
+      xPercent: 0
+    });
 
-  gsap.set(lakeWater2, {
-    xPercent: -200,
+    gsap.set(lakeWater2, {
+      xPercent: -200,
+      x: 2
+    });
 
-    // 2px overlap with Water 1
-    x: 2
-  });
-
-  gsap.to(
-    [lakeWater1, lakeWater2],
-    {
+    gsap.to([lakeWater1, lakeWater2], {
       xPercent: "+=100",
       duration: 45,
       ease: "none",
       repeat: -1,
       force3D: true
-    }
-  );
-}
+    });
+  }
+
+
   // ==========================================================
   // WEIRD SUN HORN — CONSTANT ROTATION
   // ==========================================================
@@ -1506,7 +1502,6 @@ if (lakeWater1 && lakeWater2) {
       ease: "none",
       repeat: -1
     });
-
   }
 
 
@@ -1529,7 +1524,6 @@ if (lakeWater1 && lakeWater2) {
         invalidateOnRefresh: true
       }
     });
-
   }
 
 
@@ -1579,21 +1573,16 @@ if (lakeWater1 && lakeWater2) {
     // STARTING POSITIONS
     // ========================================================
 
-    // Normal layers — 80% down
     gsap.set(home6BuildLayers, {
       yPercent: 80,
       force3D: true
     });
 
-
-    // Tall pillar — 80% down
     gsap.set(home6TallPillar, {
       yPercent: 80,
       force3D: true
     });
 
-
-    // Camel — 50% down
     if (camel) {
       gsap.set(camel, {
         yPercent: 50,
@@ -1601,8 +1590,6 @@ if (lakeWater1 && lakeWater2) {
       });
     }
 
-
-    // Monster — 50% down
     if (monster) {
       gsap.set(monster, {
         yPercent: 50,
@@ -1610,8 +1597,6 @@ if (lakeWater1 && lakeWater2) {
       });
     }
 
-
-    // Rocket — 80% down
     if (rocket) {
       gsap.set(rocket, {
         yPercent: 80,
@@ -1619,8 +1604,6 @@ if (lakeWater1 && lakeWater2) {
       });
     }
 
-
-    // Emperor — 80% down
     if (emperor) {
       gsap.set(emperor, {
         yPercent: 80,
@@ -1628,8 +1611,6 @@ if (lakeWater1 && lakeWater2) {
       });
     }
 
-
-    // Castle Inside — 80% down
     if (castleinside) {
       gsap.set(castleinside, {
         yPercent: 80,
@@ -1637,8 +1618,6 @@ if (lakeWater1 && lakeWater2) {
       });
     }
 
-
-    // Cat — 80% down
     if (cat) {
       gsap.set(cat, {
         yPercent: 80,
@@ -1697,7 +1676,7 @@ if (lakeWater1 && lakeWater2) {
     }
 
 
-    // ROCKET — 0.5 SEC DELAY
+    // ROCKET
     if (rocket) {
       home6BuildTL.to(rocket, {
         yPercent: 0,
@@ -1708,7 +1687,7 @@ if (lakeWater1 && lakeWater2) {
     }
 
 
-    // CASTLE INSIDE — 0.8 SEC DELAY
+    // CASTLE INSIDE
     if (castleinside) {
       home6BuildTL.to(castleinside, {
         yPercent: 0,
@@ -1719,7 +1698,7 @@ if (lakeWater1 && lakeWater2) {
     }
 
 
-    // CAT — 0.5 SEC DELAY
+    // CAT
     if (cat) {
       home6BuildTL.to(cat, {
         yPercent: 0,
@@ -1730,7 +1709,7 @@ if (lakeWater1 && lakeWater2) {
     }
 
 
-    // EMPEROR — 0.65 SEC DELAY
+    // EMPEROR
     if (emperor) {
       home6BuildTL.to(emperor, {
         yPercent: 0,
@@ -1771,17 +1750,41 @@ if (lakeWater1 && lakeWater2) {
 
 
     // ========================================================
-    // UFO + LIGHT
+    // UFO + HOME6 LIGHT + HOME7 REVEAL
     // ========================================================
 
     var home6UFO = q(".home6_ufo");
     var home6Light = q(".home6_light");
 
+    var home7LightBlur = q(".home7_lightblur");
+    var home7WhiteCover = q(".home7_whitecover");
+
+
+    // ========================================================
+    // INITIAL HOME7 STATE
+    // ========================================================
+
+    if (home7WhiteCover) {
+      gsap.set(home7WhiteCover, {
+        opacity: 1
+      });
+    }
+
+    if (home7LightBlur) {
+      gsap.set(home7LightBlur, {
+        scaleX: 0,
+        visibility: "hidden",
+        opacity: 0,
+        transformOrigin: "50% 50%",
+        force3D: true
+      });
+    }
+
 
     if (home6UFO) {
 
       // ======================================================
-      // INITIAL STATE
+      // INITIAL UFO STATE
       // ======================================================
 
       gsap.set(home6UFO, {
@@ -1819,6 +1822,14 @@ if (lakeWater1 && lakeWater2) {
           gsap.killTweensOf(home6Light);
         }
 
+        if (home7LightBlur) {
+          gsap.killTweensOf(home7LightBlur);
+        }
+
+        if (home7WhiteCover) {
+          gsap.killTweensOf(home7WhiteCover);
+        }
+
 
         gsap.set(home6UFO, {
           visibility: "visible",
@@ -1838,14 +1849,16 @@ if (lakeWater1 && lakeWater2) {
         }, 0);
 
 
-        // Light starts 0.5 sec before UFO finishes
+        // ====================================================
+        // BOTH LIGHTS START TOGETHER
+        // ====================================================
+
         if (home6Light) {
 
           enterTL.set(home6Light, {
             visibility: "visible",
             opacity: 1
           }, 0.8);
-
 
           enterTL.to(home6Light, {
             scaleX: 1,
@@ -1856,11 +1869,44 @@ if (lakeWater1 && lakeWater2) {
 
         }
 
+
+        if (home7LightBlur) {
+
+          enterTL.set(home7LightBlur, {
+            visibility: "visible",
+            opacity: 1
+          }, 0.8);
+
+          enterTL.to(home7LightBlur, {
+            scaleX: 1,
+            duration: 0.25,
+            ease: "power3.out",
+            force3D: true
+          }, 0.8);
+
+        }
+
+
+        // ====================================================
+        // WHITE COVER REVEAL
+        // STARTS AT EXACT SAME MOMENT AS BOTH LIGHTS
+        // ====================================================
+
+        if (home7WhiteCover) {
+
+          enterTL.to(home7WhiteCover, {
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out"
+          }, 0.8);
+
+        }
+
       }
 
 
       // ======================================================
-      // UFO EXIT
+      // UFO EXIT / RESET
       // ======================================================
 
       function hideHome6UFO() {
@@ -1871,11 +1917,19 @@ if (lakeWater1 && lakeWater2) {
           gsap.killTweensOf(home6Light);
         }
 
+        if (home7LightBlur) {
+          gsap.killTweensOf(home7LightBlur);
+        }
+
+        if (home7WhiteCover) {
+          gsap.killTweensOf(home7WhiteCover);
+        }
+
 
         var exitTL = gsap.timeline();
 
 
-        // Light closes quickly
+        // HOME6 YELLOW LIGHT CLOSE
         if (home6Light) {
 
           exitTL.to(home6Light, {
@@ -1889,6 +1943,36 @@ if (lakeWater1 && lakeWater2) {
           exitTL.set(home6Light, {
             visibility: "hidden"
           });
+
+        }
+
+
+        // HOME7 WHITE LIGHT CLOSE
+        if (home7LightBlur) {
+
+          exitTL.to(home7LightBlur, {
+            scaleX: 0,
+            opacity: 0,
+            duration: 0.18,
+            ease: "power2.in",
+            force3D: true
+          }, 0);
+
+          exitTL.set(home7LightBlur, {
+            visibility: "hidden"
+          });
+
+        }
+
+
+        // WHITE COVER RETURNS
+        if (home7WhiteCover) {
+
+          exitTL.to(home7WhiteCover, {
+            opacity: 1,
+            duration: 0.18,
+            ease: "power2.in"
+          }, 0);
 
         }
 
@@ -1913,14 +1997,19 @@ if (lakeWater1 && lakeWater2) {
 
 
       // ======================================================
-      // UFO TRIGGER
+      // UFO TRANSITION TRIGGER
+      //
+      // OLD = top 80%
+      // NEW = top 65%
+      //
+      // Smaller percentage = user scrolls further before trigger
       // ======================================================
 
       ScrollTrigger.create({
 
         trigger: home6TallPillar,
 
-        start: "top 80%",
+        start: "top 65%",
 
         invalidateOnRefresh: true,
 
@@ -1961,8 +2050,6 @@ function initHomeSection7() {
   // ============================================================
 
   var universe   = q(".home7_universe");
-  var whiteCover = q(".home7_whitecover");
-  var lightBlur  = q(".home7_lightblur");
 
   var balloon    = q(".home7_balloon");
   var moon       = q(".home7_moon");
@@ -1977,26 +2064,7 @@ function initHomeSection7() {
 
 
   // ============================================================
-  // INITIAL STATE
-  // ============================================================
-
-  if (whiteCover) {
-    gsap.set(whiteCover, {
-      opacity: 1
-    });
-  }
-
-  if (lightBlur) {
-    gsap.set(lightBlur, {
-      scaleX: 0,
-      transformOrigin: "50% 0%",
-      visibility: "visible"
-    });
-  }
-
-
-  // ============================================================
-  // HOME 7 MASTER SCROLL
+  // MASTER SCROLL
   // ============================================================
 
   ScrollTrigger.create({
@@ -2008,57 +2076,15 @@ function initHomeSection7() {
 
     invalidateOnRefresh: true,
 
+
     onUpdate: function(self) {
 
       var p = self.progress;
 
 
       // ========================================================
-      // WHITE REVEAL
-      //
-      // Starts white.
-      // Fade happens near beginning of Home7.
-      // 0.00 -> 0.16 progress
-      // ========================================================
-
-      var reveal = gsap.utils.clamp(
-        0,
-        1,
-        p / 0.16
-      );
-
-      // easeOutCubic
-      var easedReveal =
-        1 - Math.pow(1 - reveal, 3);
-
-
-      if (whiteCover) {
-
-        gsap.set(whiteCover, {
-          opacity: 1 - easedReveal
-        });
-
-      }
-
-
-      // ========================================================
-      // LIGHT BLUR
-      //
-      // Opens during exactly the same reveal.
-      // ========================================================
-
-      if (lightBlur) {
-
-        gsap.set(lightBlur, {
-          scaleX: easedReveal
-        });
-
-      }
-
-
-      // ========================================================
       // UNIVERSE
-      // Faster upward parallax
+      // UPWARD PARALLAX
       // ========================================================
 
       if (universe) {
@@ -2073,6 +2099,7 @@ function initHomeSection7() {
 
       // ========================================================
       // BALLOON
+      // 4 O'CLOCK
       // ========================================================
 
       if (balloon) {
@@ -2087,7 +2114,9 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // MOON — 1.1x
+      // MOON
+      // 8 O'CLOCK
+      // 1.1x
       // ========================================================
 
       if (moon) {
@@ -2103,6 +2132,7 @@ function initHomeSection7() {
 
       // ========================================================
       // SATELLITE
+      // 10 O'CLOCK
       // ========================================================
 
       if (satellite) {
@@ -2117,7 +2147,8 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // FISH 1 — 1x
+      // FISH HERO 1
+      // 1x
       // ========================================================
 
       if (fish1) {
@@ -2133,7 +2164,8 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // FISH 2 — 2x
+      // FISH HERO 2
+      // 2x
       // ========================================================
 
       if (fish2) {
@@ -2150,7 +2182,7 @@ function initHomeSection7() {
 
       // ========================================================
       // LONGNECK
-      // +15deg clockwise
+      // 15deg CLOCKWISE
       // ========================================================
 
       if (longneck) {
@@ -2166,7 +2198,8 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // HERO BEAR — 1.2x
+      // HERO BEAR
+      // 1.2x
       // ========================================================
 
       if (heroBear) {
@@ -2181,7 +2214,8 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // ROCKET — 1.5x
+      // ROCKET
+      // 1.5x
       // ========================================================
 
       if (rocket) {
