@@ -1697,7 +1697,10 @@ function initHomeSection5() {
 
 } // END initHomeSection5
   
-
+// =============================================================
+// HOMEPAGE SECTION 6
+// =============================================================
+  
 function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
@@ -2052,41 +2055,10 @@ function initHomeSection6() {
 
 
   // ==========================================================
-  // LIGHT BREATHING
-  //
-  // After opening:
-  // 100% <-> 100.2%
-  // ==========================================================
-
-function startLightBreathing() {
-
-  if (home6Light) {
-    gsap.to(home6Light, {
-      scaleX: 1.002,
-      duration: 0.8,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: -1,
-      force3D: true
-    });
-  }
-
-  if (home7LightBlur) {
-    gsap.to(home7LightBlur, {
-      scaleX: 1.002,
-      duration: 0.8,
-      ease: "sine.inOut",
-      yoyo: true,
-      repeat: -1,
-      force3D: true
-    });
-  }
-
-}
-
-
-  // ==========================================================
   // LIGHTS ON
+  //
+  // INITIAL OPEN:
+  // 0% -> 90%
   // ==========================================================
 
   function turnHome6LightsOn() {
@@ -2098,13 +2070,7 @@ function startLightBreathing() {
     lightsAreOn = true;
 
 
-    var lightTL = gsap.timeline({
-
-      onComplete: function() {
-        startLightBreathing();
-      }
-
-    });
+    var lightTL = gsap.timeline();
 
 
     // YELLOW UFO LIGHT
@@ -2117,7 +2083,7 @@ function startLightBreathing() {
       }, 0);
 
       lightTL.to(home6Light, {
-        scaleX: 1,
+        scaleX: 0.9,
         duration: 0.2,
         ease: "power3.out",
         force3D: true
@@ -2135,7 +2101,7 @@ function startLightBreathing() {
       }, 0);
 
       lightTL.to(home7LightBlur, {
-        scaleX: 1,
+        scaleX: 0.9,
         duration: 0.2,
         ease: "power3.out",
         force3D: true
@@ -2180,8 +2146,6 @@ function startLightBreathing() {
 
       y: 0,
 
-      // old = 1.3
-      // 1.5x faster
       duration: 1.3 / 1.5,
 
       ease: "power2.out",
@@ -2261,7 +2225,7 @@ function startLightBreathing() {
   // TRIGGER 1
   //
   // SUN REACHES TOP 10%
-  // → UFO ENTERS
+  // -> UFO ENTERS
   // ==========================================================
 
   if (weirdSun && home6UFO) {
@@ -2289,11 +2253,8 @@ function startLightBreathing() {
   // ==========================================================
   // TRIGGER 2
   //
-  // LAKE REACHES 70% VIEWPORT
-  // → REQUEST LIGHTS
-  //
-  // If UFO hasn't landed yet,
-  // it waits for UFO landing.
+  // LAKE REACHES 70%
+  // -> TURN LIGHTS ON
   // ==========================================================
 
   if (home6Lake) {
@@ -2316,6 +2277,65 @@ function startLightBreathing() {
       onLeaveBack: function() {
 
         lightTriggerReached = false;
+      }
+
+    });
+  }
+
+
+  // ==========================================================
+  // LIGHT SCROLL EXPANSION
+  //
+  // AFTER LIGHT IS ON:
+  //
+  // lake top @ 70% viewport = 90%
+  // lake top @ 20% viewport = 110%
+  //
+  // Scroll down = expands
+  // Scroll up   = contracts
+  // ==========================================================
+
+  if (home6Lake) {
+
+    ScrollTrigger.create({
+
+      trigger: home6Lake,
+
+      start: "top 70%",
+
+      end: "top 20%",
+
+      scrub: 1,
+
+      invalidateOnRefresh: true,
+
+      onUpdate: function(self) {
+
+        if (!lightsAreOn) return;
+
+
+        var lightScale =
+          0.9 +
+          (0.2 * self.progress);
+
+
+        if (home6Light) {
+
+          gsap.set(home6Light, {
+            scaleX: lightScale,
+            force3D: true
+          });
+        }
+
+
+        if (home7LightBlur) {
+
+          gsap.set(home7LightBlur, {
+            scaleX: lightScale,
+            force3D: true
+          });
+        }
+
       }
 
     });
