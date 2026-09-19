@@ -2150,7 +2150,7 @@ function initHomeSection6() {
 
       lightTL.to(home6Light, {
         scaleX: 1,
-        duration: 0.25,
+        duration: 0.18,
         ease: "power2.out",
         force3D: true
       }, 0);
@@ -2379,7 +2379,7 @@ function initHomeSection6() {
 
       trigger: home6Lake,
 
-      start: "top 60%",
+      start: "top 70%",
 
       invalidateOnRefresh: true,
 
