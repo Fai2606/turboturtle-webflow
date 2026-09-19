@@ -1445,6 +1445,7 @@ function initHomeSection6() {
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
   var home6TallPillar = q(".home6_tallpillar");
+  var home6Lake = q(".home6_lake");
 
   // WATER
   var lakeWater1 = q(".home6_lake_water1");
@@ -1482,6 +1483,7 @@ function initHomeSection6() {
       repeat: -1,
       force3D: true
     });
+
   }
 
 
@@ -1502,6 +1504,7 @@ function initHomeSection6() {
       ease: "none",
       repeat: -1
     });
+
   }
 
 
@@ -1524,6 +1527,7 @@ function initHomeSection6() {
         invalidateOnRefresh: true
       }
     });
+
   }
 
 
@@ -1656,72 +1660,85 @@ function initHomeSection6() {
 
     // CAMEL
     if (camel) {
+
       home6BuildTL.to(camel, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0);
+
     }
 
 
     // MONSTER
     if (monster) {
+
       home6BuildTL.to(monster, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0);
+
     }
 
 
     // ROCKET
     if (rocket) {
+
       home6BuildTL.to(rocket, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.5);
+
     }
 
 
     // CASTLE INSIDE
     if (castleinside) {
+
       home6BuildTL.to(castleinside, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.8);
+
     }
 
 
     // CAT
     if (cat) {
+
       home6BuildTL.to(cat, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.5);
+
     }
 
 
     // EMPEROR
     if (emperor) {
+
       home6BuildTL.to(emperor, {
         yPercent: 0,
         duration: 1.6,
         ease: "power3.out",
         force3D: true
       }, 0.65);
+
     }
 
 
     // ========================================================
     // CASTLE BUILD TRIGGER
+    // KEEP ORIGINAL
     // ========================================================
 
     ScrollTrigger.create({
@@ -1748,291 +1765,390 @@ function initHomeSection6() {
 
     });
 
-
-    // ========================================================
-    // UFO + HOME6 LIGHT + HOME7 REVEAL
-    // ========================================================
-
-    var home6UFO = q(".home6_ufo");
-    var home6Light = q(".home6_light");
-
-    var home7LightBlur = q(".home7_lightblur");
-    var home7WhiteCover = q(".home7_whitecover");
+  }
 
 
-    // ========================================================
-    // INITIAL HOME7 STATE
-    // ========================================================
+  // ==========================================================
+  // UFO + LIGHT TRANSITION
+  //
+  // TWO DIFFERENT SCROLL TRIGGERS:
+  //
+  // 1. WEIRD SUN @ TOP 20%
+  //    → UFO FLIES DOWN
+  //
+  // 2. LAKE @ 40% FROM BOTTOM
+  //    → REQUEST LIGHTS + WHITE REVEAL
+  //
+  // Lights CANNOT start until UFO has landed.
+  // ==========================================================
 
-    if (home7WhiteCover) {
-      gsap.set(home7WhiteCover, {
+  var home6UFO = q(".home6_ufo");
+  var home6Light = q(".home6_light");
+
+  var home7LightBlur = q(".home7_lightblur");
+  var home7WhiteCover = q(".home7_whitecover");
+
+
+  // ==========================================================
+  // STATE
+  // ==========================================================
+
+  var ufoHasLanded = false;
+  var lightTriggerReached = false;
+  var lightsAreOn = false;
+
+
+  // ==========================================================
+  // INITIAL STATES
+  // ==========================================================
+
+  if (home6UFO) {
+
+    gsap.set(home6UFO, {
+      y: function() {
+        return -window.innerHeight * 1.5;
+      },
+      visibility: "hidden",
+      opacity: 0,
+      force3D: true
+    });
+
+  }
+
+
+  if (home6Light) {
+
+    gsap.set(home6Light, {
+      scaleX: 0,
+      visibility: "hidden",
+      opacity: 0,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
+
+  }
+
+
+  if (home7LightBlur) {
+
+    gsap.set(home7LightBlur, {
+      scaleX: 0,
+      visibility: "hidden",
+      opacity: 0,
+      transformOrigin: "50% 50%",
+      force3D: true
+    });
+
+  }
+
+
+  // Webflow can remain opacity 0 while designing.
+  // JS makes it white on page load.
+  if (home7WhiteCover) {
+
+    gsap.set(home7WhiteCover, {
+      opacity: 1
+    });
+
+  }
+
+
+  // ==========================================================
+  // TURN LIGHTS ON
+  // ==========================================================
+
+  function turnHome6LightsOn() {
+
+    // Already on
+    if (lightsAreOn) return;
+
+    // Lake hasn't reached its trigger yet
+    if (!lightTriggerReached) return;
+
+    // CRITICAL:
+    // UFO must have COMPLETELY landed first
+    if (!ufoHasLanded) return;
+
+
+    lightsAreOn = true;
+
+
+    var lightTL = gsap.timeline();
+
+
+    // --------------------------------------------------------
+    // YELLOW UFO LIGHT
+    // --------------------------------------------------------
+
+    if (home6Light) {
+
+      lightTL.set(home6Light, {
+        visibility: "visible",
         opacity: 1
-      });
+      }, 0);
+
+      lightTL.to(home6Light, {
+        scaleX: 1,
+        duration: 0.25,
+        ease: "power2.out",
+        force3D: true
+      }, 0);
+
     }
+
+
+    // --------------------------------------------------------
+    // HOME7 WHITE LIGHT
+    // EXACT SAME TIME
+    // --------------------------------------------------------
 
     if (home7LightBlur) {
-      gsap.set(home7LightBlur, {
-        scaleX: 0,
-        visibility: "hidden",
-        opacity: 0,
-        transformOrigin: "50% 50%",
+
+      lightTL.set(home7LightBlur, {
+        visibility: "visible",
+        opacity: 1
+      }, 0);
+
+      lightTL.to(home7LightBlur, {
+        scaleX: 1,
+        duration: 0.25,
+        ease: "power2.out",
         force3D: true
-      });
+      }, 0);
+
     }
+
+
+    // --------------------------------------------------------
+    // WHITE COVER
+    // EXACT SAME START
+    // --------------------------------------------------------
+
+    if (home7WhiteCover) {
+
+      lightTL.to(home7WhiteCover, {
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out"
+      }, 0);
+
+    }
+
+  }
+
+
+  // ==========================================================
+  // UFO FLIES DOWN
+  //
+  // Trigger:
+  // home6_weirdsun reaches 20% FROM TOP
+  //
+  // Original duration = 1.3
+  // 1.5x faster = 1.3 / 1.5 = ~0.87 sec
+  //
+  // Easing lowered one grade:
+  // power3.out → power2.out
+  // ==========================================================
+
+  function showHome6UFO() {
+
+    if (!home6UFO) return;
+
+
+    gsap.killTweensOf(home6UFO);
+
+
+    ufoHasLanded = false;
+
+
+    gsap.set(home6UFO, {
+      visibility: "visible",
+      opacity: 1
+    });
+
+
+    gsap.to(home6UFO, {
+
+      y: 0,
+
+      duration: 1.3 / 1.5,
+
+      ease: "power2.out",
+
+      force3D: true,
+
+
+      onComplete: function() {
+
+        // UFO IS NOW FULLY STOPPED
+        ufoHasLanded = true;
+
+
+        // If lake trigger already happened because
+        // user scrolled quickly, lights start NOW.
+        turnHome6LightsOn();
+
+      }
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // RESET UFO + LIGHTS
+  // ==========================================================
+
+  function resetHome6UFO() {
+
+    ufoHasLanded = false;
+    lightTriggerReached = false;
+    lightsAreOn = false;
 
 
     if (home6UFO) {
 
-      // ======================================================
-      // INITIAL UFO STATE
-      // ======================================================
+      gsap.killTweensOf(home6UFO);
 
       gsap.set(home6UFO, {
         y: function() {
           return -window.innerHeight * 1.5;
         },
         visibility: "hidden",
-        opacity: 0,
-        force3D: true
-      });
-
-
-      if (home6Light) {
-
-        gsap.set(home6Light, {
-          scaleX: 0,
-          visibility: "hidden",
-          opacity: 0,
-          transformOrigin: "50% 50%",
-          force3D: true
-        });
-
-      }
-
-
-      // ======================================================
-      // UFO ENTER
-      // ======================================================
-
-      function showHome6UFO() {
-
-        gsap.killTweensOf(home6UFO);
-
-        if (home6Light) {
-          gsap.killTweensOf(home6Light);
-        }
-
-        if (home7LightBlur) {
-          gsap.killTweensOf(home7LightBlur);
-        }
-
-        if (home7WhiteCover) {
-          gsap.killTweensOf(home7WhiteCover);
-        }
-
-
-        gsap.set(home6UFO, {
-          visibility: "visible",
-          opacity: 1
-        });
-
-
-        var enterTL = gsap.timeline({
-          timeScale: 1.2
-        });
-
-
-        // UFO flies down
-        enterTL.to(home6UFO, {
-          y: 0,
-          duration: 1.3,
-          ease: "power3.out",
-          force3D: true
-        }, 0);
-
-
-        // ====================================================
-        // BOTH LIGHTS START TOGETHER
-        // ====================================================
-
-        if (home6Light) {
-
-          enterTL.set(home6Light, {
-            visibility: "visible",
-            opacity: 1
-          }, 0.8);
-
-          enterTL.to(home6Light, {
-            scaleX: 1,
-            duration: 0.25,
-            ease: "power3.out",
-            force3D: true
-          }, 0.8);
-
-        }
-
-
-        if (home7LightBlur) {
-
-          enterTL.set(home7LightBlur, {
-            visibility: "visible",
-            opacity: 1
-          }, 0.8);
-
-          enterTL.to(home7LightBlur, {
-            scaleX: 1,
-            duration: 0.25,
-            ease: "power3.out",
-            force3D: true
-          }, 0.8);
-
-        }
-
-
-        // ====================================================
-        // WHITE COVER REVEAL
-        // STARTS AT EXACT SAME MOMENT AS BOTH LIGHTS
-        // ====================================================
-
-        if (home7WhiteCover) {
-
-          enterTL.to(home7WhiteCover, {
-            opacity: 0,
-            duration: 1,
-            ease: "power3.out"
-          }, 0.8);
-
-        }
-
-      }
-
-
-      // ======================================================
-      // UFO EXIT / RESET
-      // ======================================================
-
-      function hideHome6UFO() {
-
-        gsap.killTweensOf(home6UFO);
-
-        if (home6Light) {
-          gsap.killTweensOf(home6Light);
-        }
-
-        if (home7LightBlur) {
-          gsap.killTweensOf(home7LightBlur);
-        }
-
-        if (home7WhiteCover) {
-          gsap.killTweensOf(home7WhiteCover);
-        }
-
-
-        var exitTL = gsap.timeline();
-
-
-        // HOME6 YELLOW LIGHT CLOSE
-        if (home6Light) {
-
-          exitTL.to(home6Light, {
-            scaleX: 0,
-            opacity: 0,
-            duration: 0.18,
-            ease: "power2.in",
-            force3D: true
-          }, 0);
-
-          exitTL.set(home6Light, {
-            visibility: "hidden"
-          });
-
-        }
-
-
-        // HOME7 WHITE LIGHT CLOSE
-        if (home7LightBlur) {
-
-          exitTL.to(home7LightBlur, {
-            scaleX: 0,
-            opacity: 0,
-            duration: 0.18,
-            ease: "power2.in",
-            force3D: true
-          }, 0);
-
-          exitTL.set(home7LightBlur, {
-            visibility: "hidden"
-          });
-
-        }
-
-
-        // WHITE COVER RETURNS
-        if (home7WhiteCover) {
-
-          exitTL.to(home7WhiteCover, {
-            opacity: 1,
-            duration: 0.18,
-            ease: "power2.in"
-          }, 0);
-
-        }
-
-
-        // UFO flies back above screen
-        exitTL.to(home6UFO, {
-          y: function() {
-            return -window.innerHeight * 1.5;
-          },
-          duration: 0.9,
-          ease: "power3.in",
-          force3D: true
-        }, 0);
-
-
-        exitTL.set(home6UFO, {
-          visibility: "hidden",
-          opacity: 0
-        });
-
-      }
-
-
-      // ======================================================
-      // UFO TRANSITION TRIGGER
-      //
-      // OLD = top 80%
-      // NEW = top 65%
-      //
-      // Smaller percentage = user scrolls further before trigger
-      // ======================================================
-
-      ScrollTrigger.create({
-
-        trigger: home6TallPillar,
-
-        start: "top 70%",
-
-        invalidateOnRefresh: true,
-
-        onEnter: function() {
-          showHome6UFO();
-        },
-
-        onLeaveBack: function() {
-          hideHome6UFO();
-        }
-
+        opacity: 0
       });
 
     }
 
 
-  } // END home6TallPillar
+    if (home6Light) {
+
+      gsap.killTweensOf(home6Light);
+
+      gsap.set(home6Light, {
+        scaleX: 0,
+        visibility: "hidden",
+        opacity: 0
+      });
+
+    }
+
+
+    if (home7LightBlur) {
+
+      gsap.killTweensOf(home7LightBlur);
+
+      gsap.set(home7LightBlur, {
+        scaleX: 0,
+        visibility: "hidden",
+        opacity: 0
+      });
+
+    }
+
+
+    if (home7WhiteCover) {
+
+      gsap.killTweensOf(home7WhiteCover);
+
+      gsap.set(home7WhiteCover, {
+        opacity: 1
+      });
+
+    }
+
+  }
+
+
+  // ==========================================================
+  // TRIGGER 1
+  //
+  // WEIRD SUN REACHES TOP 20%
+  // → UFO FLIES DOWN
+  // ==========================================================
+
+  if (weirdSun && home6UFO) {
+
+    ScrollTrigger.create({
+
+      trigger: weirdSun,
+
+      start: "top 20%",
+
+      invalidateOnRefresh: true,
+
+
+      onEnter: function() {
+
+        showHome6UFO();
+
+      },
+
+
+      onLeaveBack: function() {
+
+        resetHome6UFO();
+
+      }
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // TRIGGER 2
+  //
+  // LAKE PASSES 40% FROM BOTTOM
+  //
+  // 40% FROM BOTTOM = 60% FROM TOP
+  //
+  // → REQUEST LIGHTS
+  //
+  // If UFO already landed:
+  //     lights start immediately.
+  //
+  // If UFO still moving:
+  //     waits for UFO onComplete.
+  // ==========================================================
+
+  if (home6Lake) {
+
+    ScrollTrigger.create({
+
+      trigger: home6Lake,
+
+      start: "top 60%",
+
+      invalidateOnRefresh: true,
+
+
+      onEnter: function() {
+
+        lightTriggerReached = true;
+
+        turnHome6LightsOn();
+
+      },
+
+
+      onLeaveBack: function() {
+
+        lightTriggerReached = false;
+
+      }
+
+    });
+
+  }
+
+
+  requestAnimationFrame(function() {
+    ScrollTrigger.refresh();
+  });
 
 
 } // END initHomeSection6
-
 
   
 
