@@ -1960,26 +1960,24 @@ function initHomeSection7() {
   // ELEMENTS
   // ============================================================
 
-  var universe  = q(".home7_universe");
-
-  var balloon   = q(".home7_balloon");
-  var moon      = q(".home7_moon");
-  var satellite = q(".home7_satellite");
-
-  var fish1     = q(".home7_fishhero1");
-  var fish2     = q(".home7_fishhero2");
-
-  var longneck  = q(".home7_longneck");
-  var heroBear  = q(".home7_herobear");
-  var rocket    = q(".home7_rocket");
-
+  var universe   = q(".home7_universe");
   var whiteCover = q(".home7_whitecover");
+  var lightBlur  = q(".home7_lightblur");
+
+  var balloon    = q(".home7_balloon");
+  var moon       = q(".home7_moon");
+  var satellite  = q(".home7_satellite");
+
+  var fish1      = q(".home7_fishhero1");
+  var fish2      = q(".home7_fishhero2");
+
+  var longneck   = q(".home7_longneck");
+  var heroBear   = q(".home7_herobear");
+  var rocket     = q(".home7_rocket");
 
 
   // ============================================================
   // INITIAL STATE
-  // Webflow can stay opacity 0 for your convenience.
-  // JS immediately makes it 100% when page loads.
   // ============================================================
 
   if (whiteCover) {
@@ -1988,9 +1986,17 @@ function initHomeSection7() {
     });
   }
 
+  if (lightBlur) {
+    gsap.set(lightBlur, {
+      scaleX: 0,
+      transformOrigin: "50% 0%",
+      visibility: "visible"
+    });
+  }
+
 
   // ============================================================
-  // MASTER SCROLL
+  // HOME 7 MASTER SCROLL
   // ============================================================
 
   ScrollTrigger.create({
@@ -2002,15 +2008,57 @@ function initHomeSection7() {
 
     invalidateOnRefresh: true,
 
-
     onUpdate: function(self) {
 
       var p = self.progress;
 
 
       // ========================================================
+      // WHITE REVEAL
+      //
+      // Starts white.
+      // Fade happens near beginning of Home7.
+      // 0.00 -> 0.16 progress
+      // ========================================================
+
+      var reveal = gsap.utils.clamp(
+        0,
+        1,
+        p / 0.16
+      );
+
+      // easeOutCubic
+      var easedReveal =
+        1 - Math.pow(1 - reveal, 3);
+
+
+      if (whiteCover) {
+
+        gsap.set(whiteCover, {
+          opacity: 1 - easedReveal
+        });
+
+      }
+
+
+      // ========================================================
+      // LIGHT BLUR
+      //
+      // Opens during exactly the same reveal.
+      // ========================================================
+
+      if (lightBlur) {
+
+        gsap.set(lightBlur, {
+          scaleX: easedReveal
+        });
+
+      }
+
+
+      // ========================================================
       // UNIVERSE
-      // Move upward faster than normal page scrolling
+      // Faster upward parallax
       // ========================================================
 
       if (universe) {
@@ -2025,7 +2073,6 @@ function initHomeSection7() {
 
       // ========================================================
       // BALLOON
-      // 4 O'CLOCK
       // ========================================================
 
       if (balloon) {
@@ -2040,9 +2087,7 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // MOON
-      // 8 O'CLOCK
-      // 1.1x
+      // MOON — 1.1x
       // ========================================================
 
       if (moon) {
@@ -2058,7 +2103,6 @@ function initHomeSection7() {
 
       // ========================================================
       // SATELLITE
-      // 10 O'CLOCK
       // ========================================================
 
       if (satellite) {
@@ -2073,8 +2117,7 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // FISH HERO 1
-      // 1x
+      // FISH 1 — 1x
       // ========================================================
 
       if (fish1) {
@@ -2090,8 +2133,7 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // FISH HERO 2
-      // 2x
+      // FISH 2 — 2x
       // ========================================================
 
       if (fish2) {
@@ -2108,7 +2150,7 @@ function initHomeSection7() {
 
       // ========================================================
       // LONGNECK
-      // +15 DEG CLOCKWISE
+      // +15deg clockwise
       // ========================================================
 
       if (longneck) {
@@ -2124,9 +2166,7 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // HERO BEAR
-      // 6 O'CLOCK
-      // 1.2x
+      // HERO BEAR — 1.2x
       // ========================================================
 
       if (heroBear) {
@@ -2141,9 +2181,7 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // ROCKET
-      // 12 O'CLOCK
-      // 1.5x
+      // ROCKET — 1.5x
       // ========================================================
 
       if (rocket) {
