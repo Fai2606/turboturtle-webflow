@@ -2189,8 +2189,8 @@ function initHomeSection6() {
 
       lightTL.to(home7WhiteCover, {
         opacity: 0,
-        duration: 1,
-        ease: "power3.out"
+        duration: 0.8,
+        ease: "power2.out"
       }, 0);
 
     }
