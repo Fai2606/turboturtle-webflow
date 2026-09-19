@@ -2006,16 +2006,6 @@ function initHomeSection6() {
   var lightTriggerReached = false;
   var lightsAreOn = false;
 
-  // NEW:
-  // prevents scroll from controlling scaleX during 0 -> 90% opening
-  var lightOpening = false;
-
-  // scroll position AFTER 90% opening finishes
-  var lightExpansionStartScroll = 0;
-
-  // how much additional scroll is needed for 90% -> 110%
-  var lightExpansionDistance = window.innerHeight * 0.7;
-
 
   // ==========================================================
   // INITIAL STATE
@@ -2065,95 +2055,10 @@ function initHomeSection6() {
 
 
   // ==========================================================
-  // CURRENT SCROLL
-  // ==========================================================
-
-  function getHome6Scroll() {
-
-    if (lenis && typeof lenis.scroll === "number") {
-      return lenis.scroll;
-    }
-
-    return window.scrollY || window.pageYOffset || 0;
-  }
-
-
-  // ==========================================================
-  // LIGHT SCROLL SCALE
-  //
-  // Starts ONLY after opening has finished.
-  //
-  // 90% -> 110%
-  // ==========================================================
-
- function updateHome6LightExpansion() {
-
-  if (!lightsAreOn) return;
-  if (lightOpening) return;
-
-
-  var currentScroll = getHome6Scroll();
-
-  var extraScroll =
-    currentScroll -
-    lightExpansionStartScroll;
-
-
-  var expansionProgress =
-    extraScroll /
-    lightExpansionDistance;
-
-
-  expansionProgress =
-    Math.max(
-      0,
-      Math.min(1, expansionProgress)
-    );
-
-
-  var lightScale =
-    0.9 +
-    (1 * expansionProgress);
-
-
-  // Smoothly chase the scroll-controlled scale
-  // instead of instantly jumping to each new value.
-
-  if (home6Light) {
-
-    gsap.to(home6Light, {
-      scaleX: lightScale,
-      duration: 0.22,
-      ease: "power2.out",
-      overwrite: "auto",
-      force3D: true
-    });
-  }
-
-
-  if (home7LightBlur) {
-
-    gsap.to(home7LightBlur, {
-      scaleX: lightScale,
-      duration: 0.22,
-      ease: "power2.out",
-      overwrite: "auto",
-      force3D: true
-    });
-  }
-
-}
-
-  // ==========================================================
   // LIGHTS ON
   //
-  // EXACT SEQUENCE:
-  //
-  // 0% -> 90% automatically
-  //
-  // THEN:
-  //
-  // scrolling controls 90% -> 110%
+  // INITIAL OPEN:
+  // 0% -> 90%
   // ==========================================================
 
   function turnHome6LightsOn() {
@@ -2162,40 +2067,13 @@ function initHomeSection6() {
     if (!lightTriggerReached) return;
     if (!ufoHasLanded) return;
 
-
     lightsAreOn = true;
-    lightOpening = true;
 
 
-    var lightTL = gsap.timeline({
-
-      onComplete: function() {
-
-        // Opening is now COMPLETELY finished.
-        lightOpening = false;
-
-        // Scroll expansion starts from THIS exact position.
-        lightExpansionStartScroll = getHome6Scroll();
-
-        // Lock exact starting scale.
-        if (home6Light) {
-          gsap.set(home6Light, {
-            scaleX: 0.9
-          });
-        }
-
-        if (home7LightBlur) {
-          gsap.set(home7LightBlur, {
-            scaleX: 0.9
-          });
-        }
-      }
-
-    });
+    var lightTL = gsap.timeline();
 
 
     // YELLOW UFO LIGHT
-    // 0 -> 90%
 
     if (home6Light) {
 
@@ -2206,7 +2084,7 @@ function initHomeSection6() {
 
       lightTL.to(home6Light, {
         scaleX: 0.9,
-        duration: 0.18,
+        duration: 0.2,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -2214,7 +2092,6 @@ function initHomeSection6() {
 
 
     // WHITE LIGHT BLUR
-    // 0 -> 90%
 
     if (home7LightBlur) {
 
@@ -2225,7 +2102,7 @@ function initHomeSection6() {
 
       lightTL.to(home7LightBlur, {
         scaleX: 0.9,
-        duration: 0.18,
+        duration: 0.2,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -2242,36 +2119,6 @@ function initHomeSection6() {
         ease: "power3.out"
       }, 0);
     }
-
-
-    // IMPORTANT:
-    // White cover lasts 1 sec, but light opening only lasts 0.18 sec.
-    //
-    // Therefore enable scroll expansion at 0.18 sec,
-    // NOT after the whole 1 sec timeline.
-
-    lightTL.call(function() {
-
-      lightOpening = false;
-
-      lightExpansionStartScroll = getHome6Scroll();
-
-
-      if (home6Light) {
-        gsap.set(home6Light, {
-          scaleX: 0.9
-        });
-      }
-
-
-      if (home7LightBlur) {
-        gsap.set(home7LightBlur, {
-          scaleX: 0.9
-        });
-      }
-
-    }, null, 0.18);
-
   }
 
 
@@ -2324,9 +2171,6 @@ function initHomeSection6() {
     ufoHasLanded = false;
     lightTriggerReached = false;
     lightsAreOn = false;
-    lightOpening = false;
-
-    lightExpansionStartScroll = 0;
 
 
     if (home6Light) {
@@ -2410,7 +2254,7 @@ function initHomeSection6() {
   // TRIGGER 2
   //
   // LAKE REACHES 70%
-  // -> REQUEST LIGHT ON
+  // -> TURN LIGHTS ON
   // ==========================================================
 
   if (home6Lake) {
@@ -2421,10 +2265,7 @@ function initHomeSection6() {
 
       start: "top 70%",
 
-      end: "bottom top",
-
       invalidateOnRefresh: true,
-
 
       onEnter: function() {
 
@@ -2433,24 +2274,68 @@ function initHomeSection6() {
         turnHome6LightsOn();
       },
 
-
-      onEnterBack: function() {
-
-        lightTriggerReached = true;
-
-        updateHome6LightExpansion();
-      },
-
-
-      onUpdate: function() {
-
-        updateHome6LightExpansion();
-      },
-
-
       onLeaveBack: function() {
 
         lightTriggerReached = false;
+      }
+
+    });
+  }
+
+
+  // ==========================================================
+  // LIGHT SCROLL EXPANSION
+  //
+  // AFTER LIGHT IS ON:
+  //
+  // lake top @ 70% viewport = 90%
+  // lake top @ 20% viewport = 110%
+  //
+  // Scroll down = expands
+  // Scroll up   = contracts
+  // ==========================================================
+
+  if (home6Lake) {
+
+    ScrollTrigger.create({
+
+      trigger: home6Lake,
+
+      start: "top 70%",
+
+      end: "top 20%",
+
+      scrub: 1,
+
+      invalidateOnRefresh: true,
+
+      onUpdate: function(self) {
+
+        if (!lightsAreOn) return;
+
+
+        var lightScale =
+          0.9 +
+          (0.2 * self.progress);
+
+
+        if (home6Light) {
+
+          gsap.set(home6Light, {
+            scaleX: lightScale,
+            force3D: true
+          });
+        }
+
+
+        if (home7LightBlur) {
+
+          gsap.set(home7LightBlur, {
+            scaleX: lightScale,
+            force3D: true
+          });
+        }
+
       }
 
     });
@@ -2462,6 +2347,7 @@ function initHomeSection6() {
   });
 
 }
+
   
 
 
@@ -2677,5 +2563,3 @@ function initHomeSection7() {
 })(window);
 
   
-
-
