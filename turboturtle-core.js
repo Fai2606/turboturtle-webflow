@@ -2179,9 +2179,9 @@ function initHomeSection6() {
 
       y: 0,
 
-      duration: 1.3 / 1.5,
+      duration: 1,
 
-      ease: "power2.out",
+      ease: "power3.out",
 
       force3D: true,
 
