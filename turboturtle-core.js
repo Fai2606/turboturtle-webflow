@@ -2471,8 +2471,8 @@ function initHomeSection7() {
       if (fish2) {
 
         gsap.set(fish2, {
-          x: -36 * vw * p,
-          y: -115 * vh * p,
+          x: -40 * vw * p,
+          y: -120 * vh * p,
           rotation: -4 * p,
           force3D: true
         });
