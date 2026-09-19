@@ -2379,7 +2379,7 @@ function initHomeSection6() {
 
       trigger: home6Lake,
 
-      start: "top 70%",
+      start: "top 75%",
 
       invalidateOnRefresh: true,
 
