@@ -2049,14 +2049,12 @@ function initHomeSection7() {
       // ========================================================
 
       if (fish1) {
-
         gsap.set(fish1, {
-          x: -45 * vw * p,
-          y: -137.5 * vh * p,
-          rotation: -7.5 * p,
+          x: -27 * vw * p,
+          y: -82.5 * vh * p,
+          rotation: -4.5 * p,
           force3D: true
         });
-
       }
 
 
@@ -2065,16 +2063,14 @@ function initHomeSection7() {
       // 10–11 O'CLOCK ↖
       // 3x SPEED
       // ========================================================
-
+    
       if (fish2) {
-
         gsap.set(fish2, {
-          x: -48 * vw * p,
-          y: -156 * vh * p,
-          rotation: -6 * p,
+          x: -32 * vw * p,
+          y: -104 * vh * p,
+          rotation: -4 * p,
           force3D: true
         });
-
       }
 
 
