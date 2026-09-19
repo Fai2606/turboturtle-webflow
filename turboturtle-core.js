@@ -2048,11 +2048,12 @@ function initHomeSection7() {
       // 2.5x SPEED
       // ========================================================
 
+      // FISH HERO 1 — 1x SPEED
       if (fish1) {
         gsap.set(fish1, {
-          x: -27 * vw * p,
-          y: -82.5 * vh * p,
-          rotation: -4.5 * p,
+          x: -18 * vw * p,
+          y: -55 * vh * p,
+          rotation: -3 * p,
           force3D: true
         });
       }
