@@ -2086,54 +2086,63 @@ function initHomeSection6() {
   // 90% -> 110%
   // ==========================================================
 
-  function updateHome6LightExpansion() {
+ function updateHome6LightExpansion() {
 
-    if (!lightsAreOn) return;
-    if (lightOpening) return;
-
-
-    var currentScroll = getHome6Scroll();
-
-    var extraScroll =
-      currentScroll -
-      lightExpansionStartScroll;
+  if (!lightsAreOn) return;
+  if (lightOpening) return;
 
 
-    var expansionProgress =
-      extraScroll /
-      lightExpansionDistance;
+  var currentScroll = getHome6Scroll();
+
+  var extraScroll =
+    currentScroll -
+    lightExpansionStartScroll;
 
 
-    expansionProgress =
-      Math.max(
-        0,
-        Math.min(1, expansionProgress)
-      );
+  var expansionProgress =
+    extraScroll /
+    lightExpansionDistance;
 
 
-    var lightScale =
-      0.9 +
-      (0.2 * expansionProgress);
+  expansionProgress =
+    Math.max(
+      0,
+      Math.min(1, expansionProgress)
+    );
 
 
-    if (home6Light) {
-
-      gsap.set(home6Light, {
-        scaleX: lightScale,
-        force3D: true
-      });
-    }
+  var lightScale =
+    0.9 +
+    (0.2 * expansionProgress);
 
 
-    if (home7LightBlur) {
+  // Smoothly chase the scroll-controlled scale
+  // instead of instantly jumping to each new value.
 
-      gsap.set(home7LightBlur, {
-        scaleX: lightScale,
-        force3D: true
-      });
-    }
+  if (home6Light) {
+
+    gsap.to(home6Light, {
+      scaleX: lightScale,
+      duration: 0.22,
+      ease: "power2.out",
+      overwrite: "auto",
+      force3D: true
+    });
   }
 
+
+  if (home7LightBlur) {
+
+    gsap.to(home7LightBlur, {
+      scaleX: lightScale,
+      duration: 0.22,
+      ease: "power2.out",
+      overwrite: "auto",
+      force3D: true
+    });
+  }
+
+}
 
   // ==========================================================
   // LIGHTS ON
