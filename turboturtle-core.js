@@ -1953,260 +1953,146 @@ function initHomeSection7() {
 
   var section = q(".home_section7");
 
-  if (!section || !window.gsap || !window.ScrollTrigger) return;
+  if (!section || !gsap || !ScrollTrigger) return;
 
 
   // ============================================================
-  // ELEMENTS
-  // ============================================================
-
-  var balloon   = q(".home7_balloon");
-  var moon      = q(".home7_moon");
-  var satellite = q(".home7_satellite");
-
-  var fish1     = q(".home7_fishhero1");
-  var fish2     = q(".home7_fishhero2");
-
-  var longneck  = q(".home7_longneck");
-  var heroBear  = q(".home7_herobear");
-  var rocket    = q(".home7_rocket");
-
-
-  // ============================================================
-  // HOME 7 — MASTER PARALLAX
+  // HOME 7 MOVERS
   //
-  // All movement is tied directly to scroll:
+  // x = VW
+  // y = VH
   //
-  // BALLOON    → 4 o'clock
-  // MOON       → 8 o'clock
-  // SATELLITE  → 10 o'clock
-  // FISH 1/2   → 10–11 o'clock QUICK
-  // LONGNECK   → 11 o'clock MEDIUM
-  // HERO BEAR  → 6 o'clock, stays on screen longer
-  // ROCKET     → 12 o'clock QUICK LAUNCH
+  // negative x = LEFT
+  // positive x = RIGHT
+  // negative y = UP
+  // positive y = DOWN
   // ============================================================
 
-  ScrollTrigger.create({
+  var movers = [
 
-    trigger: section,
+    // BALLOON — gentle → 4 o'clock
+    {
+      sel: ".home7_balloon",
+      x: 10,
+      y: 30,
+      r: 0
+    },
 
-    start: "top bottom",
-    end: "bottom top",
+    // MOON — gentle → 8 o'clock
+    {
+      sel: ".home7_moon",
+      x: -10,
+      y: 30,
+      r: 0
+    },
 
-    scrub: 1,
-    invalidateOnRefresh: true,
+    // SATELLITE — medium → 10 o'clock
+    {
+      sel: ".home7_satellite",
+      x: -28,
+      y: -38,
+      r: 0
+    },
 
+    // FISH HERO 1 — quick → 10–11 o'clock
+    {
+      sel: ".home7_fishhero1",
+      x: -18,
+      y: -55,
+      r: -3
+    },
 
-    onUpdate: function(self) {
+    // FISH HERO 2 — quick → 10–11 o'clock
+    {
+      sel: ".home7_fishhero2",
+      x: -15,
+      y: -52,
+      r: -2
+    },
 
-      var p = self.progress;
+    // LONGNECK — slower → 11 o'clock
+    {
+      sel: ".home7_longneck",
+      x: -10,
+      y: -32,
+      r: 0
+    },
 
+    // HERO BEAR — down → 6 o'clock
+    // Moves with scroll direction enough to stay visible longer
+    {
+      sel: ".home7_herobear",
+      x: 0,
+      y: 55,
+      r: 0
+    },
 
-      // ========================================================
-      // BALLOON
-      // 4 O'CLOCK
-      //
-      // Gentle movement like Home 3 bear
-      // ========================================================
-
-      if (balloon) {
-
-        gsap.set(balloon, {
-
-          x:
-            window.innerWidth *
-            0.055 *
-            p,
-
-          y:
-            window.innerHeight *
-            0.13 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // MOON
-      // 8 O'CLOCK
-      //
-      // Gentle movement like Home 3 bear
-      // ========================================================
-
-      if (moon) {
-
-        gsap.set(moon, {
-
-          x:
-            -window.innerWidth *
-            0.055 *
-            p,
-
-          y:
-            window.innerHeight *
-            0.13 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // SATELLITE
-      // 10 O'CLOCK
-      //
-      // Similar feeling to Home 5 planet
-      // ========================================================
-
-      if (satellite) {
-
-        gsap.set(satellite, {
-
-          x:
-            -window.innerWidth *
-            0.12 *
-            p,
-
-          y:
-            -window.innerHeight *
-            0.16 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // FISH HERO 1
-      // 10–11 O'CLOCK
-      //
-      // QUICK — like Home 3 lion
-      // ========================================================
-
-      if (fish1) {
-
-        gsap.set(fish1, {
-
-          x:
-            -window.innerWidth *
-            0.18 *
-            p,
-
-          y:
-            -window.innerHeight *
-            0.42 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // FISH HERO 2
-      // 10–11 O'CLOCK
-      //
-      // QUICK — slightly different amount so they don't
-      // look mechanically locked together
-      // ========================================================
-
-      if (fish2) {
-
-        gsap.set(fish2, {
-
-          x:
-            -window.innerWidth *
-            0.15 *
-            p,
-
-          y:
-            -window.innerHeight *
-            0.38 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // LONGNECK
-      // 11 O'CLOCK
-      //
-      // About 60% of fish/lion speed
-      // ========================================================
-
-      if (longneck) {
-
-        gsap.set(longneck, {
-
-          x:
-            -window.innerWidth *
-            0.09 *
-            p,
-
-          y:
-            -window.innerHeight *
-            0.25 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // HERO BEAR
-      // 6 O'CLOCK
-      //
-      // Deliberately slower downward movement so the bear
-      // remains visible longer while the section scrolls.
-      // ========================================================
-
-      if (heroBear) {
-
-        gsap.set(heroBear, {
-
-          x: 0,
-
-          y:
-            window.innerHeight *
-            0.28 *
-            p,
-
-          force3D: true
-        });
-      }
-
-
-      // ========================================================
-      // ROCKET
-      // 12 O'CLOCK
-      //
-      // QUICK VERTICAL LAUNCH
-      // ========================================================
-
-      if (rocket) {
-
-        gsap.set(rocket, {
-
-          x: 0,
-
-          y:
-            -window.innerHeight *
-            0.65 *
-            p,
-
-          force3D: true
-        });
-      }
-
+    // ROCKET — quick launch → 12 o'clock
+    {
+      sel: ".home7_rocket",
+      x: 0,
+      y: -90,
+      r: 0
     }
 
+  ];
+
+
+  // ============================================================
+  // CREATE PARALLAX
+  //
+  // Same proven method as HOME 3.
+  // ============================================================
+
+  movers.forEach(function(item) {
+
+    var el = q(item.sel);
+
+    if (!el) return;
+
+
+    gsap.to(el, {
+
+      x: function() {
+        return item.x * vw;
+      },
+
+      y: function() {
+        return item.y * vh;
+      },
+
+      rotation: item.r,
+
+      ease: "none",
+
+      force3D: true,
+
+
+      scrollTrigger: {
+
+        trigger: section,
+
+        start: "top bottom",
+
+        end: "bottom top",
+
+        scrub: 1,
+
+        invalidateOnRefresh: true
+
+      }
+
+    });
+
+  });
+
+
+  // ============================================================
+  // REFRESH AFTER HOME 7 IS CREATED
+  // ============================================================
+
+  requestAnimationFrame(function() {
+    ScrollTrigger.refresh();
   });
 
 } // END initHomeSection7
