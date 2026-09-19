@@ -1940,6 +1940,275 @@ if (lakeWater1 && lakeWater2) {
 
 
 } // END initHomeSection6
+
+
+  
+
+
+// =============================================================
+// HOMEPAGE SECTION 7
+// =============================================================
+function initHomeSection7() {
+
+  var section = q(".home_section7");
+
+  if (!section || !window.gsap || !window.ScrollTrigger) return;
+
+
+  // ============================================================
+  // ELEMENTS
+  // ============================================================
+
+  var balloon   = q(".home7_balloon");
+  var moon      = q(".home7_moon");
+  var satellite = q(".home7_satellite");
+
+  var fish1     = q(".home7_fishhero1");
+  var fish2     = q(".home7_fishhero2");
+
+  var longneck  = q(".home7_longneck");
+  var heroBear  = q(".home7_herobear");
+  var rocket    = q(".home7_rocket");
+
+
+  // ============================================================
+  // HOME 7 — MASTER PARALLAX
+  //
+  // All movement is tied directly to scroll:
+  //
+  // BALLOON    → 4 o'clock
+  // MOON       → 8 o'clock
+  // SATELLITE  → 10 o'clock
+  // FISH 1/2   → 10–11 o'clock QUICK
+  // LONGNECK   → 11 o'clock MEDIUM
+  // HERO BEAR  → 6 o'clock, stays on screen longer
+  // ROCKET     → 12 o'clock QUICK LAUNCH
+  // ============================================================
+
+  ScrollTrigger.create({
+
+    trigger: section,
+
+    start: "top bottom",
+    end: "bottom top",
+
+    scrub: 1,
+    invalidateOnRefresh: true,
+
+
+    onUpdate: function(self) {
+
+      var p = self.progress;
+
+
+      // ========================================================
+      // BALLOON
+      // 4 O'CLOCK
+      //
+      // Gentle movement like Home 3 bear
+      // ========================================================
+
+      if (balloon) {
+
+        gsap.set(balloon, {
+
+          x:
+            window.innerWidth *
+            0.055 *
+            p,
+
+          y:
+            window.innerHeight *
+            0.13 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // MOON
+      // 8 O'CLOCK
+      //
+      // Gentle movement like Home 3 bear
+      // ========================================================
+
+      if (moon) {
+
+        gsap.set(moon, {
+
+          x:
+            -window.innerWidth *
+            0.055 *
+            p,
+
+          y:
+            window.innerHeight *
+            0.13 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // SATELLITE
+      // 10 O'CLOCK
+      //
+      // Similar feeling to Home 5 planet
+      // ========================================================
+
+      if (satellite) {
+
+        gsap.set(satellite, {
+
+          x:
+            -window.innerWidth *
+            0.12 *
+            p,
+
+          y:
+            -window.innerHeight *
+            0.16 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // FISH HERO 1
+      // 10–11 O'CLOCK
+      //
+      // QUICK — like Home 3 lion
+      // ========================================================
+
+      if (fish1) {
+
+        gsap.set(fish1, {
+
+          x:
+            -window.innerWidth *
+            0.18 *
+            p,
+
+          y:
+            -window.innerHeight *
+            0.42 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // FISH HERO 2
+      // 10–11 O'CLOCK
+      //
+      // QUICK — slightly different amount so they don't
+      // look mechanically locked together
+      // ========================================================
+
+      if (fish2) {
+
+        gsap.set(fish2, {
+
+          x:
+            -window.innerWidth *
+            0.15 *
+            p,
+
+          y:
+            -window.innerHeight *
+            0.38 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // LONGNECK
+      // 11 O'CLOCK
+      //
+      // About 60% of fish/lion speed
+      // ========================================================
+
+      if (longneck) {
+
+        gsap.set(longneck, {
+
+          x:
+            -window.innerWidth *
+            0.09 *
+            p,
+
+          y:
+            -window.innerHeight *
+            0.25 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // HERO BEAR
+      // 6 O'CLOCK
+      //
+      // Deliberately slower downward movement so the bear
+      // remains visible longer while the section scrolls.
+      // ========================================================
+
+      if (heroBear) {
+
+        gsap.set(heroBear, {
+
+          x: 0,
+
+          y:
+            window.innerHeight *
+            0.28 *
+            p,
+
+          force3D: true
+        });
+      }
+
+
+      // ========================================================
+      // ROCKET
+      // 12 O'CLOCK
+      //
+      // QUICK VERTICAL LAUNCH
+      // ========================================================
+
+      if (rocket) {
+
+        gsap.set(rocket, {
+
+          x: 0,
+
+          y:
+            -window.innerHeight *
+            0.65 *
+            p,
+
+          force3D: true
+        });
+      }
+
+    }
+
+  });
+
+} // END initHomeSection7
   
 
   
