@@ -500,6 +500,7 @@
       initHomeSection4();
       initHomeSection5();
       initHomeSection6();
+      initHomeSection7();
 
       // -------------------------------------------------------------
       // ABOUT US UFO
