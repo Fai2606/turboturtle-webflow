@@ -1837,7 +1837,9 @@ function initHomeSection6() {
         });
 
 
-        var enterTL = gsap.timeline();
+        var enterTL = gsap.timeline({
+          timeScale: 1.2
+        });
 
 
         // UFO flies down
@@ -2009,7 +2011,7 @@ function initHomeSection6() {
 
         trigger: home6TallPillar,
 
-        start: "top 65%",
+        start: "top 70%",
 
         invalidateOnRefresh: true,
 
