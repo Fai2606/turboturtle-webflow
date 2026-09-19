@@ -749,7 +749,6 @@
         requestAnimationFrame(loop);
       }
     
-    })(window);
 
 
 
@@ -2621,6 +2620,10 @@ function initHomeSection7() {
 
 
 } // END initHomeSection7
+
+
+
+})(window);
 
   
 
