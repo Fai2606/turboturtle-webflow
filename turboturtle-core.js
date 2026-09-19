@@ -2113,7 +2113,7 @@ function initHomeSection6() {
 
   var lightScale =
     0.9 +
-    (0.2 * expansionProgress);
+    (0.5 * expansionProgress);
 
 
   // Smoothly chase the scroll-controlled scale
