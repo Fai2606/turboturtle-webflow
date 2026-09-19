@@ -2189,7 +2189,7 @@ function initHomeSection6() {
 
       lightTL.to(home7WhiteCover, {
         opacity: 0,
-        duration: 0.8,
+        duration: 0.5,
         ease: "power2.out"
       }, 0);
 
