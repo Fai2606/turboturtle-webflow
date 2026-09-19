@@ -2505,7 +2505,7 @@ function initHomeSection7() {
 
         gsap.set(heroBear, {
           x: 0,
-          y: 90 * vh * p,
+          y: 110 * vh * p,
           force3D: true
         });
 
