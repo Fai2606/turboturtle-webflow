@@ -1951,8 +1951,7 @@ if (lakeWater1 && lakeWater2) {
 // =============================================================
 function initHomeSection7() {
 
-  var section = document.querySelector(".home_section7");
-  var city = document.querySelector(".home_section7_city");
+  var section = q(".home_section7");
 
   if (!section || !gsap || !ScrollTrigger) return;
 
@@ -1961,95 +1960,30 @@ function initHomeSection7() {
   // ELEMENTS
   // ============================================================
 
-  var balloon =
-    document.querySelector(".home7_balloon");
+  var balloon   = q(".home7_balloon");
+  var moon      = q(".home7_moon");
+  var satellite = q(".home7_satellite");
 
-  var moon =
-    document.querySelector(".home7_moon");
+  var fish1     = q(".home7_fishhero1");
+  var fish2     = q(".home7_fishhero2");
 
-  var satellite =
-    document.querySelector(".home7_satellite");
-
-  var fish1 =
-    document.querySelector(".home7_fishhero1");
-
-  var fish2 =
-    document.querySelector(".home7_fishhero2");
-
-  var longneck =
-    document.querySelector(".home7_longneck");
-
-  var heroBear =
-    document.querySelector(".home7_herobear");
-
-  var rocket =
-    document.querySelector(".home7_rocket");
+  var longneck  = q(".home7_longneck");
+  var heroBear  = q(".home7_herobear");
+  var rocket    = q(".home7_rocket");
 
 
   // ============================================================
-  // IMPORTANT
-  //
-  // Use CITY as trigger.
-  //
-  // All your Home 7 artwork lives inside:
-  // .home_section7_city
-  //
-  // Fall back to section only if city doesn't exist.
-  // ============================================================
-
-  var triggerEl =
-    city || section;
-
-
-  // ============================================================
-  // RESET
-  // ============================================================
-
-  var allMovers = [
-    balloon,
-    moon,
-    satellite,
-    fish1,
-    fish2,
-    longneck,
-    heroBear,
-    rocket
-  ].filter(Boolean);
-
-
-  gsap.set(allMovers, {
-    x: 0,
-    y: 0,
-    rotation: 0,
-    force3D: true
-  });
-
-
-  // ============================================================
-  // HOME 7 MASTER SCROLL
-  //
-  // SAME BASIC METHOD AS WORKING HOME 5:
-  //
-  // ScrollTrigger.create()
-  //        ↓
-  // onUpdate()
-  //        ↓
-  // self.progress
-  //        ↓
-  // gsap.set()
-  //
-  // NO separate tweens.
+  // MASTER SCROLL
+  // Same successful format as HOME 5:
+  // ScrollTrigger.create → onUpdate → gsap.set
   // ============================================================
 
   ScrollTrigger.create({
 
-    trigger: triggerEl,
+    trigger: section,
 
     start: "top bottom",
-
     end: "bottom top",
-
-    scrub: 1,
 
     invalidateOnRefresh: true,
 
@@ -2061,213 +1995,138 @@ function initHomeSection7() {
 
       // ========================================================
       // BALLOON
-      //
       // 4 O'CLOCK ↘
-      // gentle — Home3 bear feeling
       // ========================================================
 
       if (balloon) {
 
         gsap.set(balloon, {
-
-          x:
-            10 *
-            vw *
-            p,
-
-          y:
-            30 *
-            vh *
-            p,
-
+          x: 10 * vw * p,
+          y: 30 * vh * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // MOON
-      //
       // 8 O'CLOCK ↙
-      // gentle — Home3 bear feeling
+      // 1.1x SPEED
       // ========================================================
 
       if (moon) {
 
         gsap.set(moon, {
-
-          x:
-            -10 *
-            vw *
-            p,
-
-          y:
-            30 *
-            vh *
-            p,
-
+          x: -11 * vw * p,
+          y: 33 * vh * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // SATELLITE
-      //
       // 10 O'CLOCK ↖
-      // stronger movement
       // ========================================================
 
       if (satellite) {
 
         gsap.set(satellite, {
-
-          x:
-            -22 *
-            vw *
-            p,
-
-          y:
-            -32 *
-            vh *
-            p,
-
+          x: -22 * vw * p,
+          y: -32 * vh * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // FISH HERO 1
-      //
       // 10–11 O'CLOCK ↖
-      // QUICK
+      // 2.5x SPEED
       // ========================================================
 
       if (fish1) {
 
         gsap.set(fish1, {
-
-          x:
-            -18 *
-            vw *
-            p,
-
-          y:
-            -55 *
-            vh *
-            p,
-
-          rotation:
-            -3 *
-            p,
-
+          x: -45 * vw * p,
+          y: -137.5 * vh * p,
+          rotation: -7.5 * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // FISH HERO 2
-      //
       // 10–11 O'CLOCK ↖
-      // QUICK
+      // 3x SPEED
       // ========================================================
 
       if (fish2) {
 
         gsap.set(fish2, {
-
-          x:
-            -16 *
-            vw *
-            p,
-
-          y:
-            -52 *
-            vh *
-            p,
-
-          rotation:
-            -2 *
-            p,
-
+          x: -48 * vw * p,
+          y: -156 * vh * p,
+          rotation: -6 * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // LONGNECK
-      //
       // 11 O'CLOCK ↖
-      // ~60% fish speed
+      // +15° CLOCKWISE
       // ========================================================
 
       if (longneck) {
 
         gsap.set(longneck, {
-
-          x:
-            -10 *
-            vw *
-            p,
-
-          y:
-            -32 *
-            vh *
-            p,
-
+          x: -10 * vw * p,
+          y: -32 * vh * p,
+          rotation: 15 * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // HERO BEAR
-      //
       // 6 O'CLOCK ↓
-      //
-      // Moving DOWN compensates against the page moving UP,
-      // therefore bear stays visible longer.
+      // Downward movement keeps bear visible longer
       // ========================================================
 
       if (heroBear) {
 
         gsap.set(heroBear, {
-
           x: 0,
-
-          y:
-            55 *
-            vh *
-            p,
-
+          y: 55 * vh * p,
           force3D: true
         });
+
       }
 
 
       // ========================================================
       // ROCKET
-      //
       // 12 O'CLOCK ↑
-      // FAST LAUNCH
+      // 1.5x SPEED
       // ========================================================
 
       if (rocket) {
 
         gsap.set(rocket, {
-
           x: 0,
-
-          y:
-            -90 *
-            vh *
-            p,
-
+          y: -135 * vh * p,
           force3D: true
         });
+
       }
 
     }
@@ -2280,13 +2139,7 @@ function initHomeSection7() {
   // ============================================================
 
   requestAnimationFrame(function() {
-
-    if (lenis && lenis.resize) {
-      lenis.resize();
-    }
-
     ScrollTrigger.refresh();
-
   });
 
 } // END initHomeSection7
