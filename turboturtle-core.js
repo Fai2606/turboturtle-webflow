@@ -2118,8 +2118,8 @@ function startLightBreathing() {
 
       lightTL.to(home6Light, {
         scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
+        duration: 0.2,
+        ease: "power3.out",
         force3D: true
       }, 0);
     }
@@ -2136,8 +2136,8 @@ function startLightBreathing() {
 
       lightTL.to(home7LightBlur, {
         scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
+        duration: 0.2,
+        ease: "power3.out",
         force3D: true
       }, 0);
     }
