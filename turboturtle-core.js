@@ -2058,43 +2058,31 @@ function initHomeSection6() {
   // 100% <-> 100.2%
   // ==========================================================
 
-  function startLightBreathing() {
+function startLightBreathing() {
 
-    if (home6Light) {
-
-      gsap.killTweensOf(
-        home6Light,
-        "scaleX"
-      );
-
-      gsap.to(home6Light, {
-        scaleX: 1.005,
-        duration: 0.2,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        force3D: true
-      });
-    }
-
-
-    if (home7LightBlur) {
-
-      gsap.killTweensOf(
-        home7LightBlur,
-        "scaleX"
-      );
-
-      gsap.to(home7LightBlur, {
-        scaleX: 1.005,
-        duration: 0.2,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        force3D: true
-      });
-    }
+  if (home6Light) {
+    gsap.to(home6Light, {
+      scaleX: 1.002,
+      duration: 0.8,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1,
+      force3D: true
+    });
   }
+
+  if (home7LightBlur) {
+    gsap.to(home7LightBlur, {
+      scaleX: 1.002,
+      duration: 0.8,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1,
+      force3D: true
+    });
+  }
+
+}
 
 
   // ==========================================================
