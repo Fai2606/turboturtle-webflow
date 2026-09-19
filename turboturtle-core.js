@@ -2068,8 +2068,8 @@ function initHomeSection6() {
       );
 
       gsap.to(home6Light, {
-        scaleX: 1.002,
-        duration: 0.8,
+        scaleX: 1.005,
+        duration: 0.2,
         ease: "sine.inOut",
         yoyo: true,
         repeat: -1,
@@ -2086,8 +2086,8 @@ function initHomeSection6() {
       );
 
       gsap.to(home7LightBlur, {
-        scaleX: 1.002,
-        duration: 0.8,
+        scaleX: 1.005,
+        duration: 0.2,
         ease: "sine.inOut",
         yoyo: true,
         repeat: -1,
