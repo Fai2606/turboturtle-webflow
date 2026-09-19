@@ -1698,9 +1698,6 @@ function initHomeSection5() {
 } // END initHomeSection5
   
 
-// =============================================================
-// HOMEPAGE SECTION 6
-// =============================================================
 function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
@@ -1708,7 +1705,6 @@ function initHomeSection6() {
   var home6TallPillar = q(".home6_tallpillar");
   var home6Lake = q(".home6_lake");
 
-  // WATER
   var lakeWater1 = q(".home6_lake_water1");
   var lakeWater2 = q(".home6_lake_water2");
 
@@ -1717,7 +1713,6 @@ function initHomeSection6() {
 
   // ==========================================================
   // LAKE WATER
-  // LEFT → RIGHT / SLOW / SEAM FIX
   // ==========================================================
 
   if (lakeWater1 && lakeWater2) {
@@ -1744,33 +1739,28 @@ function initHomeSection6() {
       repeat: -1,
       force3D: true
     });
-
   }
 
 
   // ==========================================================
-  // WEIRD SUN HORN — CONSTANT ROTATION
+  // WEIRD SUN HORN
   // ==========================================================
 
   if (weirdSunHorn) {
 
-    gsap.set(weirdSunHorn, {
+    gsap.to(weirdSunHorn, {
+      rotation: 360,
+      duration: 24,
+      ease: "none",
+      repeat: -1,
       transformOrigin: "50% 50%",
       force3D: true
     });
-
-    gsap.to(weirdSunHorn, {
-      rotation: "+=360",
-      duration: 24,
-      ease: "none",
-      repeat: -1
-    });
-
   }
 
 
   // ==========================================================
-  // WEIRD SUN — SLOW PARALLAX
+  // WEIRD SUN PARALLAX
   // ==========================================================
 
   if (weirdSun) {
@@ -1784,21 +1774,20 @@ function initHomeSection6() {
         trigger: weirdSun,
         start: "top bottom",
         end: "bottom top",
-        scrub: true,
+        scrub: 1,
         invalidateOnRefresh: true
       }
     });
-
   }
 
 
   // ==========================================================
-  // HOME 6 — CASTLE BUILD-UP
+  // CASTLE BUILD
   // ==========================================================
 
   if (home6TallPillar) {
 
-    var home6BuildSelectors = [
+    var normalBuild = [
       ".home6_tree",
       ".home6_bloodcell",
       ".home6_cone",
@@ -1815,38 +1804,30 @@ function initHomeSection6() {
       ".home6_dinosaur"
     ];
 
-    var home6BuildLayers = home6BuildSelectors
-      .map(function(selector) {
-        return document.querySelector(selector);
-      })
-      .filter(Boolean);
+    var normalEls = [];
 
+    normalBuild.forEach(function(sel) {
 
-    // ========================================================
-    // SPECIAL LAYERS
-    // ========================================================
+      var el = q(sel);
+
+      if (el) {
+        normalEls.push(el);
+
+        gsap.set(el, {
+          yPercent: 80,
+          force3D: true
+        });
+      }
+    });
+
 
     var camel = q(".home6_camel");
     var monster = q(".home6_monster");
     var rocket = q(".home6_rocket");
     var emperor = q(".home6_emperor");
-    var castleinside = q(".home6_castleinside");
+    var castleInside = q(".home6_castleinside");
     var cat = q(".home6_cat");
 
-
-    // ========================================================
-    // STARTING POSITIONS
-    // ========================================================
-
-    gsap.set(home6BuildLayers, {
-      yPercent: 80,
-      force3D: true
-    });
-
-    gsap.set(home6TallPillar, {
-      yPercent: 80,
-      force3D: true
-    });
 
     if (camel) {
       gsap.set(camel, {
@@ -1876,8 +1857,8 @@ function initHomeSection6() {
       });
     }
 
-    if (castleinside) {
-      gsap.set(castleinside, {
+    if (castleInside) {
+      gsap.set(castleInside, {
         yPercent: 80,
         force3D: true
       });
@@ -1890,28 +1871,96 @@ function initHomeSection6() {
       });
     }
 
+    gsap.set(home6TallPillar, {
+      yPercent: 80,
+      force3D: true
+    });
 
-    // ========================================================
-    // CASTLE BUILD TIMELINE
-    // ========================================================
 
-    var home6BuildTL = gsap.timeline({
+    var buildTL = gsap.timeline({
       paused: true
     });
 
 
-    // NORMAL LAYERS
-    home6BuildTL.to(home6BuildLayers, {
-      yPercent: 0,
-      duration: 1.6,
-      stagger: 0.035,
-      ease: "power3.out",
-      force3D: true
-    }, 0);
+    if (normalEls.length) {
+
+      buildTL.to(normalEls, {
+        yPercent: 0,
+        duration: 1.6,
+        stagger: 0.035,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
 
 
-    // TALL PILLAR
-    home6BuildTL.to(home6TallPillar, {
+    if (camel) {
+
+      buildTL.to(camel, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
+
+
+    if (monster) {
+
+      buildTL.to(monster, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
+
+
+    if (rocket) {
+
+      buildTL.to(rocket, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0.5);
+    }
+
+
+    if (cat) {
+
+      buildTL.to(cat, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0.5);
+    }
+
+
+    if (emperor) {
+
+      buildTL.to(emperor, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0.65);
+    }
+
+
+    if (castleInside) {
+
+      buildTL.to(castleInside, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0.8);
+    }
+
+
+    buildTL.to(home6TallPillar, {
       yPercent: 0,
       duration: 2.1,
       ease: "power3.out",
@@ -1919,128 +1968,28 @@ function initHomeSection6() {
     }, 0);
 
 
-    // CAMEL
-    if (camel) {
-
-      home6BuildTL.to(camel, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-
-    }
-
-
-    // MONSTER
-    if (monster) {
-
-      home6BuildTL.to(monster, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-
-    }
-
-
-    // ROCKET
-    if (rocket) {
-
-      home6BuildTL.to(rocket, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
-
-    }
-
-
-    // CASTLE INSIDE
-    if (castleinside) {
-
-      home6BuildTL.to(castleinside, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.8);
-
-    }
-
-
-    // CAT
-    if (cat) {
-
-      home6BuildTL.to(cat, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
-
-    }
-
-
-    // EMPEROR
-    if (emperor) {
-
-      home6BuildTL.to(emperor, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.65);
-
-    }
-
-
-    // ========================================================
-    // CASTLE BUILD TRIGGER
-    // KEEP ORIGINAL
-    // ========================================================
-
     ScrollTrigger.create({
 
       trigger: home6TallPillar,
+
       start: "top 80%",
 
       invalidateOnRefresh: true,
 
       onEnter: function() {
-        home6BuildTL.timeScale(1);
-        home6BuildTL.play();
-      },
-
-      onEnterBack: function() {
-        home6BuildTL.timeScale(1);
-        home6BuildTL.play();
+        buildTL.timeScale(1).play();
       },
 
       onLeaveBack: function() {
-        home6BuildTL.timeScale(2);
-        home6BuildTL.reverse();
+        buildTL.timeScale(2).reverse();
       }
 
     });
-
   }
 
 
   // ==========================================================
   // UFO + LIGHT TRANSITION
-  //
-  // TWO DIFFERENT SCROLL TRIGGERS:
-  //
-  // 1. WEIRD SUN @ TOP 20%
-  //    → UFO FLIES DOWN
-  //
-  // 2. LAKE @ 40% FROM BOTTOM
-  //    → REQUEST LIGHTS + WHITE REVEAL
-  //
-  // Lights CANNOT start until UFO has landed.
   // ==========================================================
 
   var home6UFO = q(".home6_ufo");
@@ -2050,30 +1999,23 @@ function initHomeSection6() {
   var home7WhiteCover = q(".home7_whitecover");
 
 
-  // ==========================================================
-  // STATE
-  // ==========================================================
-
   var ufoHasLanded = false;
   var lightTriggerReached = false;
   var lightsAreOn = false;
 
 
   // ==========================================================
-  // INITIAL STATES
+  // INITIAL STATE
   // ==========================================================
 
   if (home6UFO) {
 
     gsap.set(home6UFO, {
-      y: function() {
-        return -window.innerHeight * 1.5;
-      },
+      y: -window.innerHeight * 1.5,
       visibility: "hidden",
       opacity: 0,
       force3D: true
     });
-
   }
 
 
@@ -2081,12 +2023,11 @@ function initHomeSection6() {
 
     gsap.set(home6Light, {
       scaleX: 0,
+      transformOrigin: "50% 0%",
       visibility: "hidden",
       opacity: 0,
-      transformOrigin: "50% 50%",
       force3D: true
     });
-
   }
 
 
@@ -2094,52 +2035,91 @@ function initHomeSection6() {
 
     gsap.set(home7LightBlur, {
       scaleX: 0,
+      transformOrigin: "50% 0%",
       visibility: "hidden",
       opacity: 0,
-      transformOrigin: "50% 50%",
       force3D: true
     });
-
   }
 
 
-  // Webflow can remain opacity 0 while designing.
-  // JS makes it white on page load.
   if (home7WhiteCover) {
 
     gsap.set(home7WhiteCover, {
       opacity: 1
     });
-
   }
 
 
   // ==========================================================
-  // TURN LIGHTS ON
+  // LIGHT BREATHING
+  //
+  // After opening:
+  // 100% <-> 100.2%
+  // ==========================================================
+
+  function startLightBreathing() {
+
+    if (home6Light) {
+
+      gsap.killTweensOf(
+        home6Light,
+        "scaleX"
+      );
+
+      gsap.to(home6Light, {
+        scaleX: 1.002,
+        duration: 0.8,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        force3D: true
+      });
+    }
+
+
+    if (home7LightBlur) {
+
+      gsap.killTweensOf(
+        home7LightBlur,
+        "scaleX"
+      );
+
+      gsap.to(home7LightBlur, {
+        scaleX: 1.002,
+        duration: 0.8,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        force3D: true
+      });
+    }
+  }
+
+
+  // ==========================================================
+  // LIGHTS ON
   // ==========================================================
 
   function turnHome6LightsOn() {
 
-    // Already on
     if (lightsAreOn) return;
-
-    // Lake hasn't reached its trigger yet
     if (!lightTriggerReached) return;
-
-    // CRITICAL:
-    // UFO must have COMPLETELY landed first
     if (!ufoHasLanded) return;
-
 
     lightsAreOn = true;
 
 
-    var lightTL = gsap.timeline();
+    var lightTL = gsap.timeline({
+
+      onComplete: function() {
+        startLightBreathing();
+      }
+
+    });
 
 
-    // --------------------------------------------------------
     // YELLOW UFO LIGHT
-    // --------------------------------------------------------
 
     if (home6Light) {
 
@@ -2154,14 +2134,10 @@ function initHomeSection6() {
         ease: "power2.out",
         force3D: true
       }, 0);
-
     }
 
 
-    // --------------------------------------------------------
-    // HOME7 WHITE LIGHT
-    // EXACT SAME TIME
-    // --------------------------------------------------------
+    // WHITE LIGHT BLUR
 
     if (home7LightBlur) {
 
@@ -2172,43 +2148,28 @@ function initHomeSection6() {
 
       lightTL.to(home7LightBlur, {
         scaleX: 1,
-        duration: 0.25,
+        duration: 0.18,
         ease: "power2.out",
         force3D: true
       }, 0);
-
     }
 
 
-    // --------------------------------------------------------
     // WHITE COVER
-    // EXACT SAME START
-    // --------------------------------------------------------
 
     if (home7WhiteCover) {
 
       lightTL.to(home7WhiteCover, {
         opacity: 0,
-        duration: 0.8,
-        ease: "power2.out"
+        duration: 1,
+        ease: "power3.out"
       }, 0);
-
     }
-
   }
 
 
   // ==========================================================
-  // UFO FLIES DOWN
-  //
-  // Trigger:
-  // home6_weirdsun reaches 20% FROM TOP
-  //
-  // Original duration = 1.3
-  // 1.5x faster = 1.3 / 1.5 = ~0.87 sec
-  //
-  // Easing lowered one grade:
-  // power3.out → power2.out
+  // UFO ENTER
   // ==========================================================
 
   function showHome6UFO() {
@@ -2217,7 +2178,6 @@ function initHomeSection6() {
 
 
     gsap.killTweensOf(home6UFO);
-
 
     ufoHasLanded = false;
 
@@ -2232,32 +2192,26 @@ function initHomeSection6() {
 
       y: 0,
 
+      // old = 1.3
+      // 1.5x faster
       duration: 1.3 / 1.5,
 
       ease: "power2.out",
 
       force3D: true,
 
-
       onComplete: function() {
 
-        // UFO IS NOW FULLY STOPPED
         ufoHasLanded = true;
 
-
-        // If lake trigger already happened because
-        // user scrolled quickly, lights start NOW.
         turnHome6LightsOn();
-
       }
-
     });
-
   }
 
 
   // ==========================================================
-  // RESET UFO + LIGHTS
+  // RESET
   // ==========================================================
 
   function resetHome6UFO() {
@@ -2265,21 +2219,6 @@ function initHomeSection6() {
     ufoHasLanded = false;
     lightTriggerReached = false;
     lightsAreOn = false;
-
-
-    if (home6UFO) {
-
-      gsap.killTweensOf(home6UFO);
-
-      gsap.set(home6UFO, {
-        y: function() {
-          return -window.innerHeight * 1.5;
-        },
-        visibility: "hidden",
-        opacity: 0
-      });
-
-    }
 
 
     if (home6Light) {
@@ -2291,7 +2230,6 @@ function initHomeSection6() {
         visibility: "hidden",
         opacity: 0
       });
-
     }
 
 
@@ -2304,7 +2242,6 @@ function initHomeSection6() {
         visibility: "hidden",
         opacity: 0
       });
-
     }
 
 
@@ -2315,17 +2252,28 @@ function initHomeSection6() {
       gsap.set(home7WhiteCover, {
         opacity: 1
       });
-
     }
 
+
+    if (home6UFO) {
+
+      gsap.killTweensOf(home6UFO);
+
+      gsap.set(home6UFO, {
+        y: -window.innerHeight * 1.5,
+        visibility: "hidden",
+        opacity: 0,
+        force3D: true
+      });
+    }
   }
 
 
   // ==========================================================
   // TRIGGER 1
   //
-  // WEIRD SUN REACHES TOP 20%
-  // → UFO FLIES DOWN
+  // SUN REACHES TOP 10%
+  // → UFO ENTERS
   // ==========================================================
 
   if (weirdSun && home6UFO) {
@@ -2334,43 +2282,30 @@ function initHomeSection6() {
 
       trigger: weirdSun,
 
-      start: "top 8%",
+      start: "top 10%",
 
       invalidateOnRefresh: true,
 
-
       onEnter: function() {
-
         showHome6UFO();
-
       },
 
-
       onLeaveBack: function() {
-
         resetHome6UFO();
-
       }
 
     });
-
   }
 
 
   // ==========================================================
   // TRIGGER 2
   //
-  // LAKE PASSES 40% FROM BOTTOM
-  //
-  // 40% FROM BOTTOM = 60% FROM TOP
-  //
+  // LAKE REACHES 70% VIEWPORT
   // → REQUEST LIGHTS
   //
-  // If UFO already landed:
-  //     lights start immediately.
-  //
-  // If UFO still moving:
-  //     waits for UFO onComplete.
+  // If UFO hasn't landed yet,
+  // it waits for UFO landing.
   // ==========================================================
 
   if (home6Lake) {
@@ -2379,28 +2314,23 @@ function initHomeSection6() {
 
       trigger: home6Lake,
 
-      start: "top 75%",
+      start: "top 70%",
 
       invalidateOnRefresh: true,
-
 
       onEnter: function() {
 
         lightTriggerReached = true;
 
         turnHome6LightsOn();
-
       },
-
 
       onLeaveBack: function() {
 
         lightTriggerReached = false;
-
       }
 
     });
-
   }
 
 
@@ -2408,8 +2338,7 @@ function initHomeSection6() {
     ScrollTrigger.refresh();
   });
 
-
-} // END initHomeSection6
+}
 
   
 
