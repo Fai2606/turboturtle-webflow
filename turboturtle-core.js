@@ -2548,24 +2548,24 @@ function initHomeSection8() {
   var movers = [
 
     // 60px
-    { sel: ".home8_crystal",  y: 60 },
-    { sel: ".home8_bear",     y: 60 },
+    { sel: ".home8_crystal",  y: 120 },
+    { sel: ".home8_bear",     y: 120 },
 
     // 50px
-    { sel: ".home8_mount3",   y: 50 },
+    { sel: ".home8_mount3",   y: 100 },
 
     // 40px
-    { sel: ".home8_ball",     y: 40 },
-    { sel: ".home8_tree1",    y: 40 },
-    { sel: ".home8_tree2",    y: 40 },
-    { sel: ".home8_tree3",    y: 40 },
+    { sel: ".home8_ball",     y: 90 },
+    { sel: ".home8_tree1",    y: 80 },
+    { sel: ".home8_tree2",    y: 80 },
+    { sel: ".home8_tree3",    y: 80 },
 
     // 30px
-    { sel: ".home8_guy1",     y: 30 },
-    { sel: ".home8_guy2",     y: 30 },
+    { sel: ".home8_guy1",     y: 60 },
+    { sel: ".home8_guy2",     y: 65 },
 
     // 20px
-    { sel: ".home8_dinosaur", y: 20 }
+    { sel: ".home8_dinosaur", y: 40 }
 
   ];
 
