@@ -2553,7 +2553,7 @@ function initHomeSection8() {
   var movers = [
 
     { sel: ".home8_crystal",  y: 120 },
-    { sel: ".home8_bear",     y: 160, r: 15 },
+    { sel: ".home8_bear",     y: 160, x: 30, r: 15 },
 
     { sel: ".home8_mount3",   y: 130 },
 
@@ -2580,11 +2580,13 @@ function initHomeSection8() {
       el,
 
       {
+        x: 0,
         y: 0,
         rotation: 0
       },
 
       {
+        x: item.x || 0,
         y: item.y,
         rotation: item.r || 0,
 
