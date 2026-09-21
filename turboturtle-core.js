@@ -2548,7 +2548,7 @@ function initHomeSection8() {
   var movers = [
 
     // 60px
-    { sel: ".home8_crystal",  y: 120 },
+    { sel: ".home8_crystal",  y: 160 },
     { sel: ".home8_bear",     y: 120 },
 
     // 50px
