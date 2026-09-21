@@ -766,6 +766,7 @@
   initHomeSection5();
   initHomeSection6();
   initHomeSection7();
+  initHomeSection8();
 
 
 
@@ -2529,6 +2530,87 @@ function initHomeSection7() {
 
 
 } // END initHomeSection7
+
+// =============================================================
+// HOMEPAGE SECTION 8
+// =============================================================
+function initHomeSection8() {
+
+  var section = q(".home_section8");
+
+  if (!section || !gsap || !ScrollTrigger) return;
+
+
+  // -----------------------------------------------------------
+  // SCROLL DOWNWARD MOVEMENT
+  // -----------------------------------------------------------
+
+  var movers = [
+
+    // 60px
+    { sel: ".home8_crystal",  y: 60 },
+    { sel: ".home8_bear",     y: 60 },
+
+    // 50px
+    { sel: ".home8_mount3",   y: 50 },
+
+    // 40px
+    { sel: ".home8_ball",     y: 40 },
+    { sel: ".home8_tree1",    y: 40 },
+    { sel: ".home8_tree2",    y: 40 },
+    { sel: ".home8_tree3",    y: 40 },
+
+    // 30px
+    { sel: ".home8_guy1",     y: 30 },
+    { sel: ".home8_guy2",     y: 30 },
+
+    // 20px
+    { sel: ".home8_dinosaur", y: 20 }
+
+  ];
+
+
+  movers.forEach(function(item) {
+
+    var el = q(item.sel);
+
+    if (!el) return;
+
+
+    gsap.fromTo(
+      el,
+
+      {
+        y: 0
+      },
+
+      {
+        y: item.y,
+
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: section,
+
+          start: "top bottom",
+          end: "bottom top",
+
+          scrub: 1,
+
+          invalidateOnRefresh: true
+        }
+      }
+    );
+
+  });
+
+
+  requestAnimationFrame(function() {
+    ScrollTrigger.refresh();
+  });
+
+} // END initHomeSection8
 
 
 
