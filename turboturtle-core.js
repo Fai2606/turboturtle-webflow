@@ -2564,7 +2564,7 @@ function initHomeSection8() {
     { sel: ".home8_guy2",     y: 75 },
 
     // 20px
-    { sel: ".home8_dinosaur", y: 60 }
+    { sel: ".home8_dinosaur", y: 45 }
 
   ];
 
