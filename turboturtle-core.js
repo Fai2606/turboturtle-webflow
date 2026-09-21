@@ -2557,14 +2557,14 @@ function initHomeSection8() {
 
     { sel: ".home8_mount3",   y: 130 },
 
-    { sel: ".home8_ball",     y: 100 },
-    { sel: ".home8_tree2",    y: 90 },
-    { sel: ".home8_tree3",    y: 90 },
+    { sel: ".home8_ball",     y: 110 },
+    { sel: ".home8_tree2",    y: 100 },
+    { sel: ".home8_tree3",    y: 100 },
 
-    { sel: ".home8_guy1",     y: 70 },
-    { sel: ".home8_guy2",     y: 75 },
+    { sel: ".home8_guy1",     y: 90 },
+    { sel: ".home8_guy2",     y: 95 },
 
-    { sel: ".home8_dinosaur", y: 45 }
+    { sel: ".home8_dinosaur", y: 50 }
 
   ];
 
