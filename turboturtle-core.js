@@ -2561,8 +2561,8 @@ function initHomeSection8() {
     { sel: ".home8_tree2",    y: 100 },
     { sel: ".home8_tree3",    y: 100 },
 
-    { sel: ".home8_guy1",     y: 90 },
-    { sel: ".home8_guy2",     y: 95 },
+    { sel: ".home8_guy1",     y: 80 },
+    { sel: ".home8_guy2",     y: 75 },
 
     { sel: ".home8_dinosaur", y: 50 }
 
