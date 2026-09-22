@@ -1706,6 +1706,7 @@ function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
+  var home6Cloud = q(".home6_cloud");
   var home6TallPillar = q(".home6_tallpillar");
   var home6Lake = q(".home6_lake");
 
@@ -1787,6 +1788,28 @@ function initHomeSection6() {
     });
   }
 
+  
+  // ==========================================================
+  // HOME 6 CLOUD — PARALLAX
+  // ==========================================================
+
+  if (home6Cloud) {
+
+    gsap.to(home6Cloud, {
+      y: -180,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: home6Cloud,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+
+  }
 
   // ==========================================================
   // HOME 6 — CASTLE BUILD
