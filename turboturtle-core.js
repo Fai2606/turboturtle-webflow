@@ -2642,10 +2642,10 @@ function initHomeSection9() {
     { sel: ".home9_tree2",  y: -130 },
 
     // UP — subtle
-    { sel: ".home9_mount",  y: -80 },
+    { sel: ".home9_mount",  y: -50 },
 
     // DOWN — appears to move slower than normal
-    { sel: ".home9_black",  y: 70 },
+    { sel: ".home9_black",  y: 60 },
 
     // DOWN — even less movement
     { sel: ".home9_flower", y: 40 }
