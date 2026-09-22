@@ -769,6 +769,8 @@
   initHomeSection8();
   initHomeSection9();
   
+  initHomeResponsiveScale();
+  
 
 
 
@@ -2694,6 +2696,246 @@ function initHomeSection9() {
   });
 
 } // END initHomeSection9
+
+
+
+
+
+  
+
+
+// =============================================================
+// HOMEPAGE DESKTOP RESPONSIVE SCALE
+//
+// 3840px = 100%
+// 2560px = section-controlled ratio
+// 1920px = section-controlled ratio
+//
+// Below 1920px:
+// keep the 1920 ratio for now.
+//
+// Uses CSS zoom instead of transform: scale()
+// so the layout HEIGHT shrinks together with the artwork.
+// =============================================================
+function initHomeResponsiveScale() {
+
+  // -----------------------------------------------------------
+  // INDIVIDUAL SECTION CONTROLS
+  //
+  // For now they all use:
+  //
+  // 3840 = 1.00
+  // 2560 = 0.85
+  // 1920 = 0.70
+  //
+  // Later you can tune EACH SECTION independently.
+  // -----------------------------------------------------------
+
+  var configs = [
+
+    {
+      sel: ".home_section1_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section2_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section3_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section4_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section5_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section6_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section7_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section8_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    },
+
+    {
+      sel: ".home_section9_city",
+      at3840: 1.00,
+      at2560: 0.85,
+      at1920: 0.70
+    }
+
+  ];
+
+
+  // -----------------------------------------------------------
+  // LINEAR INTERPOLATION
+  // -----------------------------------------------------------
+
+  function mix(a, b, t) {
+
+    return a + (b - a) * t;
+
+  }
+
+
+  // -----------------------------------------------------------
+  // GET SCALE FOR CURRENT WIDTH
+  // -----------------------------------------------------------
+
+  function getScale(config, width) {
+
+    // 3840 AND ABOVE
+    if (width >= 3840) {
+
+      return config.at3840;
+
+    }
+
+
+    // 2560 -> 3840
+    if (width >= 2560) {
+
+      var t1 =
+        (width - 2560) /
+        (3840 - 2560);
+
+      return mix(
+        config.at2560,
+        config.at3840,
+        t1
+      );
+
+    }
+
+
+    // 1920 -> 2560
+    if (width >= 1920) {
+
+      var t2 =
+        (width - 1920) /
+        (2560 - 1920);
+
+      return mix(
+        config.at1920,
+        config.at2560,
+        t2
+      );
+
+    }
+
+
+    // BELOW 1920
+    // leave it at the 1920 value for now
+
+    return config.at1920;
+
+  }
+
+
+  // -----------------------------------------------------------
+  // APPLY
+  // -----------------------------------------------------------
+
+  function applyHomeResponsiveScale() {
+
+    var width = window.innerWidth;
+
+
+    configs.forEach(function(config) {
+
+      var city =
+        document.querySelector(config.sel);
+
+      if (!city) return;
+
+
+      var scale =
+        getScale(config, width);
+
+
+      // CSS zoom changes BOTH:
+      // visual size + layout size
+      //
+      // therefore no fake empty height caused by transform:scale()
+
+      city.style.zoom = scale;
+
+    });
+
+
+    // Recalculate ScrollTrigger positions after sizes change.
+
+    if (window.ScrollTrigger) {
+
+      requestAnimationFrame(function() {
+
+        ScrollTrigger.refresh();
+
+      });
+
+    }
+
+  }
+
+
+  // FIRST RUN
+
+  applyHomeResponsiveScale();
+
+
+  // -----------------------------------------------------------
+  // RESIZE
+  // -----------------------------------------------------------
+
+  var resizeTimer;
+
+
+  window.addEventListener("resize", function() {
+
+    clearTimeout(resizeTimer);
+
+
+    resizeTimer = setTimeout(function() {
+
+      applyHomeResponsiveScale();
+
+    }, 150);
+
+  });
+
+}
 
 
 
