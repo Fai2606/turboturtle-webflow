@@ -767,6 +767,8 @@
   initHomeSection6();
   initHomeSection7();
   initHomeSection8();
+  initHomeSection9();
+  
 
 
 
@@ -2614,6 +2616,84 @@ function initHomeSection8() {
   });
 
 } // END initHomeSection8
+
+
+// =============================================================
+// HOMEPAGE SECTION 9
+// =============================================================
+function initHomeSection9() {
+
+  var section = q(".home_section9");
+
+  if (!section || !gsap || !ScrollTrigger) return;
+
+
+  // ==========================================================
+  // HOME 9 — DEPTH / PARALLAX
+  // ==========================================================
+
+  var movers = [
+
+    // FASTEST UP
+    { sel: ".home9_yellow", y: -180 },
+
+    // UP — slightly slower than yellow
+    { sel: ".home9_tree1",  y: -130 },
+    { sel: ".home9_tree2",  y: -130 },
+
+    // UP — subtle
+    { sel: ".home9_mount",  y: -80 },
+
+    // DOWN — appears to move slower than normal
+    { sel: ".home9_black",  y: 70 },
+
+    // DOWN — even less movement
+    { sel: ".home9_flower", y: 40 }
+
+  ];
+
+
+  movers.forEach(function(item) {
+
+    var el = q(item.sel);
+
+    if (!el) return;
+
+
+    gsap.fromTo(
+      el,
+
+      {
+        y: 0
+      },
+
+      {
+        y: item.y,
+
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: section,
+
+          start: "top bottom",
+          end: "bottom top",
+
+          scrub: 1,
+
+          invalidateOnRefresh: true
+        }
+      }
+    );
+
+  });
+
+
+  requestAnimationFrame(function() {
+    ScrollTrigger.refresh();
+  });
+
+} // END initHomeSection9
 
 
 
