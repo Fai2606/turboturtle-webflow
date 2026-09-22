@@ -2941,6 +2941,19 @@ function initHomeResponsiveScale() {
       // ------------------------------------------------------
 
       city.style.zoom = scale;
+      if (config.sel === ".home_section4_city") {
+
+      var home4Bottom =
+        document.querySelector(".Bottom_Extend_bkg.home4");
+    
+        if (home4Bottom) {
+      
+          home4Bottom.style.height =
+            (1400 * scale) + "px";
+      
+        }
+      
+      }
 
 
       // Useful if we need to inspect it later.
