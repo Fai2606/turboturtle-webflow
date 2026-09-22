@@ -1790,28 +1790,6 @@ function initHomeSection6() {
 
   
   // ==========================================================
-  // HOME 6 CLOUD — PARALLAX
-  // ==========================================================
-
-  if (home6Cloud) {
-
-    gsap.to(home6Cloud, {
-      y: -180,
-      ease: "none",
-      force3D: true,
-
-      scrollTrigger: {
-        trigger: home6Cloud,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-    });
-
-  }
-
-  // ==========================================================
   // HOME 6 — CASTLE BUILD
   // ==========================================================
 
@@ -1830,6 +1808,7 @@ function initHomeSection6() {
       ".home6_biggate",
       ".home6_giraffe",
       ".home6_castle",
+      ".home6_cloud",
       ".home6_pyramid",
       ".home6_dinosaur"
     ];
