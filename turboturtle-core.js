@@ -2648,7 +2648,7 @@ function initHomeSection9() {
     { sel: ".home9_black",  y: 60 },
 
     // DOWN — even less movement
-    { sel: ".home9_flower", y: 40 }
+    { sel: ".home9_flower", y: 50 }
 
   ];
 
