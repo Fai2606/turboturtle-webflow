@@ -2738,35 +2738,93 @@ function initHomeSection9() {
 
 
 // =============================================================
-// HOMEPAGE RESPONSIVE SCALE — TEST 01
+// HOMEPAGE RESPONSIVE SCALE
 //
-// HOME 2 ONLY
+// MASTER VIEWPORT:
+// 2195px = 100%
 //
-// MASTER:
-// 2195px+ = 100%
+// ABOVE 2195:
+// scale UP proportionally
 //
-// TEST:
-// 1920px = 90%
-// 1440px = 75%
+// BELOW 2195:
+// each section has its own scale controls
 //
-// Home 1 and Home 3–9 are NOT touched yet.
+// HOME 1 IS NOT TOUCHED
 // =============================================================
 function initHomeResponsiveScale() {
 
-  var city = document.querySelector(".home_section2_city");
-
-  if (!city) return;
-
-
-  // ==========================================================
-  // CONTROL VALUES
-  // ==========================================================
-
   var MASTER_WIDTH = 2195;
 
-  var SCALE_2195 = 1.00;
-  var SCALE_1920 = 0.90;
-  var SCALE_1440 = 0.75;
+
+  // ==========================================================
+  // INDIVIDUAL SECTION CONTROLS
+  //
+  // at2195 = master
+  // at1920 = desktop smaller
+  // at1440 = smaller desktop / laptop
+  //
+  // Change these numbers later section by section.
+  // ==========================================================
+
+  var configs = [
+
+    {
+      sel: ".home_section2_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section3_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section4_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section5_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section6_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section7_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section8_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    },
+
+    {
+      sel: ".home_section9_city",
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75
+    }
+
+  ];
 
 
   // ==========================================================
@@ -2781,68 +2839,77 @@ function initHomeResponsiveScale() {
 
 
   // ==========================================================
-  // CALCULATE HOME 2 SCALE
+  // GET SCALE
   // ==========================================================
 
-  function getHome2Scale(width) {
-  
+  function getScale(config, width) {
+
     // --------------------------------------------------------
-    // ABOVE MASTER WIDTH
+    // ABOVE 2195
     //
-    // Scale UP proportionally
+    // Scale UP proportionally.
+    //
+    // 2195 = 1
+    // 2560 = 1.166
+    // 3840 = 1.749
     // --------------------------------------------------------
-  
+
     if (width >= MASTER_WIDTH) {
-  
+
       return width / MASTER_WIDTH;
-  
+
     }
-  
-  
+
+
     // --------------------------------------------------------
     // 1920 -> 2195
-    //
-    // 90% -> 100%
     // --------------------------------------------------------
-  
+
     if (width >= 1920) {
-  
+
       var t1 =
         (width - 1920) /
         (MASTER_WIDTH - 1920);
-  
+
+
       return mix(
-        SCALE_1920,
-        SCALE_2195,
+        config.at1920,
+        config.at2195,
         t1
       );
-  
+
     }
-  
-  
+
+
     // --------------------------------------------------------
     // 1440 -> 1920
-    //
-    // 75% -> 90%
     // --------------------------------------------------------
-  
+
     if (width >= 1440) {
-  
+
       var t2 =
         (width - 1440) /
         (1920 - 1440);
-  
+
+
       return mix(
-        SCALE_1440,
-        SCALE_1920,
+        config.at1440,
+        config.at1920,
         t2
       );
-  
+
     }
-  
-  
-    return SCALE_1440;
-  
+
+
+    // --------------------------------------------------------
+    // BELOW 1440
+    //
+    // Leave fixed for now.
+    // Mobile/tablet later.
+    // --------------------------------------------------------
+
+    return config.at1440;
+
   }
 
 
@@ -2850,47 +2917,44 @@ function initHomeResponsiveScale() {
   // APPLY
   // ==========================================================
 
-  function applyHome2ResponsiveScale() {
+  function applyHomeResponsiveScale() {
 
-    // IMPORTANT:
-    // CSS viewport width ONLY.
-    //
-    // NO devicePixelRatio.
-    // NO physical monitor resolution.
     var width = window.innerWidth;
 
 
-    var scale =
-      getHome2Scale(width);
+    configs.forEach(function(config) {
+
+      var city =
+        document.querySelector(config.sel);
+
+      if (!city) return;
+
+
+      var scale =
+        getScale(config, width);
+
+
+      // ------------------------------------------------------
+      // ZOOM
+      //
+      // Scales visual + layout footprint together.
+      // ------------------------------------------------------
+
+      city.style.zoom = scale;
+
+
+      // Useful if we need to inspect it later.
+
+      city.setAttribute(
+        "data-responsive-scale",
+        scale.toFixed(4)
+      );
+
+    });
 
 
     // --------------------------------------------------------
-    // CSS ZOOM
-    //
-    // We use zoom instead of transform:scale()
-    // because zoom changes the layout footprint as well.
-    //
-    // This is specifically to avoid the giant empty vertical
-    // gap problem you had before.
-    // --------------------------------------------------------
-
-    city.style.zoom = scale;
-
-
-    // --------------------------------------------------------
-    // DEBUG ATTRIBUTE
-    //
-    // Lets us inspect the current scale easily if needed.
-    // --------------------------------------------------------
-
-    city.setAttribute(
-      "data-responsive-scale",
-      scale.toFixed(4)
-    );
-
-
-    // --------------------------------------------------------
-    // RECALCULATE SCROLL SYSTEM
+    // REFRESH LENIS + SCROLLTRIGGER
     // --------------------------------------------------------
 
     if (lenis && lenis.resize) {
@@ -2917,7 +2981,7 @@ function initHomeResponsiveScale() {
   // INITIAL RUN
   // ==========================================================
 
-  applyHome2ResponsiveScale();
+  applyHomeResponsiveScale();
 
 
   // ==========================================================
@@ -2934,7 +2998,7 @@ function initHomeResponsiveScale() {
 
     resizeTimer = setTimeout(function() {
 
-      applyHome2ResponsiveScale();
+      applyHomeResponsiveScale();
 
     }, 150);
 
