@@ -769,7 +769,7 @@
   initHomeSection8();
   initHomeSection9();
   
-//  initHomeResponsiveScale();
+  initHomeResponsiveScale();
   
 
 
@@ -2738,103 +2738,40 @@ function initHomeSection9() {
 
 
 // =============================================================
-// HOMEPAGE DESKTOP RESPONSIVE SCALE
+// HOMEPAGE RESPONSIVE SCALE — TEST 01
 //
-// 3840px = 100%
-// 2560px = section-controlled ratio
-// 1920px = section-controlled ratio
+// HOME 2 ONLY
 //
-// Below 1920px:
-// keep the 1920 ratio for now.
+// MASTER:
+// 2195px+ = 100%
 //
-// Uses CSS zoom instead of transform: scale()
-// so the layout HEIGHT shrinks together with the artwork.
+// TEST:
+// 1920px = 90%
+// 1440px = 75%
+//
+// Home 1 and Home 3–9 are NOT touched yet.
 // =============================================================
 function initHomeResponsiveScale() {
 
-  // -----------------------------------------------------------
-  // INDIVIDUAL SECTION CONTROLS
-  //
-  // For now they all use:
-  //
-  // 3840 = 1.00
-  // 2560 = 0.85
-  // 1920 = 0.70
-  //
-  // Later you can tune EACH SECTION independently.
-  // -----------------------------------------------------------
+  var city = document.querySelector(".home_section2_city");
 
-  var configs = [
-
-    {
-      sel: ".home_section1_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section2_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section3_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section4_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section5_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section6_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section7_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section8_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    },
-
-    {
-      sel: ".home_section9_city",
-      at3840: 1.00,
-      at2560: 0.85,
-      at1920: 0.70
-    }
-
-  ];
+  if (!city) return;
 
 
-  // -----------------------------------------------------------
-  // LINEAR INTERPOLATION
-  // -----------------------------------------------------------
+  // ==========================================================
+  // CONTROL VALUES
+  // ==========================================================
+
+  var MASTER_WIDTH = 2195;
+
+  var SCALE_2195 = 1.00;
+  var SCALE_1920 = 0.90;
+  var SCALE_1440 = 0.75;
+
+
+  // ==========================================================
+  // INTERPOLATE
+  // ==========================================================
 
   function mix(a, b, t) {
 
@@ -2843,94 +2780,134 @@ function initHomeResponsiveScale() {
   }
 
 
-  // -----------------------------------------------------------
-  // GET SCALE FOR CURRENT WIDTH
-  // -----------------------------------------------------------
+  // ==========================================================
+  // CALCULATE HOME 2 SCALE
+  // ==========================================================
 
-  function getScale(config, width) {
+  function getHome2Scale(width) {
 
-    // 3840 AND ABOVE
-    if (width >= 3840) {
+    // --------------------------------------------------------
+    // MASTER SIZE
+    // --------------------------------------------------------
 
-      return config.at3840;
+    if (width >= MASTER_WIDTH) {
+
+      return SCALE_2195;
 
     }
 
 
-    // 2560 -> 3840
-    if (width >= 2560) {
+    // --------------------------------------------------------
+    // 1920 -> 2195
+    //
+    // 90% -> 100%
+    // --------------------------------------------------------
+
+    if (width >= 1920) {
 
       var t1 =
-        (width - 2560) /
-        (3840 - 2560);
+        (width - 1920) /
+        (MASTER_WIDTH - 1920);
+
 
       return mix(
-        config.at2560,
-        config.at3840,
+        SCALE_1920,
+        SCALE_2195,
         t1
       );
 
     }
 
 
-    // 1920 -> 2560
-    if (width >= 1920) {
+    // --------------------------------------------------------
+    // 1440 -> 1920
+    //
+    // 75% -> 90%
+    // --------------------------------------------------------
+
+    if (width >= 1440) {
 
       var t2 =
-        (width - 1920) /
-        (2560 - 1920);
+        (width - 1440) /
+        (1920 - 1440);
+
 
       return mix(
-        config.at1920,
-        config.at2560,
+        SCALE_1440,
+        SCALE_1920,
         t2
       );
 
     }
 
 
-    // BELOW 1920
-    // leave it at the 1920 value for now
+    // --------------------------------------------------------
+    // BELOW 1440
+    //
+    // Leave at 75% for now.
+    // We deal with smaller screens later.
+    // --------------------------------------------------------
 
-    return config.at1920;
+    return SCALE_1440;
 
   }
 
 
-  // -----------------------------------------------------------
+  // ==========================================================
   // APPLY
-  // -----------------------------------------------------------
+  // ==========================================================
 
-  function applyHomeResponsiveScale() {
+  function applyHome2ResponsiveScale() {
 
+    // IMPORTANT:
+    // CSS viewport width ONLY.
+    //
+    // NO devicePixelRatio.
+    // NO physical monitor resolution.
     var width = window.innerWidth;
 
 
-    configs.forEach(function(config) {
-
-      var city =
-        document.querySelector(config.sel);
-
-      if (!city) return;
+    var scale =
+      getHome2Scale(width);
 
 
-      var scale =
-        getScale(config, width);
+    // --------------------------------------------------------
+    // CSS ZOOM
+    //
+    // We use zoom instead of transform:scale()
+    // because zoom changes the layout footprint as well.
+    //
+    // This is specifically to avoid the giant empty vertical
+    // gap problem you had before.
+    // --------------------------------------------------------
+
+    city.style.zoom = scale;
 
 
-      // CSS zoom changes BOTH:
-      // visual size + layout size
-      //
-      // therefore no fake empty height caused by transform:scale()
+    // --------------------------------------------------------
+    // DEBUG ATTRIBUTE
+    //
+    // Lets us inspect the current scale easily if needed.
+    // --------------------------------------------------------
 
-      city.style.zoom = scale;
+    city.setAttribute(
+      "data-responsive-scale",
+      scale.toFixed(4)
+    );
 
-    });
+
+    // --------------------------------------------------------
+    // RECALCULATE SCROLL SYSTEM
+    // --------------------------------------------------------
+
+    if (lenis && lenis.resize) {
+
+      lenis.resize();
+
+    }
 
 
-    // Recalculate ScrollTrigger positions after sizes change.
-
-    if (window.ScrollTrigger) {
+    if (ScrollTrigger) {
 
       requestAnimationFrame(function() {
 
@@ -2943,14 +2920,16 @@ function initHomeResponsiveScale() {
   }
 
 
-  // FIRST RUN
+  // ==========================================================
+  // INITIAL RUN
+  // ==========================================================
 
-  applyHomeResponsiveScale();
+  applyHome2ResponsiveScale();
 
 
-  // -----------------------------------------------------------
+  // ==========================================================
   // RESIZE
-  // -----------------------------------------------------------
+  // ==========================================================
 
   var resizeTimer;
 
@@ -2962,7 +2941,7 @@ function initHomeResponsiveScale() {
 
     resizeTimer = setTimeout(function() {
 
-      applyHomeResponsiveScale();
+      applyHome2ResponsiveScale();
 
     }, 150);
 
