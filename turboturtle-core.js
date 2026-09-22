@@ -1749,6 +1749,39 @@ function initHomeSection6() {
     });
   }
 
+  
+  // ==========================================================
+  // LAKE — VERTICAL SHRINK ON SCROLL
+  // scaleY 1.6 -> 1
+  // ==========================================================
+
+  if (home6Lake) {
+
+    gsap.fromTo(
+      home6Lake,
+
+      {
+        scaleY: 1.6,
+        transformOrigin: "50% 0%"
+      },
+
+      {
+        scaleY: 1,
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: home6Lake,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+
+  }
+
 
   // ==========================================================
   // WEIRD SUN HORN
