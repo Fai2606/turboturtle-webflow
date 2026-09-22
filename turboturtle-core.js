@@ -1706,7 +1706,6 @@ function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
-  var home6Cloud = q(".home6_cloud");
   var home6TallPillar = q(".home6_tallpillar");
   var home6Lake = q(".home6_lake");
 
@@ -1808,7 +1807,6 @@ function initHomeSection6() {
       ".home6_biggate",
       ".home6_giraffe",
       ".home6_castle",
-      ".home6_cloud",
       ".home6_pyramid",
       ".home6_dinosaur"
     ];
