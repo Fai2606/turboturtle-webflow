@@ -769,7 +769,7 @@
   initHomeSection8();
   initHomeSection9();
   
-  initHomeResponsiveScale();
+//  initHomeResponsiveScale();
   
 
 
