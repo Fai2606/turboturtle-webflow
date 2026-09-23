@@ -2634,12 +2634,27 @@ function initHomeSection6() {
 
 // =============================================================
 // HOMEPAGE SECTION 7
+// MASTER-SPACE VERSION
 // =============================================================
 function initHomeSection7() {
 
   var section = q(".home_section7");
 
   if (!section || !gsap || !ScrollTrigger) return;
+
+
+  // ============================================================
+  // MASTER DESIGN SIZE
+  //
+  // Original working viewport:
+  // 2195 × ~1100 CSS px
+  //
+  // 1vw ≈ 21.95px
+  // 1vh ≈ 11px
+  // ============================================================
+
+  var MASTER_VW = 21.95;
+  var MASTER_VH = 11;
 
 
   // ============================================================
@@ -2691,14 +2706,19 @@ function initHomeSection7() {
 
       // ========================================================
       // UNIVERSE
-      // UPWARD PARALLAX
       // ========================================================
 
       if (universe) {
 
         gsap.set(universe, {
-          y: -35 * vh * p,
+
+          y:
+            -35 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
@@ -2711,24 +2731,44 @@ function initHomeSection7() {
       if (balloon) {
 
         gsap.set(balloon, {
-          x: 10 * vw * p,
-          y: 30 * vh * p,
+
+          x:
+            10 *
+            MASTER_VW *
+            p,
+
+          y:
+            30 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
 
 
       // ========================================================
-      // MOON — 1.1x
+      // MOON
       // ========================================================
 
       if (moon) {
 
         gsap.set(moon, {
-          x: -11 * vw * p,
-          y: 33 * vh * p,
+
+          x:
+            -11 *
+            MASTER_VW *
+            p,
+
+          y:
+            33 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
@@ -2741,41 +2781,77 @@ function initHomeSection7() {
       if (satellite) {
 
         gsap.set(satellite, {
-          x: -22 * vw * p,
-          y: -32 * vh * p,
+
+          x:
+            -22 *
+            MASTER_VW *
+            p,
+
+          y:
+            -32 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
 
 
       // ========================================================
-      // FISH 1 — 1x
+      // FISH 1
       // ========================================================
 
       if (fish1) {
 
         gsap.set(fish1, {
-          x: -18 * vw * p,
-          y: -55 * vh * p,
-          rotation: -3 * p,
+
+          x:
+            -18 *
+            MASTER_VW *
+            p,
+
+          y:
+            -55 *
+            MASTER_VH *
+            p,
+
+          rotation:
+            -3 *
+            p,
+
           force3D: true
+
         });
 
       }
 
 
       // ========================================================
-      // FISH 2 — 2x
+      // FISH 2
       // ========================================================
 
       if (fish2) {
 
         gsap.set(fish2, {
-          x: -38 * vw * p,
-          y: -116 * vh * p,
-          rotation: -4 * p,
+
+          x:
+            -38 *
+            MASTER_VW *
+            p,
+
+          y:
+            -116 *
+            MASTER_VH *
+            p,
+
+          rotation:
+            -4 *
+            p,
+
           force3D: true
+
         });
 
       }
@@ -2783,46 +2859,72 @@ function initHomeSection7() {
 
       // ========================================================
       // LONGNECK
-      // +15 DEG CLOCKWISE
       // ========================================================
 
       if (longneck) {
 
         gsap.set(longneck, {
-          x: -10 * vw * p,
-          y: -32 * vh * p,
-          rotation: 15 * p,
+
+          x:
+            -10 *
+            MASTER_VW *
+            p,
+
+          y:
+            -32 *
+            MASTER_VH *
+            p,
+
+          rotation:
+            15 *
+            p,
+
           force3D: true
+
         });
 
       }
 
 
       // ========================================================
-      // HERO BEAR — 1.2x
+      // HERO BEAR
       // ========================================================
 
       if (heroBear) {
 
         gsap.set(heroBear, {
+
           x: 0,
-          y: 110 * vh * p,
+
+          y:
+            110 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
 
 
       // ========================================================
-      // ROCKET — 1.5x
+      // ROCKET
       // ========================================================
 
       if (rocket) {
 
         gsap.set(rocket, {
+
           x: 0,
-          y: -135 * vh * p,
+
+          y:
+            -135 *
+            MASTER_VH *
+            p,
+
           force3D: true
+
         });
 
       }
@@ -2833,11 +2935,12 @@ function initHomeSection7() {
 
 
   requestAnimationFrame(function() {
+
     ScrollTrigger.refresh();
+
   });
 
-
-} // END initHomeSection7
+}
 
 
 
