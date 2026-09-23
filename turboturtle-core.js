@@ -3117,16 +3117,12 @@ function initHomeSection9() {
 // MASTER:
 // 2195px = 100%
 //
-// ABOVE 2195:
-// scale UP proportionally
-//
-// BELOW 2195:
-// section-specific controls
-//
-// ALSO FIXES:
-// - Home1 now included
+// ALSO HANDLES:
+// - Home1–9 city scaling
 // - outer fixed px section offsets
-// - vw/vh fonts being double-scaled by zoom
+// - body copy minimum visual size = 10px
+// - navbar item scales down from 12px
+// - navbar item never below 10px
 // =============================================================
 function initHomeResponsiveScale() {
 
@@ -3135,13 +3131,6 @@ function initHomeResponsiveScale() {
 
   // ==========================================================
   // SECTION SETTINGS
-  //
-  // outerType:
-  // "marginTop" = scale margin-top
-  // "top"       = scale relative top offset
-  //
-  // outerBase:
-  // original Webflow px value
   // ==========================================================
 
   var configs = [
@@ -3269,18 +3258,13 @@ function initHomeResponsiveScale() {
 
 
   // ==========================================================
-  // GET SCALE
+  // GET SECTION SCALE
   // ==========================================================
 
   function getScale(config, width) {
 
 
-    // --------------------------------------------------------
     // ABOVE MASTER
-    //
-    // Scale proportionally upward
-    // --------------------------------------------------------
-
     if (width >= MASTER_WIDTH) {
 
       return width / MASTER_WIDTH;
@@ -3288,16 +3272,12 @@ function initHomeResponsiveScale() {
     }
 
 
-    // --------------------------------------------------------
     // 1920 -> 2195
-    // --------------------------------------------------------
-
     if (width >= 1920) {
 
       var t1 =
         (width - 1920) /
         (MASTER_WIDTH - 1920);
-
 
       return mix(
         config.at1920,
@@ -3308,16 +3288,12 @@ function initHomeResponsiveScale() {
     }
 
 
-    // --------------------------------------------------------
     // 1440 -> 1920
-    // --------------------------------------------------------
-
     if (width >= 1440) {
 
       var t2 =
         (width - 1440) /
         (1920 - 1440);
-
 
       return mix(
         config.at1440,
@@ -3329,59 +3305,8 @@ function initHomeResponsiveScale() {
 
 
     // BELOW 1440
-    // continue scaling proportionally to the original 2195px master
-    
+    // Keep scaling proportionally
     return width / MASTER_WIDTH;
-
-  }
-
-
-  // ==========================================================
-  // FONT FIX
-  //
-  // PROBLEM:
-  //
-  // .big_heading uses vw/vh
-  // .body_text uses vw/vh
-  //
-  // They already grow when viewport grows.
-  //
-  // Then city zoom scales them AGAIN.
-  //
-  // This divides their CSS-computed font size by the city zoom,
-  // cancelling the double scaling.
-  // ==========================================================
-
-  function fixHomepageFonts(city, scale) {
-
-    var textElements =
-      city.querySelectorAll(
-        ".big_heading, .body_text"
-      );
-
-
-    textElements.forEach(function(el) {
-
-
-      // Remove our previous override first
-      // so CSS can calculate its real vw/vh font size.
-
-      el.style.fontSize = "";
-
-
-      var cssSize =
-        parseFloat(
-          window.getComputedStyle(el).fontSize
-        );
-
-
-      if (!cssSize) return;
-
-
-      el.style.fontSize =
-        (cssSize / scale) + "px";
-
-    });
 
   }
 
@@ -3396,106 +3321,186 @@ function initHomeResponsiveScale() {
       window.innerWidth;
 
 
+    // ========================================================
+    // NAVBAR
+    //
+    // Webflow base:
+    // 12px
+    //
+    // Scale DOWN only.
+    // Never go below 10px.
+    // Above master width stays 12px.
+    // ========================================================
+
+    var navbarItems =
+      document.querySelectorAll(
+        ".navbar_item"
+      );
+
+
+    var navbarBaseSize = 12;
+
+
+    var navbarScale =
+      Math.min(
+        1,
+        width / MASTER_WIDTH
+      );
+
+
+    var navbarFontSize =
+      Math.max(
+        10,
+        navbarBaseSize * navbarScale
+      );
+
+
+    navbarItems.forEach(function(el) {
+
+      el.style.fontSize =
+        navbarFontSize + "px";
+
+    });
+
+
+    // ========================================================
+    // HOME SECTIONS
+    // ========================================================
+
     configs.forEach(function(config) {
 
       var city =
-        document.querySelector(config.city);
+        document.querySelector(
+          config.city
+        );
+
 
       var section =
-        document.querySelector(config.section);
+        document.querySelector(
+          config.section
+        );
 
 
       if (!city) return;
 
 
       var scale =
-        getScale(config, width);
+        getScale(
+          config,
+          width
+        );
 
 
       // ------------------------------------------------------
       // SCALE ENTIRE CITY
       // ------------------------------------------------------
 
-      city.style.zoom = scale;
+      city.style.zoom =
+        scale;
 
 
       // ------------------------------------------------------
-      // BODY TEXT — MINIMUM VISUAL SIZE
+      // BODY TEXT — MINIMUM VISUAL SIZE = 10px
+      //
+      // Webflow owns the actual font size.
+      // We only compensate when city zoom makes it visually
+      // smaller than 10px.
       // ------------------------------------------------------
-      
-      var MIN_BODY_VISUAL_SIZE = 8;
-      
-      var bodyTexts = city.querySelectorAll(
-        ".body_text:not(.subhead):not(._4text_heading)"
-      );
-      
+
+      var MIN_BODY_VISUAL_SIZE = 10;
+
+
+      var bodyTexts =
+        city.querySelectorAll(
+          ".body_text:not(.subhead):not(._4text_heading)"
+        );
+
+
       bodyTexts.forEach(function(el) {
-      
-        // Let Webflow give us the real base font size first
+
+
+        // Remove previous JS override first
+        // so Webflow's real font size is measured
+
         el.style.fontSize = "";
-      
+
+
         var baseSize =
           parseFloat(
-            window.getComputedStyle(el).fontSize
+            window
+              .getComputedStyle(el)
+              .fontSize
           );
-      
+
+
         if (!baseSize) return;
-      
-      
-        // Actual visible size after city zoom
+
+
         var visibleSize =
-          baseSize * scale;
-      
-      
-        // If zoom makes it too small,
-        // increase CSS font-size just enough
-        // to keep the visual result readable.
-        if (visibleSize < MIN_BODY_VISUAL_SIZE) {
-      
+          baseSize *
+          scale;
+
+
+        if (
+          visibleSize <
+          MIN_BODY_VISUAL_SIZE
+        ) {
+
           el.style.fontSize =
-            (MIN_BODY_VISUAL_SIZE / scale) + "px";
-      
+            (
+              MIN_BODY_VISUAL_SIZE /
+              scale
+            ) +
+            "px";
+
         }
-      
+
       });
-      
-      
 
 
       // ------------------------------------------------------
       // SCALE OUTER SECTION DISTANCE
-      //
-      // These values are outside the city,
-      // therefore zoom does NOT affect them.
       // ------------------------------------------------------
 
-      if (section && config.outerType) {
+      if (
+        section &&
+        config.outerType
+      ) {
 
         var scaledOuter =
-          config.outerBase * scale;
+          config.outerBase *
+          scale;
 
 
-        if (config.outerType === "marginTop") {
+        if (
+          config.outerType ===
+          "marginTop"
+        ) {
 
           section.style.marginTop =
-            scaledOuter + "px";
+            scaledOuter +
+            "px";
 
         }
 
 
-        if (config.outerType === "top") {
+        if (
+          config.outerType ===
+          "top"
+        ) {
 
           section.style.top =
-            scaledOuter + "px";
+            scaledOuter +
+            "px";
 
         }
 
       }
 
 
-    // --------------------------------------------------------
-    // DEBUG
-    // --------------------------------------------------------
+      // ------------------------------------------------------
+      // DEBUG
+      // ------------------------------------------------------
 
       city.setAttribute(
         "data-responsive-scale",
@@ -3505,28 +3510,33 @@ function initHomeResponsiveScale() {
     });
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // LENIS
-    // --------------------------------------------------------
+    // ========================================================
 
-    if (lenis && lenis.resize) {
+    if (
+      lenis &&
+      lenis.resize
+    ) {
 
       lenis.resize();
 
     }
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // SCROLLTRIGGER
-    // --------------------------------------------------------
+    // ========================================================
 
     if (ScrollTrigger) {
 
-      requestAnimationFrame(function() {
+      requestAnimationFrame(
+        function() {
 
-        ScrollTrigger.refresh();
+          ScrollTrigger.refresh();
 
-      });
+        }
+      );
 
     }
 
@@ -3551,7 +3561,9 @@ function initHomeResponsiveScale() {
     "resize",
     function() {
 
-      clearTimeout(resizeTimer);
+      clearTimeout(
+        resizeTimer
+      );
 
 
       resizeTimer =
