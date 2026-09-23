@@ -1004,21 +1004,46 @@
   
         force3D: true,
   
-        scrollTrigger: {
-  
-          trigger: section,
-          
-          start: function () {
-            return "top+=" + window.innerHeight + " top";
-          },
-          
-          end: "bottom 30%",
-  
-          scrub: 1,
-  
-          invalidateOnRefresh: true
-  
-        }
+scrollTrigger: {
+
+  trigger: section,
+
+
+  // Goose does NOT move during the opening KV.
+  start: function () {
+
+    return "top+=" +
+      (window.innerHeight * 1.02) +
+      " top";
+
+  },
+
+
+  // Give the goose a long scroll distance
+  // so we can actually watch it fly.
+  end: function () {
+
+    var isPortraitTablet =
+      window.innerHeight >
+      window.innerWidth &&
+      window.innerWidth <= 1100;
+
+
+    return "top+=" +
+      (
+        window.innerHeight *
+        (isPortraitTablet ? 1.72 : 1.45)
+      ) +
+      " top";
+
+  },
+
+
+  scrub: 1.5,
+
+  invalidateOnRefresh: true
+
+}
   
       });
   
@@ -3401,13 +3426,9 @@ function initHomeResponsiveScale() {
         scale;
 
 
-      // ------------------------------------------------------
-      // HOME 1 — TRUE 100VH HERO
-      //
-      // First screen = KV only.
-      // Keep the original 550px master-space area underneath
-      // so goose + Home2 remain below the first viewport.
-      // ------------------------------------------------------
+// ------------------------------------------------------
+// HOME 1 — RESPONSIVE HERO HEIGHT
+// ------------------------------------------------------
 
 if (config.city === ".home_section1_city") {
 
@@ -3415,17 +3436,14 @@ if (config.city === ".home_section1_city") {
     city.querySelector(".kv.homepage");
 
 
-  // Original master structure:
-  // city = 1650px
-  // KV   = 1100px
-  // remaining area = 550px
-
-  var HOME1_AFTER_KV = 550;
+  var isPortraitTablet =
+    window.innerHeight > window.innerWidth &&
+    window.innerWidth <= 1100;
 
 
-  // Because the whole city is zoomed,
-  // calculate the unzoomed height required
-  // to visually equal exactly 100vh.
+  // --------------------------------------------
+  // KV itself = always visually 100vh
+  // --------------------------------------------
 
   var kvHeight =
     window.innerHeight / scale;
@@ -3439,16 +3457,24 @@ if (config.city === ".home_section1_city") {
   }
 
 
-  // IMPORTANT:
-  // Extend the entire Home1 city as the KV becomes taller.
+  // --------------------------------------------
+  // TOTAL HOME1 HEIGHT
   //
-  // Visual result:
-  // 100vh hero
-  // +
-  // original lower Home1 area
+  // Portrait tablet:
+  // 100vh KV + 80vh transition area
+  //
+  // Other screens:
+  // 100vh KV + 50vh transition area
+  // --------------------------------------------
+
+  var home1VisualHeight =
+    isPortraitTablet
+      ? window.innerHeight * 1.80
+      : window.innerHeight * 1.50;
+
 
   city.style.height =
-    (kvHeight + HOME1_AFTER_KV) + "px";
+    (home1VisualHeight / scale) + "px";
 
 }
 
