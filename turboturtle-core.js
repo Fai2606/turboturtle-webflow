@@ -3420,6 +3420,49 @@ function initHomeResponsiveScale() {
 
 
       // ------------------------------------------------------
+      // BODY TEXT — MINIMUM VISUAL SIZE
+      // ------------------------------------------------------
+      
+      var MIN_BODY_VISUAL_SIZE = 14;
+      
+      var bodyTexts = city.querySelectorAll(
+        ".body_text:not(.subhead):not(._4text_heading)"
+      );
+      
+      bodyTexts.forEach(function(el) {
+      
+        // Let Webflow give us the real base font size first
+        el.style.fontSize = "";
+      
+        var baseSize =
+          parseFloat(
+            window.getComputedStyle(el).fontSize
+          );
+      
+        if (!baseSize) return;
+      
+      
+        // Actual visible size after city zoom
+        var visibleSize =
+          baseSize * scale;
+      
+      
+        // If zoom makes it too small,
+        // increase CSS font-size just enough
+        // to keep the visual result readable.
+        if (visibleSize < MIN_BODY_VISUAL_SIZE) {
+      
+          el.style.fontSize =
+            (MIN_BODY_VISUAL_SIZE / scale) + "px";
+      
+        }
+      
+      });
+      
+      
+
+
+      // ------------------------------------------------------
       // SCALE OUTER SECTION DISTANCE
       //
       // These values are outside the city,
