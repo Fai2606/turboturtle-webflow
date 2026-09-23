@@ -3399,6 +3399,29 @@ function initHomeResponsiveScale() {
         scale;
 
 
+      
+      // ------------------------------------------------------
+      // HOME 1 KV — ALWAYS VISUALLY 100VH
+      // ------------------------------------------------------
+      
+      if (config.city === ".home_section1_city") {
+      
+        var home1KV =
+          city.querySelector(".kv.homepage");
+      
+        if (home1KV) {
+      
+          home1KV.style.height =
+            (window.innerHeight / scale) + "px";
+      
+        }
+      
+      }
+
+
+
+      
+
       // ------------------------------------------------------
       // BODY TEXT — MINIMUM VISUAL SIZE = 10px
       //
