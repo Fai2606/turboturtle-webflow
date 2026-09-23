@@ -3423,7 +3423,7 @@ function initHomeResponsiveScale() {
       // BODY TEXT — MINIMUM VISUAL SIZE
       // ------------------------------------------------------
       
-      var MIN_BODY_VISUAL_SIZE = 14;
+      var MIN_BODY_VISUAL_SIZE = 10;
       
       var bodyTexts = city.querySelectorAll(
         ".body_text:not(.subhead):not(._4text_heading)"
