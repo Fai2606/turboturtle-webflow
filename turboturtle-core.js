@@ -2148,7 +2148,7 @@ function initHomeSection6() {
       lightTL.set(home6Light, {
         scaleX: 0,
         visibility: "visible",
-        opacity: 1
+        opacity: 0.9
       }, 0);
 
       lightTL.to(home6Light, {
