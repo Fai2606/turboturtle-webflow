@@ -780,8 +780,10 @@
 
   // =============================================================
   // HOMEPAGE SECTION 1
+  // MASTER-SPACE VERSION
   // =============================================================
   function initHomeSection1() {
+  
     var section = q(".home_section1");
     var moon = q(".home1_moon");
     var realMoon = q(".home1_realmoon");
@@ -790,167 +792,436 @@
     var text = q(".home_kv");
     var goose = q(".home1_goose");
     var galaxy = q(".home1_galaxy");
-
+  
     if (!section || !gsap || !ScrollTrigger) return;
-
-    // Layer order
+  
+  
+    // ==========================================================
+    // MASTER DESIGN VALUES
+    //
+    // Original working viewport:
+    // width  ≈ 2195
+    // height ≈ 1100
+    //
+    // Therefore:
+    // 1vw ≈ 21.95px
+    // 1vh ≈ 11px
+    // ==========================================================
+  
+    var MASTER_VW = 21.95;
+    var MASTER_VH = 11;
+  
+  
+    // ==========================================================
+    // LAYER ORDER
+    // ==========================================================
+  
     if (galaxy) gsap.set(galaxy, { zIndex: 1 });
     if (realMoon) gsap.set(realMoon, { zIndex: 2 });
     if (pyramid) gsap.set(pyramid, { zIndex: 3 });
     if (text) gsap.set(text, { zIndex: 5 });
     if (moon) gsap.set(moon, { zIndex: 7 });
     if (cloud) gsap.set(cloud, { zIndex: 10 });
-
-    // Intro — lock scroll + moon bounce
+  
+  
+    // ==========================================================
+    // INTRO — MOON BOUNCE
+    // ==========================================================
+  
     if (lenis) lenis.stop();
-
+  
+  
     var intro = gsap.timeline({
+  
       onComplete: function () {
+  
         if (lenis) lenis.start();
+  
         ScrollTrigger.refresh();
+  
       }
+  
     });
-
+  
+  
     if (moon) {
+  
       intro
-        .set(moon, { y: 0, force3D: true })
-        .to(moon, { y: "-8vh", duration: 0.45, ease: "power2.out" })
-        .to(moon, { y: 0, duration: 0.6, ease: "bounce.out" });
+        .set(moon, {
+          y: 0,
+          force3D: true
+        })
+  
+        .to(moon, {
+          y: -8 * MASTER_VH,
+          duration: 0.45,
+          ease: "power2.out"
+        })
+  
+        .to(moon, {
+          y: 0,
+          duration: 0.6,
+          ease: "bounce.out"
+        });
+  
     } else {
-      intro.to({}, { duration: 1 });
+  
+      intro.to({}, {
+        duration: 1
+      });
+  
     }
-
-    // Cloud — fastest layer
+  
+  
+    // ==========================================================
+    // CLOUD
+    // ==========================================================
+  
     if (cloud) {
+  
       gsap.to(cloud, {
-        y: () => -115 * vh,
+  
+        y: -115 * MASTER_VH,
+  
         ease: "none",
+  
         force3D: true,
+  
         scrollTrigger: {
+  
           trigger: section,
+  
           start: "top top",
+  
           end: "bottom top",
+  
           scrub: 1,
+  
           invalidateOnRefresh: true
+  
         }
+  
       });
+  
     }
-
-    // Pyramid — slower than cloud
+  
+  
+    // ==========================================================
+    // PYRAMID
+    // ==========================================================
+  
     if (pyramid) {
+  
       gsap.to(pyramid, {
-        y: () => -30 * vh,
+  
+        y: -30 * MASTER_VH,
+  
         ease: "none",
+  
         force3D: true,
+  
         scrollTrigger: {
+  
           trigger: section,
+  
           start: "top top",
+  
           end: "bottom top",
+  
           scrub: 1,
+  
           invalidateOnRefresh: true
+  
         }
+  
       });
+  
     }
-
-// Real moon — stay on screen longer
-if (realMoon) {
-  gsap.to(realMoon, {
-    y: function () {
-      var scrollDistance = Math.max(0, section.offsetHeight - window.innerHeight);
-      return scrollDistance * 0.82;
-    },
-    ease: "none",
-    force3D: true,
-    scrollTrigger: {
-      trigger: section,
-      start: "top top",
-      end: "bottom top",
-      scrub: true,
-      invalidateOnRefresh: true
+  
+  
+    // ==========================================================
+    // REAL MOON
+    //
+    // Keep relative behavior.
+    // This already measures actual section height.
+    // ==========================================================
+  
+    if (realMoon) {
+  
+      gsap.to(realMoon, {
+  
+        y: function () {
+  
+          var scrollDistance =
+            Math.max(
+              0,
+              section.offsetHeight -
+              window.innerHeight
+            );
+  
+          return scrollDistance * 0.82;
+  
+        },
+  
+        ease: "none",
+  
+        force3D: true,
+  
+        scrollTrigger: {
+  
+          trigger: section,
+  
+          start: "top top",
+  
+          end: "bottom top",
+  
+          scrub: true,
+  
+          invalidateOnRefresh: true
+  
+        }
+  
+      });
+  
     }
-  });
-}
-
-// Goose — slightly faster
-if (goose) {
-  gsap.to(goose, {
-    x: () => -145 * vw,
-    y: () => -85 * vh,
-    rotation: -12,
-    ease: "none",
-    force3D: true,
-    scrollTrigger: {
-      trigger: goose,
-      start: "top bottom",
-      end: "bottom 30%",
-      scrub: 1,
-      invalidateOnRefresh: true
+  
+  
+    // ==========================================================
+    // GOOSE
+    // ==========================================================
+  
+    if (goose) {
+  
+      gsap.to(goose, {
+  
+        x: -145 * MASTER_VW,
+  
+        y: -85 * MASTER_VH,
+  
+        rotation: -12,
+  
+        ease: "none",
+  
+        force3D: true,
+  
+        scrollTrigger: {
+  
+          trigger: goose,
+  
+          start: "top bottom",
+  
+          end: "bottom 30%",
+  
+          scrub: 1,
+  
+          invalidateOnRefresh: true
+  
+        }
+  
+      });
+  
     }
-  });
-}
-
-    // home1_moon only does the intro bounce.
+  
   }
 
-  // =============================================================
-  // HOMEPAGE SECTION 2
-  // =============================================================
-  function initHomeSection2() {
-    var section = q(".home_section2");
-    if (!section || !gsap || !ScrollTrigger) return;
 
-    var depthGroups = [
-      { targets: ".home2_building12", travel: 0 },
-      { targets: ".home2_building9", travel: 15 },
-      { targets: ".home2_clocktower, .home2_dinosaur, .home2_5centcat", travel: 30 },
-      { targets: ".home2_bridge, .home2_train, .home2_building2, .home2_statue", travel: 45 },
-      { targets: ".home2_mount4, .home2_spacecat", travel: 60 },
-      { targets: ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle, .home2_riv", travel: 75 },
-      { targets: ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat", travel: 90 }
-    ];
+  
 
-    depthGroups.forEach(function (group) {
-      var elements = gsap.utils.toArray(group.targets);
-      if (!elements.length || group.travel === 0) return;
+// =============================================================
+// HOMEPAGE SECTION 2
+// MASTER-SPACE PARALLAX
+// =============================================================
+function initHomeSection2() {
+
+  var section =
+    q(".home_section2");
+
+  if (
+    !section ||
+    !gsap ||
+    !ScrollTrigger
+  ) {
+    return;
+  }
+
+
+  // ==========================================================
+  // ORIGINAL DESIGN HEIGHT
+  //
+  // 1vh at original viewport ≈ 11px
+  // ==========================================================
+
+  var MASTER_VH = 11;
+
+
+  // ==========================================================
+  // DEPTH PARALLAX
+  // ==========================================================
+
+  var depthGroups = [
+
+    {
+      targets:
+        ".home2_building12",
+
+      travel: 0
+    },
+
+    {
+      targets:
+        ".home2_building9",
+
+      travel: 15
+    },
+
+    {
+      targets:
+        ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
+
+      travel: 30
+    },
+
+    {
+      targets:
+        ".home2_bridge, .home2_train, .home2_building2, .home2_statue",
+
+      travel: 45
+    },
+
+    {
+      targets:
+        ".home2_mount4, .home2_spacecat",
+
+      travel: 60
+    },
+
+    {
+      targets:
+        ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle, .home2_riv",
+
+      travel: 75
+    },
+
+    {
+      targets:
+        ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat",
+
+      travel: 90
+    }
+
+  ];
+
+
+  depthGroups.forEach(
+    function (group) {
+
+      var elements =
+        gsap.utils.toArray(
+          group.targets
+        );
+
+
+      if (
+        !elements.length ||
+        group.travel === 0
+      ) {
+        return;
+      }
+
+
+      var distance =
+        group.travel *
+        MASTER_VH;
+
 
       gsap.fromTo(
+
         elements,
-        { y: () => group.travel * vh },
+
         {
-          y: () => -group.travel * vh,
+
+          y: distance,
+
+          force3D: true
+
+        },
+
+        {
+
+          y: -distance,
+
           ease: "none",
+
           force3D: true,
+
           scrollTrigger: {
+
             trigger: section,
+
             start: "top bottom",
+
             end: "bottom top",
+
             scrub: 1,
+
             invalidateOnRefresh: true
+
           }
+
         }
+
       );
-    });
 
-    
-    var oceanBall = q(".home2_oceanball");
-
-    if (oceanBall) {
-      gsap.to(oceanBall, {
-        yPercent: -3,
-        rotation: 1.5,
-        duration: 2.4,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        force3D: true
-      });
     }
+  );
 
-    requestAnimationFrame(function () {
-      ScrollTrigger.refresh();
-    });
+
+  // ==========================================================
+  // OCEAN BALL FLOAT
+  //
+  // yPercent is already relative to itself,
+  // so keep this unchanged.
+  // ==========================================================
+
+  var oceanBall =
+    q(".home2_oceanball");
+
+
+  if (oceanBall) {
+
+    gsap.to(
+      oceanBall,
+      {
+
+        yPercent: -3,
+
+        rotation: 1.5,
+
+        duration: 2.4,
+
+        ease: "sine.inOut",
+
+        yoyo: true,
+
+        repeat: -1,
+
+        force3D: true
+
+      }
+    );
+
   }
 
+
+  requestAnimationFrame(
+    function () {
+
+      ScrollTrigger.refresh();
+
+    }
+  );
+
+}
   
   // =============================================================
   // HOMEPAGE SECTION 3
