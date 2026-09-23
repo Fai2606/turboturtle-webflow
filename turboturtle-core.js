@@ -2738,18 +2738,21 @@ function initHomeSection9() {
 
 
 // =============================================================
-// HOMEPAGE RESPONSIVE SCALE
+// HOMEPAGE RESPONSIVE SCALE — INTEGRATED
 //
-// MASTER VIEWPORT:
+// MASTER:
 // 2195px = 100%
 //
 // ABOVE 2195:
 // scale UP proportionally
 //
 // BELOW 2195:
-// each section has its own scale controls
+// section-specific controls
 //
-// HOME 1 IS NOT TOUCHED
+// ALSO FIXES:
+// - Home1 now included
+// - outer fixed px section offsets
+// - vw/vh fonts being double-scaled by zoom
 // =============================================================
 function initHomeResponsiveScale() {
 
@@ -2757,78 +2760,131 @@ function initHomeResponsiveScale() {
 
 
   // ==========================================================
-  // INDIVIDUAL SECTION CONTROLS
+  // SECTION SETTINGS
   //
-  // at2195 = master
-  // at1920 = desktop smaller
-  // at1440 = smaller desktop / laptop
+  // outerType:
+  // "marginTop" = scale margin-top
+  // "top"       = scale relative top offset
   //
-  // Change these numbers later section by section.
+  // outerBase:
+  // original Webflow px value
   // ==========================================================
 
   var configs = [
 
     {
-      sel: ".home_section2_city",
+      city: ".home_section1_city",
+      section: ".home_section1",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: null,
+      outerBase: 0
     },
 
     {
-      sel: ".home_section3_city",
+      city: ".home_section2_city",
+      section: ".home_section2",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "top",
+      outerBase: -300
     },
 
     {
-      sel: ".home_section4_city",
+      city: ".home_section3_city",
+      section: ".home_section3",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: -600
     },
 
     {
-      sel: ".home_section5_city",
+      city: ".home_section4_city",
+      section: ".home_section4",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: 360
     },
 
     {
-      sel: ".home_section6_city",
+      city: ".home_section5_city",
+      section: ".home_section5",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: -2230
     },
 
     {
-      sel: ".home_section7_city",
+      city: ".home_section6_city",
+      section: ".home_section6",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: 200
     },
 
     {
-      sel: ".home_section8_city",
+      city: ".home_section7_city",
+      section: ".home_section7",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: -100
     },
 
     {
-      sel: ".home_section9_city",
+      city: ".home_section8_city",
+      section: ".home_section8",
+
       at2195: 1.00,
       at1920: 0.90,
-      at1440: 0.75
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: -100
+    },
+
+    {
+      city: ".home_section9_city",
+      section: ".home_section9",
+
+      at2195: 1.00,
+      at1920: 0.90,
+      at1440: 0.75,
+
+      outerType: "marginTop",
+      outerBase: -283
     }
 
   ];
 
 
   // ==========================================================
-  // INTERPOLATE
+  // MIX
   // ==========================================================
 
   function mix(a, b, t) {
@@ -2844,14 +2900,11 @@ function initHomeResponsiveScale() {
 
   function getScale(config, width) {
 
+
     // --------------------------------------------------------
-    // ABOVE 2195
+    // ABOVE MASTER
     //
-    // Scale UP proportionally.
-    //
-    // 2195 = 1
-    // 2560 = 1.166
-    // 3840 = 1.749
+    // Scale proportionally upward
     // --------------------------------------------------------
 
     if (width >= MASTER_WIDTH) {
@@ -2901,14 +2954,59 @@ function initHomeResponsiveScale() {
     }
 
 
-    // --------------------------------------------------------
-    // BELOW 1440
-    //
-    // Leave fixed for now.
-    // Mobile/tablet later.
-    // --------------------------------------------------------
+    // BELOW 1440 — leave for later
 
     return config.at1440;
+
+  }
+
+
+  // ==========================================================
+  // FONT FIX
+  //
+  // PROBLEM:
+  //
+  // .big_heading uses vw/vh
+  // .body_text uses vw/vh
+  //
+  // They already grow when viewport grows.
+  //
+  // Then city zoom scales them AGAIN.
+  //
+  // This divides their CSS-computed font size by the city zoom,
+  // cancelling the double scaling.
+  // ==========================================================
+
+  function fixHomepageFonts(city, scale) {
+
+    var textElements =
+      city.querySelectorAll(
+        ".big_heading, .body_text"
+      );
+
+
+    textElements.forEach(function(el) {
+
+
+      // Remove our previous override first
+      // so CSS can calculate its real vw/vh font size.
+
+      el.style.fontSize = "";
+
+
+      var cssSize =
+        parseFloat(
+          window.getComputedStyle(el).fontSize
+        );
+
+
+      if (!cssSize) return;
+
+
+      el.style.fontSize =
+        (cssSize / scale) + "px";
+
+    });
 
   }
 
@@ -2919,13 +3017,18 @@ function initHomeResponsiveScale() {
 
   function applyHomeResponsiveScale() {
 
-    var width = window.innerWidth;
+    var width =
+      window.innerWidth;
 
 
     configs.forEach(function(config) {
 
       var city =
-        document.querySelector(config.sel);
+        document.querySelector(config.city);
+
+      var section =
+        document.querySelector(config.section);
+
 
       if (!city) return;
 
@@ -2935,43 +3038,56 @@ function initHomeResponsiveScale() {
 
 
       // ------------------------------------------------------
-      // ZOOM
-      //
-      // Scales visual + layout footprint together.
+      // SCALE ENTIRE CITY
       // ------------------------------------------------------
 
       city.style.zoom = scale;
-      
-      if (config.sel === ".home_section4_city") {
 
-        var home4Bottom =
-          document.querySelector(".Bottom_Extend_bkg.home4");
-      
-          if (home4Bottom) {
-        
-            home4Bottom.style.height =
-              (1400 * scale) + "px";
-        
-          }
-      
+
+      // ------------------------------------------------------
+      // SCALE OUTER SECTION DISTANCE
+      //
+      // These values are outside the city,
+      // therefore zoom does NOT affect them.
+      // ------------------------------------------------------
+
+      if (section && config.outerType) {
+
+        var scaledOuter =
+          config.outerBase * scale;
+
+
+        if (config.outerType === "marginTop") {
+
+          section.style.marginTop =
+            scaledOuter + "px";
+
+        }
+
+
+        if (config.outerType === "top") {
+
+          section.style.top =
+            scaledOuter + "px";
+
+        }
+
       }
 
-      if (config.sel === ".home_section5_city") {
 
-        var home5Section =
-          document.querySelector(".home_section5");
-      
-          if (home5Section) {
-        
-            home5Section.style.marginTop =
-              (-2230 * scale) + "px";
-      
-        }
-    
-    }
+      // ------------------------------------------------------
+      // FIX DOUBLE-SCALED FONTS
+      // ------------------------------------------------------
+
+      fixHomepageFonts(
+        city,
+        scale
+      );
 
 
-      // Useful if we need to inspect it later.
+      // ------------------------------------------------------
+      // DEBUG
+      // ------------------------------------------------------
 
       city.setAttribute(
         "data-responsive-scale",
@@ -2982,7 +3098,7 @@ function initHomeResponsiveScale() {
 
 
     // --------------------------------------------------------
-    // REFRESH LENIS + SCROLLTRIGGER
+    // LENIS
     // --------------------------------------------------------
 
     if (lenis && lenis.resize) {
@@ -2991,6 +3107,10 @@ function initHomeResponsiveScale() {
 
     }
 
+
+    // --------------------------------------------------------
+    // SCROLLTRIGGER
+    // --------------------------------------------------------
 
     if (ScrollTrigger) {
 
@@ -3006,7 +3126,7 @@ function initHomeResponsiveScale() {
 
 
   // ==========================================================
-  // INITIAL RUN
+  // FIRST RUN
   // ==========================================================
 
   applyHomeResponsiveScale();
@@ -3019,18 +3139,25 @@ function initHomeResponsiveScale() {
   var resizeTimer;
 
 
-  window.addEventListener("resize", function() {
+  window.addEventListener(
+    "resize",
+    function() {
 
-    clearTimeout(resizeTimer);
+      clearTimeout(resizeTimer);
 
 
-    resizeTimer = setTimeout(function() {
+      resizeTimer =
+        setTimeout(
+          function() {
 
-      applyHomeResponsiveScale();
+            applyHomeResponsiveScale();
 
-    }, 150);
+          },
+          150
+        );
 
-  });
+    }
+  );
 
 }
 
