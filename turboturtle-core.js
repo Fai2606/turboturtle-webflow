@@ -1006,10 +1006,12 @@
   
         scrollTrigger: {
   
-          trigger: goose,
-  
-          start: "top bottom",
-  
+          trigger: section,
+          
+          start: function () {
+            return "top+=" + window.innerHeight + " top";
+          },
+          
           end: "bottom 30%",
   
           scrub: 1,
@@ -3397,6 +3399,58 @@ function initHomeResponsiveScale() {
 
       city.style.zoom =
         scale;
+
+
+      // ------------------------------------------------------
+      // HOME 1 — TRUE 100VH HERO
+      //
+      // First screen = KV only.
+      // Keep the original 550px master-space area underneath
+      // so goose + Home2 remain below the first viewport.
+      // ------------------------------------------------------
+
+if (config.city === ".home_section1_city") {
+
+  var home1KV =
+    city.querySelector(".kv.homepage");
+
+
+  // Original master structure:
+  // city = 1650px
+  // KV   = 1100px
+  // remaining area = 550px
+
+  var HOME1_AFTER_KV = 550;
+
+
+  // Because the whole city is zoomed,
+  // calculate the unzoomed height required
+  // to visually equal exactly 100vh.
+
+  var kvHeight =
+    window.innerHeight / scale;
+
+
+  if (home1KV) {
+
+    home1KV.style.height =
+      kvHeight + "px";
+
+  }
+
+
+  // IMPORTANT:
+  // Extend the entire Home1 city as the KV becomes taller.
+  //
+  // Visual result:
+  // 100vh hero
+  // +
+  // original lower Home1 area
+
+  city.style.height =
+    (kvHeight + HOME1_AFTER_KV) + "px";
+
+}
 
 
       
