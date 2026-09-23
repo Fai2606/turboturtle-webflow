@@ -3328,9 +3328,10 @@ function initHomeResponsiveScale() {
     }
 
 
-    // BELOW 1440 — leave for later
-
-    return config.at1440;
+    // BELOW 1440
+    // continue scaling proportionally to the original 2195px master
+    
+    return width / MASTER_WIDTH;
 
   }
 
