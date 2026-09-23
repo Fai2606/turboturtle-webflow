@@ -1810,7 +1810,7 @@ function initHomeSection6() {
   if (weirdSun) {
 
     gsap.to(weirdSun, {
-      y: 240,
+      y: 360,
       ease: "none",
       force3D: true,
 
