@@ -3663,19 +3663,58 @@ function initHomeResponsiveScale() {
 
 
         // ------------------------------------------------------
-        // CITY POSITION
+        // CITY HORIZONTAL ALIGNMENT
         //
-        // IMPORTANT:
-        // Webflow already owns the horizontal position of each city.
-        // Responsive JS ONLY changes its scale.
+        // The city is 3840px wide.
         //
-        // Do not add left / translateX centering here.
+        // Webflow centres the UNSCALED flex item.
+        // CSS zoom then changes its VISUAL width.
+        //
+        // On small screens this can make the rendered artwork
+        // appear shifted.
+        //
+        // Solution:
+        // 1. Let Webflow position it normally.
+        // 2. Measure the ACTUAL rendered city after zoom.
+        // 3. Compare its real centre with viewport centre.
+        // 4. Correct only the difference.
+        //
+        // Desktop >= 1920 is deliberately untouched.
         // ------------------------------------------------------
         
         city.style.left = "";
         city.style.marginLeft = "";
         city.style.transform = "";
-
+        
+        if (width < 1920) {
+        
+          var cityRect =
+            city.getBoundingClientRect();
+        
+          var cityVisualCenter =
+            cityRect.left +
+            (cityRect.width / 2);
+        
+          var viewportCenter =
+            width / 2;
+        
+          var visualCorrection =
+            viewportCenter -
+            cityVisualCenter;
+        
+        
+          // `left` lives inside the zoomed coordinate system,
+          // so convert visual pixels back into city-space pixels.
+          var citySpaceCorrection =
+            visualCorrection /
+            scale;
+        
+        
+          city.style.left =
+            citySpaceCorrection +
+            "px";
+        
+        }
 
 
         
