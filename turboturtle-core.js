@@ -3663,30 +3663,22 @@ function initHomeResponsiveScale() {
 
 
         // ------------------------------------------------------
-        // CENTRE THE LARGE CITY CANVAS
+        // CITY POSITION
         //
-        // On portrait/mobile we WANT the left/right sides
-        // to disappear outside the viewport.
+        // IMPORTANT:
+        // Webflow already owns the horizontal position of each city.
+        // Responsive JS ONLY changes its scale.
+        //
+        // Do not add left / translateX centering here.
         // ------------------------------------------------------
+        
+        city.style.left = "";
+        city.style.marginLeft = "";
+        city.style.transform = "";
 
-        if (
-          mode === "tablet-portrait" ||
-          mode === "phone"
-        ) {
 
-          city.style.left = "50%";
-          city.style.marginLeft = "0";
-          city.style.transform =
-            "translateX(-50%)";
 
-        } else {
-
-          city.style.left = "";
-          city.style.marginLeft = "";
-          city.style.transform = "";
-
-        }
-
+        
 
         // ======================================================
         // HOME 1
