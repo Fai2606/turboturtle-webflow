@@ -3827,7 +3827,7 @@ if (width < 1200) {
 
   if (mode === "phone") {
 
-    headingVisual = 42;
+    headingVisual = 38;
     bodyVisual = 14;
 
   }
@@ -3839,7 +3839,7 @@ if (width < 1200) {
 
   else if (mode === "tablet-portrait") {
 
-    headingVisual = 52;
+    headingVisual = 42;
     bodyVisual = 15;
 
   }
