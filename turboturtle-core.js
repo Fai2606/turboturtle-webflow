@@ -986,70 +986,110 @@
     }
   
   
-    // ==========================================================
-    // GOOSE
-    // ==========================================================
-  
-    if (goose) {
-  
-      gsap.to(goose, {
-  
-        x: -145 * MASTER_VW,
-  
-        y: -85 * MASTER_VH,
-  
-        rotation: -12,
-  
-        ease: "none",
-  
-        force3D: true,
-  
-scrollTrigger: {
+// ==========================================================
+// GOOSE
+//
+// GOAL:
+// - Home1 opening composition = full 100vw × 100vh
+// - Goose stays at its designed starting position on load
+// - Goose starts flying shortly AFTER scrolling begins
+// - Do NOT wait until 102vh anymore
+// - Portrait gets a little more flight distance
+// ==========================================================
 
-  trigger: section,
+if (goose) {
 
+  // --------------------------------------------------------
+  // Make sure resize / ScrollTrigger refresh never leaves
+  // an old transform on the goose.
+  // --------------------------------------------------------
 
-  // Goose does NOT move during the opening KV.
-  start: function () {
-
-    return "top+=" +
-      (window.innerHeight * 1.02) +
-      " top";
-
-  },
+  gsap.set(goose, {
+    x: 0,
+    y: 0,
+    rotation: 0,
+    force3D: true
+  });
 
 
-  // Give the goose a long scroll distance
-  // so we can actually watch it fly.
-  end: function () {
+  gsap.to(goose, {
 
-    var isPortraitTablet =
-      window.innerHeight >
-      window.innerWidth &&
-      window.innerWidth <= 1100;
+    // Original master-space flight path
+    x: -145 * MASTER_VW,
+    y: -85 * MASTER_VH,
 
+    rotation: -12,
 
-    return "top+=" +
-      (
-        window.innerHeight *
-        (isPortraitTablet ? 1.72 : 1.45)
-      ) +
-      " top";
-
-  },
+    ease: "none",
+    force3D: true,
 
 
-  scrub: 1.5,
+    scrollTrigger: {
 
-  invalidateOnRefresh: true
+      trigger: section,
+
+
+      // ====================================================
+      // START
+      //
+      // OLD:
+      // waited until 1.02 × viewport height
+      //
+      // NEW:
+      // start after only 12% viewport scroll.
+      //
+      // This means:
+      // - initial Home1 is still the hero
+      // - goose doesn't immediately jump away
+      // - but we actually get to WATCH it fly
+      // ====================================================
+
+      start: function () {
+
+        return "top+=" +
+          (window.innerHeight * 0.12) +
+          " top";
+
+      },
+
+
+      // ====================================================
+      // END
+      //
+      // Use almost all of Home1's available scroll distance.
+      //
+      // Landscape Home1 total = 1.50vh
+      // Portrait Home1 total  = 1.80vh
+      //
+      // So the goose now has a proper visible flight window.
+      // ====================================================
+
+      end: function () {
+
+        var isPortraitTablet =
+          window.innerHeight > window.innerWidth &&
+          window.innerWidth <= 1100;
+
+
+        return "top+=" +
+          (
+            window.innerHeight *
+            (isPortraitTablet ? 1.68 : 1.38)
+          ) +
+          " top";
+
+      },
+
+
+      scrub: 1,
+
+      invalidateOnRefresh: true
+
+    }
+
+  });
 
 }
-  
-      });
-  
-    }
-  
-  }
 
 
   
