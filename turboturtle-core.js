@@ -3550,8 +3550,8 @@ function initHomeResponsiveScale() {
 
 
       return mix(
-        0.36,
-        0.48,
+        0.40,
+        0.52,
         phoneT
       );
 
