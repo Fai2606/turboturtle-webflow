@@ -3804,7 +3804,7 @@ function initHomeResponsiveScale() {
 
         var bodyTexts =
           city.querySelectorAll(
-            ".body_text:not(.subhead):not(._4text_heading):not(.home1)"
+            ".body_text:not(.subhead):not(._4text_heading):not(.home1):not(.home3)"
           );
         
 
