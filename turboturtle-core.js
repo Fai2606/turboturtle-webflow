@@ -3827,7 +3827,7 @@ if (width < 1200) {
 
   if (mode === "phone") {
 
-    headingVisual = 50;
+    headingVisual = 42;
     bodyVisual = 14;
 
   }
