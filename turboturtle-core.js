@@ -3790,58 +3790,169 @@ function initHomeResponsiveScale() {
         }
 
 
-        // ======================================================
-        // BODY TEXT MINIMUM
-        // ======================================================
+// ======================================================
+// HOMEPAGE TYPOGRAPHY SYSTEM
+//
+// Typography is now independent from CITY zoom.
+//
+// visual size / city scale = internal city-space size
+//
+// So later Home3 / Home7 / Home9 can have different
+// artwork scales WITHOUT changing apparent text size.
+// ======================================================
 
-        var MIN_BODY_VISUAL_SIZE = 10;
-        
-        
-        var bodyTexts =
-          city.querySelectorAll(
-            ".body_text:not(.subhead):not(._4text_heading):not(.home1)"
-          );
-                
-
-        bodyTexts.forEach(
-          function(el) {
-
-            // Remove old JS override first.
-            el.style.fontSize = "";
+function visualToCityPx(visualPx) {
+  return (visualPx / scale) + "px";
+}
 
 
-            var baseSize =
-              parseFloat(
-                window
-                  .getComputedStyle(el)
-                  .fontSize
-              );
+// ------------------------------------------------------
+// TYPOGRAPHY TARGETS
+//
+// These numbers are FINAL VISUAL sizes on screen,
+// NOT sizes before city zoom.
+//
+// Desktop >= 1200 is deliberately left alone for now.
+// ------------------------------------------------------
+
+if (width < 1200) {
+
+  var headingVisual;
+  var bodyVisual;
 
 
-            if (!baseSize) return;
+  // ----------------------------------------------------
+  // PHONE
+  // ----------------------------------------------------
+
+  if (mode === "phone") {
+
+    headingVisual = 50;
+    bodyVisual = 14;
+
+  }
 
 
-            var visibleSize =
-              baseSize *
-              scale;
+  // ----------------------------------------------------
+  // TABLET PORTRAIT
+  // ----------------------------------------------------
+
+  else if (mode === "tablet-portrait") {
+
+    headingVisual = 52;
+    bodyVisual = 15;
+
+  }
 
 
-            if (
-              visibleSize <
-              MIN_BODY_VISUAL_SIZE
-            ) {
+  // ----------------------------------------------------
+  // TABLET LANDSCAPE
+  // ----------------------------------------------------
 
-              el.style.fontSize =
-                (
-                  MIN_BODY_VISUAL_SIZE /
-                  scale
-                ) +
-                "px";
+  else {
 
-            }
+    headingVisual = 52;
+    bodyVisual = 15;
 
-          }
+  }
+
+
+  // ====================================================
+  // SECTION HEADINGS
+  // ====================================================
+
+  var sectionHeadings =
+    city.querySelectorAll(
+      ".section_heading"
+    );
+
+  sectionHeadings.forEach(
+    function(el) {
+
+      el.style.fontSize =
+        visualToCityPx(
+          headingVisual
         );
+
+    }
+  );
+
+
+  // ====================================================
+  // NORMAL BODY COPY
+  //
+  // Exclude special text families.
+  // ====================================================
+
+  var bodyTexts =
+    city.querySelectorAll(
+      ".body_text:not(.subhead):not(._4text_heading):not(.footer_ask):not(.footer_credit)"
+    );
+
+  bodyTexts.forEach(
+    function(el) {
+
+      el.style.fontSize =
+        visualToCityPx(
+          bodyVisual
+        );
+
+    }
+  );
+
+
+  // ====================================================
+  // HOME 7 SPECIAL HEADING
+  //
+  // Desktop design uses a slightly larger heading here,
+  // so preserve that hierarchy.
+  // ====================================================
+
+  var home7Heading =
+    city.querySelector(
+      ".section_heading.home7"
+    );
+
+  if (home7Heading) {
+
+    var home7Visual =
+      mode === "phone"
+        ? 54
+        : 60;
+
+    home7Heading.style.fontSize =
+      visualToCityPx(
+        home7Visual
+      );
+
+  }
+
+}
+
+
+// ======================================================
+// DESKTOP
+//
+// Remove JS typography overrides so Webflow remains
+// 100% in control of existing desktop typography.
+// ======================================================
+
+else {
+
+  var responsiveTexts =
+    city.querySelectorAll(
+      ".section_heading, .body_text"
+    );
+
+  responsiveTexts.forEach(
+    function(el) {
+
+      el.style.fontSize = "";
+
+    }
+  );
+
+}
 
 
         // ======================================================
