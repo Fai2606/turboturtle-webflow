@@ -3549,11 +3549,11 @@ function initHomeResponsiveScale() {
       );
 
 
-    return mix(
-      0.36,
-      0.48,
-      phoneT
-    );
+      return mix(
+        0.33,
+        0.44,
+        phoneT
+      );
 
   }
 
@@ -3794,7 +3794,12 @@ function initHomeResponsiveScale() {
         // BODY TEXT MINIMUM
         // ======================================================
 
-        var MIN_BODY_VISUAL_SIZE = 10;
+        var MIN_BODY_VISUAL_SIZE =
+        mode === "phone"
+          ? 13
+          : mode === "tablet-portrait"
+            ? 12
+            : 10;
 
 
         var bodyTexts =
