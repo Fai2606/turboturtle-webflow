@@ -3177,20 +3177,27 @@ function initHomeSection9() {
 
 
   
-
-
 // =============================================================
-// HOMEPAGE RESPONSIVE SCALE — INTEGRATED
+// HOMEPAGE RESPONSIVE SCALE — V2
 //
-// MASTER:
-// 2195px = 100%
+// PRINCIPLE:
 //
-// ALSO HANDLES:
-// - Home1–9 city scaling
-// - outer fixed px section offsets
-// - body copy minimum visual size = 10px
-// - navbar item scales down from 12px
-// - navbar item never below 10px
+// 1920+
+//   Keep the EXISTING desktop behaviour.
+//
+// 1440–1919
+//   Keep the EXISTING interpolation.
+//
+// 768–1439
+//   Controlled crop mode.
+//   Do NOT keep shrinking the entire 3840 artwork.
+//
+// <768
+//   Mobile crop mode.
+//   Keep artwork visually large and allow horizontal cropping.
+//
+// IMPORTANT:
+// We scale the CITY, not hundreds of individual objects.
 // =============================================================
 function initHomeResponsiveScale() {
 
@@ -3315,7 +3322,7 @@ function initHomeResponsiveScale() {
 
 
   // ==========================================================
-  // MIX
+  // HELPERS
   // ==========================================================
 
   function mix(a, b, t) {
@@ -3325,14 +3332,76 @@ function initHomeResponsiveScale() {
   }
 
 
+  function clamp(value, min, max) {
+
+    return Math.max(
+      min,
+      Math.min(max, value)
+    );
+
+  }
+
+
   // ==========================================================
-  // GET SECTION SCALE
+  // RESPONSIVE MODE
   // ==========================================================
 
-  function getScale(config, width) {
+  function getResponsiveMode(width, height) {
+
+    var portrait =
+      height > width;
 
 
-    // ABOVE MASTER
+    if (width >= 1920) {
+
+      return "desktop";
+
+    }
+
+
+    if (
+      width >= 1440 &&
+      !portrait
+    ) {
+
+      return "small-desktop";
+
+    }
+
+
+    if (width >= 768) {
+
+      return portrait
+        ? "tablet-portrait"
+        : "tablet-landscape";
+
+    }
+
+
+    return "phone";
+
+  }
+
+
+  // ==========================================================
+  // SCALE
+  // ==========================================================
+
+  function getScale(config, width, height) {
+
+    var mode =
+      getResponsiveMode(
+        width,
+        height
+      );
+
+
+    // ========================================================
+    // DESKTOP
+    //
+    // KEEP ORIGINAL MATH.
+    // ========================================================
+
     if (width >= MASTER_WIDTH) {
 
       return width / MASTER_WIDTH;
@@ -3340,12 +3409,18 @@ function initHomeResponsiveScale() {
     }
 
 
+    // ========================================================
     // 1920 -> 2195
+    //
+    // KEEP ORIGINAL MATH.
+    // ========================================================
+
     if (width >= 1920) {
 
       var t1 =
         (width - 1920) /
         (MASTER_WIDTH - 1920);
+
 
       return mix(
         config.at1920,
@@ -3356,12 +3431,21 @@ function initHomeResponsiveScale() {
     }
 
 
+    // ========================================================
     // 1440 -> 1920
-    if (width >= 1440) {
+    //
+    // KEEP ORIGINAL MATH.
+    // ========================================================
+
+    if (
+      width >= 1440 &&
+      mode === "small-desktop"
+    ) {
 
       var t2 =
         (width - 1440) /
         (1920 - 1440);
+
 
       return mix(
         config.at1440,
@@ -3372,9 +3456,104 @@ function initHomeResponsiveScale() {
     }
 
 
-    // BELOW 1440
-    // Keep scaling proportionally
-    return width / MASTER_WIDTH;
+    // ========================================================
+    // TABLET LANDSCAPE
+    //
+    // Example:
+    // 1366 × 1024
+    //
+    // Old system would shrink too aggressively.
+    //
+    // New:
+    // maintain more artwork scale,
+    // crop some left/right.
+    // ========================================================
+
+    if (mode === "tablet-landscape") {
+
+      var landscapeT =
+        clamp(
+          (width - 768) /
+          (1440 - 768),
+          0,
+          1
+        );
+
+
+      return mix(
+        0.52,
+        0.75,
+        landscapeT
+      );
+
+    }
+
+
+    // ========================================================
+    // TABLET PORTRAIT
+    //
+    // Example:
+    // 768 × 1024
+    // 820 × 1180
+    // 1024 × 1366
+    //
+    // IMPORTANT:
+    // We intentionally DO NOT fit the full city width.
+    //
+    // The viewport becomes a window into the artwork.
+    // ========================================================
+
+    if (mode === "tablet-portrait") {
+
+      var portraitT =
+        clamp(
+          (width - 768) /
+          (1100 - 768),
+          0,
+          1
+        );
+
+
+      return mix(
+        0.48,
+        0.62,
+        portraitT
+      );
+
+    }
+
+
+    // ========================================================
+    // PHONE
+    //
+    // DO NOT:
+    //
+    // width / 2195
+    //
+    // because:
+    //
+    // 390 / 2195 = 0.178
+    //
+    // which makes the entire world microscopic.
+    //
+    // Instead maintain approximately 0.36–0.44.
+    // Horizontal overflow is intentional.
+    // ========================================================
+
+    var phoneT =
+      clamp(
+        (width - 320) /
+        (767 - 320),
+        0,
+        1
+      );
+
+
+    return mix(
+      0.36,
+      0.48,
+      phoneT
+    );
 
   }
 
@@ -3388,16 +3567,26 @@ function initHomeResponsiveScale() {
     var width =
       window.innerWidth;
 
+    var height =
+      window.innerHeight;
+
+
+    var mode =
+      getResponsiveMode(
+        width,
+        height
+      );
+
+
+    // Store mode for debugging / future CSS.
+    document.documentElement.setAttribute(
+      "data-home-responsive-mode",
+      mode
+    );
+
 
     // ========================================================
     // NAVBAR
-    //
-    // Webflow base:
-    // 12px
-    //
-    // Scale DOWN only.
-    // Never go below 10px.
-    // Above master width stays 12px.
     // ========================================================
 
     var navbarItems =
@@ -3419,239 +3608,273 @@ function initHomeResponsiveScale() {
     var navbarFontSize =
       Math.max(
         10,
-        navbarBaseSize * navbarScale
+        navbarBaseSize *
+        navbarScale
       );
 
 
-    navbarItems.forEach(function(el) {
+    navbarItems.forEach(
+      function(el) {
 
-      el.style.fontSize =
-        navbarFontSize + "px";
+        el.style.fontSize =
+          navbarFontSize +
+          "px";
 
-    });
+      }
+    );
 
 
     // ========================================================
     // HOME SECTIONS
     // ========================================================
 
-    configs.forEach(function(config) {
+    configs.forEach(
+      function(config) {
 
-      var city =
-        document.querySelector(
-          config.city
-        );
-
-
-      var section =
-        document.querySelector(
-          config.section
-        );
-
-
-      if (!city) return;
-
-
-      var scale =
-        getScale(
-          config,
-          width
-        );
-
-
-      // ------------------------------------------------------
-      // SCALE ENTIRE CITY
-      // ------------------------------------------------------
-
-      city.style.zoom =
-        scale;
-
-
-// ------------------------------------------------------
-// HOME 1 — RESPONSIVE HERO HEIGHT
-// ------------------------------------------------------
-
-if (config.city === ".home_section1_city") {
-
-  var home1KV =
-    city.querySelector(".kv.homepage");
-
-
-  var isPortraitTablet =
-    window.innerHeight > window.innerWidth &&
-    window.innerWidth <= 1100;
-
-
-  // --------------------------------------------
-  // KV itself = always visually 100vh
-  // --------------------------------------------
-
-  var kvHeight =
-    window.innerHeight / scale;
-
-
-  if (home1KV) {
-
-    home1KV.style.height =
-      kvHeight + "px";
-
-  }
-
-
-  // --------------------------------------------
-  // TOTAL HOME1 HEIGHT
-  //
-  // Portrait tablet:
-  // 100vh KV + 80vh transition area
-  //
-  // Other screens:
-  // 100vh KV + 50vh transition area
-  // --------------------------------------------
-
-  var home1VisualHeight =
-    isPortraitTablet
-      ? window.innerHeight * 1.80
-      : window.innerHeight * 1.50;
-
-
-  city.style.height =
-    (home1VisualHeight / scale) + "px";
-
-}
-
-
-      
-      // ------------------------------------------------------
-      // HOME 1 KV — ALWAYS VISUALLY 100VH
-      // ------------------------------------------------------
-      
-      if (config.city === ".home_section1_city") {
-      
-        var home1KV =
-          city.querySelector(".kv.homepage");
-      
-        if (home1KV) {
-      
-          home1KV.style.height =
-            (window.innerHeight / scale) + "px";
-      
-        }
-      
-      }
-
-
-
-      
-
-      // ------------------------------------------------------
-      // BODY TEXT — MINIMUM VISUAL SIZE = 10px
-      //
-      // Webflow owns the actual font size.
-      // We only compensate when city zoom makes it visually
-      // smaller than 10px.
-      // ------------------------------------------------------
-
-      var MIN_BODY_VISUAL_SIZE = 10;
-
-
-      var bodyTexts =
-        city.querySelectorAll(
-          ".body_text:not(.subhead):not(._4text_heading)"
-        );
-
-
-      bodyTexts.forEach(function(el) {
-
-
-        // Remove previous JS override first
-        // so Webflow's real font size is measured
-
-        el.style.fontSize = "";
-
-
-        var baseSize =
-          parseFloat(
-            window
-              .getComputedStyle(el)
-              .fontSize
+        var city =
+          document.querySelector(
+            config.city
           );
 
 
-        if (!baseSize) return;
+        var section =
+          document.querySelector(
+            config.section
+          );
 
 
-        var visibleSize =
-          baseSize *
+        if (!city) return;
+
+
+        var scale =
+          getScale(
+            config,
+            width,
+            height
+          );
+
+
+        // ------------------------------------------------------
+        // SCALE THE ENTIRE ART WORLD
+        // ------------------------------------------------------
+
+        city.style.zoom =
           scale;
 
 
+        // ------------------------------------------------------
+        // CENTRE THE LARGE CITY CANVAS
+        //
+        // On portrait/mobile we WANT the left/right sides
+        // to disappear outside the viewport.
+        // ------------------------------------------------------
+
         if (
-          visibleSize <
-          MIN_BODY_VISUAL_SIZE
+          mode === "tablet-portrait" ||
+          mode === "phone"
         ) {
 
-          el.style.fontSize =
+          city.style.left = "50%";
+          city.style.marginLeft = "0";
+          city.style.transform =
+            "translateX(-50%)";
+
+        } else {
+
+          city.style.left = "";
+          city.style.marginLeft = "";
+          city.style.transform = "";
+
+        }
+
+
+        // ======================================================
+        // HOME 1
+        //
+        // HERO ALWAYS OCCUPIES ONE VISUAL VIEWPORT.
+        // ======================================================
+
+        if (
+          config.city ===
+          ".home_section1_city"
+        ) {
+
+          var home1KV =
+            city.querySelector(
+              ".kv.homepage"
+            );
+
+
+          var kvHeight =
+            height / scale;
+
+
+          if (home1KV) {
+
+            home1KV.style.height =
+              kvHeight +
+              "px";
+
+          }
+
+
+          // --------------------------------------------
+          // TRANSITION DISTANCE
+          // --------------------------------------------
+
+          var totalMultiplier;
+
+
+          if (
+            mode === "phone"
+          ) {
+
+            totalMultiplier = 1.90;
+
+          } else if (
+            mode === "tablet-portrait"
+          ) {
+
+            totalMultiplier = 1.85;
+
+          } else {
+
+            totalMultiplier = 1.50;
+
+          }
+
+
+          var home1VisualHeight =
+            height *
+            totalMultiplier;
+
+
+          city.style.height =
             (
-              MIN_BODY_VISUAL_SIZE /
+              home1VisualHeight /
               scale
             ) +
             "px";
 
         }
 
-      });
+
+        // ======================================================
+        // BODY TEXT MINIMUM
+        // ======================================================
+
+        var MIN_BODY_VISUAL_SIZE = 10;
 
 
-      // ------------------------------------------------------
-      // SCALE OUTER SECTION DISTANCE
-      // ------------------------------------------------------
+        var bodyTexts =
+          city.querySelectorAll(
+            ".body_text:not(.subhead):not(._4text_heading)"
+          );
 
-      if (
-        section &&
-        config.outerType
-      ) {
 
-        var scaledOuter =
-          config.outerBase *
-          scale;
+        bodyTexts.forEach(
+          function(el) {
 
+            // Remove old JS override first.
+            el.style.fontSize = "";
+
+
+            var baseSize =
+              parseFloat(
+                window
+                  .getComputedStyle(el)
+                  .fontSize
+              );
+
+
+            if (!baseSize) return;
+
+
+            var visibleSize =
+              baseSize *
+              scale;
+
+
+            if (
+              visibleSize <
+              MIN_BODY_VISUAL_SIZE
+            ) {
+
+              el.style.fontSize =
+                (
+                  MIN_BODY_VISUAL_SIZE /
+                  scale
+                ) +
+                "px";
+
+            }
+
+          }
+        );
+
+
+        // ======================================================
+        // OUTER SECTION OFFSETS
+        //
+        // Desktop keeps existing behaviour.
+        //
+        // Mobile/tablet offsets are still scaled, but because
+        // scale no longer collapses to 0.17 they remain useful.
+        // ======================================================
 
         if (
-          config.outerType ===
-          "marginTop"
+          section &&
+          config.outerType
         ) {
 
-          section.style.marginTop =
-            scaledOuter +
-            "px";
+          var scaledOuter =
+            config.outerBase *
+            scale;
+
+
+          if (
+            config.outerType ===
+            "marginTop"
+          ) {
+
+            section.style.marginTop =
+              scaledOuter +
+              "px";
+
+          }
+
+
+          if (
+            config.outerType ===
+            "top"
+          ) {
+
+            section.style.top =
+              scaledOuter +
+              "px";
+
+          }
 
         }
 
 
-        if (
-          config.outerType ===
-          "top"
-        ) {
+        // ======================================================
+        // DEBUG DATA
+        // ======================================================
 
-          section.style.top =
-            scaledOuter +
-            "px";
+        city.setAttribute(
+          "data-responsive-scale",
+          scale.toFixed(4)
+        );
 
-        }
+
+        city.setAttribute(
+          "data-responsive-mode",
+          mode
+        );
 
       }
-
-
-      // ------------------------------------------------------
-      // DEBUG
-      // ------------------------------------------------------
-
-      city.setAttribute(
-        "data-responsive-scale",
-        scale.toFixed(4)
-      );
-
-    });
+    );
 
 
     // ========================================================
@@ -3696,14 +3919,66 @@ if (config.city === ".home_section1_city") {
 
   // ==========================================================
   // RESIZE
+  //
+  // IMPORTANT:
+  // Mobile browser chrome changes innerHeight constantly.
+  //
+  // We do NOT want to rebuild the entire page merely because
+  // Safari/Chrome's address bar moved.
+  //
+  // Only react to meaningful WIDTH/orientation changes.
   // ==========================================================
 
   var resizeTimer;
+
+  var previousWidth =
+    window.innerWidth;
+
+  var previousPortrait =
+    window.innerHeight >
+    window.innerWidth;
 
 
   window.addEventListener(
     "resize",
     function() {
+
+      var currentWidth =
+        window.innerWidth;
+
+      var currentPortrait =
+        window.innerHeight >
+        window.innerWidth;
+
+
+      var widthChanged =
+        Math.abs(
+          currentWidth -
+          previousWidth
+        ) > 20;
+
+
+      var orientationChanged =
+        currentPortrait !==
+        previousPortrait;
+
+
+      if (
+        !widthChanged &&
+        !orientationChanged
+      ) {
+
+        return;
+
+      }
+
+
+      previousWidth =
+        currentWidth;
+
+      previousPortrait =
+        currentPortrait;
+
 
       clearTimeout(
         resizeTimer
@@ -3717,13 +3992,15 @@ if (config.city === ".home_section1_city") {
             applyHomeResponsiveScale();
 
           },
-          150
+          180
         );
 
     }
   );
 
 }
+
+
 
 
 
