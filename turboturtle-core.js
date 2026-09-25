@@ -4341,6 +4341,60 @@ if (navbarWrapper) {
 
 
 
+// ==========================================================
+// TEMP PERFORMANCE TEST
+// ==========================================================
+
+(function () {
+
+  var box =
+    document.createElement("div");
+
+  box.style.cssText =
+    "position:fixed;" +
+    "right:5px;" +
+    "bottom:10px;" +
+    "z-index:99999999;" +
+    "background:#000;" +
+    "color:#0f0;" +
+    "padding:8px;" +
+    "font:12px monospace;" +
+    "pointer-events:none;";
+
+  document.body.appendChild(box);
+
+  var frames = 0;
+  var last = performance.now();
+  var fps = 0;
+
+  function loop(now) {
+
+    frames++;
+
+    if (now - last >= 1000) {
+
+      fps =
+        Math.round(
+          frames * 1000 /
+          (now - last)
+        );
+
+      frames = 0;
+      last = now;
+
+      box.textContent =
+        "FPS: " + fps;
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+
+})();
+  
+
+
 })(window);
 
   
