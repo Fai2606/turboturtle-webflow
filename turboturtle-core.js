@@ -3460,8 +3460,8 @@ function initHomeResponsiveScale() {
       portraitMin: 0.48,
       portraitMax: 0.62,
     
-      phoneMin: 0.40,
-      phoneMax: 0.52,
+      phoneMin: 0.70,
+      phoneMax: 0.82,
     
       outerType: null,
       outerBase: 0
