@@ -3828,12 +3828,12 @@ if (width < 1200) {
   if (mode === "phone") {
   
     headingVisual = 32;
-    bodyVisual = 14;
+    bodyVisual = 15;
   
     // Body copy = 65% of the visible phone width.
     // Convert back to city-space because the city is zoomed.
     var phoneBodyWidth =
-      (width * 0.65) / scale;
+      (width * 0.68) / scale;
   
     var phoneBodyTexts =
       city.querySelectorAll(
