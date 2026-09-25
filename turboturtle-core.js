@@ -3830,26 +3830,6 @@ if (width < 1200) {
     headingVisual = 32;
     bodyVisual = 15;
   
-    // Body copy = 65% of the visible phone width.
-    // Convert back to city-space because the city is zoomed.
-    var phoneBodyWidth =
-      (width * 0.68) / scale;
-  
-    var phoneBodyTexts =
-      city.querySelectorAll(
-        ".body_text:not(.subhead):not(._4text_heading):not(.footer_ask):not(.footer_credit)"
-      );
-  
-    phoneBodyTexts.forEach(function(el) {
-  
-      el.style.width =
-        phoneBodyWidth + "px";
-  
-      el.style.maxWidth =
-        phoneBodyWidth + "px";
-  
-    });
-  
   }
 
 
