@@ -3390,6 +3390,27 @@ function initHomeResponsiveScale() {
     },
 
     {
+      city: ".home_section10_city",
+      section: ".home_section10",
+    
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+    
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+    
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+    
+      phoneMin: 0.40,
+      phoneMax: 0.52,
+    
+      outerType: null,
+      outerBase: 0
+    },
+
+    {
       city: ".about_section6_city",
       section: ".about_section6",
     
