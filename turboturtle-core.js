@@ -3387,7 +3387,7 @@ function initHomeResponsiveScale() {
 
       outerType: "marginTop",
       outerBase: -283
-    }
+    },
 
     {
       city: ".about_section6_city",
