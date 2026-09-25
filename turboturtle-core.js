@@ -5,18 +5,70 @@
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var gsap, ScrollTrigger, lenis, MorphSVGPlugin;
 
-  var vw = root.innerWidth / 100;
-  var vh = root.innerHeight / 100;
-  var lastWidth = root.innerWidth;
+// ==========================================================
+// REAL VIEWPORT UNITS
+// Do NOT use window.innerWidth / innerHeight.
+// Some Android browsers report a scaled layout viewport.
+// ==========================================================
 
-  root.addEventListener("resize", function () {
-    if (Math.abs(root.innerWidth - lastWidth) > 50) {
-      vw = root.innerWidth / 100;
-      vh = root.innerHeight / 100;
-      lastWidth = root.innerWidth;
-      if (root.ScrollTrigger) root.ScrollTrigger.refresh();
-    }
-  });
+function getRealViewportWidth() {
+  return document.documentElement.clientWidth;
+}
+
+function getRealViewportHeight() {
+  return document.documentElement.clientHeight;
+}
+
+var vw = getRealViewportWidth() / 100;
+var vh = getRealViewportHeight() / 100;
+
+var lastWidth =
+  getRealViewportWidth();
+
+var lastHeight =
+  getRealViewportHeight();
+
+
+root.addEventListener("resize", function () {
+
+  var currentWidth =
+    getRealViewportWidth();
+
+  var currentHeight =
+    getRealViewportHeight();
+
+
+  var widthChanged =
+    Math.abs(
+      currentWidth -
+      lastWidth
+    ) > 20;
+
+
+  // Android browser bars can change height while scrolling.
+  // Don't refresh everything for tiny height-only changes.
+  if (!widthChanged) return;
+
+
+  vw =
+    currentWidth / 100;
+
+  vh =
+    currentHeight / 100;
+
+
+  lastWidth =
+    currentWidth;
+
+  lastHeight =
+    currentHeight;
+
+
+  if (root.ScrollTrigger) {
+    root.ScrollTrigger.refresh();
+  }
+
+});
 
   function libsReady() { return !!(root.gsap && root.ScrollTrigger && root.Lenis); }
 
@@ -66,9 +118,14 @@
           if (arguments.length) return lenis.scrollTo(value);
           return (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
         },
-        getBoundingClientRect: function () {
-          return { top: 0, left: 0, width: innerWidth, height: innerHeight };
-        },
+getBoundingClientRect: function () {
+  return {
+    top: 0,
+    left: 0,
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight
+  };
+},
         pinType: "transform"
       });
 
