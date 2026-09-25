@@ -4163,7 +4163,122 @@ if (navbarWrapper) {
 
 
   
-  
+// ==========================================================
+// TEMP ANDROID DEBUG PANEL
+// DELETE AFTER TESTING
+// ==========================================================
+
+(function () {
+
+  var panel = document.createElement("div");
+
+  panel.style.cssText =
+    "position:fixed;" +
+    "top:140px;" +
+    "left:5px;" +
+    "z-index:99999999;" +
+    "background:rgba(0,0,0,.85);" +
+    "color:#00ff66;" +
+    "font:11px/1.35 monospace;" +
+    "padding:8px;" +
+    "width:220px;" +
+    "pointer-events:none;" +
+    "white-space:pre-wrap;";
+
+  document.body.appendChild(panel);
+
+
+  function updateDebug() {
+
+    var cw =
+      document.documentElement.clientWidth;
+
+    var ch =
+      document.documentElement.clientHeight;
+
+    var nav =
+      document.querySelector(
+        ".navbar_custom"
+      );
+
+    var navRect =
+      nav
+        ? nav.getBoundingClientRect()
+        : null;
+
+    var nativeScroll =
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      0;
+
+    var lenisScroll =
+      (
+        window.lenis &&
+        typeof window.lenis.scroll === "number"
+      )
+        ? window.lenis.scroll
+        : "NO";
+
+    var triggers =
+      window.ScrollTrigger
+        ? window.ScrollTrigger.getAll().length
+        : "NO";
+
+
+    panel.textContent =
+      "ANDROID DEBUG\n" +
+      "----------------\n" +
+
+      "innerW: " +
+      window.innerWidth + "\n" +
+
+      "clientW: " +
+      cw + "\n" +
+
+      "innerH: " +
+      window.innerHeight + "\n" +
+
+      "clientH: " +
+      ch + "\n\n" +
+
+      "nativeScroll: " +
+      Math.round(nativeScroll) + "\n" +
+
+      "lenisScroll: " +
+      (
+        typeof lenisScroll === "number"
+          ? Math.round(lenisScroll)
+          : lenisScroll
+      ) +
+      "\n\n" +
+
+      "ScrollTriggers: " +
+      triggers + "\n\n" +
+
+      "navTop: " +
+      (
+        navRect
+          ? Math.round(navRect.top)
+          : "NO NAV"
+      ) +
+      "\n" +
+
+      "navWidth: " +
+      (
+        navRect
+          ? Math.round(navRect.width)
+          : "NO NAV"
+      );
+
+    requestAnimationFrame(
+      updateDebug
+    );
+  }
+
+
+  updateDebug();
+
+})();
 
 
 
