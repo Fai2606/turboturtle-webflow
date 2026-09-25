@@ -3860,50 +3860,74 @@ function applyCityTypography(city, scale) {
 
 
 
+
+        
+
         // ====================================================
         // HORIZONTAL CENTRING
+        //
+        // Cross-browser version.
+        //
+        // IMPORTANT:
+        // Do NOT measure the city after CSS zoom.
+        // Keep the city's own coordinate system untouched.
+        //
+        // We center using the CITY element's UNSCALED layout width.
         // ====================================================
-
+        
         city.style.left = "";
         city.style.marginLeft = "";
         city.style.transform = "";
-
-
+        
         if (width < 1920) {
-
-          var rect =
-            city.getBoundingClientRect();
-
-
-          var cityCenter =
-            rect.left +
+        
+          var cityWidth =
+            city.offsetWidth;
+        
+          var scaledCityWidth =
+            cityWidth * scale;
+        
+        
+          // Where the scaled city should begin
+          // in viewport coordinates.
+          var targetLeft =
             (
-              rect.width / 2
-            );
-
-
-          var viewportCenter =
-            width / 2;
-
-
+              width -
+              scaledCityWidth
+            ) / 2;
+        
+        
+          // City's normal unscaled layout position
+          var naturalLeft =
+            city.offsetLeft;
+        
+        
+          // Convert visual correction back into
+          // the city's pre-zoom coordinate system.
           var visualCorrection =
-            viewportCenter -
-            cityCenter;
-
-
+            targetLeft -
+            (
+              naturalLeft * scale
+            );
+        
+        
           var cityCorrection =
             visualCorrection /
             scale;
-
-
+        
+        
           city.style.left =
             cityCorrection +
             "px";
-
+        
         }
 
 
 
+
+
+
+        
         // ====================================================
         // TYPOGRAPHY COMPENSATION
         // ====================================================
