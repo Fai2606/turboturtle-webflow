@@ -3201,6 +3201,23 @@ function initHomeSection9() {
 // =============================================================
 function initHomeResponsiveScale() {
 
+// ==========================================================
+// MASTER SWITCH
+// ==========================================================
+//
+// true  = responsive CITY scaling ON
+// false = CITY scaling OFF / original Webflow size
+//
+// Use false when checking your real Webflow font sizes.
+// ==========================================================
+
+var HOME_CITY_SCALE_ENABLED = false;
+
+
+  
+
+  
+
   var MASTER_WIDTH = 2195;
 
 
@@ -3647,11 +3664,13 @@ function initHomeResponsiveScale() {
 
 
         var scale =
-          getScale(
-            config,
-            width,
-            height
-          );
+          HOME_CITY_SCALE_ENABLED
+            ? getScale(
+                config,
+                width,
+                height
+              )
+            : 1;
 
 
         // ------------------------------------------------------
