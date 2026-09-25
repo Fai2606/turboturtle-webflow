@@ -3178,164 +3178,272 @@ function initHomeSection9() {
 
   
 // =============================================================
-// HOMEPAGE RESPONSIVE SCALE — V2
+// UNIVERSAL RESPONSIVE CITY SYSTEM
 //
-// PRINCIPLE:
+// RULES
 //
-// 1920+
-//   Keep the EXISTING desktop behaviour.
+// 1. SECTION 1 / KV is NEVER scaled here.
+//    home_section1 + about_section1 use true responsive sizing
+//    in Webflow/CSS: calc(vw + vh + px)
 //
-// 1440–1919
-//   Keep the EXISTING interpolation.
+// 2. Only *_city elements listed below participate.
 //
-// 768–1439
-//   Controlled crop mode.
-//   Do NOT keep shrinking the entire 3840 artwork.
+// 3. Every city can have its own scale values.
 //
-// <768
-//   Mobile crop mode.
-//   Keep artwork visually large and allow horizontal cropping.
+// 4. Typography compensates against city scale so its
+//    VISUAL size stays unchanged.
 //
-// IMPORTANT:
-// We scale the CITY, not hundreds of individual objects.
+// 5. Homepage body width is a separate layout rule.
 // =============================================================
+
 function initHomeResponsiveScale() {
-
-// ==========================================================
-// MASTER SWITCH
-// ==========================================================
-//
-// true  = responsive CITY scaling ON
-// false = CITY scaling OFF / original Webflow size
-//
-// Use false when checking your real Webflow font sizes.
-// ==========================================================
-
-var HOME_CITY_SCALE_ENABLED = false;
-
-
-  
-
-  
 
   var MASTER_WIDTH = 2195;
 
 
   // ==========================================================
-  // SECTION SETTINGS
+  // MASTER CITY LIST
+  //
+  // THIS IS THE MAIN CONTROL PANEL.
+  //
+  // To change one city's crop/scale:
+  // just edit its numbers here.
+  //
+  // Section 1 is deliberately NOT here.
   // ==========================================================
 
-  var configs = [
-
-    {
-      city: ".home_section1_city",
-      section: ".home_section1",
-
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
-
-      outerType: null,
-      outerBase: 0
-    },
+  var CITY_CONFIG = [
 
     {
       city: ".home_section2_city",
       section: ".home_section2",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "top",
       outerBase: -300
     },
 
+
     {
       city: ".home_section3_city",
       section: ".home_section3",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: -600
     },
 
+
     {
       city: ".home_section4_city",
       section: ".home_section4",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: 360
     },
 
+
     {
       city: ".home_section5_city",
       section: ".home_section5",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: -2230
     },
 
+
     {
       city: ".home_section6_city",
       section: ".home_section6",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: 200
     },
 
+
     {
       city: ".home_section7_city",
       section: ".home_section7",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: -100
     },
+
 
     {
       city: ".home_section8_city",
       section: ".home_section8",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: -100
     },
 
+
     {
       city: ".home_section9_city",
       section: ".home_section9",
 
-      at2195: 1.00,
-      at1920: 0.90,
-      at1440: 0.75,
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+
+      phoneMin: 0.40,
+      phoneMax: 0.52,
 
       outerType: "marginTop",
       outerBase: -283
     }
 
+    {
+      city: ".about_section6_city",
+      section: ".about_section6",
+    
+      desktop2195: 1.00,
+      desktop1920: 0.90,
+      desktop1440: 0.75,
+    
+      landscapeMin: 0.52,
+      landscapeMax: 0.75,
+    
+      portraitMin: 0.48,
+      portraitMax: 0.62,
+    
+      phoneMin: 0.40,
+      phoneMax: 0.52,
+    
+      outerType: null,
+      outerBase: 0
+    }
+
+
+    // ========================================================
+    // ABOUT US
+    //
+    // Add each new About city here when ready.
+    //
+    // Example:
+    //
+    // {
+    //   city: ".about_section2_city",
+    //   section: ".about_section2",
+    //
+    //   desktop2195: 1.00,
+    //   desktop1920: 0.90,
+    //   desktop1440: 0.75,
+    //
+    //   landscapeMin: 0.52,
+    //   landscapeMax: 0.75,
+    //
+    //   portraitMin: 0.48,
+    //   portraitMax: 0.62,
+    //
+    //   phoneMin: 0.40,
+    //   phoneMax: 0.52,
+    //
+    //   outerType: null,
+    //   outerBase: 0
+    // }
+    //
+    // DO NOT ADD .about_section1
+    // ========================================================
+
   ];
+
 
 
   // ==========================================================
@@ -3343,20 +3451,17 @@ var HOME_CITY_SCALE_ENABLED = false;
   // ==========================================================
 
   function mix(a, b, t) {
-
     return a + (b - a) * t;
-
   }
 
 
   function clamp(value, min, max) {
-
     return Math.max(
       min,
       Math.min(max, value)
     );
-
   }
+
 
 
   // ==========================================================
@@ -3370,9 +3475,7 @@ var HOME_CITY_SCALE_ENABLED = false;
 
 
     if (width >= 1920) {
-
       return "desktop";
-
     }
 
 
@@ -3380,9 +3483,7 @@ var HOME_CITY_SCALE_ENABLED = false;
       width >= 1440 &&
       !portrait
     ) {
-
       return "small-desktop";
-
     }
 
 
@@ -3396,15 +3497,15 @@ var HOME_CITY_SCALE_ENABLED = false;
 
 
     return "phone";
-
   }
 
 
+
   // ==========================================================
-  // SCALE
+  // CITY SCALE CALCULATION
   // ==========================================================
 
-  function getScale(config, width, height) {
+  function getCityScale(config, width, height) {
 
     var mode =
       getResponsiveMode(
@@ -3413,173 +3514,333 @@ var HOME_CITY_SCALE_ENABLED = false;
       );
 
 
-    // ========================================================
-    // DESKTOP
-    //
-    // KEEP ORIGINAL MATH.
-    // ========================================================
+    // --------------------------------------------------------
+    // LARGE DESKTOP
+    // --------------------------------------------------------
 
     if (width >= MASTER_WIDTH) {
 
-      return width / MASTER_WIDTH;
-
-    }
-
-
-    // ========================================================
-    // 1920 -> 2195
-    //
-    // KEEP ORIGINAL MATH.
-    // ========================================================
-
-    if (width >= 1920) {
-
-      var t1 =
-        (width - 1920) /
-        (MASTER_WIDTH - 1920);
-
-
-      return mix(
-        config.at1920,
-        config.at2195,
-        t1
+      return (
+        width /
+        MASTER_WIDTH
       );
 
     }
 
 
-    // ========================================================
-    // 1440 -> 1920
-    //
-    // KEEP ORIGINAL MATH.
-    // ========================================================
+    // --------------------------------------------------------
+    // 1920 → 2195
+    // --------------------------------------------------------
+
+    if (width >= 1920) {
+
+      var t2195 =
+        (
+          width - 1920
+        ) /
+        (
+          MASTER_WIDTH - 1920
+        );
+
+
+      return mix(
+        config.desktop1920,
+        config.desktop2195,
+        t2195
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // 1440 → 1920
+    // --------------------------------------------------------
 
     if (
       width >= 1440 &&
       mode === "small-desktop"
     ) {
 
-      var t2 =
-        (width - 1440) /
-        (1920 - 1440);
+      var tDesktop =
+        (
+          width - 1440
+        ) /
+        (
+          1920 - 1440
+        );
 
 
       return mix(
-        config.at1440,
-        config.at1920,
-        t2
+        config.desktop1440,
+        config.desktop1920,
+        tDesktop
       );
 
     }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // TABLET LANDSCAPE
-    //
-    // Example:
-    // 1366 × 1024
-    //
-    // Old system would shrink too aggressively.
-    //
-    // New:
-    // maintain more artwork scale,
-    // crop some left/right.
-    // ========================================================
+    // --------------------------------------------------------
 
-    if (mode === "tablet-landscape") {
+    if (
+      mode ===
+      "tablet-landscape"
+    ) {
 
-      var landscapeT =
+      var tLandscape =
         clamp(
-          (width - 768) /
-          (1440 - 768),
+          (
+            width - 768
+          ) /
+          (
+            1440 - 768
+          ),
           0,
           1
         );
 
 
       return mix(
-        0.52,
-        0.75,
-        landscapeT
+        config.landscapeMin,
+        config.landscapeMax,
+        tLandscape
       );
 
     }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // TABLET PORTRAIT
-    //
-    // Example:
-    // 768 × 1024
-    // 820 × 1180
-    // 1024 × 1366
-    //
-    // IMPORTANT:
-    // We intentionally DO NOT fit the full city width.
-    //
-    // The viewport becomes a window into the artwork.
-    // ========================================================
+    // --------------------------------------------------------
 
-    if (mode === "tablet-portrait") {
+    if (
+      mode ===
+      "tablet-portrait"
+    ) {
 
-      var portraitT =
+      var tPortrait =
         clamp(
-          (width - 768) /
-          (1100 - 768),
+          (
+            width - 768
+          ) /
+          (
+            1100 - 768
+          ),
           0,
           1
         );
 
 
       return mix(
-        0.48,
-        0.62,
-        portraitT
+        config.portraitMin,
+        config.portraitMax,
+        tPortrait
       );
 
     }
 
 
-    // ========================================================
+    // --------------------------------------------------------
     // PHONE
-    //
-    // DO NOT:
-    //
-    // width / 2195
-    //
-    // because:
-    //
-    // 390 / 2195 = 0.178
-    //
-    // which makes the entire world microscopic.
-    //
-    // Instead maintain approximately 0.36–0.44.
-    // Horizontal overflow is intentional.
-    // ========================================================
+    // --------------------------------------------------------
 
-    var phoneT =
+    var tPhone =
       clamp(
-        (width - 320) /
-        (767 - 320),
+        (
+          width - 320
+        ) /
+        (
+          767 - 320
+        ),
         0,
         1
       );
 
 
-      return mix(
-        0.40,
-        0.52,
-        phoneT
+    return mix(
+      config.phoneMin,
+      config.phoneMax,
+      tPhone
+    );
+  }
+
+
+
+  // ==========================================================
+  // TYPOGRAPHY
+  //
+  // These are FINAL VISUAL sizes.
+  // ==========================================================
+
+  function getTypography(mode) {
+
+    if (mode === "phone") {
+
+      return {
+        big: null,
+        section: 32,
+        body: 15
+      };
+
+    }
+
+
+    if (
+      mode ===
+      "tablet-portrait"
+    ) {
+
+      return {
+        big: null,
+        section: 40,
+        body: 15
+      };
+
+    }
+
+
+    if (
+      mode ===
+      "tablet-landscape"
+    ) {
+
+      return {
+        big: null,
+        section: 52,
+        body: 15
+      };
+
+    }
+
+
+    // Desktop:
+    // null = Webflow controls the original font size.
+
+    return {
+      big: null,
+      section: null,
+      body: null
+    };
+  }
+
+
+
+  // ==========================================================
+  // APPLY TYPOGRAPHY TO ONE CITY
+  // ==========================================================
+
+  function applyCityTypography(
+    city,
+    scale,
+    mode
+  ) {
+
+    var type =
+      getTypography(mode);
+
+
+    function compensate(
+      selector,
+      visualSize
+    ) {
+
+      var elements =
+        city.querySelectorAll(
+          selector
+        );
+
+
+      elements.forEach(
+        function(el) {
+
+          if (visualSize === null) {
+
+            el.style.fontSize = "";
+
+            return;
+
+          }
+
+
+          el.style.fontSize =
+            (
+              visualSize /
+              scale
+            ) +
+            "px";
+
+        }
       );
+
+    }
+
+
+    compensate(
+      ".big_heading",
+      type.big
+    );
+
+
+    compensate(
+      ".section_heading",
+      type.section
+    );
+
+
+    compensate(
+      ".body_text",
+      type.body
+    );
 
   }
 
 
+
   // ==========================================================
-  // APPLY
+  // HOMEPAGE MOBILE BODY WIDTH
+  //
+  // IMPORTANT:
+  // This affects HOMEPAGE ONLY.
+  //
+  // About Us is NOT touched.
   // ==========================================================
 
-  function applyHomeResponsiveScale() {
+  function applyHomeBodyWidth(mode) {
+
+    var homeBodyTexts =
+      document.querySelectorAll(
+        '[class*="home_section"] .body_text'
+      );
+
+
+    homeBodyTexts.forEach(
+      function(el) {
+
+        if (mode === "phone") {
+
+          el.style.width = "68%";
+          el.style.maxWidth = "68%";
+
+        } else {
+
+          el.style.width = "";
+          el.style.maxWidth = "";
+
+        }
+
+      }
+    );
+
+  }
+
+
+
+  // ==========================================================
+  // APPLY EVERYTHING
+  // ==========================================================
+
+  function applyResponsiveCitySystem() {
 
     var width =
       window.innerWidth;
@@ -3595,57 +3856,18 @@ var HOME_CITY_SCALE_ENABLED = false;
       );
 
 
-    // Store mode for debugging / future CSS.
     document.documentElement.setAttribute(
-      "data-home-responsive-mode",
+      "data-responsive-mode",
       mode
     );
 
 
-    // ========================================================
-    // NAVBAR
-    // ========================================================
-
-    var navbarItems =
-      document.querySelectorAll(
-        ".navbar_item"
-      );
-
-
-    var navbarBaseSize = 12;
-
-
-    var navbarScale =
-      Math.min(
-        1,
-        width / MASTER_WIDTH
-      );
-
-
-    var navbarFontSize =
-      Math.max(
-        10,
-        navbarBaseSize *
-        navbarScale
-      );
-
-
-    navbarItems.forEach(
-      function(el) {
-
-        el.style.fontSize =
-          navbarFontSize +
-          "px";
-
-      }
-    );
-
 
     // ========================================================
-    // HOME SECTIONS
+    // EACH CITY
     // ========================================================
 
-    configs.forEach(
+    CITY_CONFIG.forEach(
       function(config) {
 
         var city =
@@ -3664,324 +3886,81 @@ var HOME_CITY_SCALE_ENABLED = false;
 
 
         var scale =
-          HOME_CITY_SCALE_ENABLED
-            ? getScale(
-                config,
-                width,
-                height
-              )
-            : 1;
+          getCityScale(
+            config,
+            width,
+            height
+          );
 
 
-        // ------------------------------------------------------
-        // SCALE THE ENTIRE ART WORLD
-        // ------------------------------------------------------
+        // ====================================================
+        // SCALE CITY
+        // ====================================================
 
         city.style.zoom =
           scale;
 
 
-        // ------------------------------------------------------
-        // CITY HORIZONTAL ALIGNMENT
-        //
-        // The city is 3840px wide.
-        //
-        // Webflow centres the UNSCALED flex item.
-        // CSS zoom then changes its VISUAL width.
-        //
-        // On small screens this can make the rendered artwork
-        // appear shifted.
-        //
-        // Solution:
-        // 1. Let Webflow position it normally.
-        // 2. Measure the ACTUAL rendered city after zoom.
-        // 3. Compare its real centre with viewport centre.
-        // 4. Correct only the difference.
-        //
-        // Desktop >= 1920 is deliberately untouched.
-        // ------------------------------------------------------
-        
+
+        // ====================================================
+        // HORIZONTAL CENTRING
+        // ====================================================
+
         city.style.left = "";
         city.style.marginLeft = "";
         city.style.transform = "";
-        
+
+
         if (width < 1920) {
-        
-          var cityRect =
+
+          var rect =
             city.getBoundingClientRect();
-        
-          var cityVisualCenter =
-            cityRect.left +
-            (cityRect.width / 2);
-        
-          var viewportCenter =
-            width / 2;
-        
-          var visualCorrection =
-            viewportCenter -
-            cityVisualCenter;
-        
-        
-          // `left` lives inside the zoomed coordinate system,
-          // so convert visual pixels back into city-space pixels.
-          var citySpaceCorrection =
-            visualCorrection /
-            scale;
-        
-        
-          city.style.left =
-            citySpaceCorrection +
-            "px";
-        
-        }
 
 
-        
-
-        // ======================================================
-        // HOME 1
-        //
-        // HERO ALWAYS OCCUPIES ONE VISUAL VIEWPORT.
-        // ======================================================
-
-        if (
-          config.city ===
-          ".home_section1_city"
-        ) {
-
-          var home1KV =
-            city.querySelector(
-              ".kv.homepage"
+          var cityCenter =
+            rect.left +
+            (
+              rect.width / 2
             );
 
 
-          var kvHeight =
-            height / scale;
+          var viewportCenter =
+            width / 2;
 
 
-          if (home1KV) {
-
-            home1KV.style.height =
-              kvHeight +
-              "px";
-
-          }
+          var visualCorrection =
+            viewportCenter -
+            cityCenter;
 
 
-          // --------------------------------------------
-          // TRANSITION DISTANCE
-          // --------------------------------------------
-
-          var totalMultiplier;
+          var cityCorrection =
+            visualCorrection /
+            scale;
 
 
-          if (
-            mode === "phone"
-          ) {
-
-            totalMultiplier = 1.90;
-
-          } else if (
-            mode === "tablet-portrait"
-          ) {
-
-            totalMultiplier = 1.85;
-
-          } else {
-
-            totalMultiplier = 1.50;
-
-          }
-
-
-          var home1VisualHeight =
-            height *
-            totalMultiplier;
-
-
-          city.style.height =
-            (
-              home1VisualHeight /
-              scale
-            ) +
+          city.style.left =
+            cityCorrection +
             "px";
 
         }
 
 
-// ======================================================
-// HOMEPAGE TYPOGRAPHY SYSTEM
-//
-// Typography is now independent from CITY zoom.
-//
-// visual size / city scale = internal city-space size
-//
-// So later Home3 / Home7 / Home9 can have different
-// artwork scales WITHOUT changing apparent text size.
-// ======================================================
 
-function visualToCityPx(visualPx) {
-  return (visualPx / scale) + "px";
-}
+        // ====================================================
+        // TYPOGRAPHY COMPENSATION
+        // ====================================================
 
-
-// ------------------------------------------------------
-// TYPOGRAPHY TARGETS
-//
-// These numbers are FINAL VISUAL sizes on screen,
-// NOT sizes before city zoom.
-//
-// Desktop >= 1200 is deliberately left alone for now.
-// ------------------------------------------------------
-
-if (width < 1200) {
-
-  var headingVisual;
-  var bodyVisual;
-
-
-  // ----------------------------------------------------
-  // PHONE
-  // ----------------------------------------------------
-
-  if (mode === "phone") {
-  
-    headingVisual = 32;
-    bodyVisual = 15;
-  
-  }
-
-
-  // ----------------------------------------------------
-  // TABLET PORTRAIT
-  // ----------------------------------------------------
-
-  else if (mode === "tablet-portrait") {
-
-    headingVisual = 40;
-    bodyVisual = 15;
-
-  }
-
-
-  // ----------------------------------------------------
-  // TABLET LANDSCAPE
-  // ----------------------------------------------------
-
-  else {
-
-    headingVisual = 52;
-    bodyVisual = 15;
-
-  }
-
-
-  // ====================================================
-  // SECTION HEADINGS
-  // ====================================================
-
-  var sectionHeadings =
-    city.querySelectorAll(
-      ".section_heading"
-    );
-
-  sectionHeadings.forEach(
-    function(el) {
-
-      el.style.fontSize =
-        visualToCityPx(
-          headingVisual
+        applyCityTypography(
+          city,
+          scale,
+          mode
         );
 
-    }
-  );
 
 
-  // ====================================================
-  // NORMAL BODY COPY
-  //
-  // Exclude special text families.
-  // ====================================================
-
-  var bodyTexts =
-    city.querySelectorAll(
-      ".body_text:not(.subhead):not(._4text_heading):not(.footer_ask):not(.footer_credit)"
-    );
-
-  bodyTexts.forEach(
-    function(el) {
-
-      el.style.fontSize =
-        visualToCityPx(
-          bodyVisual
-        );
-
-    }
-  );
-
-
-  // ====================================================
-  // HOME 7 SPECIAL HEADING
-  //
-  // Desktop design uses a slightly larger heading here,
-  // so preserve that hierarchy.
-  // ====================================================
-
-  var home7Heading =
-    city.querySelector(
-      ".section_heading.home7"
-    );
-
-  if (home7Heading) {
-
-    var home7Visual =
-      mode === "phone"
-        ? 54
-        : 60;
-
-    home7Heading.style.fontSize =
-      visualToCityPx(
-        home7Visual
-      );
-
-  }
-
-}
-
-
-// ======================================================
-// DESKTOP
-//
-// Remove JS typography overrides so Webflow remains
-// 100% in control of existing desktop typography.
-// ======================================================
-
-else {
-
-  var responsiveTexts =
-    city.querySelectorAll(
-      ".section_heading, .body_text"
-    );
-
-  responsiveTexts.forEach(
-    function(el) {
-
-      el.style.fontSize = "";
-
-    }
-  );
-
-}
-
-
-        // ======================================================
-        // OUTER SECTION OFFSETS
-        //
-        // Desktop keeps existing behaviour.
-        //
-        // Mobile/tablet offsets are still scaled, but because
-        // scale no longer collapses to 0.17 they remain useful.
-        // ======================================================
+        // ====================================================
+        // OUTER SECTION OFFSET
+        // ====================================================
 
         if (
           section &&
@@ -4019,9 +3998,10 @@ else {
         }
 
 
-        // ======================================================
-        // DEBUG DATA
-        // ======================================================
+
+        // ====================================================
+        // DEBUG
+        // ====================================================
 
         city.setAttribute(
           "data-responsive-scale",
@@ -4038,6 +4018,17 @@ else {
     );
 
 
+
+    // ========================================================
+    // HOMEPAGE BODY WIDTH
+    // ========================================================
+
+    applyHomeBodyWidth(
+      mode
+    );
+
+
+
     // ========================================================
     // LENIS
     // ========================================================
@@ -4050,6 +4041,7 @@ else {
       lenis.resize();
 
     }
+
 
 
     // ========================================================
@@ -4071,23 +4063,17 @@ else {
   }
 
 
+
   // ==========================================================
   // FIRST RUN
   // ==========================================================
 
-  applyHomeResponsiveScale();
+  applyResponsiveCitySystem();
+
 
 
   // ==========================================================
   // RESIZE
-  //
-  // IMPORTANT:
-  // Mobile browser chrome changes innerHeight constantly.
-  //
-  // We do NOT want to rebuild the entire page merely because
-  // Safari/Chrome's address bar moved.
-  //
-  // Only react to meaningful WIDTH/orientation changes.
   // ==========================================================
 
   var resizeTimer;
@@ -4150,7 +4136,7 @@ else {
         setTimeout(
           function() {
 
-            applyHomeResponsiveScale();
+            applyResponsiveCitySystem();
 
           },
           180
@@ -4160,6 +4146,11 @@ else {
   );
 
 }
+
+
+
+  
+  
 
 
 
