@@ -3801,10 +3801,10 @@ function applyCityTypography(city, scale) {
   function applyResponsiveCitySystem() {
 
     var width =
-      window.innerWidth;
-
+      document.documentElement.clientWidth;
+    
     var height =
-      window.innerHeight;
+      document.documentElement.clientHeight;
 
 
     var mode =
@@ -4060,11 +4060,11 @@ function applyCityTypography(city, scale) {
   var resizeTimer;
 
   var previousWidth =
-    window.innerWidth;
+    document.documentElement.clientWidth;
 
   var previousPortrait =
-    window.innerHeight >
-    window.innerWidth;
+    document.documentElement.clientHeight >
+    document.documentElement.clientWidth;
 
 
   window.addEventListener(
@@ -4072,11 +4072,11 @@ function applyCityTypography(city, scale) {
     function() {
 
       var currentWidth =
-        window.innerWidth;
+        document.documentElement.clientWidth;
 
       var currentPortrait =
-        window.innerHeight >
-        window.innerWidth;
+        document.documentElement.clientHeight >
+        document.documentElement.clientWidth;
 
 
       var widthChanged =
