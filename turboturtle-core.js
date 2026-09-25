@@ -3688,133 +3688,70 @@ function initHomeResponsiveScale() {
 
 
 
-  // ==========================================================
-  // TYPOGRAPHY
-  //
-  // These are FINAL VISUAL sizes.
-  // ==========================================================
-
-  function getTypography(mode) {
-
-    if (mode === "phone") {
-
-      return {
-        big: null,
-        section: 32,
-        body: 15
-      };
-
-    }
 
 
-    if (
-      mode ===
-      "tablet-portrait"
-    ) {
+// ==========================================================
+// UNIVERSAL TYPOGRAPHY COMPENSATION
+//
+// Webflow controls the visual font size.
+//
+// CITY scaling changes the artwork size,
+// but these text classes keep their Webflow visual size:
+//
+// .big_heading
+// .section_heading
+// .body_text
+// ==========================================================
 
-      return {
-        big: null,
-        section: 40,
-        body: 15
-      };
+function applyCityTypography(city, scale) {
 
-    }
+  var textElements =
+    city.querySelectorAll(
+      ".big_heading, .section_heading, .body_text"
+    );
 
 
-    if (
-      mode ===
-      "tablet-landscape"
-    ) {
+  textElements.forEach(function(el) {
 
-      return {
-        big: null,
-        section: 52,
-        body: 15
-      };
+    // Store the original Webflow font size ONCE
+    if (!el.dataset.webflowFontSize) {
+
+      var computed =
+        window.getComputedStyle(el);
+
+      var originalSize =
+        parseFloat(computed.fontSize);
+
+
+      if (!originalSize) return;
+
+
+      el.dataset.webflowFontSize =
+        originalSize;
 
     }
 
 
-    // Desktop:
-    // null = Webflow controls the original font size.
-
-    return {
-      big: null,
-      section: null,
-      body: null
-    };
-  }
-
-
-
-  // ==========================================================
-  // APPLY TYPOGRAPHY TO ONE CITY
-  // ==========================================================
-
-  function applyCityTypography(
-    city,
-    scale,
-    mode
-  ) {
-
-    var type =
-      getTypography(mode);
-
-
-    function compensate(
-      selector,
-      visualSize
-    ) {
-
-      var elements =
-        city.querySelectorAll(
-          selector
-        );
-
-
-      elements.forEach(
-        function(el) {
-
-          if (visualSize === null) {
-
-            el.style.fontSize = "";
-
-            return;
-
-          }
-
-
-          el.style.fontSize =
-            (
-              visualSize /
-              scale
-            ) +
-            "px";
-
-        }
+    var visualSize =
+      parseFloat(
+        el.dataset.webflowFontSize
       );
 
-    }
+
+    // Counteract CITY scaling
+    el.style.fontSize =
+      (
+        visualSize /
+        scale
+      ) +
+      "px";
+
+  });
+
+}
 
 
-    compensate(
-      ".big_heading",
-      type.big
-    );
-
-
-    compensate(
-      ".section_heading",
-      type.section
-    );
-
-
-    compensate(
-      ".body_text",
-      type.body
-    );
-
-  }
+  
 
 
 
@@ -3973,8 +3910,7 @@ function initHomeResponsiveScale() {
 
         applyCityTypography(
           city,
-          scale,
-          mode
+          scale
         );
 
 
