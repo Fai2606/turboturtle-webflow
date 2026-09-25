@@ -3806,6 +3806,38 @@ function applyCityTypography(city, scale) {
     var height =
       document.documentElement.clientHeight;
 
+// ==========================================================
+// NAVBAR — REAL VIEWPORT WIDTH
+// ==========================================================
+
+var navbar =
+  document.querySelector(".navbar_custom");
+
+var navbarWrapper =
+  document.querySelector(".navbar_wrapper");
+
+if (navbar) {
+  navbar.style.width =
+    width + "px";
+
+  navbar.style.maxWidth =
+    width + "px";
+
+  navbar.style.left =
+    "0px";
+
+  navbar.style.right =
+    "auto";
+}
+
+if (navbarWrapper) {
+  navbarWrapper.style.width =
+    "100%";
+
+  navbarWrapper.style.maxWidth =
+    "100%";
+}
+
 
     var mode =
       getResponsiveMode(
