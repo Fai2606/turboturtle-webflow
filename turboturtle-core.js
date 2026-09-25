@@ -3382,8 +3382,8 @@ function initHomeResponsiveScale() {
       portraitMin: 0.48,
       portraitMax: 0.62,
 
-      phoneMin: 0.70,
-      phoneMax: 0.82,
+      phoneMin: 0.55,
+      phoneMax: 0.68,
 
       outerType: "marginTop",
       outerBase: -283
