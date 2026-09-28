@@ -300,7 +300,7 @@ var launchTargets = [
   },
   {
     sel: ".about_doggod",
-    from: { x: "4.6vw" }
+    from: { x: 100 }
   },
   {
     sel: ".about_frog",
