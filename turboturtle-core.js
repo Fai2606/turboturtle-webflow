@@ -287,38 +287,84 @@ getBoundingClientRect: function () {
       });
 
       // -------------------------------------------------------------
-      // ABOUT US — CHARACTER / ROCKET REVEALS
+      // ABOUT US — Character / Rocket Reveals
+      // Mobile-safe: trigger from about_section6 instead of each object
       // -------------------------------------------------------------
+      
+      var launchTrigger = q(".about_section6");
+      
       var launchTargets = [
-        { sel: ".about_cityqueen", from: { y: "35vh" }, to: { y: "0vh" }, start: "80%" },
-        { sel: ".about_doggod", from: { x: "4.6vw" }, to: { x: "0vw" }, start: "70%" },
-        { sel: ".about_frog", from: { y: "15vh" }, to: { y: "0vh" }, start: "80%" },
-        { sel: ".about_violincat", from: { x: "3vw" }, to: { x: "0vw" }, start: "80%" },
-        { sel: ".about_cityrocket", from: { y: "30vh" }, to: { y: "0vh" }, start: "80%" },
-        { sel: ".about_cityrocket_2", from: { y: "20vh" }, to: { y: "0vh" }, start: "75%" }
+        {
+          sel: ".about_cityqueen",
+          from: { y: "35vh" },
+          to: { y: "0vh" },
+          start: "top 80%"
+        },
+        {
+          sel: ".about_doggod",
+          from: { x: "4.6vw" },
+          to: { x: "0vw" },
+          start: "top 75%"
+        },
+        {
+          sel: ".about_frog",
+          from: { y: "15vh" },
+          to: { y: "0vh" },
+          start: "top 80%"
+        },
+        {
+          sel: ".about_violincat",
+          from: { x: "3vw" },
+          to: { x: "0vw" },
+          start: "top 80%"
+        },
+        {
+          sel: ".about_cityrocket",
+          from: { y: "30vh" },
+          to: { y: "0vh" },
+          start: "top 80%"
+        },
+        {
+          sel: ".about_cityrocket_2",
+          from: { y: "20vh" },
+          to: { y: "0vh" },
+          start: "top 75%"
+        }
       ];
-
-      launchTargets.forEach(function (item) {
-        if (!exists(item.sel)) return;
-
-        gsap.set(item.sel, Object.assign({ force3D: true }, item.from));
-
-        gsap.fromTo(
-          item.sel,
-          item.from,
-          Object.assign({}, item.to, {
-            duration: 1,
-            ease: "power3.out",
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: item.sel,
-              start: "top " + (item.start || "80%"),
-              toggleActions: "play reverse play reverse",
-              invalidateOnRefresh: true
-            }
-          })
-        );
-      });
+      
+      if (launchTrigger) {
+      
+        launchTargets.forEach(function (item) {
+      
+          var el = q(item.sel);
+          if (!el) return;
+      
+          gsap.fromTo(
+            el,
+            Object.assign(
+              {
+                force3D: true
+              },
+              item.from
+            ),
+            Object.assign({}, item.to, {
+              duration: 1,
+              ease: "power3.out",
+              force3D: true,
+              immediateRender: false,
+      
+              scrollTrigger: {
+                trigger: launchTrigger,
+                start: item.start,
+                toggleActions: "play none none reverse",
+                invalidateOnRefresh: true
+              }
+            })
+          );
+      
+        });
+      
+      }
 
       // -------------------------------------------------------------
       // HIGHLIGHT
