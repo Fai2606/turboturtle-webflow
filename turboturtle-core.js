@@ -286,51 +286,79 @@ getBoundingClientRect: function () {
         );
       });
 
-      // -------------------------------------------------------------
-      // ABOUT US — Character / Rocket Reveals
-      // Mobile-safe: trigger from about_section6 instead of each object
-      // -------------------------------------------------------------
-      
-      var launchTrigger = q(".about_section6");
-      
-      var launchTargets = [
+// -------------------------------------------------------------
+// ABOUT US — Character / Rocket Reveals
+// ONE shared trigger: .about_trigger
+// -------------------------------------------------------------
+
+var aboutTrigger = q(".about_trigger");
+
+var launchTargets = [
+  {
+    sel: ".about_cityqueen",
+    from: { y: "35vh" }
+  },
+  {
+    sel: ".about_doggod",
+    from: { x: "4.6vw" }
+  },
+  {
+    sel: ".about_frog",
+    from: { y: "15vh" }
+  },
+  {
+    sel: ".about_violincat",
+    from: { x: "3vw" }
+  },
+  {
+    sel: ".about_cityrocket",
+    from: { y: "30vh" }
+  },
+  {
+    sel: ".about_cityrocket_2",
+    from: { y: "20vh" }
+  }
+];
+
+if (aboutTrigger) {
+
+  launchTargets.forEach(function(item) {
+
+    var el = q(item.sel);
+    if (!el) return;
+
+    // Put object in starting position immediately.
+    // Prevents the mobile flash.
+    gsap.set(
+      el,
+      Object.assign(
         {
-          sel: ".about_cityqueen",
-          from: { y: "35vh" },
-          to: { y: "0vh" },
-          start: "top 80%"
+          force3D: true
         },
-        {
-          sel: ".about_doggod",
-          from: { x: "4.6vw" },
-          to: { x: "0vw" },
-          start: "top 75%"
-        },
-        {
-          sel: ".about_frog",
-          from: { y: "15vh" },
-          to: { y: "0vh" },
-          start: "top 80%"
-        },
-        {
-          sel: ".about_violincat",
-          from: { x: "3vw" },
-          to: { x: "0vw" },
-          start: "top 80%"
-        },
-        {
-          sel: ".about_cityrocket",
-          from: { y: "30vh" },
-          to: { y: "0vh" },
-          start: "top 80%"
-        },
-        {
-          sel: ".about_cityrocket_2",
-          from: { y: "20vh" },
-          to: { y: "0vh" },
-          start: "top 75%"
-        }
-      ];
+        item.from
+      )
+    );
+
+    // Animate back to its Webflow position.
+    gsap.to(el, {
+      x: 0,
+      y: 0,
+
+      duration: 1,
+      ease: "power3.out",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: aboutTrigger,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+        invalidateOnRefresh: true
+      }
+    });
+
+  });
+
+}
       
       if (launchTrigger) {
       
