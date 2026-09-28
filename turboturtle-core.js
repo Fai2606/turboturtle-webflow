@@ -359,40 +359,6 @@ if (aboutTrigger) {
   });
 
 }
-      
-      if (launchTrigger) {
-      
-        launchTargets.forEach(function (item) {
-      
-          var el = q(item.sel);
-          if (!el) return;
-      
-          gsap.fromTo(
-            el,
-            Object.assign(
-              {
-                force3D: true
-              },
-              item.from
-            ),
-            Object.assign({}, item.to, {
-              duration: 1,
-              ease: "power3.out",
-              force3D: true,
-              immediateRender: false,
-      
-              scrollTrigger: {
-                trigger: launchTrigger,
-                start: item.start,
-                toggleActions: "play none none reverse",
-                invalidateOnRefresh: true
-              }
-            })
-          );
-      
-        });
-      
-      }
 
       // -------------------------------------------------------------
       // HIGHLIGHT
