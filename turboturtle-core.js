@@ -938,7 +938,7 @@ getBoundingClientRect: function () {
   
       gsap.to(cloud, {
   
-        y: -115 * MASTER_VH,
+        y: -80 * MASTER_VH,
   
         ease: "none",
   
