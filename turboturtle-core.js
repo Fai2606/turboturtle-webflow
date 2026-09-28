@@ -2104,6 +2104,9 @@ function initHomeSection5() {
   
 function initHomeSection6() {
 
+  var section = q(".home_section6");
+  var city = q(".home_section6_city");
+
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
   var home6TallPillar = q(".home6_tallpillar");
@@ -2113,6 +2116,93 @@ function initHomeSection6() {
   var lakeWater2 = q(".home6_lake_water2");
 
   if (!window.gsap || !window.ScrollTrigger) return;
+
+
+  // ==========================================================
+  // SAFARI DETECTION
+  // ==========================================================
+
+  var isSafari =
+    /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+
+  // ==========================================================
+  // SAFARI-SAFE CITY GEOMETRY
+  //
+  // Safari can report incorrect getBoundingClientRect() values
+  // for descendants of a CSS-zoomed CITY.
+  //
+  // We calculate their real visual position from:
+  //
+  // SECTION TOP
+  // +
+  // INTERNAL OFFSET INSIDE CITY × CITY ZOOM
+  //
+  // Chrome keeps using normal ScrollTrigger geometry.
+  // ==========================================================
+
+  function getCityScale() {
+
+    if (!city) return 1;
+
+    var zoom =
+      parseFloat(window.getComputedStyle(city).zoom);
+
+    return zoom || 1;
+  }
+
+
+  function getOffsetInsideCity(el) {
+
+    if (!el || !city) return 0;
+
+    var total = 0;
+    var current = el;
+
+    while (current && current !== city) {
+
+      total += current.offsetTop || 0;
+
+      current = current.offsetParent;
+    }
+
+    return total;
+  }
+
+
+  function getSafariVisualTop(el) {
+
+    if (!section || !city || !el) return 0;
+
+    var sectionTop =
+      section.getBoundingClientRect().top +
+      window.scrollY;
+
+    return (
+      sectionTop +
+      getOffsetInsideCity(el) * getCityScale()
+    );
+  }
+
+
+  function getSafariVisualHeight(el) {
+
+    if (!el) return 0;
+
+    return el.offsetHeight * getCityScale();
+  }
+
+
+  function safariStart(el, viewportRatio) {
+
+    return function() {
+
+      return (
+        getSafariVisualTop(el) -
+        document.documentElement.clientHeight * viewportRatio
+      );
+    };
+  }
 
 
   // ==========================================================
@@ -2145,13 +2235,50 @@ function initHomeSection6() {
     });
   }
 
-  
+
   // ==========================================================
   // LAKE — VERTICAL SHRINK ON SCROLL
-  // scaleY 1.6 -> 1
   // ==========================================================
 
   if (home6Lake) {
+
+    var lakeScrollTrigger;
+
+    if (isSafari && section && city) {
+
+      lakeScrollTrigger = {
+
+        trigger: section,
+
+        start: function() {
+          return (
+            getSafariVisualTop(home6Lake) -
+            document.documentElement.clientHeight
+          );
+        },
+
+        end: function() {
+          return (
+            getSafariVisualTop(home6Lake) +
+            getSafariVisualHeight(home6Lake)
+          );
+        },
+
+        scrub: 1,
+        invalidateOnRefresh: true
+      };
+
+    } else {
+
+      lakeScrollTrigger = {
+        trigger: home6Lake,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      };
+    }
+
 
     gsap.fromTo(
       home6Lake,
@@ -2166,16 +2293,9 @@ function initHomeSection6() {
         ease: "none",
         force3D: true,
 
-        scrollTrigger: {
-          trigger: home6Lake,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
+        scrollTrigger: lakeScrollTrigger
       }
     );
-
   }
 
 
@@ -2205,22 +2325,54 @@ function initHomeSection6() {
 
   if (weirdSun) {
 
-    gsap.to(weirdSun, {
-      y: 360,
-      ease: "none",
-      force3D: true,
+    var weirdSunScrollTrigger;
 
-      scrollTrigger: {
+    if (isSafari && section && city) {
+
+      weirdSunScrollTrigger = {
+
+        trigger: section,
+
+        start: function() {
+          return (
+            getSafariVisualTop(weirdSun) -
+            document.documentElement.clientHeight
+          );
+        },
+
+        end: function() {
+          return (
+            getSafariVisualTop(weirdSun) +
+            getSafariVisualHeight(weirdSun)
+          );
+        },
+
+        scrub: true,
+        invalidateOnRefresh: true
+      };
+
+    } else {
+
+      weirdSunScrollTrigger = {
         trigger: weirdSun,
         start: "top bottom",
         end: "bottom top",
         scrub: true,
         invalidateOnRefresh: true
-      }
+      };
+    }
+
+
+    gsap.to(weirdSun, {
+      y: 360,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: weirdSunScrollTrigger
     });
   }
 
-  
+
   // ==========================================================
   // HOME 6 — CASTLE BUILD
   // ==========================================================
@@ -2415,10 +2567,17 @@ function initHomeSection6() {
     }, 0);
 
 
-    ScrollTrigger.create({
+    var buildTrigger = {
 
-      trigger: home6TallPillar,
-      start: "top 80%",
+      trigger:
+        (isSafari && section && city)
+          ? section
+          : home6TallPillar,
+
+      start:
+        (isSafari && section && city)
+          ? safariStart(home6TallPillar, 0.80)
+          : "top 80%",
 
       invalidateOnRefresh: true,
 
@@ -2429,22 +2588,15 @@ function initHomeSection6() {
       onLeaveBack: function() {
         buildTL.timeScale(2).reverse();
       }
+    };
 
-    });
+
+    ScrollTrigger.create(buildTrigger);
   }
 
 
   // ==========================================================
   // UFO + LIGHT TRANSITION
-  //
-  // SIMPLE / STABLE VERSION
-  //
-  // UFO lands
-  //      ↓
-  // LIGHT + LIGHTBLUR
-  // 0% -> 100%
-  //      ↓
-  // STAY AT 100%
   // ==========================================================
 
   var home6UFO = q(".home6_ufo");
@@ -2466,7 +2618,7 @@ function initHomeSection6() {
   if (home6UFO) {
 
     gsap.set(home6UFO, {
-      y: -window.innerHeight * 1.5,
+      y: -document.documentElement.clientHeight * 1.5,
       visibility: "hidden",
       opacity: 0,
       force3D: true
@@ -2508,9 +2660,6 @@ function initHomeSection6() {
 
   // ==========================================================
   // TURN LIGHTS ON
-  //
-  // ONLY:
-  // 0 -> 100%
   // ==========================================================
 
   function turnHome6LightsOn() {
@@ -2523,7 +2672,6 @@ function initHomeSection6() {
     lightsAreOn = true;
 
 
-    // Kill anything left over before starting.
     if (home6Light) {
       gsap.killTweensOf(home6Light);
     }
@@ -2535,9 +2683,6 @@ function initHomeSection6() {
 
     var lightTL = gsap.timeline();
 
-
-    // YELLOW UFO LIGHT
-    // 0 -> 100%
 
     if (home6Light) {
 
@@ -2556,9 +2701,6 @@ function initHomeSection6() {
     }
 
 
-    // WHITE LIGHT BLUR
-    // 0 -> 100%
-
     if (home7LightBlur) {
 
       lightTL.set(home7LightBlur, {
@@ -2575,8 +2717,6 @@ function initHomeSection6() {
       }, 0);
     }
 
-
-    // WHITE COVER
 
     if (home7WhiteCover) {
 
@@ -2680,7 +2820,7 @@ function initHomeSection6() {
       gsap.killTweensOf(home6UFO);
 
       gsap.set(home6UFO, {
-        y: -window.innerHeight * 1.5,
+        y: -document.documentElement.clientHeight * 1.5,
         visibility: "hidden",
         opacity: 0,
         force3D: true
@@ -2691,17 +2831,21 @@ function initHomeSection6() {
 
   // ==========================================================
   // UFO TRIGGER
-  //
-  // weird sun reaches top 10%
   // ==========================================================
 
   if (weirdSun && home6UFO) {
 
     ScrollTrigger.create({
 
-      trigger: weirdSun,
+      trigger:
+        (isSafari && section && city)
+          ? section
+          : weirdSun,
 
-      start: "top 10%",
+      start:
+        (isSafari && section && city)
+          ? safariStart(weirdSun, 0.10)
+          : "top 10%",
 
       invalidateOnRefresh: true,
 
@@ -2719,17 +2863,21 @@ function initHomeSection6() {
 
   // ==========================================================
   // LIGHT TRIGGER
-  //
-  // lake reaches 70%
   // ==========================================================
 
   if (home6Lake) {
 
     ScrollTrigger.create({
 
-      trigger: home6Lake,
+      trigger:
+        (isSafari && section && city)
+          ? section
+          : home6Lake,
 
-      start: "top 70%",
+      start:
+        (isSafari && section && city)
+          ? safariStart(home6Lake, 0.70)
+          : "top 70%",
 
       invalidateOnRefresh: true,
 
@@ -2750,7 +2898,11 @@ function initHomeSection6() {
 
 
   requestAnimationFrame(function() {
-    ScrollTrigger.refresh();
+
+    requestAnimationFrame(function() {
+
+      ScrollTrigger.refresh();
+    });
   });
 
 }
