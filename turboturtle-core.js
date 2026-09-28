@@ -931,35 +931,14 @@ getBoundingClientRect: function () {
   
   
     // ==========================================================
-    // CLOUD
+    // CLOUD — TEST: NO PARALLAX
     // ==========================================================
-  
+    
     if (cloud) {
-  
-      gsap.to(cloud, {
-  
-        y: -1 * MASTER_VH,
-  
-        ease: "none",
-  
-        force3D: true,
-  
-        scrollTrigger: {
-  
-          trigger: section,
-  
-          start: "top top",
-  
-          end: "bottom top",
-  
-          scrub: 1,
-  
-          invalidateOnRefresh: true
-  
-        }
-  
+      gsap.set(cloud, {
+        y: 0,
+        force3D: true
       });
-  
     }
   
   
