@@ -1056,7 +1056,7 @@ if (aboutTrigger) {
               window.innerHeight
             );
   
-          return scrollDistance * 0.82;
+          return scrollDistance * 0.5;
   
         },
   
