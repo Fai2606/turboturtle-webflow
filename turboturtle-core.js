@@ -1971,16 +1971,10 @@ if (exists(".home2_airship")) {
   }
   
 
-
   // -------------------------------------------------------------
 // HOME 2 — GROW UP
 // INDIVIDUAL TIMING
-// IOS SAFARI + IOS CHROME SAFE
-//
-// IMPORTANT:
-// - each growup keeps its OWN timing
-// - parent depth/parallax movement is included
-// - no ScrollTrigger measurement inside CSS zoom
+// DESKTOP + IOS SAFARI + IOS CHROME
 // -------------------------------------------------------------
 
 var growups =
@@ -2007,8 +2001,7 @@ if (
 
   // -----------------------------------------------------------
   // INITIAL STATE
-  // CSS already does this before JS loads.
-  // GSAP takes ownership once ready.
+  // CSS already starts them here before JS loads.
   // -----------------------------------------------------------
 
   gsap.set(
@@ -2021,13 +2014,12 @@ if (
 
 
   // -----------------------------------------------------------
-  // STATIC POSITION OF A PARENT INSIDE CITY
-  // No getBoundingClientRect() on zoomed children.
+  // STATIC TOP INSIDE CITY
   // -----------------------------------------------------------
 
-  function getHome2ParentTop(parent) {
+  function getGrowupStaticTop(parent) {
 
-    var top = 0;
+    var total = 0;
 
     var current =
       parent;
@@ -2038,7 +2030,7 @@ if (
       current !== home2City
     ) {
 
-      top +=
+      total +=
         current.offsetTop || 0;
 
       current =
@@ -2047,12 +2039,12 @@ if (
     }
 
 
-    return top;
+    return total;
   }
 
 
   // -----------------------------------------------------------
-  // CACHE EACH GROWUP'S PARENT
+  // ITEMS
   // -----------------------------------------------------------
 
   var growupItems =
@@ -2064,12 +2056,7 @@ if (
           el: el,
 
           parent:
-            el.parentElement,
-
-          staticTop:
-            getHome2ParentTop(
-              el.parentElement
-            )
+            el.parentElement
 
         };
 
@@ -2079,6 +2066,9 @@ if (
 
   // -----------------------------------------------------------
   // UPDATE
+  //
+  // IMPORTANT:
+  // Runs on GSAP ticker AFTER the parent parallax updates.
   // -----------------------------------------------------------
 
   function updateHome2Growups() {
@@ -2087,21 +2077,7 @@ if (
       getRealViewportHeight();
 
 
-    var scrollY =
-      (
-        lenis &&
-        typeof lenis.scroll === "number"
-      )
-        ? lenis.scroll
-        : (
-            window.pageYOffset ||
-            0
-          );
-
-
-    // Section is OUTSIDE the CSS-zoomed city,
-    // so this measurement is reliable.
-    var sectionViewportTop =
+    var sectionTop =
       home2Section
         .getBoundingClientRect()
         .top;
@@ -2126,11 +2102,9 @@ if (
         }
 
 
-        // -----------------------------------------------------
-        // EXISTING PARENT PARALLAX
-        //
-        // This was the missing part in the previous solution.
-        // -----------------------------------------------------
+        // -----------------------------------------------
+        // Parent's CURRENT GSAP movement
+        // -----------------------------------------------
 
         var parentY =
           parseFloat(
@@ -2157,20 +2131,28 @@ if (
           ) / 100;
 
 
-        // -----------------------------------------------------
-        // TRUE VISUAL TOP OF THIS PARENT
-        //
-        // Static design position
-        // + its current GSAP parallax
-        // × CITY zoom
-        // + Section viewport position
-        // -----------------------------------------------------
+        // -----------------------------------------------
+        // Parent's static Webflow position
+        // -----------------------------------------------
 
-        var parentViewportTop =
-          sectionViewportTop +
+        var staticTop =
+          getGrowupStaticTop(
+            item.parent
+          );
+
+
+        // -----------------------------------------------
+        // REAL VISUAL TOP
+        //
+        // Your console test proved this formula
+        // matches browser geometry within ~0.1px.
+        // -----------------------------------------------
+
+        var parentTop =
+          sectionTop +
           (
             (
-              item.staticTop +
+              staticTop +
               parentY +
               parentPercentY
             ) *
@@ -2178,17 +2160,17 @@ if (
           );
 
 
-        // -----------------------------------------------------
-        // SAME TIMING AS YOUR ORIGINAL:
+        // -----------------------------------------------
+        // INDIVIDUAL TIMING
         //
-        // START when parent top reaches 85% viewport
-        // END   when parent top reaches 35% viewport
-        // -----------------------------------------------------
+        // Start = parent reaches 85% viewport
+        // End   = parent reaches 35% viewport
+        // -----------------------------------------------
 
         var progress =
           (
             viewportHeight * 0.85 -
-            parentViewportTop
+            parentTop
           ) /
           (
             viewportHeight * 0.50
@@ -2214,9 +2196,9 @@ if (
           );
 
 
-        // -----------------------------------------------------
-        // 100% DOWN → ORIGINAL POSITION
-        // -----------------------------------------------------
+        // -----------------------------------------------
+        // 100% DOWN → NORMAL POSITION
+        // -----------------------------------------------
 
         gsap.set(
           item.el,
@@ -2239,67 +2221,23 @@ if (
 
 
   // -----------------------------------------------------------
-  // LENIS SCROLL
+  // RUN EVERY GSAP FRAME
+  //
+  // Lenis + ScrollTrigger were registered earlier,
+  // so parent parallax updates first.
+  // Grow Up reads their CURRENT position afterward.
   // -----------------------------------------------------------
 
-  if (
-    lenis &&
-    lenis.on
-  ) {
-
-    lenis.on(
-      "scroll",
-      updateHome2Growups
-    );
-
-  }
-
-
-  // Native fallback
-  window.addEventListener(
-    "scroll",
-    updateHome2Growups,
-    {
-      passive: true
-    }
-  );
-
-
-  // -----------------------------------------------------------
-  // REFRESH / RESIZE
-  // -----------------------------------------------------------
-
-  ScrollTrigger.addEventListener(
-    "refresh",
+  gsap.ticker.add(
     updateHome2Growups
   );
 
 
-  window.addEventListener(
-    "resize",
-    function() {
-
-      requestAnimationFrame(
-        updateHome2Growups
-      );
-
-    }
-  );
-
-
-  // Run after CITY zoom has had time to apply.
-  requestAnimationFrame(
-    function() {
-
-      requestAnimationFrame(
-        updateHome2Growups
-      );
-
-    }
-  );
+  // First update immediately
+  updateHome2Growups();
 
 }
-  
+
 
 
   // -------------------------------------------------------------
