@@ -4058,6 +4058,12 @@ function applyResponsiveCitySystem() {
   var height =
     document.documentElement.clientHeight;
 
+  var mode =
+    getResponsiveMode(
+      width,
+      height
+    );
+
 
   CITY_CONFIG.forEach(function(config) {
 
@@ -4068,141 +4074,43 @@ function applyResponsiveCitySystem() {
 
 
     var section =
-      city.closest(
-        "[class*='home_section'], [class*='about_section']"
+      document.querySelector(config.section);
+
+
+    // ====================================================
+    // ONE SCALE CALCULATION ONLY
+    // ====================================================
+
+    var scale =
+      getCityScale(
+        config,
+        width,
+        height
       );
 
 
     // ====================================================
-    // CALCULATE SCALE
-    // ====================================================
-
-    var scale;
-
-
-    // ----------------------------------------------------
-    // LARGE DESKTOP
-    // ----------------------------------------------------
-
-    if (width >= MASTER_WIDTH) {
-
-      scale =
-        width /
-        MASTER_WIDTH;
-
-    }
-
-
-    // ----------------------------------------------------
-    // DESKTOP 1920 → MASTER
-    // ----------------------------------------------------
-
-    else if (width >= 1920) {
-
-      scale =
-        interpolate(
-          config.desktop1920,
-          config.desktop2195,
-          (width - 1920) /
-          (MASTER_WIDTH - 1920)
-        );
-
-    }
-
-
-    // ----------------------------------------------------
-    // SMALL DESKTOP 1440 → 1920
-    // ----------------------------------------------------
-
-    else if (width >= 1440) {
-
-      scale =
-        interpolate(
-          config.desktop1440,
-          config.desktop1920,
-          (width - 1440) /
-          (1920 - 1440)
-        );
-
-    }
-
-
-    // ----------------------------------------------------
-    // TABLET LANDSCAPE
-    // ----------------------------------------------------
-
-    else if (
-      width >= 768 &&
-      width > height
-    ) {
-
-      scale =
-        interpolate(
-          config.landscapeMin,
-          config.landscapeMax,
-          (width - 768) /
-          (1440 - 768)
-        );
-
-    }
-
-
-    // ----------------------------------------------------
-    // TABLET PORTRAIT
-    // ----------------------------------------------------
-
-    else if (width >= 768) {
-
-      scale =
-        interpolate(
-          config.portraitMin,
-          config.portraitMax,
-          (width - 768) /
-          (1100 - 768)
-        );
-
-    }
-
-
-    // ----------------------------------------------------
-    // PHONE
-    // ----------------------------------------------------
-
-    else {
-
-      scale =
-        interpolate(
-          config.phoneMin,
-          config.phoneMax,
-          (width - 320) /
-          (767 - 320)
-        );
-
-    }
-
-
-    // ====================================================
-    // RESET RESPONSIVE STYLES
+    // RESET ONLY RESPONSIVE PROPERTIES WE OWN
+    //
+    // IMPORTANT:
+    // DO NOT clear transform on homepage cities.
+    // GSAP may own that transform.
     // ====================================================
 
     city.style.zoom = "";
     city.style.left = "";
     city.style.marginLeft = "";
-    city.style.transform = "";
-    city.style.transformOrigin = "";
 
 
     // ====================================================
     // ABOUT SECTION 6
     //
-    // Chrome iOS breaks geometry when CSS zoom is used
-    // on this city.
-    //
-    // Use transform scale instead.
+    // Keep transform scaling for About only.
     // ====================================================
 
     if (
-      config.city === ".about_section6_city"
+      config.city ===
+      ".about_section6_city"
     ) {
 
       city.style.zoom = "1";
@@ -4227,9 +4135,9 @@ function applyResponsiveCitySystem() {
         scale;
 
 
-      // ----------------------------------------------
-      // CENTRE ABOUT CITY
-      // ----------------------------------------------
+      // ------------------------------------------------
+      // CENTRE
+      // ------------------------------------------------
 
       if (width < 1920) {
 
@@ -4253,9 +4161,9 @@ function applyResponsiveCitySystem() {
       }
 
 
-      // ----------------------------------------------
-      // SCALE ABOUT CITY
-      // ----------------------------------------------
+      // ------------------------------------------------
+      // SCALE
+      // ------------------------------------------------
 
       city.style.transform =
         "scale(" +
@@ -4263,12 +4171,7 @@ function applyResponsiveCitySystem() {
         ")";
 
 
-      // ----------------------------------------------
-      // TRANSFORM DOES NOT SHRINK LAYOUT HEIGHT
-      //
-      // Give section the city's actual visible height.
-      // ----------------------------------------------
-
+      // Transform doesn't change layout height.
       if (section) {
 
         section.style.height =
@@ -4282,18 +4185,21 @@ function applyResponsiveCitySystem() {
     // ====================================================
     // HOMEPAGE CITIES
     //
-    // KEEP EXISTING CSS ZOOM METHOD.
+    // CSS zoom stays.
+    // This preserves the Safari Home6/7 geometry fix.
     // ====================================================
 
     else {
+
+      city.style.transformOrigin = "";
 
       city.style.zoom =
         scale;
 
 
-      // ----------------------------------------------
-      // HORIZONTAL CENTRING
-      // ----------------------------------------------
+      // ------------------------------------------------
+      // CENTRE
+      // ------------------------------------------------
 
       if (width < 1920) {
 
@@ -4340,7 +4246,6 @@ function applyResponsiveCitySystem() {
 
     // ====================================================
     // TYPOGRAPHY
-    // Keep visual font size independent from city scale
     // ====================================================
 
     applyCityTypography(
@@ -4348,33 +4253,94 @@ function applyResponsiveCitySystem() {
       scale
     );
 
+
+    // ====================================================
+    // OUTER SECTION OFFSET
+    // ====================================================
+
+    if (
+      section &&
+      config.outerType
+    ) {
+
+      var scaledOuter =
+        config.outerBase *
+        scale;
+
+
+      if (
+        config.outerType ===
+        "marginTop"
+      ) {
+
+        section.style.marginTop =
+          scaledOuter +
+          "px";
+
+      }
+
+
+      if (
+        config.outerType ===
+        "top"
+      ) {
+
+        section.style.top =
+          scaledOuter +
+          "px";
+
+      }
+
+    }
+
+
+    // ====================================================
+    // DEBUG
+    // ====================================================
+
+    city.setAttribute(
+      "data-responsive-scale",
+      scale.toFixed(4)
+    );
+
+    city.setAttribute(
+      "data-responsive-mode",
+      mode
+    );
+
   });
 
 
   // ====================================================
-  // AFTER LAYOUT CHANGES
+  // HOMEPAGE BODY TEXT WIDTH
+  // ====================================================
+
+  applyHomeBodyWidth(
+    mode
+  );
+
+
+  // ====================================================
+  // REFRESH AFTER LAYOUT
   // ====================================================
 
   requestAnimationFrame(function() {
 
-    if (window.lenis?.resize) {
-      window.lenis.resize();
+    if (
+      lenis &&
+      lenis.resize
+    ) {
+      lenis.resize();
     }
 
-    if (window.ScrollTrigger) {
-      window.ScrollTrigger.refresh();
+
+    if (ScrollTrigger) {
+      ScrollTrigger.refresh();
     }
 
   });
 
 }
-
-
-
-
-
-        
-
 
 
 
