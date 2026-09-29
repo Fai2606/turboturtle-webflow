@@ -4102,155 +4102,53 @@ function applyResponsiveCitySystem() {
     city.style.marginLeft = "";
 
 
-    // ====================================================
-    // ABOUT SECTION 6
-    //
-    // Keep transform scaling for About only.
-    // ====================================================
+// ====================================================
+// ALL CITIES — SAME METHOD
+// Homepage + About
+// ====================================================
 
-    if (
-      config.city ===
-      ".about_section6_city"
-    ) {
-
-      city.style.zoom = "1";
-
-      city.style.transformOrigin =
-        "top left";
+city.style.transformOrigin = "";
+city.style.transform = "";
+city.style.zoom = scale;
 
 
-      var aboutCityWidth =
-        city.offsetWidth;
+// ----------------------------------------------------
+// HORIZONTAL CENTRING
+// ----------------------------------------------------
 
-      var aboutCityHeight =
-        city.offsetHeight;
+if (width < 1920) {
 
+  var cityWidth =
+    city.offsetWidth;
 
-      var scaledAboutWidth =
-        aboutCityWidth *
-        scale;
+  var scaledCityWidth =
+    cityWidth *
+    scale;
 
-      var scaledAboutHeight =
-        aboutCityHeight *
-        scale;
+  var targetLeft =
+    (
+      width -
+      scaledCityWidth
+    ) / 2;
 
+  var naturalLeft =
+    city.offsetLeft;
 
-      // ------------------------------------------------
-      // CENTRE
-      // ------------------------------------------------
+  var visualCorrection =
+    targetLeft -
+    (
+      naturalLeft *
+      scale
+    );
 
-      if (width < 1920) {
+  var cityCorrection =
+    visualCorrection /
+    scale;
 
-        var aboutTargetLeft =
-          (
-            width -
-            scaledAboutWidth
-          ) / 2;
-
-
-        var aboutNaturalLeft =
-          city.offsetLeft;
-
-
-        city.style.left =
-          (
-            aboutTargetLeft -
-            aboutNaturalLeft
-          ) +
-          "px";
-      }
-
-
-      // ------------------------------------------------
-      // SCALE
-      // ------------------------------------------------
-
-      // Scale About city + compensate vertical position.
-      // transform:scale() shrinks around the top edge,
-      // so move it down by the lost height.
-      
-      city.style.transform =
-        "scale(" +
-        scale +
-        ")";
-
-
-      // Transform doesn't change layout height.
-      if (section) {
-      
-        // Use the transformed city's REAL visible height.
-        // Removes the unscaled blank space below About city.
-        var visibleAboutHeight =
-          city.getBoundingClientRect().height;
-      
-        section.style.height =
-          visibleAboutHeight +
-          "px";
-      }
-
-    }
-
-
-    // ====================================================
-    // HOMEPAGE CITIES
-    //
-    // CSS zoom stays.
-    // This preserves the Safari Home6/7 geometry fix.
-    // ====================================================
-
-    else {
-
-      city.style.transformOrigin = "";
-
-      city.style.zoom =
-        scale;
-
-
-      // ------------------------------------------------
-      // CENTRE
-      // ------------------------------------------------
-
-      if (width < 1920) {
-
-        var cityWidth =
-          city.offsetWidth;
-
-
-        var scaledCityWidth =
-          cityWidth *
-          scale;
-
-
-        var targetLeft =
-          (
-            width -
-            scaledCityWidth
-          ) / 2;
-
-
-        var naturalLeft =
-          city.offsetLeft;
-
-
-        var visualCorrection =
-          targetLeft -
-          (
-            naturalLeft *
-            scale
-          );
-
-
-        var cityCorrection =
-          visualCorrection /
-          scale;
-
-
-        city.style.left =
-          cityCorrection +
-          "px";
-      }
-
-    }
+  city.style.left =
+    cityCorrection +
+    "px";
+}
 
 
     // ====================================================
