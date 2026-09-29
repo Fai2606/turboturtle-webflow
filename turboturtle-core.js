@@ -4050,164 +4050,324 @@ function applyCityTypography(city, scale) {
   // APPLY EVERYTHING
   // ==========================================================
 
-  function applyResponsiveCitySystem() {
+function applyResponsiveCitySystem() {
 
-    var width =
-      document.documentElement.clientWidth;
-    
-    var height =
-      document.documentElement.clientHeight;
+  var width =
+    document.documentElement.clientWidth;
 
-// ==========================================================
-// NAVBAR — REAL VIEWPORT WIDTH
-// ==========================================================
-
-var navbar =
-  document.querySelector(".navbar_custom");
-
-var navbarWrapper =
-  document.querySelector(".navbar_wrapper");
-
-if (navbar) {
-  navbar.style.width =
-    width + "px";
-
-  navbar.style.maxWidth =
-    width + "px";
-
-  navbar.style.left =
-    "0px";
-
-  navbar.style.right =
-    "auto";
-}
-
-if (navbarWrapper) {
-  navbarWrapper.style.width =
-    "100%";
-
-  navbarWrapper.style.maxWidth =
-    "100%";
-}
+  var height =
+    document.documentElement.clientHeight;
 
 
-    var mode =
-      getResponsiveMode(
-        width,
-        height
+  CITY_CONFIG.forEach(function(config) {
+
+    var city =
+      document.querySelector(config.city);
+
+    if (!city) return;
+
+
+    var section =
+      city.closest(
+        "[class*='home_section'], [class*='about_section']"
       );
 
 
-    document.documentElement.setAttribute(
-      "data-responsive-mode",
-      mode
-    );
+    // ====================================================
+    // CALCULATE SCALE
+    // ====================================================
+
+    var scale;
 
 
+    // ----------------------------------------------------
+    // LARGE DESKTOP
+    // ----------------------------------------------------
 
-    // ========================================================
-    // EACH CITY
-    // ========================================================
+    if (width >= MASTER_WIDTH) {
 
-    CITY_CONFIG.forEach(
-      function(config) {
+      scale =
+        width /
+        MASTER_WIDTH;
 
-        var city =
-          document.querySelector(
-            config.city
-          );
-
-
-        var section =
-          document.querySelector(
-            config.section
-          );
+    }
 
 
-        if (!city) return;
+    // ----------------------------------------------------
+    // DESKTOP 1920 → MASTER
+    // ----------------------------------------------------
+
+    else if (width >= 1920) {
+
+      scale =
+        interpolate(
+          config.desktop1920,
+          config.desktop2195,
+          (width - 1920) /
+          (MASTER_WIDTH - 1920)
+        );
+
+    }
 
 
-        var scale =
-          getCityScale(
-            config,
-            width,
-            height
-          );
+    // ----------------------------------------------------
+    // SMALL DESKTOP 1440 → 1920
+    // ----------------------------------------------------
+
+    else if (width >= 1440) {
+
+      scale =
+        interpolate(
+          config.desktop1440,
+          config.desktop1920,
+          (width - 1440) /
+          (1920 - 1440)
+        );
+
+    }
 
 
-        // ====================================================
-        // SCALE CITY
-        // ====================================================
+    // ----------------------------------------------------
+    // TABLET LANDSCAPE
+    // ----------------------------------------------------
 
-        city.style.zoom =
+    else if (
+      width >= 768 &&
+      width > height
+    ) {
+
+      scale =
+        interpolate(
+          config.landscapeMin,
+          config.landscapeMax,
+          (width - 768) /
+          (1440 - 768)
+        );
+
+    }
+
+
+    // ----------------------------------------------------
+    // TABLET PORTRAIT
+    // ----------------------------------------------------
+
+    else if (width >= 768) {
+
+      scale =
+        interpolate(
+          config.portraitMin,
+          config.portraitMax,
+          (width - 768) /
+          (1100 - 768)
+        );
+
+    }
+
+
+    // ----------------------------------------------------
+    // PHONE
+    // ----------------------------------------------------
+
+    else {
+
+      scale =
+        interpolate(
+          config.phoneMin,
+          config.phoneMax,
+          (width - 320) /
+          (767 - 320)
+        );
+
+    }
+
+
+    // ====================================================
+    // RESET RESPONSIVE STYLES
+    // ====================================================
+
+    city.style.zoom = "";
+    city.style.left = "";
+    city.style.marginLeft = "";
+    city.style.transform = "";
+    city.style.transformOrigin = "";
+
+
+    // ====================================================
+    // ABOUT SECTION 6
+    //
+    // Chrome iOS breaks geometry when CSS zoom is used
+    // on this city.
+    //
+    // Use transform scale instead.
+    // ====================================================
+
+    if (
+      config.city === ".about_section6_city"
+    ) {
+
+      city.style.zoom = "1";
+
+      city.style.transformOrigin =
+        "top left";
+
+
+      var aboutCityWidth =
+        city.offsetWidth;
+
+      var aboutCityHeight =
+        city.offsetHeight;
+
+
+      var scaledAboutWidth =
+        aboutCityWidth *
+        scale;
+
+      var scaledAboutHeight =
+        aboutCityHeight *
+        scale;
+
+
+      // ----------------------------------------------
+      // CENTRE ABOUT CITY
+      // ----------------------------------------------
+
+      if (width < 1920) {
+
+        var aboutTargetLeft =
+          (
+            width -
+            scaledAboutWidth
+          ) / 2;
+
+
+        var aboutNaturalLeft =
+          city.offsetLeft;
+
+
+        city.style.left =
+          (
+            aboutTargetLeft -
+            aboutNaturalLeft
+          ) +
+          "px";
+      }
+
+
+      // ----------------------------------------------
+      // SCALE ABOUT CITY
+      // ----------------------------------------------
+
+      city.style.transform =
+        "scale(" +
+        scale +
+        ")";
+
+
+      // ----------------------------------------------
+      // TRANSFORM DOES NOT SHRINK LAYOUT HEIGHT
+      //
+      // Give section the city's actual visible height.
+      // ----------------------------------------------
+
+      if (section) {
+
+        section.style.height =
+          scaledAboutHeight +
+          "px";
+      }
+
+    }
+
+
+    // ====================================================
+    // HOMEPAGE CITIES
+    //
+    // KEEP EXISTING CSS ZOOM METHOD.
+    // ====================================================
+
+    else {
+
+      city.style.zoom =
+        scale;
+
+
+      // ----------------------------------------------
+      // HORIZONTAL CENTRING
+      // ----------------------------------------------
+
+      if (width < 1920) {
+
+        var cityWidth =
+          city.offsetWidth;
+
+
+        var scaledCityWidth =
+          cityWidth *
           scale;
 
 
+        var targetLeft =
+          (
+            width -
+            scaledCityWidth
+          ) / 2;
 
 
+        var naturalLeft =
+          city.offsetLeft;
 
 
-        
+        var visualCorrection =
+          targetLeft -
+          (
+            naturalLeft *
+            scale
+          );
 
-        // ====================================================
-        // HORIZONTAL CENTRING
-        //
-        // Cross-browser version.
-        //
-        // IMPORTANT:
-        // Do NOT measure the city after CSS zoom.
-        // Keep the city's own coordinate system untouched.
-        //
-        // We center using the CITY element's UNSCALED layout width.
-        // ====================================================
-        
-        city.style.left = "";
-        city.style.marginLeft = "";
-        city.style.transform = "";
-        
-        if (width < 1920) {
-        
-          var cityWidth =
-            city.offsetWidth;
-        
-          var scaledCityWidth =
-            cityWidth * scale;
-        
-        
-          // Where the scaled city should begin
-          // in viewport coordinates.
-          var targetLeft =
-            (
-              width -
-              scaledCityWidth
-            ) / 2;
-        
-        
-          // City's normal unscaled layout position
-          var naturalLeft =
-            city.offsetLeft;
-        
-        
-          // Convert visual correction back into
-          // the city's pre-zoom coordinate system.
-          var visualCorrection =
-            targetLeft -
-            (
-              naturalLeft * scale
-            );
-        
-        
-          var cityCorrection =
-            visualCorrection /
-            scale;
-        
-        
-          city.style.left =
-            cityCorrection +
-            "px";
-        
-        }
 
+        var cityCorrection =
+          visualCorrection /
+          scale;
+
+
+        city.style.left =
+          cityCorrection +
+          "px";
+      }
+
+    }
+
+
+    // ====================================================
+    // TYPOGRAPHY
+    // Keep visual font size independent from city scale
+    // ====================================================
+
+    applyCityTypography(
+      city,
+      scale
+    );
+
+  });
+
+
+  // ====================================================
+  // AFTER LAYOUT CHANGES
+  // ====================================================
+
+  requestAnimationFrame(function() {
+
+    if (window.lenis?.resize) {
+      window.lenis.resize();
+    }
+
+    if (window.ScrollTrigger) {
+      window.ScrollTrigger.refresh();
+    }
+
+  });
+
+}
 
 
 
