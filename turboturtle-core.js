@@ -2175,42 +2175,136 @@ if (exists(".home2_airship")) {
   }
 
   
-  // =============================================================
-  // HOMEPAGE SECTION 4
-  // =============================================================
-  function initHomeSection4() {
-    var pulse = q(".home4_pulse");
-    var wave = q("#home4-top-wave");
-    var section4 = q(".home_section4");
-    var section4City = q(".home_section4_city");
-    
-    if (section4 && section4City) {
-      gsap.to(section4City, {
+ // =============================================================
+// HOMEPAGE SECTION 4
+// =============================================================
+function initHomeSection4() {
+
+  var pulse =
+    q(".home4_pulse");
+
+  var wave =
+    q("#home4-top-wave");
+
+  var section4 =
+    q(".home_section4");
+
+  var section4City =
+    q(".home_section4_city");
+
+  var dotPattern =
+    q(".home4_dot_pattern");
+
+
+  // ==========================================================
+  // CITY PARALLAX
+  // ==========================================================
+
+  if (
+    section4 &&
+    section4City
+  ) {
+
+    gsap.to(
+      section4City,
+      {
         yPercent: -80,
+
         ease: "none",
+
         force3D: true,
-    
+
         scrollTrigger: {
           trigger: section4,
+
           start: "top bottom",
           end: "bottom top",
+
           scrub: 1,
+
           invalidateOnRefresh: true
         }
-      });
-    }
-  
-  if (pulse) {
-    gsap.to(pulse, {
-      y: "+=450",
-      duration: 3,
-      ease: "power3.in",
-      repeat: -1,
-      force3D: true
-    });
+      }
+    );
+
   }
-  
-    if (!wave || !MorphSVGPlugin) return;
+
+
+  // ==========================================================
+  // PULSE
+  // ==========================================================
+
+  if (pulse) {
+
+    gsap.to(
+      pulse,
+      {
+        y: "+=450",
+
+        duration: 3,
+
+        ease: "power3.in",
+
+        repeat: -1,
+
+        force3D: true
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // DOT PATTERN
+  // SCROLL UPWARD
+  // ==========================================================
+
+  if (
+    dotPattern &&
+    section4
+  ) {
+
+    gsap.fromTo(
+      dotPattern,
+
+      {
+        y: 250
+      },
+
+      {
+        y: -250,
+
+        ease: "none",
+
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: section4,
+
+          start: "top bottom",
+          end: "bottom top",
+
+          scrub: 1,
+
+          invalidateOnRefresh: true
+        }
+      }
+    );
+
+  }
+
+
+  // ==========================================================
+  // WATER WAVE
+  // ==========================================================
+
+  if (
+    !wave ||
+    !MorphSVGPlugin
+  ) {
+    return;
+  }
+
 
   var waveA =
     "M0,430 " +
@@ -2224,6 +2318,7 @@ if (exists(".home2_airship")) {
     "C3330,405 3530,425 3838,430 " +
     "L3838,485 L0,485 Z";
 
+
   var waveB =
     "M0,430 " +
     "C280,410 500,420 760,397 " +
@@ -2235,6 +2330,7 @@ if (exists(".home2_airship")) {
     "C2690,415 2870,380 3090,397 " +
     "C3350,420 3560,410 3838,430 " +
     "L3838,485 L0,485 Z";
+
 
   var waveC =
     "M0,430 " +
@@ -2248,55 +2344,44 @@ if (exists(".home2_airship")) {
     "C3330,392 3550,438 3838,430 " +
     "L3838,485 L0,485 Z";
 
+
   gsap.timeline({
     repeat: -1
   })
-  .to(wave, {
-    morphSVG: waveB,
-    duration: 3.2,
-    ease: "sine.inOut"
-  })
-  .to(wave, {
-    morphSVG: waveC,
-    duration: 3.6,
-    ease: "sine.inOut"
-  })
-  .to(wave, {
-    morphSVG: waveA,
-    duration: 3.4,
-    ease: "sine.inOut"
-  });
 
-// -------------------------------------------------------------
-// HOME 4 — DOT PATTERN
-// Moves upward while Section 4 is on screen
-// -------------------------------------------------------------
-
-if (exists(".home4_dot_pattern")) {
-
-  gsap.fromTo(
-    ".home4_dot_pattern",
-
+  .to(
+    wave,
     {
-      y: "10vh"
-    },
+      morphSVG: waveB,
 
+      duration: 3.2,
+
+      ease: "sine.inOut"
+    }
+  )
+
+  .to(
+    wave,
     {
-      y: "-20vh",
+      morphSVG: waveC,
 
-      ease: "none",
+      duration: 3.6,
 
-      scrollTrigger: {
-        trigger: ".home_section4",
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
+      ease: "sine.inOut"
+    }
+  )
+
+  .to(
+    wave,
+    {
+      morphSVG: waveA,
+
+      duration: 3.4,
+
+      ease: "sine.inOut"
     }
   );
 
-}
 }
 
   
