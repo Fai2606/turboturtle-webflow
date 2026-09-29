@@ -2003,27 +2003,70 @@ if (exists(".home2_airship")) {
 
   // -------------------------------------------------------------
   // HOME 2 — TRAIN LOOP
+  // Full right → left travel through mask
   // -------------------------------------------------------------
   
-  if (exists(".home2_train")) {
+  var train =
+    document.querySelector(".home2_train");
   
-    gsap.fromTo(
-      ".home2_train",
+  var trainMask =
+    document.querySelector(".home2_train_mask");
   
-      {
-        xPercent: 100
-      },
   
-      {
-        xPercent: -100,
+  if (train && trainMask) {
   
-        duration: 2,
-        ease: "none",
-        repeat: -1,
+    function startTrainLoop() {
   
-        force3D: true
-      }
-    );
+      gsap.killTweensOf(train);
+  
+  
+      // Clear previous GSAP movement
+      gsap.set(train, {
+        x: 0
+      });
+  
+  
+      var maskWidth =
+        trainMask.offsetWidth;
+  
+      var trainWidth =
+        train.offsetWidth;
+  
+  
+      // Start completely outside RIGHT side
+      var startX =
+        maskWidth;
+  
+  
+      // Finish completely outside LEFT side
+      var endX =
+        -trainWidth;
+  
+  
+      gsap.fromTo(
+        train,
+  
+        {
+          x: startX
+        },
+  
+        {
+          x: endX,
+  
+          duration: 14,
+  
+          ease: "none",
+  
+          repeat: -1,
+  
+          force3D: true
+        }
+      );
+  
+    }
+  
+  
+    startTrainLoop();
   
   }
     
