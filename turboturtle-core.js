@@ -2255,27 +2255,30 @@ function initHomeSection4() {
 
 
 // ==========================================================
-// HOME 4 — DOT PATTERN PARALLAX
+// HOME 4 — DOT PATTERN
+// Move vertically INSIDE the circular mask
 // ==========================================================
 
 if (dotPattern && section4) {
 
-  gsap.set(dotPattern, {
-    y: 200
-  });
+  gsap.fromTo(
+    dotPattern,
+    {
+      yPercent: 15
+    },
+    {
+      yPercent: -15,
 
-  gsap.to(dotPattern, {
-    y: -200,
-    ease: "none",
-    force3D: true,
+      ease: "none",
 
-    scrollTrigger: {
-      trigger: section4,
-      start: "top 100%",
-      end: "bottom 0%",
-      scrub: true
+      scrollTrigger: {
+        trigger: section4,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1
+      }
     }
-  });
+  );
 
 }
 
