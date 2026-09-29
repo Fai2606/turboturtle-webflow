@@ -2017,7 +2017,7 @@ if (exists(".home2_airship")) {
       {
         xPercent: -100,
   
-        duration: 12,
+        duration: 2,
         ease: "none",
         repeat: -1,
   
