@@ -4165,8 +4165,18 @@ function applyResponsiveCitySystem() {
       // SCALE
       // ------------------------------------------------
 
+      // Scale About city + compensate vertical position.
+      // transform:scale() shrinks around the top edge,
+      // so move it down by the lost height.
+      
+      var aboutVerticalCorrection =
+        aboutCityHeight *
+        (1 - scale);
+      
       city.style.transform =
-        "scale(" +
+        "translateY(" +
+        aboutVerticalCorrection +
+        "px) scale(" +
         scale +
         ")";
 
