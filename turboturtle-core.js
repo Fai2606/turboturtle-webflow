@@ -2274,7 +2274,6 @@ function initHomeSection4() {
 
   // ==========================================================
   // HOME 4 — DOT PULSE
-  // 220px → 240px → 220px
   // ==========================================================
   
   var home4Dot =
@@ -2284,10 +2283,10 @@ function initHomeSection4() {
   
     gsap.to(home4Dot, {
   
-      width: 240,
-      height: 240,
+      width: 230,
+      height: 230,
   
-      duration: 0.8,
+      duration: 0.5,
   
       ease: "sine.inOut",
   
