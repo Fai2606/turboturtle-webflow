@@ -1950,11 +1950,11 @@ if (exists(".home2_airship")) {
     ".home2_airship",
 
     {
-      x: "-12vw"
+      x: "-10vw"
     },
 
     {
-      x: "20vw",
+      x: "12vw",
 
       ease: "none",
 
