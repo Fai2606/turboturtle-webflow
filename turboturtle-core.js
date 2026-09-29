@@ -4169,17 +4169,22 @@ function applyResponsiveCitySystem() {
       // transform:scale() shrinks around the top edge,
       // so move it down by the lost height.
       
-city.style.transform =
-  "scale(" +
-  scale +
-  ")";
+      city.style.transform =
+        "scale(" +
+        scale +
+        ")";
 
 
       // Transform doesn't change layout height.
       if (section) {
-
+      
+        // Use the transformed city's REAL visible height.
+        // Removes the unscaled blank space below About city.
+        var visibleAboutHeight =
+          city.getBoundingClientRect().height;
+      
         section.style.height =
-          scaledAboutHeight +
+          visibleAboutHeight +
           "px";
       }
 
