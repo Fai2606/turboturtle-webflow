@@ -2266,6 +2266,37 @@ if (exists(".home2_airship")) {
     duration: 3.4,
     ease: "sine.inOut"
   });
+
+// -------------------------------------------------------------
+// HOME 4 — DOT PATTERN
+// Moves upward while Section 4 is on screen
+// -------------------------------------------------------------
+
+if (exists(".home4_dot_pattern")) {
+
+  gsap.fromTo(
+    ".home4_dot_pattern",
+
+    {
+      y: "10vh"
+    },
+
+    {
+      y: "-20vh",
+
+      ease: "none",
+
+      scrollTrigger: {
+        trigger: ".home_section4",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+
+}
 }
 
   
