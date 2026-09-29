@@ -923,51 +923,54 @@ if (aboutTrigger) {
   
     // ==========================================================
     // INTRO — MOON BOUNCE
+    // Starts AFTER preloader
+    // Repeats every 4 seconds
     // ==========================================================
-  
-    if (lenis) lenis.stop();
-  
-  
-    var intro = gsap.timeline({
-  
-      onComplete: function () {
-  
-        if (lenis) lenis.start();
-  
-        ScrollTrigger.refresh();
-  
-      }
-  
-    });
-  
-  
-    if (moon) {
-  
-      intro
-        .set(moon, {
-          y: 0,
-          force3D: true
-        })
-  
-        .to(moon, {
-          y: -8 * MASTER_VH,
-          duration: 0.45,
-          ease: "power2.out"
-        })
-  
-        .to(moon, {
-          y: 0,
-          duration: 0.6,
-          ease: "bounce.out"
-        });
-  
-    } else {
-  
-      intro.to({}, {
-        duration: 1
+    
+    function playMoonIntro() {
+    
+      if (!moon) return;
+    
+      gsap.killTweensOf(moon);
+    
+      gsap.set(moon, {
+        y: 0,
+        force3D: true
       });
-  
+    
+      gsap.timeline({
+        repeat: -1,
+        repeatDelay: 2.95
+      })
+    
+      .to(moon, {
+        y: -8 * MASTER_VH,
+        duration: 0.45,
+        ease: "power2.out"
+      })
+    
+      .to(moon, {
+        y: 0,
+        duration: 0.6,
+        ease: "bounce.out"
+      });
     }
+    
+    
+    function waitForPreloader() {
+    
+      if (
+        document.documentElement.classList.contains("tt-loading")
+      ) {
+        requestAnimationFrame(waitForPreloader);
+        return;
+      }
+    
+      playMoonIntro();
+    }
+    
+    
+    waitForPreloader();
   
   
     // ==========================================================
