@@ -1990,8 +1990,8 @@ gsap.utils.toArray(
 
       scrollTrigger: {
         trigger: el.parentElement,
-        start: "top 60%",
-        end: "top 30%",
+        start: "top 75%",
+        end: "top 45%",
         scrub: 1,
         invalidateOnRefresh: true
       }
