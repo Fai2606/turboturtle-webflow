@@ -1973,360 +1973,54 @@ if (exists(".home2_airship")) {
 
 
 
+
+
   // -------------------------------------------------------------
 // HOME 2 — GROW UP
-//
-// DESKTOP:
-// Original working method.
-//
-// IOS SAFARI / IOS CHROME:
-// Same individual timing, but use safe proxy triggers
-// outside the CSS-zoomed CITY.
 // -------------------------------------------------------------
 
-var growups =
-  gsap.utils.toArray(
-    ".home_section2_city .growup"
-  );
+gsap.utils.toArray(
+  ".home_section2_city .growup"
+).forEach(function(el) {
 
-var home2City =
-  document.querySelector(
-    ".home_section2_city"
-  );
+  gsap.fromTo(
+    el,
 
-var home2Section =
-  document.querySelector(
-    ".home_section2"
-  );
+    {
+      yPercent: 100
+    },
 
-var isIOS =
-  /iPhone|iPad|iPod/i.test(
-    navigator.userAgent
-  ) ||
-  (
-    navigator.platform === "MacIntel" &&
-    navigator.maxTouchPoints > 1
-  );
+    {
+      yPercent: 0,
 
+      ease: "power2.out",
 
-if (
-  growups.length &&
-  home2City &&
-  home2Section
-) {
+      scrollTrigger: {
 
+        trigger:
+          el.parentElement,
 
-  // =========================================================
-  // DESKTOP / MAC
-  // KEEP ORIGINAL WORKING LOGIC
-  // =========================================================
+        start:
+          "top 85%",
 
-  if (!isIOS) {
+        end:
+          "top 35%",
 
-    growups.forEach(function(el) {
+        scrub: 1,
 
-      gsap.fromTo(
-        el,
-
-        {
-          yPercent: 100
-        },
-
-        {
-          yPercent: 0,
-
-          ease: "power2.out",
-
-          scrollTrigger: {
-
-            trigger:
-              el.parentElement,
-
-            start:
-              "top 85%",
-
-            end:
-              "top 35%",
-
-            scrub: 1,
-
-            invalidateOnRefresh:
-              true
-
-          }
-
-        }
-      );
-
-    });
-
-  }
-
-
-  // =========================================================
-  // IOS SAFARI + IOS CHROME
-  // =========================================================
-
-  else {
-
-    if (
-      getComputedStyle(home2Section)
-        .position === "static"
-    ) {
-
-      home2Section.style.position =
-        "relative";
-
-    }
-
-
-    // ---------------------------------------------------------
-    // CITY OFFSET INSIDE SECTION
-    // ---------------------------------------------------------
-
-    function getHome2CityTop() {
-
-      var total = 0;
-
-      var current =
-        home2City;
-
-
-      while (
-        current &&
-        current !== home2Section
-      ) {
-
-        total +=
-          current.offsetTop || 0;
-
-        current =
-          current.offsetParent;
+        invalidateOnRefresh:
+          true
 
       }
 
-
-      return total;
     }
+  );
 
+});
 
-    // ---------------------------------------------------------
-    // PARENT STATIC OFFSET INSIDE CITY
-    // ---------------------------------------------------------
 
-    function getParentTopInsideCity(
-      parent
-    ) {
 
-      var total = 0;
-
-      var current =
-        parent;
-
-
-      while (
-        current &&
-        current !== home2City
-      ) {
-
-        total +=
-          current.offsetTop || 0;
-
-        current =
-          current.offsetParent;
-
-      }
-
-
-      return total;
-    }
-
-
-    // ---------------------------------------------------------
-    // EACH GROWUP GETS ITS OWN PROXY
-    // ---------------------------------------------------------
-
-    growups.forEach(function(el) {
-
-      var parent =
-        el.parentElement;
-
-      if (!parent) return;
-
-
-      // Initial position.
-      // Matches Header CSS.
-      gsap.set(
-        el,
-        {
-          yPercent: 100,
-          force3D: true
-        }
-      );
-
-
-      var proxy =
-        document.createElement("div");
-
-
-      proxy.style.position =
-        "absolute";
-
-      proxy.style.left =
-        "0px";
-
-      proxy.style.width =
-        "1px";
-
-      proxy.style.height =
-        "1px";
-
-      proxy.style.pointerEvents =
-        "none";
-
-      proxy.style.visibility =
-        "hidden";
-
-
-      home2Section.appendChild(
-        proxy
-      );
-
-
-      // -------------------------------------------------------
-      // POSITION PROXY AT THE SAME PLACE THE PARENT WOULD BE
-      // -------------------------------------------------------
-
-      function positionProxy() {
-
-        var scale =
-          parseFloat(
-            getComputedStyle(
-              home2City
-            ).zoom
-          ) || 1;
-
-
-        var staticTop =
-          getParentTopInsideCity(
-            parent
-          );
-
-
-        // Parent already has Home2 depth-parallax transform.
-        // Include its CURRENT GSAP Y when ScrollTrigger refreshes.
-
-        var parentY =
-          parseFloat(
-            gsap.getProperty(
-              parent,
-              "y"
-            )
-          ) || 0;
-
-
-        var parentYPercent =
-          parseFloat(
-            gsap.getProperty(
-              parent,
-              "yPercent"
-            )
-          ) || 0;
-
-
-        var percentY =
-          (
-            parent.offsetHeight *
-            parentYPercent
-          ) / 100;
-
-
-        proxy.style.top =
-          (
-            getHome2CityTop() +
-            (
-              staticTop +
-              parentY +
-              percentY
-            ) *
-            scale
-          ) +
-          "px";
-
-      }
-
-
-      // Position BEFORE ScrollTrigger calculates start/end.
-      positionProxy();
-
-
-      ScrollTrigger.addEventListener(
-        "refreshInit",
-        positionProxy
-      );
-
-
-      window.addEventListener(
-        "resize",
-        function() {
-
-          requestAnimationFrame(
-            function() {
-
-              positionProxy();
-
-              ScrollTrigger.refresh();
-
-            }
-          );
-
-        }
-      );
-
-
-      // -------------------------------------------------------
-      // SAME ORIGINAL ANIMATION
-      // SAME INDIVIDUAL TIMING
-      // -------------------------------------------------------
-
-      gsap.fromTo(
-        el,
-
-        {
-          yPercent: 100
-        },
-
-        {
-          yPercent: 0,
-
-          ease: "power2.out",
-
-          scrollTrigger: {
-
-            trigger:
-              proxy,
-
-            start:
-              "top 85%",
-
-            end:
-              "top 35%",
-
-            scrub: 1,
-
-            invalidateOnRefresh:
-              true
-
-          }
-
-        }
-      );
-
-    });
-
-  }
-
-}
+  
   
 
 
