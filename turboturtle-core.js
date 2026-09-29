@@ -1970,15 +1970,14 @@ if (exists(".home2_airship")) {
 
   }
   
-// -------------------------------------------------------------
+
+
+  // -------------------------------------------------------------
 // HOME 2 — GROW UP
-// iOS-safe manual scroll version
-//
-// IMPORTANT:
-// Do NOT use ScrollTrigger on elements inside CSS zoom.
+// INDIVIDUAL TIMING + IOS SAFE
 // -------------------------------------------------------------
 
-var growupElements =
+var growups =
   gsap.utils.toArray(
     ".home_section2_city .growup"
   );
@@ -1994,229 +1993,228 @@ var home2City =
   );
 
 
-// -------------------------------------------------------------
-// PREPARE
-// -------------------------------------------------------------
-
-growupElements.forEach(function(el) {
-
-  gsap.set(el, {
-    yPercent: 100,
-    force3D: true
-  });
-
-});
-
-
-// -------------------------------------------------------------
-// GET ELEMENT'S OFFSET INSIDE CITY
-// Uses offsetTop instead of broken iOS zoom geometry.
-// -------------------------------------------------------------
-
-function getGrowupOffsetInsideCity(el) {
-
-  if (
-    !el ||
-    !home2City
-  ) {
-    return 0;
-  }
-
-
-  var parent =
-    el.parentElement;
-
-  var total = 0;
-
-  var current =
-    parent;
-
-
-  while (
-    current &&
-    current !== home2City
-  ) {
-
-    total +=
-      current.offsetTop || 0;
-
-    current =
-      current.offsetParent;
-
-  }
-
-
-  return total;
-}
-
-
-// -------------------------------------------------------------
-// UPDATE GROW UP
-// -------------------------------------------------------------
-
-function updateHome2Growup() {
-
-  if (
-    !home2Section ||
-    !home2City
-  ) {
-    return;
-  }
-
-
-  var viewportHeight =
-    getRealViewportHeight();
-
-  var scrollY =
-    window.scrollY;
-
-
-  // Section itself is safe to measure.
-  var sectionDocumentTop =
-    home2Section
-      .getBoundingClientRect()
-      .top +
-    scrollY;
-
-
-  var cityScale =
-    parseFloat(
-      getComputedStyle(
-        home2City
-      ).zoom
-    ) || 1;
-
-
-  growupElements.forEach(
-    function(el) {
-
-      var parentOffset =
-        getGrowupOffsetInsideCity(el);
-
-
-      // Actual visual Y position after CITY zoom.
-      var elementDocumentTop =
-        sectionDocumentTop +
-        (
-          parentOffset *
-          cityScale
-        );
-
-
-      // Same timing as your previous:
-      //
-      // start: "top 85%"
-      // end:   "top 35%"
-
-      var startScroll =
-        elementDocumentTop -
-        (
-          viewportHeight *
-          0.85
-        );
-
-
-      var endScroll =
-        elementDocumentTop -
-        (
-          viewportHeight *
-          0.35
-        );
-
-
-      var progress =
-        (
-          scrollY -
-          startScroll
-        ) /
-        (
-          endScroll -
-          startScroll
-        );
-
-
-      progress =
-        Math.max(
-          0,
-          Math.min(
-            1,
-            progress
-          )
-        );
-
-
-      // 100% down → original position
-      var yPercent =
-        100 *
-        (
-          1 -
-          progress
-        );
-
-
-      gsap.set(
-        el,
-        {
-          yPercent: yPercent,
-          force3D: true
-        }
-      );
-
-    }
-  );
-
-}
-
-
-// -------------------------------------------------------------
-// SCROLL
-// -------------------------------------------------------------
-
-window.addEventListener(
-  "scroll",
-  updateHome2Growup,
-  {
-    passive: true
-  }
-);
-
-
 if (
-  lenis &&
-  lenis.on
+  growups.length &&
+  home2Section &&
+  home2City
 ) {
 
-  lenis.on(
-    "scroll",
-    updateHome2Growup
-  );
+  // -----------------------------------------------------------
+  // Make section safe for absolute proxy triggers
+  // -----------------------------------------------------------
 
-}
+  if (
+    getComputedStyle(home2Section).position === "static"
+  ) {
+    home2Section.style.position = "relative";
+  }
 
 
-// -------------------------------------------------------------
-// RESIZE
-// -------------------------------------------------------------
+  // -----------------------------------------------------------
+  // CITY SCALE
+  // -----------------------------------------------------------
 
-window.addEventListener(
-  "resize",
-  function() {
+  function getHome2CityScale() {
 
-    requestAnimationFrame(
-      updateHome2Growup
+    return (
+      parseFloat(
+        getComputedStyle(home2City).zoom
+      ) || 1
     );
 
   }
-);
 
 
-// -------------------------------------------------------------
-// INITIAL POSITION
-// -------------------------------------------------------------
+  // -----------------------------------------------------------
+  // CITY'S OWN TOP INSIDE SECTION
+  // -----------------------------------------------------------
 
-requestAnimationFrame(
-  updateHome2Growup
-);
+  function getCityTopInsideSection() {
+
+    var total = 0;
+    var current = home2City;
+
+    while (
+      current &&
+      current !== home2Section
+    ) {
+
+      total +=
+        current.offsetTop || 0;
+
+      current =
+        current.offsetParent;
+    }
+
+    return total;
+
+  }
+
+
+  // -----------------------------------------------------------
+  // PARENT TOP INSIDE CITY
+  // -----------------------------------------------------------
+
+  function getParentTopInsideCity(parent) {
+
+    var total = 0;
+    var current = parent;
+
+    while (
+      current &&
+      current !== home2City
+    ) {
+
+      total +=
+        current.offsetTop || 0;
+
+      current =
+        current.offsetParent;
+    }
+
+    return total;
+
+  }
+
+
+  // -----------------------------------------------------------
+  // EACH GROWUP GETS ITS OWN SAFE PROXY
+  // -----------------------------------------------------------
+
+  growups.forEach(function(el) {
+
+    var parent =
+      el.parentElement;
+
+    if (!parent) return;
+
+
+    // -----------------------------------------------
+    // Initial state
+    // Matches CSS, so no Safari flash
+    // -----------------------------------------------
+
+    gsap.set(el, {
+      yPercent: 100,
+      force3D: true
+    });
+
+
+    // -----------------------------------------------
+    // Create proxy OUTSIDE zoomed city
+    // -----------------------------------------------
+
+    var proxy =
+      document.createElement("div");
+
+    proxy.style.position =
+      "absolute";
+
+    proxy.style.left =
+      "0px";
+
+    proxy.style.width =
+      "1px";
+
+    proxy.style.height =
+      "1px";
+
+    proxy.style.pointerEvents =
+      "none";
+
+    proxy.style.visibility =
+      "hidden";
+
+    proxy.style.zIndex =
+      "-1";
+
+
+    home2Section.appendChild(proxy);
+
+
+    // -----------------------------------------------
+    // Position proxy where THIS parent visually is
+    // -----------------------------------------------
+
+    function updateProxyPosition() {
+
+      var scale =
+        getHome2CityScale();
+
+
+      var cityTop =
+        getCityTopInsideSection();
+
+
+      var parentTop =
+        getParentTopInsideCity(parent);
+
+
+      proxy.style.top =
+        (
+          cityTop +
+          parentTop * scale
+        ) +
+        "px";
+
+    }
+
+
+    updateProxyPosition();
+
+
+    // -----------------------------------------------
+    // SAME ORIGINAL INDIVIDUAL TIMING
+    // -----------------------------------------------
+
+    gsap.to(el, {
+
+      yPercent: 0,
+
+      ease: "power2.out",
+
+      scrollTrigger: {
+
+        trigger: proxy,
+
+        start: "top 85%",
+
+        end: "top 35%",
+
+        scrub: 1,
+
+        invalidateOnRefresh: true
+
+      }
+
+    });
+
+
+    // -----------------------------------------------
+    // Keep proxy correct after resize/refresh
+    // -----------------------------------------------
+
+    window.addEventListener(
+      "resize",
+      function() {
+
+        requestAnimationFrame(
+          updateProxyPosition
+        );
+
+      }
+    );
+
+
+    ScrollTrigger.addEventListener(
+      "refreshInit",
+      updateProxyPosition
+    );
+
+  });
+
+}
+  
 
 
   // -------------------------------------------------------------
