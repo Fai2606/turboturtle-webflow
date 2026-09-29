@@ -4142,23 +4142,7 @@ if (navbarWrapper) {
         city.style.zoom =
           scale;
 
-        // ====================================================
-        // ABOUT SECTION 6 — COLLAPSE LAYOUT HEIGHT WITH CITY
-        // ====================================================
-        
-        if (
-          config.city === ".about_section6_city" &&
-          section
-        ) {
-        
-          section.style.height =
-            (
-              city.offsetHeight *
-              scale
-            ) +
-            "px";
-        
-        }
+
 
 
 
