@@ -1954,7 +1954,7 @@ if (exists(".home2_airship")) {
     },
 
     {
-      x: "35vw",
+      x: "20vw",
 
       ease: "none",
 
