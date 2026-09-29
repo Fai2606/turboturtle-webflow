@@ -240,22 +240,16 @@ getBoundingClientRect: function () {
 
 // -------------------------------------------------------------
 // ABOUT US — CITY REVEALS
+// MANUAL SCROLL VERSION
 //
-// iOS Chrome/Safari safe version.
+// WHY:
+// Chrome iOS reports broken geometry for children inside
+// a CSS-zoomed city.
 //
-// IMPORTANT:
-// About city keeps the SAME CSS zoom responsive system
-// as Homepage.
+// The CITY itself still uses the SAME CSS zoom system as Homepage.
 //
-// We do NOT use the zoomed child's getBoundingClientRect()
-// as the ScrollTrigger trigger.
-//
-// Instead, one proxy trigger is positioned from:
-// about_section6 top
-// +
-// mountain's internal offset × city zoom
-//
-// This avoids the broken iOS CSS-zoom geometry.
+// We do NOT let ScrollTrigger measure .about_mountain.
+// Instead we calculate progress from about_section6 itself.
 // -------------------------------------------------------------
 
 var aboutCity =
@@ -276,40 +270,182 @@ var mountainTrigger =
 
 
 // -------------------------------------------------------------
-// GET CITY ZOOM
+// CITY REVEAL SETTINGS
 // -------------------------------------------------------------
 
-function getAboutCityScale() {
+var cityReveals = [
 
-  if (!aboutCity) return 1;
+  {
+    sel: ".about_crystal",
+    fromY: -20,
+    start: 1.20,
+    end: 0.20
+  },
 
-  var zoom =
-    parseFloat(
-      window
-        .getComputedStyle(aboutCity)
-        .zoom
-    );
+  {
+    sel: ".about_citybuilding_4",
+    fromY: 5,
+    start: 1.20,
+    end: 0.30
+  },
 
-  return zoom || 1;
+  {
+    sel: ".about_citybuilding_3",
+    fromY: 10,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citybuilding_6",
+    fromY: 15,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citybuilding_5",
+    fromY: 20,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citybuilding_2",
+    fromY: 25,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_backlayer",
+    fromY: 30,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_mountain",
+    fromY: 35,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citytree_1",
+    fromY: 80,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citytree_2",
+    fromY: 80,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citytree_3",
+    fromY: 80,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_citytree_4",
+    fromY: 50,
+    start: 1.20,
+    end: 0.30
+  },
+
+  {
+    sel: ".about_eyetower",
+    fromY: 50,
+    start: 1.10,
+    end: 0.30
+  }
+
+];
+
+
+// -------------------------------------------------------------
+// PREPARE ELEMENTS
+// -------------------------------------------------------------
+
+cityReveals.forEach(function(item) {
+
+  item.el =
+    q(item.sel);
+
+  if (!item.el) return;
+
+
+  gsap.set(
+    item.el,
+    {
+      y:
+        item.fromY *
+        getRealViewportHeight() /
+        100,
+
+      force3D: true
+    }
+  );
+
+});
+
+
+// -------------------------------------------------------------
+// GET TRUE DOCUMENT TOP
+//
+// IMPORTANT:
+// about_section6 itself is OUTSIDE the problematic
+// zoom measurement.
+//
+// We use its document position as our stable anchor.
+// -------------------------------------------------------------
+
+function getAboutSectionDocumentTop() {
+
+  if (!aboutSection) {
+    return 0;
+  }
+
+
+  return (
+    aboutSection
+      .getBoundingClientRect()
+      .top +
+    window.scrollY
+  );
+
 }
 
 
 // -------------------------------------------------------------
-// GET UNSCALED OFFSET INSIDE CITY
+// GET MOUNTAIN POSITION INSIDE CITY
+//
+// offsetTop is layout geometry and is NOT corrupted by
+// Chrome iOS CSS zoom.
+//
+// Then multiply by current city zoom.
 // -------------------------------------------------------------
 
-function getAboutOffsetInsideCity(el) {
+function getAboutMountainVisualOffset() {
 
   if (
-    !el ||
-    !aboutCity
+    !aboutCity ||
+    !mountainTrigger
   ) {
     return 0;
   }
 
 
   var total = 0;
-  var current = el;
+
+  var current =
+    mountainTrigger;
 
 
   while (
@@ -322,362 +458,189 @@ function getAboutOffsetInsideCity(el) {
 
     current =
       current.offsetParent;
+
   }
 
 
-  return total;
+  var scale =
+    parseFloat(
+      getComputedStyle(
+        aboutCity
+      ).zoom
+    ) || 1;
+
+
+  return total * scale;
+
 }
 
 
 // -------------------------------------------------------------
-// CREATE SAFE PROXY TRIGGER
+// MANUAL REVEAL UPDATE
 //
-// This proxy is NOT inside the zoomed city.
-// ScrollTrigger therefore gets normal geometry.
+// Recreates:
+//
+// start: "top 120%"
+// end:   "top 30%"
+//
+// without ScrollTrigger measuring the zoomed mountain.
 // -------------------------------------------------------------
 
-var aboutCityTriggerProxy = null;
-
-
-if (
-  aboutSection &&
-  aboutCity &&
-  mountainTrigger
-) {
-
-  aboutCityTriggerProxy =
-    document.createElement("div");
-
-
-  aboutCityTriggerProxy.setAttribute(
-    "data-about-city-trigger",
-    "true"
-  );
-
-
-  aboutCityTriggerProxy.style.position =
-    "absolute";
-
-  aboutCityTriggerProxy.style.left =
-    "0px";
-
-  aboutCityTriggerProxy.style.width =
-    "1px";
-
-  aboutCityTriggerProxy.style.height =
-    "1px";
-
-  aboutCityTriggerProxy.style.pointerEvents =
-    "none";
-
-  aboutCityTriggerProxy.style.visibility =
-    "hidden";
-
-  aboutCityTriggerProxy.style.zIndex =
-    "-1";
-
-
-  // Make sure section can contain
-  // an absolute-positioned proxy.
-  var aboutSectionPosition =
-    window
-      .getComputedStyle(aboutSection)
-      .position;
-
+function updateAboutCityReveals() {
 
   if (
-    aboutSectionPosition ===
-    "static"
+    !aboutSection ||
+    !aboutCity ||
+    !mountainTrigger
   ) {
-
-    aboutSection.style.position =
-      "relative";
+    return;
   }
 
 
-  aboutSection.appendChild(
-    aboutCityTriggerProxy
-  );
+  var viewportHeight =
+    getRealViewportHeight();
 
 
-  // -----------------------------------------------------------
-  // POSITION PROXY
-  // -----------------------------------------------------------
-
-  function positionAboutCityTrigger() {
-
-    if (
-      !aboutCityTriggerProxy ||
-      !mountainTrigger
-    ) {
-      return;
-    }
+  var scrollY =
+    window.scrollY;
 
 
-    var scale =
-      getAboutCityScale();
+  var mountainDocumentTop =
+    getAboutSectionDocumentTop() +
+    getAboutMountainVisualOffset();
 
 
-    var internalTop =
-      getAboutOffsetInsideCity(
-        mountainTrigger
+  cityReveals.forEach(
+    function(item) {
+
+      if (!item.el) return;
+
+
+      // -----------------------------------------------
+      // Equivalent ScrollTrigger positions
+      // -----------------------------------------------
+
+      var startScroll =
+        mountainDocumentTop -
+        (
+          viewportHeight *
+          item.start
+        );
+
+
+      var endScroll =
+        mountainDocumentTop -
+        (
+          viewportHeight *
+          item.end
+        );
+
+
+      var distance =
+        endScroll -
+        startScroll;
+
+
+      var progress =
+        distance !== 0
+          ? (
+              scrollY -
+              startScroll
+            ) /
+            distance
+          : 1;
+
+
+      // Clamp 0 → 1
+      progress =
+        Math.max(
+          0,
+          Math.min(
+            1,
+            progress
+          )
+        );
+
+
+      // Same visual movement as before.
+      var startY =
+        item.fromY *
+        viewportHeight /
+        100;
+
+
+      var currentY =
+        startY *
+        (
+          1 -
+          progress
+        );
+
+
+      gsap.set(
+        item.el,
+        {
+          y: currentY,
+          force3D: true
+        }
       );
 
-
-    var visualTop =
-      internalTop *
-      scale;
-
-
-    aboutCityTriggerProxy.style.top =
-      visualTop +
-      "px";
-  }
-
-
-  positionAboutCityTrigger();
-
-
-  window.addEventListener(
-    "resize",
-    function() {
-
-      requestAnimationFrame(
-        positionAboutCityTrigger
-      );
-
     }
   );
-
-
-  if (window.ScrollTrigger) {
-
-    ScrollTrigger.addEventListener(
-      "refreshInit",
-      positionAboutCityTrigger
-    );
-
-  }
 
 }
 
 
 // -------------------------------------------------------------
-// CITY REVEALS
+// UPDATE FROM REAL SCROLL
 // -------------------------------------------------------------
 
-var cityReveals = [
-
+window.addEventListener(
+  "scroll",
+  updateAboutCityReveals,
   {
-    sel: ".about_crystal",
-    from: { y: "-20vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "20%"
-  },
-
-  {
-    sel: ".about_citybuilding_4",
-    from: { y: "5vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citybuilding_3",
-    from: { y: "10vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citybuilding_6",
-    from: { y: "15vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citybuilding_5",
-    from: { y: "20vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citybuilding_2",
-    from: { y: "25vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_backlayer",
-    from: { y: "30vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_mountain",
-    from: { y: "35vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citytree_1",
-    from: { y: "80vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citytree_2",
-    from: { y: "80vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citytree_3",
-    from: { y: "80vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_citytree_4",
-    from: { y: "50vh" },
-    to: { y: "0vh" },
-    start: "120%",
-    end: "30%"
-  },
-
-  {
-    sel: ".about_eyetower",
-    from: { y: "50vh" },
-    to: { y: "0vh" },
-    start: "110%",
-    end: "30%"
+    passive: true
   }
+);
 
-];
+
+// Lenis also drives scrolling.
+// Hook directly into it as well.
+if (
+  lenis &&
+  lenis.on
+) {
+
+  lenis.on(
+    "scroll",
+    updateAboutCityReveals
+  );
+
+}
 
 
 // -------------------------------------------------------------
-// CREATE REVEAL ANIMATIONS
+// RESIZE / ORIENTATION
 // -------------------------------------------------------------
 
-cityReveals.forEach(
-  function(item) {
+window.addEventListener(
+  "resize",
+  function() {
 
-    if (!exists(item.sel)) {
-      return;
-    }
-
-
-    gsap.set(
-      item.sel,
-      Object.assign(
-        {
-          force3D: true
-        },
-        item.from
-      )
-    );
-
-
-    gsap.fromTo(
-
-      item.sel,
-
-      item.from,
-
-      Object.assign(
-        {},
-        item.to,
-        {
-
-          ease:
-            "power2.out",
-
-          immediateRender:
-            false,
-
-
-          scrollTrigger: {
-
-            // --------------------------------------------
-            // IMPORTANT:
-            //
-            // Use SAFE proxy outside zoomed city.
-            // Fall back to original trigger if needed.
-            // --------------------------------------------
-
-            trigger:
-              aboutCityTriggerProxy ||
-              mountainTrigger,
-
-
-            start:
-              "top " +
-              (
-                item.start ||
-                "120%"
-              ),
-
-
-            end:
-              "top " +
-              (
-                item.end ||
-                "40%"
-              ),
-
-
-            scrub: 1,
-
-            fastScrollEnd: true,
-
-            invalidateOnRefresh: true,
-
-
-            onToggle:
-              function(self) {
-
-                var el =
-                  q(item.sel);
-
-                if (el) {
-
-                  el.style.willChange =
-                    self.isActive
-                      ? "transform"
-                      : "auto";
-
-                }
-
-              }
-
-          }
-
-        }
-      )
-
+    requestAnimationFrame(
+      updateAboutCityReveals
     );
 
   }
+);
+
+
+// -------------------------------------------------------------
+// INITIAL POSITION
+// -------------------------------------------------------------
+
+requestAnimationFrame(
+  updateAboutCityReveals
 );
 
 // -------------------------------------------------------------
