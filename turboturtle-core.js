@@ -1974,7 +1974,13 @@ if (exists(".home2_airship")) {
 
   // -------------------------------------------------------------
 // HOME 2 — GROW UP
-// INDIVIDUAL TIMING + IOS SAFE
+// INDIVIDUAL TIMING
+// IOS SAFARI + IOS CHROME SAFE
+//
+// IMPORTANT:
+// - each growup keeps its OWN timing
+// - parent depth/parallax movement is included
+// - no ScrollTrigger measurement inside CSS zoom
 // -------------------------------------------------------------
 
 var growups =
@@ -1982,236 +1988,315 @@ var growups =
     ".home_section2_city .growup"
   );
 
-var home2Section =
-  document.querySelector(
-    ".home_section2"
-  );
-
 var home2City =
   document.querySelector(
     ".home_section2_city"
   );
 
+var home2Section =
+  document.querySelector(
+    ".home_section2"
+  );
+
 
 if (
   growups.length &&
-  home2Section &&
-  home2City
+  home2City &&
+  home2Section
 ) {
 
   // -----------------------------------------------------------
-  // Make section safe for absolute proxy triggers
+  // INITIAL STATE
+  // CSS already does this before JS loads.
+  // GSAP takes ownership once ready.
   // -----------------------------------------------------------
 
-  if (
-    getComputedStyle(home2Section).position === "static"
-  ) {
-    home2Section.style.position = "relative";
-  }
-
-
-  // -----------------------------------------------------------
-  // CITY SCALE
-  // -----------------------------------------------------------
-
-  function getHome2CityScale() {
-
-    return (
-      parseFloat(
-        getComputedStyle(home2City).zoom
-      ) || 1
-    );
-
-  }
-
-
-  // -----------------------------------------------------------
-  // CITY'S OWN TOP INSIDE SECTION
-  // -----------------------------------------------------------
-
-  function getCityTopInsideSection() {
-
-    var total = 0;
-    var current = home2City;
-
-    while (
-      current &&
-      current !== home2Section
-    ) {
-
-      total +=
-        current.offsetTop || 0;
-
-      current =
-        current.offsetParent;
+  gsap.set(
+    growups,
+    {
+      yPercent: 100,
+      force3D: true
     }
-
-    return total;
-
-  }
+  );
 
 
   // -----------------------------------------------------------
-  // PARENT TOP INSIDE CITY
+  // STATIC POSITION OF A PARENT INSIDE CITY
+  // No getBoundingClientRect() on zoomed children.
   // -----------------------------------------------------------
 
-  function getParentTopInsideCity(parent) {
+  function getHome2ParentTop(parent) {
 
-    var total = 0;
-    var current = parent;
+    var top = 0;
+
+    var current =
+      parent;
+
 
     while (
       current &&
       current !== home2City
     ) {
 
-      total +=
+      top +=
         current.offsetTop || 0;
 
       current =
         current.offsetParent;
+
     }
 
-    return total;
 
+    return top;
   }
 
 
   // -----------------------------------------------------------
-  // EACH GROWUP GETS ITS OWN SAFE PROXY
+  // CACHE EACH GROWUP'S PARENT
   // -----------------------------------------------------------
 
-  growups.forEach(function(el) {
+  var growupItems =
+    growups.map(
+      function(el) {
 
-    var parent =
-      el.parentElement;
+        return {
 
-    if (!parent) return;
+          el: el,
 
+          parent:
+            el.parentElement,
 
-    // -----------------------------------------------
-    // Initial state
-    // Matches CSS, so no Safari flash
-    // -----------------------------------------------
+          staticTop:
+            getHome2ParentTop(
+              el.parentElement
+            )
 
-    gsap.set(el, {
-      yPercent: 100,
-      force3D: true
-    });
-
-
-    // -----------------------------------------------
-    // Create proxy OUTSIDE zoomed city
-    // -----------------------------------------------
-
-    var proxy =
-      document.createElement("div");
-
-    proxy.style.position =
-      "absolute";
-
-    proxy.style.left =
-      "0px";
-
-    proxy.style.width =
-      "1px";
-
-    proxy.style.height =
-      "1px";
-
-    proxy.style.pointerEvents =
-      "none";
-
-    proxy.style.visibility =
-      "hidden";
-
-    proxy.style.zIndex =
-      "-1";
-
-
-    home2Section.appendChild(proxy);
-
-
-    // -----------------------------------------------
-    // Position proxy where THIS parent visually is
-    // -----------------------------------------------
-
-    function updateProxyPosition() {
-
-      var scale =
-        getHome2CityScale();
-
-
-      var cityTop =
-        getCityTopInsideSection();
-
-
-      var parentTop =
-        getParentTopInsideCity(parent);
-
-
-      proxy.style.top =
-        (
-          cityTop +
-          parentTop * scale
-        ) +
-        "px";
-
-    }
-
-
-    updateProxyPosition();
-
-
-    // -----------------------------------------------
-    // SAME ORIGINAL INDIVIDUAL TIMING
-    // -----------------------------------------------
-
-    gsap.to(el, {
-
-      yPercent: 0,
-
-      ease: "power2.out",
-
-      scrollTrigger: {
-
-        trigger: proxy,
-
-        start: "top 85%",
-
-        end: "top 35%",
-
-        scrub: 1,
-
-        invalidateOnRefresh: true
+        };
 
       }
+    );
 
-    });
+
+  // -----------------------------------------------------------
+  // UPDATE
+  // -----------------------------------------------------------
+
+  function updateHome2Growups() {
+
+    var viewportHeight =
+      getRealViewportHeight();
 
 
-    // -----------------------------------------------
-    // Keep proxy correct after resize/refresh
-    // -----------------------------------------------
+    var scrollY =
+      (
+        lenis &&
+        typeof lenis.scroll === "number"
+      )
+        ? lenis.scroll
+        : (
+            window.pageYOffset ||
+            0
+          );
 
-    window.addEventListener(
-      "resize",
-      function() {
 
-        requestAnimationFrame(
-          updateProxyPosition
+    // Section is OUTSIDE the CSS-zoomed city,
+    // so this measurement is reliable.
+    var sectionViewportTop =
+      home2Section
+        .getBoundingClientRect()
+        .top;
+
+
+    var cityScale =
+      parseFloat(
+        getComputedStyle(
+          home2City
+        ).zoom
+      ) || 1;
+
+
+    growupItems.forEach(
+      function(item) {
+
+        if (
+          !item.el ||
+          !item.parent
+        ) {
+          return;
+        }
+
+
+        // -----------------------------------------------------
+        // EXISTING PARENT PARALLAX
+        //
+        // This was the missing part in the previous solution.
+        // -----------------------------------------------------
+
+        var parentY =
+          parseFloat(
+            gsap.getProperty(
+              item.parent,
+              "y"
+            )
+          ) || 0;
+
+
+        var parentYPercent =
+          parseFloat(
+            gsap.getProperty(
+              item.parent,
+              "yPercent"
+            )
+          ) || 0;
+
+
+        var parentPercentY =
+          (
+            item.parent.offsetHeight *
+            parentYPercent
+          ) / 100;
+
+
+        // -----------------------------------------------------
+        // TRUE VISUAL TOP OF THIS PARENT
+        //
+        // Static design position
+        // + its current GSAP parallax
+        // × CITY zoom
+        // + Section viewport position
+        // -----------------------------------------------------
+
+        var parentViewportTop =
+          sectionViewportTop +
+          (
+            (
+              item.staticTop +
+              parentY +
+              parentPercentY
+            ) *
+            cityScale
+          );
+
+
+        // -----------------------------------------------------
+        // SAME TIMING AS YOUR ORIGINAL:
+        //
+        // START when parent top reaches 85% viewport
+        // END   when parent top reaches 35% viewport
+        // -----------------------------------------------------
+
+        var progress =
+          (
+            viewportHeight * 0.85 -
+            parentViewportTop
+          ) /
+          (
+            viewportHeight * 0.50
+          );
+
+
+        progress =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              progress
+            )
+          );
+
+
+        // power2.out
+        var eased =
+          1 -
+          Math.pow(
+            1 - progress,
+            2
+          );
+
+
+        // -----------------------------------------------------
+        // 100% DOWN → ORIGINAL POSITION
+        // -----------------------------------------------------
+
+        gsap.set(
+          item.el,
+          {
+            yPercent:
+              100 *
+              (
+                1 -
+                eased
+              ),
+
+            force3D: true
+          }
         );
 
       }
     );
 
+  }
 
-    ScrollTrigger.addEventListener(
-      "refreshInit",
-      updateProxyPosition
+
+  // -----------------------------------------------------------
+  // LENIS SCROLL
+  // -----------------------------------------------------------
+
+  if (
+    lenis &&
+    lenis.on
+  ) {
+
+    lenis.on(
+      "scroll",
+      updateHome2Growups
     );
 
-  });
+  }
+
+
+  // Native fallback
+  window.addEventListener(
+    "scroll",
+    updateHome2Growups,
+    {
+      passive: true
+    }
+  );
+
+
+  // -----------------------------------------------------------
+  // REFRESH / RESIZE
+  // -----------------------------------------------------------
+
+  ScrollTrigger.addEventListener(
+    "refresh",
+    updateHome2Growups
+  );
+
+
+  window.addEventListener(
+    "resize",
+    function() {
+
+      requestAnimationFrame(
+        updateHome2Growups
+      );
+
+    }
+  );
+
+
+  // Run after CITY zoom has had time to apply.
+  requestAnimationFrame(
+    function() {
+
+      requestAnimationFrame(
+        updateHome2Growups
+      );
+
+    }
+  );
 
 }
   
