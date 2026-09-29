@@ -2049,7 +2049,8 @@ if (exists(".home2_airship")) {
     gsap.killTweensOf(trainReverse);
   
     // LEFT → RIGHT
-    // Start completely outside left side
+    // Slower + less frequent than the other train
+  
     gsap.set(trainReverse, {
       left: 0,
       x: -trainReverse.offsetWidth
@@ -2060,11 +2061,18 @@ if (exists(".home2_airship")) {
       // Finish completely outside right side
       x: trainMask.offsetWidth,
   
-      duration: 4,
+      // Slightly slower
+      duration: 5,
   
       ease: "none",
   
       repeat: -1,
+  
+      // Wait longer between each appearance
+      repeatDelay: 3,
+  
+      // First appearance happens after faster train
+      delay: 1.5,
   
       force3D: true
   
