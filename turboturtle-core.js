@@ -2175,10 +2175,17 @@ if (exists(".home2_airship")) {
   }
 
   
- // =============================================================
+// =============================================================
 // HOMEPAGE SECTION 4
 // =============================================================
+
 function initHomeSection4() {
+
+  var section =
+    q(".home_section4");
+
+  var city =
+    q(".home_section4_city");
 
   var pulse =
     q(".home4_pulse");
@@ -2186,46 +2193,48 @@ function initHomeSection4() {
   var wave =
     q("#home4-top-wave");
 
-  var section4 =
-    q(".home_section4");
-
-  var section4City =
-    q(".home_section4_city");
-
   var dotPattern =
     q(".home4_dot_pattern");
 
 
-  // ==========================================================
-  // CITY PARALLAX
-  // ==========================================================
-
   if (
-    section4 &&
-    section4City
+    !section ||
+    !gsap ||
+    !ScrollTrigger
   ) {
+    return;
+  }
 
-    gsap.to(
-      section4City,
-      {
-        yPercent: -80,
 
-        ease: "none",
+  // ==========================================================
+  // SECTION 4 CITY PARALLAX
+  // ==========================================================
 
-        force3D: true,
+  if (city) {
 
-        scrollTrigger: {
-          trigger: section4,
+    gsap.to(city, {
 
-          start: "top bottom",
-          end: "bottom top",
+      yPercent: -80,
 
-          scrub: 1,
+      ease: "none",
 
-          invalidateOnRefresh: true
-        }
+      force3D: true,
+
+      scrollTrigger: {
+
+        trigger: section,
+
+        start: "top bottom",
+
+        end: "bottom top",
+
+        scrub: 1,
+
+        invalidateOnRefresh: true
+
       }
-    );
+
+    });
 
   }
 
@@ -2236,55 +2245,92 @@ function initHomeSection4() {
 
   if (pulse) {
 
-    gsap.to(
-      pulse,
-      {
-        y: "+=450",
+    gsap.to(pulse, {
 
-        duration: 3,
+      y: "+=450",
 
-        ease: "power3.in",
+      duration: 3,
 
-        repeat: -1,
+      ease: "power3.in",
 
-        force3D: true
-      }
-    );
+      repeat: -1,
+
+      force3D: true
+
+    });
 
   }
 
 
-// ==========================================================
-// HOME 4 — DOT PATTERN
-// Move vertically INSIDE the circular mask
-// ==========================================================
+  // ==========================================================
+  // DOT PATTERN INSIDE MASK
+  //
+  // IMPORTANT:
+  // - mask / home4_dot DOES NOT MOVE
+  // - ONLY the texture image moves
+  // - movement is based directly on Section 4 scroll progress
+  // ==========================================================
 
-if (dotPattern && section4) {
+  if (dotPattern) {
 
-  gsap.fromTo(
-    dotPattern,
-    {
-      yPercent: 15
-    },
-    {
-      yPercent: -15,
+    // Clear all the previous test transforms.
+    gsap.killTweensOf(dotPattern);
 
-      ease: "none",
+    gsap.set(dotPattern, {
+      yPercent: 0,
+      force3D: true
+    });
 
-      scrollTrigger: {
-        trigger: section4,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1
+
+    ScrollTrigger.create({
+
+      trigger: section,
+
+      start: "top bottom",
+
+      end: "bottom top",
+
+      scrub: true,
+
+      invalidateOnRefresh: true,
+
+
+      onUpdate: function(self) {
+
+        // 0 at beginning
+        // 1 at end
+        var progress =
+          self.progress;
+
+
+        // Move texture from +10% to -10%
+        //
+        // TOTAL TRAVEL = 20% of the texture's own height.
+        //
+        // Circle/mask stays completely stationary.
+
+        var moveY =
+          10 -
+          (progress * 20);
+
+
+        gsap.set(
+          dotPattern,
+          {
+            yPercent: moveY,
+            force3D: true
+          }
+        );
+
       }
-    }
-  );
 
-}
+    });
+
+  }
 
 
   // ==========================================================
-  // WATER WAVE
+  // WAVE
   // ==========================================================
 
   if (
@@ -2338,38 +2384,35 @@ if (dotPattern && section4) {
     repeat: -1
   })
 
-  .to(
-    wave,
-    {
-      morphSVG: waveB,
+  .to(wave, {
 
-      duration: 3.2,
+    morphSVG: waveB,
 
-      ease: "sine.inOut"
-    }
-  )
+    duration: 3.2,
 
-  .to(
-    wave,
-    {
-      morphSVG: waveC,
+    ease: "sine.inOut"
 
-      duration: 3.6,
+  })
 
-      ease: "sine.inOut"
-    }
-  )
+  .to(wave, {
 
-  .to(
-    wave,
-    {
-      morphSVG: waveA,
+    morphSVG: waveC,
 
-      duration: 3.4,
+    duration: 3.6,
 
-      ease: "sine.inOut"
-    }
-  );
+    ease: "sine.inOut"
+
+  })
+
+  .to(wave, {
+
+    morphSVG: waveA,
+
+    duration: 3.4,
+
+    ease: "sine.inOut"
+
+  });
 
 }
 
