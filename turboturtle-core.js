@@ -1800,7 +1800,7 @@ function initHomeSection2() {
 
     {
       targets:
-        ".home2_bridge, .home2_building2, .home2_statue",
+        ".home2_bridge, .home2_bridgebuilding, .home2_building2, .home2_statue",
 
       travel: 45
     },
