@@ -645,78 +645,270 @@ requestAnimationFrame(
 
 // -------------------------------------------------------------
 // ABOUT US — Character / Rocket Reveals
-// ONE shared trigger: .about_trigger
+//
+// SAFE VERSION FOR IOS CHROME:
+//
+// Keep .about_trigger as the design trigger,
+// but DO NOT let ScrollTrigger measure it directly
+// inside the CSS-zoomed city.
+//
+// Instead calculate its visual position from
+// about_section6 + internal offset × city zoom.
 // -------------------------------------------------------------
 
-var aboutTrigger = q(".about_trigger");
+var aboutTrigger =
+  q(".about_trigger");
+
+var aboutTriggerProxy = null;
+
+
+// -------------------------------------------------------------
+// CREATE SAFE TRIGGER PROXY
+// -------------------------------------------------------------
+
+if (
+  aboutTrigger &&
+  aboutSection &&
+  aboutCity
+) {
+
+  aboutTriggerProxy =
+    document.createElement("div");
+
+
+  aboutTriggerProxy.setAttribute(
+    "data-about-launch-trigger",
+    "true"
+  );
+
+
+  aboutTriggerProxy.style.position =
+    "absolute";
+
+  aboutTriggerProxy.style.left =
+    "0px";
+
+  aboutTriggerProxy.style.width =
+    "1px";
+
+  aboutTriggerProxy.style.height =
+    "1px";
+
+  aboutTriggerProxy.style.pointerEvents =
+    "none";
+
+  aboutTriggerProxy.style.visibility =
+    "hidden";
+
+  aboutTriggerProxy.style.zIndex =
+    "-1";
+
+
+  // Make sure Section 6 can contain the proxy.
+
+  if (
+    getComputedStyle(aboutSection)
+      .position === "static"
+  ) {
+
+    aboutSection.style.position =
+      "relative";
+  }
+
+
+  aboutSection.appendChild(
+    aboutTriggerProxy
+  );
+
+
+  // -----------------------------------------------------------
+  // GET TRIGGER OFFSET INSIDE CITY
+  // -----------------------------------------------------------
+
+  function getAboutTriggerOffset() {
+
+    var total = 0;
+
+    var current =
+      aboutTrigger;
+
+
+    while (
+      current &&
+      current !== aboutCity
+    ) {
+
+      total +=
+        current.offsetTop || 0;
+
+      current =
+        current.offsetParent;
+    }
+
+
+    return total;
+  }
+
+
+  // -----------------------------------------------------------
+  // POSITION SAFE PROXY
+  // -----------------------------------------------------------
+
+  function positionAboutLaunchTrigger() {
+
+    if (
+      !aboutTriggerProxy ||
+      !aboutTrigger
+    ) {
+      return;
+    }
+
+
+    var scale =
+      parseFloat(
+        getComputedStyle(
+          aboutCity
+        ).zoom
+      ) || 1;
+
+
+    var visualTop =
+      getAboutTriggerOffset() *
+      scale;
+
+
+    aboutTriggerProxy.style.top =
+      visualTop + "px";
+  }
+
+
+  positionAboutLaunchTrigger();
+
+
+  window.addEventListener(
+    "resize",
+    function () {
+
+      requestAnimationFrame(
+        positionAboutLaunchTrigger
+      );
+
+    }
+  );
+
+
+  ScrollTrigger.addEventListener(
+    "refreshInit",
+    positionAboutLaunchTrigger
+  );
+
+}
+
+
+// -------------------------------------------------------------
+// CHARACTER / ROCKET REVEALS
+// -------------------------------------------------------------
 
 var launchTargets = [
+
   {
     sel: ".about_cityqueen",
     from: { y: "35vh" }
   },
+
   {
     sel: ".about_doggod",
     from: { x: 100 }
   },
+
   {
     sel: ".about_frog",
     from: { y: "15vh" }
   },
+
   {
     sel: ".about_violincat",
     from: { x: "3vw" }
   },
+
   {
     sel: ".about_cityrocket",
     from: { y: "30vh" }
   },
+
   {
     sel: ".about_cityrocket_2",
     from: { y: "20vh" }
   }
+
 ];
 
-if (aboutTrigger) {
 
-  launchTargets.forEach(function(item) {
+if (
+  aboutTrigger &&
+  aboutTriggerProxy
+) {
 
-    var el = q(item.sel);
-    if (!el) return;
+  launchTargets.forEach(
+    function(item) {
 
-    // Put object in starting position immediately.
-    // Prevents the mobile flash.
-    gsap.set(
-      el,
-      Object.assign(
+      var el =
+        q(item.sel);
+
+      if (!el) return;
+
+
+      // Starting position
+
+      gsap.set(
+        el,
+        Object.assign(
+          {
+            force3D: true
+          },
+          item.from
+        )
+      );
+
+
+      // Animate back to Webflow position
+
+      gsap.to(
+        el,
         {
-          force3D: true
-        },
-        item.from
-      )
-    );
+          x: 0,
+          y: 0,
 
-    // Animate back to its Webflow position.
-    gsap.to(el, {
-      x: 0,
-      y: 0,
+          duration: 1,
 
-      duration: 1,
-      ease: "power3.out",
-      force3D: true,
+          ease:
+            "power3.out",
 
-      scrollTrigger: {
-        trigger: aboutTrigger,
-        start: "top 80%",
-        toggleActions: "play none none reverse",
-        invalidateOnRefresh: true
-      }
-    });
+          force3D: true,
 
-  });
+          scrollTrigger: {
+
+            // IMPORTANT:
+            // safe non-zoomed proxy
+            trigger:
+              aboutTriggerProxy,
+
+            start:
+              "top 80%",
+
+            toggleActions:
+              "play none none reverse",
+
+            invalidateOnRefresh:
+              true
+          }
+        }
+      );
+
+    }
+  );
 
 }
-
       // -------------------------------------------------------------
       // HIGHLIGHT
       // -------------------------------------------------------------
