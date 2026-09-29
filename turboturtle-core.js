@@ -4169,16 +4169,10 @@ function applyResponsiveCitySystem() {
       // transform:scale() shrinks around the top edge,
       // so move it down by the lost height.
       
-      var aboutVerticalCorrection =
-        aboutCityHeight *
-        (1 - scale);
-      
-      city.style.transform =
-        "translateY(" +
-        aboutVerticalCorrection +
-        "px) scale(" +
-        scale +
-        ")";
+city.style.transform =
+  "scale(" +
+  scale +
+  ")";
 
 
       // Transform doesn't change layout height.
