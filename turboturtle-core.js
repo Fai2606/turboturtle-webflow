@@ -1968,39 +1968,69 @@ if (exists(".home2_airship")) {
     }
   );
 
-}
-
-// -------------------------------------------------------------
-// HOME 2 — GROW UP
-// Add class "growup" to child images/elements
-// -------------------------------------------------------------
-
-gsap.utils.toArray(
-  ".home_section2_city .growup"
-).forEach(function(el) {
-
-  gsap.fromTo(
-    el,
-    {
-      yPercent: 100
-    },
-    {
-      yPercent: 0,
-      ease: "power2.out",
-
-      scrollTrigger: {
-        trigger: el.parentElement,
-        start: "top 85%",
-        end: "top 35%",
-        scrub: 1,
-        invalidateOnRefresh: true
+  }
+  
+  // -------------------------------------------------------------
+  // HOME 2 — GROW UP
+  // Add class "growup" to child images/elements
+  // -------------------------------------------------------------
+  
+  gsap.utils.toArray(
+    ".home_section2_city .growup"
+  ).forEach(function(el) {
+  
+    gsap.fromTo(
+      el,
+      {
+        yPercent: 100
+      },
+      {
+        yPercent: 0,
+        ease: "power2.out",
+  
+        scrollTrigger: {
+          trigger: el.parentElement,
+          start: "top 85%",
+          end: "top 35%",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
       }
-    }
-  );
+    );
+  
+  });
 
-});
 
-}
+  // -------------------------------------------------------------
+  // HOME 2 — TRAIN LOOP
+  // -------------------------------------------------------------
+  
+  if (exists(".home2_train")) {
+  
+    gsap.fromTo(
+      ".home2_train",
+  
+      {
+        xPercent: 100
+      },
+  
+      {
+        xPercent: -100,
+  
+        duration: 12,
+        ease: "none",
+        repeat: -1,
+  
+        force3D: true
+      }
+    );
+  
+  }
+    
+  
+  } // End
+
+  
   
   // =============================================================
   // HOMEPAGE SECTION 3
