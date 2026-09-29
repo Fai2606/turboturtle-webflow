@@ -2193,9 +2193,6 @@ function initHomeSection4() {
   var wave =
     q("#home4-top-wave");
 
-  var dotPattern =
-    q(".home4_dot_pattern");
-
 
   if (
     !section ||
@@ -2207,7 +2204,7 @@ function initHomeSection4() {
 
 
   // ==========================================================
-  // SECTION 4 CITY PARALLAX
+  // SECTION 4 CITY
   // ==========================================================
 
   if (city) {
@@ -2240,6 +2237,42 @@ function initHomeSection4() {
 
 
   // ==========================================================
+  // DOT PATTERN
+  //
+  // SAME SIMPLE METHOD AS HOME3_LION
+  // ==========================================================
+
+  tweenIf(
+    ".home4_dot_pattern",
+    {
+
+      y: function () {
+        return -35 * vh;
+      },
+
+      ease: "none",
+
+      force3D: true,
+
+      scrollTrigger: {
+
+        trigger: section,
+
+        start: "top bottom",
+
+        end: "bottom top",
+
+        scrub: 1,
+
+        invalidateOnRefresh: true
+
+      }
+
+    }
+  );
+
+
+  // ==========================================================
   // PULSE
   // ==========================================================
 
@@ -2256,73 +2289,6 @@ function initHomeSection4() {
       repeat: -1,
 
       force3D: true
-
-    });
-
-  }
-
-
-  // ==========================================================
-  // DOT PATTERN INSIDE MASK
-  //
-  // IMPORTANT:
-  // - mask / home4_dot DOES NOT MOVE
-  // - ONLY the texture image moves
-  // - movement is based directly on Section 4 scroll progress
-  // ==========================================================
-
-  if (dotPattern) {
-
-    // Clear all the previous test transforms.
-    gsap.killTweensOf(dotPattern);
-
-    gsap.set(dotPattern, {
-      yPercent: 0,
-      force3D: true
-    });
-
-
-    ScrollTrigger.create({
-
-      trigger: section,
-
-      start: "top bottom",
-
-      end: "bottom top",
-
-      scrub: true,
-
-      invalidateOnRefresh: true,
-
-
-      onUpdate: function(self) {
-
-        // 0 at beginning
-        // 1 at end
-        var progress =
-          self.progress;
-
-
-        // Move texture from +10% to -10%
-        //
-        // TOTAL TRAVEL = 20% of the texture's own height.
-        //
-        // Circle/mask stays completely stationary.
-
-        var moveY =
-          10 -
-          (progress * 20);
-
-
-        gsap.set(
-          dotPattern,
-          {
-            yPercent: moveY,
-            force3D: true
-          }
-        );
-
-      }
 
     });
 
