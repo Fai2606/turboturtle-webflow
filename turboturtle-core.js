@@ -1971,10 +1971,17 @@ if (exists(".home2_airship")) {
   }
   
 
+
+
   // -------------------------------------------------------------
 // HOME 2 — GROW UP
-// INDIVIDUAL TIMING
-// DESKTOP + IOS SAFARI + IOS CHROME
+//
+// DESKTOP:
+// Original working method.
+//
+// IOS SAFARI / IOS CHROME:
+// Same individual timing, but use safe proxy triggers
+// outside the CSS-zoomed CITY.
 // -------------------------------------------------------------
 
 var growups =
@@ -1992,6 +1999,15 @@ var home2Section =
     ".home_section2"
   );
 
+var isIOS =
+  /iPhone|iPad|iPod/i.test(
+    navigator.userAgent
+  ) ||
+  (
+    navigator.platform === "MacIntel" &&
+    navigator.maxTouchPoints > 1
+  );
+
 
 if (
   growups.length &&
@@ -1999,117 +2015,211 @@ if (
   home2Section
 ) {
 
-  // -----------------------------------------------------------
-  // INITIAL STATE
-  // CSS already starts them here before JS loads.
-  // -----------------------------------------------------------
 
-  gsap.set(
-    growups,
-    {
-      yPercent: 100,
-      force3D: true
-    }
-  );
+  // =========================================================
+  // DESKTOP / MAC
+  // KEEP ORIGINAL WORKING LOGIC
+  // =========================================================
 
+  if (!isIOS) {
 
-  // -----------------------------------------------------------
-  // STATIC TOP INSIDE CITY
-  // -----------------------------------------------------------
+    growups.forEach(function(el) {
 
-  function getGrowupStaticTop(parent) {
+      gsap.fromTo(
+        el,
 
-    var total = 0;
+        {
+          yPercent: 100
+        },
 
-    var current =
-      parent;
+        {
+          yPercent: 0,
 
+          ease: "power2.out",
 
-    while (
-      current &&
-      current !== home2City
-    ) {
+          scrollTrigger: {
 
-      total +=
-        current.offsetTop || 0;
+            trigger:
+              el.parentElement,
 
-      current =
-        current.offsetParent;
+            start:
+              "top 85%",
 
-    }
+            end:
+              "top 35%",
 
+            scrub: 1,
 
-    return total;
+            invalidateOnRefresh:
+              true
+
+          }
+
+        }
+      );
+
+    });
+
   }
 
 
-  // -----------------------------------------------------------
-  // ITEMS
-  // -----------------------------------------------------------
+  // =========================================================
+  // IOS SAFARI + IOS CHROME
+  // =========================================================
 
-  var growupItems =
-    growups.map(
-      function(el) {
+  else {
 
-        return {
+    if (
+      getComputedStyle(home2Section)
+        .position === "static"
+    ) {
 
-          el: el,
+      home2Section.style.position =
+        "relative";
 
-          parent:
-            el.parentElement
+    }
 
-        };
+
+    // ---------------------------------------------------------
+    // CITY OFFSET INSIDE SECTION
+    // ---------------------------------------------------------
+
+    function getHome2CityTop() {
+
+      var total = 0;
+
+      var current =
+        home2City;
+
+
+      while (
+        current &&
+        current !== home2Section
+      ) {
+
+        total +=
+          current.offsetTop || 0;
+
+        current =
+          current.offsetParent;
 
       }
-    );
 
 
-  // -----------------------------------------------------------
-  // UPDATE
-  //
-  // IMPORTANT:
-  // Runs on GSAP ticker AFTER the parent parallax updates.
-  // -----------------------------------------------------------
-
-  function updateHome2Growups() {
-
-    var viewportHeight =
-      getRealViewportHeight();
+      return total;
+    }
 
 
-    var sectionTop =
-      home2Section
-        .getBoundingClientRect()
-        .top;
+    // ---------------------------------------------------------
+    // PARENT STATIC OFFSET INSIDE CITY
+    // ---------------------------------------------------------
+
+    function getParentTopInsideCity(
+      parent
+    ) {
+
+      var total = 0;
+
+      var current =
+        parent;
 
 
-    var cityScale =
-      parseFloat(
-        getComputedStyle(
-          home2City
-        ).zoom
-      ) || 1;
+      while (
+        current &&
+        current !== home2City
+      ) {
+
+        total +=
+          current.offsetTop || 0;
+
+        current =
+          current.offsetParent;
+
+      }
 
 
-    growupItems.forEach(
-      function(item) {
+      return total;
+    }
 
-        if (
-          !item.el ||
-          !item.parent
-        ) {
-          return;
+
+    // ---------------------------------------------------------
+    // EACH GROWUP GETS ITS OWN PROXY
+    // ---------------------------------------------------------
+
+    growups.forEach(function(el) {
+
+      var parent =
+        el.parentElement;
+
+      if (!parent) return;
+
+
+      // Initial position.
+      // Matches Header CSS.
+      gsap.set(
+        el,
+        {
+          yPercent: 100,
+          force3D: true
         }
+      );
 
 
-        // -----------------------------------------------
-        // Parent's CURRENT GSAP movement
-        // -----------------------------------------------
+      var proxy =
+        document.createElement("div");
+
+
+      proxy.style.position =
+        "absolute";
+
+      proxy.style.left =
+        "0px";
+
+      proxy.style.width =
+        "1px";
+
+      proxy.style.height =
+        "1px";
+
+      proxy.style.pointerEvents =
+        "none";
+
+      proxy.style.visibility =
+        "hidden";
+
+
+      home2Section.appendChild(
+        proxy
+      );
+
+
+      // -------------------------------------------------------
+      // POSITION PROXY AT THE SAME PLACE THE PARENT WOULD BE
+      // -------------------------------------------------------
+
+      function positionProxy() {
+
+        var scale =
+          parseFloat(
+            getComputedStyle(
+              home2City
+            ).zoom
+          ) || 1;
+
+
+        var staticTop =
+          getParentTopInsideCity(
+            parent
+          );
+
+
+        // Parent already has Home2 depth-parallax transform.
+        // Include its CURRENT GSAP Y when ScrollTrigger refreshes.
 
         var parentY =
           parseFloat(
             gsap.getProperty(
-              item.parent,
+              parent,
               "y"
             )
           ) || 0;
@@ -2118,125 +2228,106 @@ if (
         var parentYPercent =
           parseFloat(
             gsap.getProperty(
-              item.parent,
+              parent,
               "yPercent"
             )
           ) || 0;
 
 
-        var parentPercentY =
+        var percentY =
           (
-            item.parent.offsetHeight *
+            parent.offsetHeight *
             parentYPercent
           ) / 100;
 
 
-        // -----------------------------------------------
-        // Parent's static Webflow position
-        // -----------------------------------------------
-
-        var staticTop =
-          getGrowupStaticTop(
-            item.parent
-          );
-
-
-        // -----------------------------------------------
-        // REAL VISUAL TOP
-        //
-        // Your console test proved this formula
-        // matches browser geometry within ~0.1px.
-        // -----------------------------------------------
-
-        var parentTop =
-          sectionTop +
+        proxy.style.top =
           (
+            getHome2CityTop() +
             (
               staticTop +
               parentY +
-              parentPercentY
+              percentY
             ) *
-            cityScale
-          );
-
-
-        // -----------------------------------------------
-        // INDIVIDUAL TIMING
-        //
-        // Start = parent reaches 85% viewport
-        // End   = parent reaches 35% viewport
-        // -----------------------------------------------
-
-        var progress =
-          (
-            viewportHeight * 0.85 -
-            parentTop
-          ) /
-          (
-            viewportHeight * 0.50
-          );
-
-
-        progress =
-          Math.max(
-            0,
-            Math.min(
-              1,
-              progress
-            )
-          );
-
-
-        // power2.out
-        var eased =
-          1 -
-          Math.pow(
-            1 - progress,
-            2
-          );
-
-
-        // -----------------------------------------------
-        // 100% DOWN → NORMAL POSITION
-        // -----------------------------------------------
-
-        gsap.set(
-          item.el,
-          {
-            yPercent:
-              100 *
-              (
-                1 -
-                eased
-              ),
-
-            force3D: true
-          }
-        );
+            scale
+          ) +
+          "px";
 
       }
-    );
+
+
+      // Position BEFORE ScrollTrigger calculates start/end.
+      positionProxy();
+
+
+      ScrollTrigger.addEventListener(
+        "refreshInit",
+        positionProxy
+      );
+
+
+      window.addEventListener(
+        "resize",
+        function() {
+
+          requestAnimationFrame(
+            function() {
+
+              positionProxy();
+
+              ScrollTrigger.refresh();
+
+            }
+          );
+
+        }
+      );
+
+
+      // -------------------------------------------------------
+      // SAME ORIGINAL ANIMATION
+      // SAME INDIVIDUAL TIMING
+      // -------------------------------------------------------
+
+      gsap.fromTo(
+        el,
+
+        {
+          yPercent: 100
+        },
+
+        {
+          yPercent: 0,
+
+          ease: "power2.out",
+
+          scrollTrigger: {
+
+            trigger:
+              proxy,
+
+            start:
+              "top 85%",
+
+            end:
+              "top 35%",
+
+            scrub: 1,
+
+            invalidateOnRefresh:
+              true
+
+          }
+
+        }
+      );
+
+    });
 
   }
 
-
-  // -----------------------------------------------------------
-  // RUN EVERY GSAP FRAME
-  //
-  // Lenis + ScrollTrigger were registered earlier,
-  // so parent parallax updates first.
-  // Grow Up reads their CURRENT position afterward.
-  // -----------------------------------------------------------
-
-  gsap.ticker.add(
-    updateHome2Growups
-  );
-
-
-  // First update immediately
-  updateHome2Growups();
-
 }
+  
 
 
 
