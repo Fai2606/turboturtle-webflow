@@ -1986,11 +1986,11 @@ gsap.utils.toArray(
     },
     {
       yPercent: 0,
-      ease: "power3.out",
+      ease: "power2.out",
 
       scrollTrigger: {
         trigger: el.parentElement,
-        start: "top 50%",
+        start: "top 60%",
         end: "top 30%",
         scrub: 1,
         invalidateOnRefresh: true
