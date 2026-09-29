@@ -2254,44 +2254,30 @@ function initHomeSection4() {
   }
 
 
-  // ==========================================================
-  // DOT PATTERN
-  // SCROLL UPWARD
-  // ==========================================================
+// ==========================================================
+// HOME 4 — DOT PATTERN PARALLAX
+// ==========================================================
 
-  if (
-    dotPattern &&
-    section4
-  ) {
+if (dotPattern && section4) {
 
-    gsap.fromTo(
-      dotPattern,
+  gsap.set(dotPattern, {
+    y: 200
+  });
 
-      {
-        y: 50
-      },
+  gsap.to(dotPattern, {
+    y: -200,
+    ease: "none",
+    force3D: true,
 
-      {
-        y: -50,
+    scrollTrigger: {
+      trigger: section4,
+      start: "top 100%",
+      end: "bottom 0%",
+      scrub: true
+    }
+  });
 
-        ease: "none",
-
-        force3D: true,
-
-        scrollTrigger: {
-          trigger: section4,
-
-          start: "top bottom",
-          end: "bottom top",
-
-          scrub: 1,
-
-          invalidateOnRefresh: true
-        }
-      }
-    );
-
-  }
+}
 
 
   // ==========================================================
