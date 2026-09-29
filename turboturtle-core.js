@@ -1990,8 +1990,8 @@ if (exists(".home2_airship")) {
   
         scrollTrigger: {
           trigger: el.parentElement,
-          start: "top 85%",
-          end: "top 35%",
+          start: "top 90%",
+          end: "top 45%",
           scrub: 1,
           invalidateOnRefresh: true
         }
