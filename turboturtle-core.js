@@ -1938,6 +1938,38 @@ function initHomeSection2() {
     }
   );
 
+
+// -------------------------------------------------------------
+// HOME 2 — AIRSHIP
+// Slowly travels left → right while scrolling
+// -------------------------------------------------------------
+
+if (exists(".home2_airship")) {
+
+  gsap.fromTo(
+    ".home2_airship",
+
+    {
+      x: "-12vw"
+    },
+
+    {
+      x: "35vw",
+
+      ease: "none",
+
+      scrollTrigger: {
+        trigger: ".home_section2",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 2,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+
+}
+
 }
   
   // =============================================================
