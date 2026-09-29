@@ -2002,12 +2002,15 @@ if (exists(".home2_airship")) {
 
 
   // -------------------------------------------------------------
-  // HOME 2 — TRAIN LOOP
-  // Continuous right → left
+  // HOME 2 — TRAINS
+  // Two trains travelling in opposite directions
   // -------------------------------------------------------------
   
   var train =
     document.querySelector(".home2_train");
+  
+  var trainReverse =
+    document.querySelector(".home2_train_reverse");
   
   var trainMask =
     document.querySelector(".home2_train_mask");
@@ -2017,25 +2020,47 @@ if (exists(".home2_airship")) {
   
     gsap.killTweensOf(train);
   
-  
-    // Train begins just outside RIGHT edge of mask
-    // and finishes just outside LEFT edge.
-    //
-    // xPercent is based on train width,
-    // while left/right positioning is handled by CSS.
-  
+    // RIGHT → LEFT
     gsap.set(train, {
       left: "100%",
-      xPercent: 0
+      x: 0
     });
-  
   
     gsap.to(train, {
   
       x:
         -(trainMask.offsetWidth + train.offsetWidth),
   
-      duration: 8,
+      duration: 4,
+  
+      ease: "none",
+  
+      repeat: -1,
+  
+      force3D: true
+  
+    });
+  
+  }
+  
+  
+  if (trainReverse && trainMask) {
+  
+    gsap.killTweensOf(trainReverse);
+  
+    // LEFT → RIGHT
+    // Start completely outside left side
+    gsap.set(trainReverse, {
+      left: 0,
+      x: -trainReverse.offsetWidth
+    });
+  
+    gsap.to(trainReverse, {
+  
+      // Finish completely outside right side
+      x: trainMask.offsetWidth,
+  
+      duration: 4,
   
       ease: "none",
   
