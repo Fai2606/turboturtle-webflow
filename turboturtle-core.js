@@ -238,53 +238,447 @@ getBoundingClientRect: function () {
         );
       }
 
-      // -------------------------------------------------------------
-      // ABOUT US — CITY REVEALS
-      // -------------------------------------------------------------
-      var mountainTrigger = exists(".about_mountain") ? ".about_mountain" : ".about_bottom_area";
+// -------------------------------------------------------------
+// ABOUT US — CITY REVEALS
+//
+// iOS Chrome/Safari safe version.
+//
+// IMPORTANT:
+// About city keeps the SAME CSS zoom responsive system
+// as Homepage.
+//
+// We do NOT use the zoomed child's getBoundingClientRect()
+// as the ScrollTrigger trigger.
+//
+// Instead, one proxy trigger is positioned from:
+// about_section6 top
+// +
+// mountain's internal offset × city zoom
+//
+// This avoids the broken iOS CSS-zoom geometry.
+// -------------------------------------------------------------
 
-      var cityReveals = [
-        { sel: ".about_crystal", from: { y: "-20vh" }, to: { y: "0vh" }, start: "120%", end: "20%" },
-        { sel: ".about_citybuilding_4", from: { y: "5vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citybuilding_3", from: { y: "10vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citybuilding_6", from: { y: "15vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citybuilding_5", from: { y: "20vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citybuilding_2", from: { y: "25vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_backlayer", from: { y: "30vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_mountain", from: { y: "35vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citytree_1", from: { y: "80vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citytree_2", from: { y: "80vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citytree_3", from: { y: "80vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_citytree_4", from: { y: "50vh" }, to: { y: "0vh" }, start: "120%", end: "30%" },
-        { sel: ".about_eyetower", from: { y: "50vh" }, to: { y: "0vh" }, start: "110%", end: "30%" }
-      ];
+var aboutCity =
+  q(".about_section6_city");
 
-      cityReveals.forEach(function (item) {
-        if (!exists(item.sel)) return;
+var aboutSection =
+  q(".about_section6");
 
-        gsap.set(item.sel, Object.assign({ force3D: true }, item.from));
+var aboutMountain =
+  q(".about_mountain");
 
-        gsap.fromTo(
-          item.sel,
-          item.from,
-          Object.assign({}, item.to, {
-            ease: "power2.out",
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: mountainTrigger,
-              start: "top " + (item.start || "120%"),
-              end: "top " + (item.end || "40%"),
-              scrub: 1,
-              fastScrollEnd: true,
-              invalidateOnRefresh: true,
-              onToggle: function (self) {
-                var el = q(item.sel);
-                if (el) el.style.willChange = self.isActive ? "transform" : "auto";
+var aboutBottomArea =
+  q(".about_bottom_area");
+
+var mountainTrigger =
+  aboutMountain ||
+  aboutBottomArea;
+
+
+// -------------------------------------------------------------
+// GET CITY ZOOM
+// -------------------------------------------------------------
+
+function getAboutCityScale() {
+
+  if (!aboutCity) return 1;
+
+  var zoom =
+    parseFloat(
+      window
+        .getComputedStyle(aboutCity)
+        .zoom
+    );
+
+  return zoom || 1;
+}
+
+
+// -------------------------------------------------------------
+// GET UNSCALED OFFSET INSIDE CITY
+// -------------------------------------------------------------
+
+function getAboutOffsetInsideCity(el) {
+
+  if (
+    !el ||
+    !aboutCity
+  ) {
+    return 0;
+  }
+
+
+  var total = 0;
+  var current = el;
+
+
+  while (
+    current &&
+    current !== aboutCity
+  ) {
+
+    total +=
+      current.offsetTop || 0;
+
+    current =
+      current.offsetParent;
+  }
+
+
+  return total;
+}
+
+
+// -------------------------------------------------------------
+// CREATE SAFE PROXY TRIGGER
+//
+// This proxy is NOT inside the zoomed city.
+// ScrollTrigger therefore gets normal geometry.
+// -------------------------------------------------------------
+
+var aboutCityTriggerProxy = null;
+
+
+if (
+  aboutSection &&
+  aboutCity &&
+  mountainTrigger
+) {
+
+  aboutCityTriggerProxy =
+    document.createElement("div");
+
+
+  aboutCityTriggerProxy.setAttribute(
+    "data-about-city-trigger",
+    "true"
+  );
+
+
+  aboutCityTriggerProxy.style.position =
+    "absolute";
+
+  aboutCityTriggerProxy.style.left =
+    "0px";
+
+  aboutCityTriggerProxy.style.width =
+    "1px";
+
+  aboutCityTriggerProxy.style.height =
+    "1px";
+
+  aboutCityTriggerProxy.style.pointerEvents =
+    "none";
+
+  aboutCityTriggerProxy.style.visibility =
+    "hidden";
+
+  aboutCityTriggerProxy.style.zIndex =
+    "-1";
+
+
+  // Make sure section can contain
+  // an absolute-positioned proxy.
+  var aboutSectionPosition =
+    window
+      .getComputedStyle(aboutSection)
+      .position;
+
+
+  if (
+    aboutSectionPosition ===
+    "static"
+  ) {
+
+    aboutSection.style.position =
+      "relative";
+  }
+
+
+  aboutSection.appendChild(
+    aboutCityTriggerProxy
+  );
+
+
+  // -----------------------------------------------------------
+  // POSITION PROXY
+  // -----------------------------------------------------------
+
+  function positionAboutCityTrigger() {
+
+    if (
+      !aboutCityTriggerProxy ||
+      !mountainTrigger
+    ) {
+      return;
+    }
+
+
+    var scale =
+      getAboutCityScale();
+
+
+    var internalTop =
+      getAboutOffsetInsideCity(
+        mountainTrigger
+      );
+
+
+    var visualTop =
+      internalTop *
+      scale;
+
+
+    aboutCityTriggerProxy.style.top =
+      visualTop +
+      "px";
+  }
+
+
+  positionAboutCityTrigger();
+
+
+  window.addEventListener(
+    "resize",
+    function() {
+
+      requestAnimationFrame(
+        positionAboutCityTrigger
+      );
+
+    }
+  );
+
+
+  if (window.ScrollTrigger) {
+
+    ScrollTrigger.addEventListener(
+      "refreshInit",
+      positionAboutCityTrigger
+    );
+
+  }
+
+}
+
+
+// -------------------------------------------------------------
+// CITY REVEALS
+// -------------------------------------------------------------
+
+var cityReveals = [
+
+  {
+    sel: ".about_crystal",
+    from: { y: "-20vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "20%"
+  },
+
+  {
+    sel: ".about_citybuilding_4",
+    from: { y: "5vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citybuilding_3",
+    from: { y: "10vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citybuilding_6",
+    from: { y: "15vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citybuilding_5",
+    from: { y: "20vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citybuilding_2",
+    from: { y: "25vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_backlayer",
+    from: { y: "30vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_mountain",
+    from: { y: "35vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citytree_1",
+    from: { y: "80vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citytree_2",
+    from: { y: "80vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citytree_3",
+    from: { y: "80vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_citytree_4",
+    from: { y: "50vh" },
+    to: { y: "0vh" },
+    start: "120%",
+    end: "30%"
+  },
+
+  {
+    sel: ".about_eyetower",
+    from: { y: "50vh" },
+    to: { y: "0vh" },
+    start: "110%",
+    end: "30%"
+  }
+
+];
+
+
+// -------------------------------------------------------------
+// CREATE REVEAL ANIMATIONS
+// -------------------------------------------------------------
+
+cityReveals.forEach(
+  function(item) {
+
+    if (!exists(item.sel)) {
+      return;
+    }
+
+
+    gsap.set(
+      item.sel,
+      Object.assign(
+        {
+          force3D: true
+        },
+        item.from
+      )
+    );
+
+
+    gsap.fromTo(
+
+      item.sel,
+
+      item.from,
+
+      Object.assign(
+        {},
+        item.to,
+        {
+
+          ease:
+            "power2.out",
+
+          immediateRender:
+            false,
+
+
+          scrollTrigger: {
+
+            // --------------------------------------------
+            // IMPORTANT:
+            //
+            // Use SAFE proxy outside zoomed city.
+            // Fall back to original trigger if needed.
+            // --------------------------------------------
+
+            trigger:
+              aboutCityTriggerProxy ||
+              mountainTrigger,
+
+
+            start:
+              "top " +
+              (
+                item.start ||
+                "120%"
+              ),
+
+
+            end:
+              "top " +
+              (
+                item.end ||
+                "40%"
+              ),
+
+
+            scrub: 1,
+
+            fastScrollEnd: true,
+
+            invalidateOnRefresh: true,
+
+
+            onToggle:
+              function(self) {
+
+                var el =
+                  q(item.sel);
+
+                if (el) {
+
+                  el.style.willChange =
+                    self.isActive
+                      ? "transform"
+                      : "auto";
+
+                }
+
               }
-            }
-          })
-        );
-      });
+
+          }
+
+        }
+      )
+
+    );
+
+  }
+);
 
 // -------------------------------------------------------------
 // ABOUT US — Character / Rocket Reveals
