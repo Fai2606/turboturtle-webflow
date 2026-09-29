@@ -1976,48 +1976,58 @@ if (exists(".home2_airship")) {
 
 
   // -------------------------------------------------------------
-// HOME 2 — GROW UP
-// -------------------------------------------------------------
-
-gsap.utils.toArray(
-  ".home_section2_city .growup"
-).forEach(function(el) {
-
-  gsap.fromTo(
-    el,
-
-    {
-      yPercent: 100
-    },
-
-    {
-      yPercent: 0,
-
-      ease: "power2.out",
-
-      scrollTrigger: {
-
-        trigger:
-          el.parentElement,
-
-        start:
-          "top 85%",
-
-        end:
-          "top 35%",
-
-        scrub: 1,
-
-        invalidateOnRefresh:
-          true
-
-      }
-
-    }
-  );
-
-});
-
+  // HOME 2 — GROW UP
+  // Desktop only
+  // -------------------------------------------------------------
+  
+  var enableGrowup =
+    !/Mobi|Android|iPhone|iPad|iPod/i.test(
+      navigator.userAgent
+    );
+  
+  
+  if (enableGrowup) {
+  
+    gsap.utils.toArray(
+      ".home_section2_city .growup"
+    ).forEach(function(el) {
+  
+      gsap.fromTo(
+        el,
+  
+        {
+          yPercent: 100
+        },
+  
+        {
+          yPercent: 0,
+  
+          ease: "power2.out",
+  
+          scrollTrigger: {
+  
+            trigger:
+              el.parentElement,
+  
+            start:
+              "top 85%",
+  
+            end:
+              "top 35%",
+  
+            scrub: 1,
+  
+            invalidateOnRefresh:
+              true
+  
+          }
+  
+        }
+      );
+  
+    });
+  
+  }
 
 
   
