@@ -1970,6 +1970,36 @@ if (exists(".home2_airship")) {
 
 }
 
+// -------------------------------------------------------------
+// HOME 2 — GROW UP
+// Add class "growup" to child images/elements
+// -------------------------------------------------------------
+
+gsap.utils.toArray(
+  ".home_section2_city .growup"
+).forEach(function(el) {
+
+  gsap.fromTo(
+    el,
+    {
+      yPercent: 100
+    },
+    {
+      yPercent: 0,
+      ease: "power2.out",
+
+      scrollTrigger: {
+        trigger: el.parentElement,
+        start: "top 70%",
+        end: "top 30%",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+
+});
+
 }
   
   // =============================================================
