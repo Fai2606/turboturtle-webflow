@@ -2526,42 +2526,42 @@ function initHomeSection5() {
 
     gsap.timeline({
       repeat: -1,
-      repeatDelay: 1.4
+      repeatDelay: 4
     })
 
     .to(burger, {
       y: -7,
-      duration: 0.18,
+      duration: 0.15,
       ease: "power3.out"
     })
 
     .to(burger, {
       y: 0,
-      duration: 0.22,
+      duration: 0.19,
       ease: "bounce.out"
     })
 
     .to(burger, {
       y: -5,
-      duration: 0.16,
+      duration: 0.13,
       ease: "power3.out"
     })
 
     .to(burger, {
       y: 0,
-      duration: 0.2,
+      duration: 0.17,
       ease: "bounce.out"
     })
 
     .to(burger, {
       y: -2,
-      duration: 0.14,
+      duration: 0.11,
       ease: "power3.out"
     })
 
     .to(burger, {
       y: 0,
-      duration: 0.18,
+      duration: 0.15,
       ease: "bounce.out"
     });
   }
