@@ -2675,7 +2675,7 @@ function initHomeSection5() {
   
       {
         scaleX: 0,
-        transformOrigin: "left center"
+        transformOrigin: "center"
       },
   
       {
