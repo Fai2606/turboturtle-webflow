@@ -2007,13 +2007,13 @@ if (cityLight) {
 
 }
 
-var cityLight =
+var cityLight2 =
 q(".home2_citylight2");
 
-if (cityLight) {
+if (cityLight2) {
 
   gsap.fromTo(
-    cityLight,
+    cityLight2,
 
     {
       rotation: 35,
