@@ -2247,7 +2247,7 @@ function initHomeSection4() {
     {
 
       y: function () {
-        return -35 * vh;
+        return -40 * vh;
       },
 
       ease: "none",
