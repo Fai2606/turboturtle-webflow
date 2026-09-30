@@ -2675,13 +2675,15 @@ function initHomeSection5() {
   
       {
         scaleX: 0,
-        transformOrigin: "center"
+        scaleY: 0,
+        transformOrigin: "top center"
       },
   
       {
         scaleX: 1,
+        scaleY: 1,
   
-        duration: 0.3,
+        duration: 0.05,
   
         ease: "power3.out",
   
