@@ -2530,9 +2530,9 @@ function initHomeSection5() {
     })
 
     .to(burger, {
-      y: -9,
+      y: -7,
       duration: 0.18,
-      ease: "power2.out"
+      ease: "power3.out"
     })
 
     .to(burger, {
@@ -2542,9 +2542,9 @@ function initHomeSection5() {
     })
 
     .to(burger, {
-      y: -7,
+      y: -5,
       duration: 0.16,
-      ease: "power2.out"
+      ease: "power3.out"
     })
 
     .to(burger, {
@@ -2554,9 +2554,9 @@ function initHomeSection5() {
     })
 
     .to(burger, {
-      y: -4,
+      y: -2,
       duration: 0.14,
-      ease: "power2.out"
+      ease: "power3.out"
     })
 
     .to(burger, {
