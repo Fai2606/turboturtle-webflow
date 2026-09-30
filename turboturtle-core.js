@@ -2016,7 +2016,7 @@ if (cityLight2) {
     cityLight2,
 
     {
-      rotation: 15,
+      rotation: 5,
       transformOrigin: "50% 100%"
     },
 
