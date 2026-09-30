@@ -1972,70 +1972,78 @@ if (exists(".home2_airship")) {
   
 
 
-// -------------------------------------------------------------
-// HOME 2 — CITY LIGHT
-// Searchlight swing
-// -------------------------------------------------------------
-
-var cityLight =
-  q(".home2_citylight");
-
-if (cityLight) {
-
-  gsap.fromTo(
-    cityLight,
-
-    {
-      rotation: -45,
-      transformOrigin: "50% 100%"
-    },
-
-    {
-      rotation: 3,
-
-      duration: 3,
-
-      ease: "power2.inOut",
-
-      yoyo: true,
-
-      repeat: -1,
-
-      force3D: true
-    }
-  );
-
-}
-
-var cityLight2 =
-q(".home2_citylight2");
-
-if (cityLight2) {
-
-  gsap.fromTo(
-    cityLight2,
-
-    {
-      rotation: 5,
-      transformOrigin: "50% 100%"
-    },
-
-    {
-      rotation: -10,
-
-      duration: 3,
-
-      ease: "power2.inOut",
-
-      yoyo: true,
-
-      repeat: -1,
-
-      force3D: true
-    }
-  );
-
-}
+  // -------------------------------------------------------------
+  // HOME 2 — CITY LIGHT
+  // Searchlights move WITH scroll
+  // -------------------------------------------------------------
+  
+  var cityLight =
+    q(".home2_citylight");
+  
+  var cityLight2 =
+    q(".home2_citylight2");
+  
+  
+  // LIGHT 1
+  if (cityLight) {
+  
+    gsap.fromTo(
+      cityLight,
+  
+      {
+        rotation: -45,
+        transformOrigin: "50% 100%"
+      },
+  
+      {
+        rotation: 3,
+  
+        ease: "none",
+  
+        force3D: true,
+  
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  
+  }
+  
+  
+  // LIGHT 2
+  if (cityLight2) {
+  
+    gsap.fromTo(
+      cityLight2,
+  
+      {
+        rotation: 5,
+        transformOrigin: "50% 100%"
+      },
+  
+      {
+        rotation: -10,
+  
+        ease: "none",
+  
+        force3D: true,
+  
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  
+  }
   
 
 
