@@ -2681,7 +2681,7 @@ function initHomeSection5() {
       {
         scaleX: 1,
   
-        duration: 0.6,
+        duration: 0.3,
   
         ease: "power3.out",
   
@@ -2689,7 +2689,7 @@ function initHomeSection5() {
   
         scrollTrigger: {
           trigger: light,
-          start: "top 55%",
+          start: "top 65%",
           toggleActions: "play reverse play reverse"
         }
       }
