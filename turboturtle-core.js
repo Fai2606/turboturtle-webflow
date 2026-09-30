@@ -2681,7 +2681,7 @@ function initHomeSection5() {
       {
         scaleX: 1,
   
-        duration: 1,
+        duration: 0.6,
   
         ease: "power3.out",
   
