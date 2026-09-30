@@ -1972,6 +1972,41 @@ if (exists(".home2_airship")) {
   
 
 
+  // -------------------------------------------------------------
+// HOME 2 — CITY LIGHT
+// Searchlight swing
+// -------------------------------------------------------------
+
+var cityLight =
+  q(".home2_citylight");
+
+if (cityLight) {
+
+  gsap.fromTo(
+    cityLight,
+
+    {
+      rotation: -34,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: 18,
+
+      duration: 2.8,
+
+      ease: "power2.inOut",
+
+      yoyo: true,
+
+      repeat: -1,
+
+      force3D: true
+    }
+  );
+
+}
+  
 
 
 
@@ -2406,6 +2441,7 @@ function initHomeSection5() {
   var jetman = q(".home5_jetman");
   var umbrellaCat = q(".home5_umbrellacat");
   var galaxy = q(".home5_galaxy");
+  var light = q(".home5_light");
 
 
   // ============================================================
@@ -2587,6 +2623,42 @@ function initHomeSection5() {
     });
   }
 
+  
+  // ============================================================
+  // LIGHT
+  // Scale X: 0 → 100%
+  // Triggers slightly before bear
+  // ============================================================
+  
+  if (light) {
+  
+    gsap.fromTo(
+      light,
+  
+      {
+        scaleX: 0,
+        transformOrigin: "left center"
+      },
+  
+      {
+        scaleX: 1,
+  
+        duration: 1,
+  
+        ease: "power3.out",
+  
+        force3D: true,
+  
+        scrollTrigger: {
+          trigger: light,
+          start: "top 55%",
+          toggleActions: "play reverse play reverse"
+        }
+      }
+    );
+  
+  }
+
 
   // ============================================================
   // BLOOD CELL
@@ -2595,7 +2667,7 @@ function initHomeSection5() {
   if (bloodcell) {
 
     gsap.to(bloodcell, {
-      xPercent: 300,
+      xPercent: 400,
       yPercent: -220,
       rotation: 220,
       ease: "none",
