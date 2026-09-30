@@ -1972,7 +1972,7 @@ if (exists(".home2_airship")) {
   
 
 
-  // -------------------------------------------------------------
+// -------------------------------------------------------------
 // HOME 2 — CITY LIGHT
 // Searchlight swing
 // -------------------------------------------------------------
@@ -1986,16 +1986,46 @@ if (cityLight) {
     cityLight,
 
     {
-      rotation: -34,
+      rotation: -45,
       transformOrigin: "50% 100%"
     },
 
     {
       rotation: 18,
 
-      duration: 2.8,
+      duration: 3,
 
-      ease: "power2.inOut",
+      ease: "power3.inOut",
+
+      yoyo: true,
+
+      repeat: -1,
+
+      force3D: true
+    }
+  );
+
+}
+
+var cityLight =
+q(".home2_citylight2");
+
+if (cityLight) {
+
+  gsap.fromTo(
+    cityLight,
+
+    {
+      rotation: 35,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: -18,
+
+      duration: 4,
+
+      ease: "power3.inOut",
 
       yoyo: true,
 
