@@ -1986,7 +1986,7 @@ if (cityLight) {
     cityLight,
 
     {
-      rotation: -55,
+      rotation: -45,
       transformOrigin: "50% 100%"
     },
 
@@ -1995,7 +1995,7 @@ if (cityLight) {
 
       duration: 3,
 
-      ease: "power3.inOut",
+      ease: "power2.inOut",
 
       yoyo: true,
 
@@ -2016,16 +2016,16 @@ if (cityLight2) {
     cityLight2,
 
     {
-      rotation: 45,
+      rotation: 15,
       transformOrigin: "50% 100%"
     },
 
     {
-      rotation: -5,
+      rotation: -10,
 
       duration: 3,
 
-      ease: "power3.inOut",
+      ease: "power2.inOut",
 
       yoyo: true,
 
