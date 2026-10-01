@@ -1972,78 +1972,84 @@ if (exists(".home2_airship")) {
   
 
 
-  // -------------------------------------------------------------
-  // HOME 2 — CITY LIGHT
-  // Searchlights move WITH scroll
-  // -------------------------------------------------------------
+
   
-  var  =
-    q(".home2_");
-  
-  var 2 =
-    q(".home2_2");
-  
-  
-  // LIGHT 1
-  if () {
-  
-    gsap.fromTo(
-      ,
-  
-      {
-        rotation: -25,
-        transformOrigin: "50% 100%"
-      },
-  
-      {
-        rotation: 5,
-  
-        ease: "none",
-  
-        force3D: true,
-  
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
+
+// -------------------------------------------------------------
+// HOME 2 — CITY LIGHT
+// Searchlights move WITH scroll
+// -------------------------------------------------------------
+
+var cityLight =
+  q(".home2_citylight");
+
+var cityLight2 =
+  q(".home2_citylight2");
+
+
+// LIGHT 1
+if (cityLight) {
+
+  gsap.fromTo(
+    cityLight,
+
+    {
+      rotation: -25,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: 5,
+
+      ease: "none",
+
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
       }
-    );
-  
-  }
-  
-  
-  // LIGHT 2
-  if (2) {
-  
-    gsap.fromTo(
-      2,
-  
-      {
-        rotation: 10,
-        transformOrigin: "50% 100%"
-      },
-  
-      {
-        rotation: -10,
-  
-        ease: "none",
-  
-        force3D: true,
-  
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
+    }
+  );
+
+}
+
+
+// LIGHT 2
+if (cityLight2) {
+
+  gsap.fromTo(
+    cityLight2,
+
+    {
+      rotation: 10,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: -10,
+
+      ease: "none",
+
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
       }
-    );
+    }
+  );
+
+}
+
+
   
-  }
   
 
 
