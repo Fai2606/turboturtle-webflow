@@ -1977,26 +1977,26 @@ if (exists(".home2_airship")) {
   // Searchlights move WITH scroll
   // -------------------------------------------------------------
   
-  var cityLight =
-    q(".home2_citylight");
+  var  =
+    q(".home2_");
   
-  var cityLight2 =
-    q(".home2_citylight2");
+  var 2 =
+    q(".home2_2");
   
   
   // LIGHT 1
-  if (cityLight) {
+  if () {
   
     gsap.fromTo(
-      cityLight,
+      ,
   
       {
-        rotation: -45,
+        rotation: -25,
         transformOrigin: "50% 100%"
       },
   
       {
-        rotation: 3,
+        rotation: 5,
   
         ease: "none",
   
@@ -2016,13 +2016,13 @@ if (exists(".home2_airship")) {
   
   
   // LIGHT 2
-  if (cityLight2) {
+  if (2) {
   
     gsap.fromTo(
-      cityLight2,
+      2,
   
       {
-        rotation: 5,
+        rotation: 10,
         transformOrigin: "50% 100%"
       },
   
