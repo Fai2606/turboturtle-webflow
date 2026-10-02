@@ -2586,7 +2586,7 @@ function initHomeSection5() {
     gsap.to(rocketTip, {
       y: 145,
       duration: 1.25,
-      ease: "power3.in",
+      ease: "back.inOut(1.7)"
       force3D: true,
 
       scrollTrigger: {
