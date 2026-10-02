@@ -2582,13 +2582,12 @@ function initHomeSection5() {
   // ============================================================
 
   if (rocketTip) {
-
     gsap.to(rocketTip, {
       y: 145,
       duration: 1.25,
-      ease: "back.inOut(1.7)"
+      ease: "back.inOut(1.7)",
       force3D: true,
-
+  
       scrollTrigger: {
         trigger: rocketTip,
         start: "top 40%",
