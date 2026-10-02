@@ -4908,17 +4908,22 @@ function initHomeResponsiveScale() {
 // ==========================================================
 // UNIVERSAL TYPOGRAPHY COMPENSATION
 //
-// Webflow controls the visual font size.
+// CITY is scaled with CSS zoom.
 //
-// CITY scaling changes the artwork size,
-// but these text classes keep their Webflow visual size:
+// Text must visually remain at the Webflow-designed size.
 //
-// .big_heading
-// .section_heading
-// .body_text
+// Example:
+// Webflow = 60px
+// CITY scale = 0.40
+//
+// Internal font = 60 / 0.40 = 150px
+// Visual result  = 150 × 0.40 = 60px
 // ==========================================================
 
 function applyCityTypography(city, scale) {
+
+  if (!city || !scale) return;
+
 
   var textElements =
     city.querySelectorAll(
@@ -4928,38 +4933,57 @@ function applyCityTypography(city, scale) {
 
   textElements.forEach(function(el) {
 
-    // Store the original Webflow font size ONCE
-    if (!el.dataset.webflowFontSize) {
+    // ------------------------------------------------------
+    // IMPORTANT
+    //
+    // Remove our previous inline compensation FIRST.
+    //
+    // This exposes the CURRENT Webflow font size for the
+    // current breakpoint instead of remembering an old size.
+    // ------------------------------------------------------
 
-      var computed =
-        window.getComputedStyle(el);
-
-      var originalSize =
-        parseFloat(computed.fontSize);
-
-
-      if (!originalSize) return;
-
-
-      el.dataset.webflowFontSize =
-        originalSize;
-
-    }
+    el.style.fontSize = "";
 
 
-    var visualSize =
+    // ------------------------------------------------------
+    // READ CURRENT WEBFLOW SIZE
+    // ------------------------------------------------------
+
+    var computed =
+      window.getComputedStyle(el);
+
+    var webflowSize =
       parseFloat(
-        el.dataset.webflowFontSize
+        computed.fontSize
       );
 
 
-    // Counteract CITY scaling
+    if (!webflowSize) return;
+
+
+    // ------------------------------------------------------
+    // COUNTERACT CITY SCALE
+    // ------------------------------------------------------
+
+    var compensatedSize =
+      webflowSize /
+      scale;
+
+
     el.style.fontSize =
-      (
-        visualSize /
-        scale
-      ) +
-      "px";
+      compensatedSize + "px";
+
+
+    // Debug info
+    el.setAttribute(
+      "data-webflow-font-size",
+      webflowSize.toFixed(2)
+    );
+
+    el.setAttribute(
+      "data-compensated-font-size",
+      compensatedSize.toFixed(2)
+    );
 
   });
 
