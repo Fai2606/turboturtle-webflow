@@ -4922,9 +4922,6 @@ function initHomeResponsiveScale() {
 
 function applyCityTypography(city, scale) {
 
-  if (!city || !scale) return;
-
-
   var textElements =
     city.querySelectorAll(
       ".big_heading, .section_heading, .body_text"
@@ -4933,57 +4930,33 @@ function applyCityTypography(city, scale) {
 
   textElements.forEach(function(el) {
 
-    // ------------------------------------------------------
-    // IMPORTANT
-    //
-    // Remove our previous inline compensation FIRST.
-    //
-    // This exposes the CURRENT Webflow font size for the
-    // current breakpoint instead of remembering an old size.
-    // ------------------------------------------------------
+    if (!el.dataset.webflowFontSize) {
 
-    el.style.fontSize = "";
+      var computed =
+        window.getComputedStyle(el);
+
+      var originalSize =
+        parseFloat(computed.fontSize);
+
+      if (!originalSize) return;
+
+      el.dataset.webflowFontSize =
+        originalSize;
+    }
 
 
-    // ------------------------------------------------------
-    // READ CURRENT WEBFLOW SIZE
-    // ------------------------------------------------------
-
-    var computed =
-      window.getComputedStyle(el);
-
-    var webflowSize =
+    var visualSize =
       parseFloat(
-        computed.fontSize
+        el.dataset.webflowFontSize
       );
 
 
-    if (!webflowSize) return;
-
-
-    // ------------------------------------------------------
-    // COUNTERACT CITY SCALE
-    // ------------------------------------------------------
-
-    var compensatedSize =
-      webflowSize /
-      scale;
-
-
     el.style.fontSize =
-      compensatedSize + "px";
-
-
-    // Debug info
-    el.setAttribute(
-      "data-webflow-font-size",
-      webflowSize.toFixed(2)
-    );
-
-    el.setAttribute(
-      "data-compensated-font-size",
-      compensatedSize.toFixed(2)
-    );
+      (
+        visualSize /
+        scale
+      ) +
+      "px";
 
   });
 
