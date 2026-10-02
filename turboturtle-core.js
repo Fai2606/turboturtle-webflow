@@ -2689,7 +2689,7 @@ function initHomeSection5() {
         scaleX: 1,
         scaleY: 1,
   
-        duration: 0.05,
+        duration: 0.15,
   
         ease: "power3.out",
   
