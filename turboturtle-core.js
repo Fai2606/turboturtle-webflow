@@ -2582,18 +2582,58 @@ function initHomeSection5() {
   // ============================================================
 
   if (rocketTip) {
-    gsap.to(rocketTip, {
-      y: 145,
-      duration: 1.25,
-      ease: "back.inOut(1.7)",
-      force3D: true,
-  
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: rocketTip,
         start: "top 40%",
         toggleActions: "play reverse play reverse"
       }
     });
+  
+    tl
+      // FALL — starts slow, accelerates like gravity
+      .to(rocketTip, {
+        y: 145,
+        duration: 1.1,
+        ease: "power2.in",
+        force3D: true
+      })
+  
+      // BOUNCE 1
+      .to(rocketTip, {
+        y: 105,
+        duration: 0.28,
+        ease: "power2.out"
+      })
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.28,
+        ease: "power2.in"
+      })
+  
+      // BOUNCE 2
+      .to(rocketTip, {
+        y: 128,
+        duration: 0.18,
+        ease: "power2.out"
+      })
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.18,
+        ease: "power2.in"
+      })
+  
+      // BOUNCE 3 — tiny final bounce
+      .to(rocketTip, {
+        y: 139,
+        duration: 0.11,
+        ease: "power2.out"
+      })
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.11,
+        ease: "power2.in"
+      });
   }
 
 
