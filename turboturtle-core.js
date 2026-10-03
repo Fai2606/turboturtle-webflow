@@ -3845,105 +3845,121 @@ function makeBuildTrigger() {
 // ========================================================
 // EMPEROR — STAGE 2
 //
-// Parent .home6_emperor stays at Webflow position.
+// NO SCRUB.
 //
-// Inner .home6_emperor_rocket flies upward.
+// When Tall Pillar reaches 40%:
+// Emperor launches automatically.
 //
-// START:
-// Tall Pillar top 40%
+// Flight duration:
+// 2 seconds.
 //
-// END:
-// Tall Pillar top 0%
-//
-// DISTANCE:
-// 50vh upward
+// Destination:
+// Calculated from actual VISUAL position,
+// so it also works with mobile city scaling.
 // ========================================================
 
 if (emperorRocket) {
 
-  var emperorRocketTrigger;
+  var emperorFlightDistance = function() {
+
+    var rect =
+      emperorRocket.getBoundingClientRect();
+
+    // Move far enough for the WHOLE Emperor
+    // to clear the top of the viewport.
+    //
+    // Extra 10vh = safety margin.
+    return -(
+      rect.bottom +
+      getRealViewportHeight() * 0.10
+    );
+  };
 
 
-  if (isSafari && section && city) {
+  var emperorLaunchTrigger = {
 
-    emperorRocketTrigger = {
+    trigger:
+      (isSafari && section && city)
+        ? section
+        : home6TallPillar,
 
-      trigger: section,
+    start:
+      (isSafari && section && city)
+        ? safariStart(
+            home6TallPillar,
+            0.40
+          )
+        : "top 40%",
 
-      start:
-        safariStart(
-          home6TallPillar,
-          0.40
-        ),
-
-      end:
-        safariStart(
-          home6TallPillar,
-          0.00
-        ),
-
-      scrub: 0.5,
-
-      invalidateOnRefresh: true
-    };
-
-  } else {
-
-    emperorRocketTrigger = {
-
-      trigger:
-        home6TallPillar,
-
-      start:
-        "top 40%",
-
-      end:
-        "top 0%",
-
-      scrub: 0.5,
-
-      invalidateOnRefresh: true
-    };
-  }
+    invalidateOnRefresh: true,
 
 
-  gsap.fromTo(
-    emperorRocket,
-  
-    {
-      y: 0
+    // ----------------------------------------------
+    // SCROLL DOWN → LAUNCH
+    // ----------------------------------------------
+
+    onEnter: function() {
+
+      gsap.killTweensOf(
+        emperorRocket
+      );
+
+      gsap.to(
+        emperorRocket,
+        {
+
+          y:
+            emperorFlightDistance,
+
+          duration: 2,
+
+          ease:
+            "power2.in",
+
+          force3D: true
+
+        }
+      );
     },
-  
-    {
-      y: function() {
-  
-        // Current VISUAL position after all city scaling / zoom
-        var rect =
-          emperorRocket.getBoundingClientRect();
-  
-        // Distance required for the whole Emperor
-        // to pass above viewport top.
-        //
-        // rect.bottom = actual visual bottom position
-        // + 10vh safety margin
-        return -(
-          rect.bottom +
-          getRealViewportHeight() * 0.10
-        );
-      },
-  
-      ease: "power2.in",
-  
-      force3D: true,
-  
-      immediateRender: false,
-  
-      scrollTrigger:
-        emperorRocketTrigger
-    }
-  );
 
-  
+
+    // ----------------------------------------------
+    // SCROLL BACK UP → RETURN
+    // ----------------------------------------------
+
+    onLeaveBack: function() {
+
+      gsap.killTweensOf(
+        emperorRocket
+      );
+
+      gsap.to(
+        emperorRocket,
+        {
+
+          y: 0,
+
+          duration: 1.2,
+
+          ease:
+            "power2.out",
+
+          force3D: true
+
+        }
+      );
+    }
+
+  };
+
+
+  ScrollTrigger.create(
+    emperorLaunchTrigger
+  );
+}
+
+
+// CLOSE: if (home6TallPillar)
 }
 
 
