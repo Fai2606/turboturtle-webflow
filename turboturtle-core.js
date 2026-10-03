@@ -3490,7 +3490,7 @@ function initHomeSection6() {
       q(".home6_cat");
 
     var giraffe = 
-      q(".home6_giraffe);
+      q(".home6_giraffe");
 
     // ========================================================
     // INITIAL STATES
