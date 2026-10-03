@@ -4531,7 +4531,6 @@ if (home6UFO) {
   });
 
 }
-}
 
   requestAnimationFrame(
     function() {
