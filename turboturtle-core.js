@@ -3163,6 +3163,14 @@ function initHomeSection5() {
 
 
 } // END initHomeSection5
+
+
+
+  // ==========================================================
+  // HOME SECTION 6
+  // ==========================================================
+
+  
   
 function initHomeSection6() {
 
@@ -3427,10 +3435,10 @@ function initHomeSection6() {
   // ==========================================================
   // HOME 6 — SCROLL-LINKED CASTLE BUILD
   //
+  // Tall Pillar:
   // top 100% → top 60%
-  // Everything rises into its Webflow position.
   //
-  // No time-based build timeline anymore.
+  // Shorter movement than previous version.
   // ==========================================================
 
   if (home6TallPillar) {
@@ -3485,12 +3493,20 @@ function initHomeSection6() {
 
     // ========================================================
     // INITIAL STATES
+    //
+    // OLD:
+    // Most objects = 80
+    // Camel / Monster = 50
+    //
+    // NEW:
+    // Most objects = 45
+    // Camel / Monster = 30
     // ========================================================
 
     if (home6BuildLayers.length) {
 
       gsap.set(home6BuildLayers, {
-        yPercent: 80,
+        yPercent: 45,
         force3D: true
       });
     }
@@ -3499,7 +3515,7 @@ function initHomeSection6() {
     if (camel) {
 
       gsap.set(camel, {
-        yPercent: 50,
+        yPercent: 30,
         force3D: true
       });
     }
@@ -3508,7 +3524,7 @@ function initHomeSection6() {
     if (monster) {
 
       gsap.set(monster, {
-        yPercent: 50,
+        yPercent: 30,
         force3D: true
       });
     }
@@ -3517,7 +3533,7 @@ function initHomeSection6() {
     if (rocket) {
 
       gsap.set(rocket, {
-        yPercent: 80,
+        yPercent: 45,
         force3D: true
       });
     }
@@ -3526,7 +3542,7 @@ function initHomeSection6() {
     if (emperor) {
 
       gsap.set(emperor, {
-        yPercent: 80,
+        yPercent: 45,
         force3D: true
       });
     }
@@ -3544,7 +3560,7 @@ function initHomeSection6() {
     if (castleInside) {
 
       gsap.set(castleInside, {
-        yPercent: 80,
+        yPercent: 45,
         force3D: true
       });
     }
@@ -3553,14 +3569,14 @@ function initHomeSection6() {
     if (cat) {
 
       gsap.set(cat, {
-        yPercent: 80,
+        yPercent: 45,
         force3D: true
       });
     }
 
 
     gsap.set(home6TallPillar, {
-      yPercent: 80,
+      yPercent: 45,
       force3D: true
     });
 
@@ -3568,7 +3584,7 @@ function initHomeSection6() {
     // ========================================================
     // SHARED BUILD TRIGGER
     //
-    // Tall Pillar:
+    // KEEP SAME TIMING:
     // top 100% → top 60%
     // ========================================================
 
@@ -3577,6 +3593,7 @@ function initHomeSection6() {
       if (isSafari && section && city) {
 
         return {
+
           trigger: section,
 
           start:
@@ -3600,10 +3617,15 @@ function initHomeSection6() {
 
 
       return {
-        trigger: home6TallPillar,
 
-        start: "top 100%",
-        end: "top 60%",
+        trigger:
+          home6TallPillar,
+
+        start:
+          "top 100%",
+
+        end:
+          "top 60%",
 
         scrub: 0.6,
 
@@ -3623,7 +3645,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3645,7 +3667,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3667,7 +3689,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3689,7 +3711,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3711,7 +3733,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3733,7 +3755,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3753,7 +3775,7 @@ function initHomeSection6() {
       {
         yPercent: 0,
 
-        ease: "power3.out",
+        ease: "power2.out",
 
         force3D: true,
 
@@ -3766,10 +3788,9 @@ function initHomeSection6() {
     // ========================================================
     // EMPEROR — STAGE 1
     //
-    // Moves WITH the other objects.
-    //
     // top 100% → top 60%
-    // +80% → Webflow position
+    //
+    // +45% → Webflow position
     // ========================================================
 
     if (emperor) {
@@ -3779,7 +3800,7 @@ function initHomeSection6() {
         {
           yPercent: 0,
 
-          ease: "power3.out",
+          ease: "power2.out",
 
           force3D: true,
 
@@ -3793,12 +3814,16 @@ function initHomeSection6() {
     // ========================================================
     // EMPEROR — STAGE 2
     //
-    // Parent stays at Webflow position.
-    //
-    // Only .home6_emperor_rocket moves.
-    //
-    // Tall Pillar:
+    // OLD:
     // top 40% → top 0%
+    // yPercent 0 → -120
+    //
+    // NEW:
+    // top 45% → top 0%
+    // yPercent 0 → -90
+    //
+    // Starts earlier + travels less
+    // = slower / smoother visual launch
     // ========================================================
 
     if (emperorRocket) {
@@ -3815,7 +3840,7 @@ function initHomeSection6() {
           start:
             safariStart(
               home6TallPillar,
-              0.40
+              0.45
             ),
 
           end:
@@ -3837,7 +3862,7 @@ function initHomeSection6() {
             home6TallPillar,
 
           start:
-            "top 40%",
+            "top 45%",
 
           end:
             "top 0%",
@@ -3857,7 +3882,7 @@ function initHomeSection6() {
         },
 
         {
-          yPercent: -120,
+          yPercent: -90,
 
           ease: "power3.in",
 
@@ -3876,7 +3901,6 @@ function initHomeSection6() {
 
   // ==========================================================
   // UFO + LIGHT TRANSITION
-  //
   // UNCHANGED
   // ==========================================================
 
@@ -3962,50 +3986,71 @@ function initHomeSection6() {
     }
 
 
-    var lightTL = gsap.timeline();
+    var lightTL =
+      gsap.timeline();
 
 
     if (home6Light) {
 
-      lightTL.set(home6Light, {
-        scaleX: 0,
-        visibility: "visible",
-        opacity: 0.9
-      }, 0);
+      lightTL.set(
+        home6Light,
+        {
+          scaleX: 0,
+          visibility: "visible",
+          opacity: 0.9
+        },
+        0
+      );
 
-      lightTL.to(home6Light, {
-        scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
-        force3D: true
-      }, 0);
+      lightTL.to(
+        home6Light,
+        {
+          scaleX: 1,
+          duration: 0.18,
+          ease: "power2.out",
+          force3D: true
+        },
+        0
+      );
     }
 
 
     if (home7LightBlur) {
 
-      lightTL.set(home7LightBlur, {
-        scaleX: 0,
-        visibility: "visible",
-        opacity: 1
-      }, 0);
+      lightTL.set(
+        home7LightBlur,
+        {
+          scaleX: 0,
+          visibility: "visible",
+          opacity: 1
+        },
+        0
+      );
 
-      lightTL.to(home7LightBlur, {
-        scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
-        force3D: true
-      }, 0);
+      lightTL.to(
+        home7LightBlur,
+        {
+          scaleX: 1,
+          duration: 0.18,
+          ease: "power2.out",
+          force3D: true
+        },
+        0
+      );
     }
 
 
     if (home7WhiteCover) {
 
-      lightTL.to(home7WhiteCover, {
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out"
-      }, 0);
+      lightTL.to(
+        home7WhiteCover,
+        {
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out"
+        },
+        0
+      );
     }
   }
 
@@ -4019,35 +4064,41 @@ function initHomeSection6() {
     if (!home6UFO) return;
 
 
-    gsap.killTweensOf(home6UFO);
+    gsap.killTweensOf(
+      home6UFO
+    );
 
     ufoHasLanded = false;
 
 
-    gsap.set(home6UFO, {
-      visibility: "visible",
-      opacity: 1
-    });
-
-
-    gsap.to(home6UFO, {
-
-      y: 0,
-
-      duration: 1.2,
-
-      ease: "power3.out",
-
-      force3D: true,
-
-      onComplete: function() {
-
-        ufoHasLanded = true;
-
-        turnHome6LightsOn();
+    gsap.set(
+      home6UFO,
+      {
+        visibility: "visible",
+        opacity: 1
       }
+    );
 
-    });
+
+    gsap.to(
+      home6UFO,
+      {
+        y: 0,
+
+        duration: 1.2,
+
+        ease: "power3.out",
+
+        force3D: true,
+
+        onComplete: function() {
+
+          ufoHasLanded = true;
+
+          turnHome6LightsOn();
+        }
+      }
+    );
   }
 
 
@@ -4064,48 +4115,72 @@ function initHomeSection6() {
 
     if (home6Light) {
 
-      gsap.killTweensOf(home6Light);
+      gsap.killTweensOf(
+        home6Light
+      );
 
-      gsap.set(home6Light, {
-        scaleX: 0,
-        visibility: "hidden",
-        opacity: 0
-      });
+      gsap.set(
+        home6Light,
+        {
+          scaleX: 0,
+          visibility: "hidden",
+          opacity: 0
+        }
+      );
     }
 
 
     if (home7LightBlur) {
 
-      gsap.killTweensOf(home7LightBlur);
+      gsap.killTweensOf(
+        home7LightBlur
+      );
 
-      gsap.set(home7LightBlur, {
-        scaleX: 0,
-        visibility: "hidden",
-        opacity: 0
-      });
+      gsap.set(
+        home7LightBlur,
+        {
+          scaleX: 0,
+          visibility: "hidden",
+          opacity: 0
+        }
+      );
     }
 
 
     if (home7WhiteCover) {
 
-      gsap.killTweensOf(home7WhiteCover);
+      gsap.killTweensOf(
+        home7WhiteCover
+      );
 
-      gsap.set(home7WhiteCover, {
-        opacity: 1
-      });
+      gsap.set(
+        home7WhiteCover,
+        {
+          opacity: 1
+        }
+      );
     }
 
 
     if (home6UFO) {
 
-      gsap.killTweensOf(home6UFO);
+      gsap.killTweensOf(
+        home6UFO
+      );
 
-      gsap.set(home6UFO, {
-        y: -document.documentElement.clientHeight * 1.5,
-        visibility: "hidden",
-        opacity: 0,
-        force3D: true
-      });
+      gsap.set(
+        home6UFO,
+        {
+          y:
+            -document.documentElement.clientHeight *
+            1.5,
+
+          visibility: "hidden",
+          opacity: 0,
+
+          force3D: true
+        }
+      );
     }
   }
 
@@ -4125,16 +4200,21 @@ function initHomeSection6() {
 
       start:
         (isSafari && section && city)
-          ? safariStart(weirdSun, 0.10)
+          ? safariStart(
+              weirdSun,
+              0.10
+            )
           : "top 10%",
 
       invalidateOnRefresh: true,
 
       onEnter: function() {
+
         showHome6UFO();
       },
 
       onLeaveBack: function() {
+
         resetHome6UFO();
       }
 
@@ -4157,7 +4237,10 @@ function initHomeSection6() {
 
       start:
         (isSafari && section && city)
-          ? safariStart(home6Lake, 0.70)
+          ? safariStart(
+              home6Lake,
+              0.70
+            )
           : "top 70%",
 
       invalidateOnRefresh: true,
@@ -4178,13 +4261,17 @@ function initHomeSection6() {
   }
 
 
-  requestAnimationFrame(function() {
+  requestAnimationFrame(
+    function() {
 
-    requestAnimationFrame(function() {
+      requestAnimationFrame(
+        function() {
 
-      ScrollTrigger.refresh();
-    });
-  });
+          ScrollTrigger.refresh();
+        }
+      );
+    }
+  );
 
 }
   
