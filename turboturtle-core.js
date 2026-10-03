@@ -2272,13 +2272,13 @@ if (enableGrowup) {
         // Start BEFORE it reaches viewport bottom.
         var startScroll =
           elementDocumentTop -
-          viewportHeight * 1.15;
+          viewportHeight * 0.92;
 
 
         // Finish around middle-lower viewport.
         var endScroll =
           elementDocumentTop -
-          viewportHeight * 0.55;
+          viewportHeight * 0.48;
 
 
         var distance =
