@@ -3942,7 +3942,7 @@ function emperorFlightDistance() {
         {
           y: -12,
 
-          duration: 1.15,
+          duration: 0.855,
 
           ease: "sine.inOut",
 
