@@ -3874,18 +3874,16 @@ if (emperorRocket) {
   // awkwardly stop near the top edge.
   // ======================================================
 
-  function emperorFlightDistance() {
+function emperorFlightDistance() {
 
-    var rect =
-      emperorRocket.getBoundingClientRect();
+  // Fly upward by about 22% of viewport height.
+  // He stays visible instead of leaving the screen.
 
+  return -(
+    getRealViewportHeight() * 0.22
+  );
 
-    return -(
-      rect.bottom +
-      getRealViewportHeight() * 0.35
-    );
-
-  }
+}
 
 
   // ======================================================
@@ -4027,7 +4025,7 @@ if (emperorRocket) {
           y:
             emperorFlightDistance,
 
-          duration: 2.2,
+          duration: 1.5,
 
           ease: "power2.inOut",
 
