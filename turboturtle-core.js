@@ -3420,24 +3420,13 @@ function initHomeSection6() {
 
 // ==========================================================
 // HOME 6 — CASTLE PARALLAX
-//
-// ONE SHARED TRIGGER.
-// All objects move together with scroll.
-//
-// Objects previously using 80%:
-//   +40% → -40%
-//
-// Objects previously using 50%:
-//   +25% → -25%
-//
-// Because this uses yPercent, taller objects naturally
-// travel more pixels than shorter objects.
+// ONE MASTER TRIGGER / ONE MASTER PROGRESS
 // ==========================================================
 
-if (home6TallPillar) {
+if (home6TallPillar && section) {
 
   // --------------------------------------------------------
-  // NORMAL / STRONG PARALLAX GROUP
+  // ELEMENTS
   // --------------------------------------------------------
 
   var home6BuildSelectors = [
@@ -3457,34 +3446,32 @@ if (home6TallPillar) {
     ".home6_dinosaur"
   ];
 
-  var home6BuildLayers = home6BuildSelectors
+
+  var strongLayers = home6BuildSelectors
     .map(function(selector) {
-      return document.querySelector(selector);
+      return q(selector);
     })
     .filter(Boolean);
 
 
-  // --------------------------------------------------------
-  // SPECIAL ELEMENTS
-  // --------------------------------------------------------
+  var camel =
+    q(".home6_camel");
 
-  var camel = q(".home6_camel");
-  var monster = q(".home6_monster");
-  var rocket = q(".home6_rocket");
-  var emperor = q(".home6_emperor");
-  var castleInside = q(".home6_castleinside");
-  var cat = q(".home6_cat");
+  var monster =
+    q(".home6_monster");
 
+  var rocket =
+    q(".home6_rocket");
 
-  // --------------------------------------------------------
-  // STRONG GROUP
-  // Existing movement strength = 80%
-  // We split it around the Webflow position:
-  //
-  // +40% → 0 → -40%
-  // --------------------------------------------------------
+  var emperor =
+    q(".home6_emperor");
 
-  var strongLayers = home6BuildLayers.slice();
+  var castleInside =
+    q(".home6_castleinside");
+
+  var cat =
+    q(".home6_cat");
+
 
   [
     rocket,
@@ -3501,95 +3488,193 @@ if (home6TallPillar) {
   });
 
 
-  if (strongLayers.length) {
-
-    gsap.fromTo(
-      strongLayers,
-
-      {
-        yPercent: 40
-      },
-
-      {
-        yPercent: -40,
-
-        ease: "none",
-
-        force3D: true,
-
-        scrollTrigger: {
-
-          // ONE COMMON TRIGGER
-          trigger: section,
-
-          // Start when Home 6 enters lower part of screen
-          start: "top 70%",
-
-          // Continue through Home 6
-          end: "bottom 10%",
-
-          scrub: 1,
-
-          invalidateOnRefresh: true
-
-        }
-
-      }
-    );
-
-  }
-
-
-  // --------------------------------------------------------
-  // SOFTER GROUP
-  // Existing movement strength = 50%
-  //
-  // +25% → 0 → -25%
-  // --------------------------------------------------------
-
   var softLayers = [
     camel,
     monster
   ].filter(Boolean);
 
 
-  if (softLayers.length) {
+  // --------------------------------------------------------
+  // STARTING POSITION
+  // --------------------------------------------------------
 
-    gsap.fromTo(
-      softLayers,
+  gsap.set(strongLayers, {
+    yPercent: 40,
+    force3D: true
+  });
 
-      {
-        yPercent: 25
-      },
 
-      {
-        yPercent: -25,
+  gsap.set(softLayers, {
+    yPercent: 25,
+    force3D: true
+  });
 
-        ease: "none",
 
-        force3D: true,
+  // --------------------------------------------------------
+  // ONE MASTER SCROLL TRIGGER
+  //
+  // progress 0:
+  // strong = +40%
+  // soft   = +25%
+  //
+  // progress .5:
+  // original Webflow position
+  //
+  // progress 1:
+  // strong = -40%
+  // soft   = -25%
+  // --------------------------------------------------------
 
-        scrollTrigger: {
+  ScrollTrigger.create({
 
-          // EXACT SAME TRIGGER
-          trigger: section,
+    trigger: section,
 
-          start: "top 70%",
+    start: "top 70%",
+    end: "bottom 10%",
 
-          end: "bottom 10%",
+    scrub: 1,
 
-          scrub: 1,
+    invalidateOnRefresh: true,
 
-          invalidateOnRefresh: true
 
-        }
+    onUpdate: function(self) {
+
+      var p =
+        self.progress;
+
+
+      // +40 → -40
+      var strongY =
+        40 - (80 * p);
+
+
+      // +25 → -25
+      var softY =
+        25 - (50 * p);
+
+
+      if (strongLayers.length) {
+
+        gsap.set(
+          strongLayers,
+          {
+            yPercent: strongY,
+            force3D: true
+          }
+        );
 
       }
-    );
 
-  }
+
+      if (softLayers.length) {
+
+        gsap.set(
+          softLayers,
+          {
+            yPercent: softY,
+            force3D: true
+          }
+        );
+
+      }
+
+    }
+
+  });
 
 }
+
+
+// ==========================================================
+// UFO TRIGGER
+// KEEP THIS — THIS WAS ACCIDENTALLY REMOVED
+// ==========================================================
+
+if (weirdSun && home6UFO) {
+
+  ScrollTrigger.create({
+
+    trigger:
+      (isSafari && section && city)
+        ? section
+        : weirdSun,
+
+    start:
+      (isSafari && section && city)
+        ? safariStart(weirdSun, 0.10)
+        : "top 10%",
+
+    invalidateOnRefresh: true,
+
+    onEnter: function() {
+      showHome6UFO();
+    },
+
+    onLeaveBack: function() {
+      resetHome6UFO();
+    }
+
+  });
+
+}
+
+
+// ==========================================================
+// LIGHT TRIGGER
+// KEEP THIS — THIS WAS ACCIDENTALLY REMOVED
+// ==========================================================
+
+if (home6Lake) {
+
+  ScrollTrigger.create({
+
+    trigger:
+      (isSafari && section && city)
+        ? section
+        : home6Lake,
+
+    start:
+      (isSafari && section && city)
+        ? safariStart(home6Lake, 0.70)
+        : "top 70%",
+
+    invalidateOnRefresh: true,
+
+    onEnter: function() {
+
+      lightTriggerReached = true;
+
+      turnHome6LightsOn();
+
+    },
+
+    onLeaveBack: function() {
+
+      lightTriggerReached = false;
+
+    }
+
+  });
+
+}
+
+
+// ==========================================================
+// FINAL REFRESH
+// ==========================================================
+
+requestAnimationFrame(function() {
+
+  requestAnimationFrame(function() {
+
+    ScrollTrigger.refresh();
+
+  });
+
+});
+
+
+} // END initHomeSection6
   
 
 
