@@ -3880,7 +3880,7 @@ function emperorFlightDistance() {
   // He stays visible instead of leaving the screen.
 
   return -(
-    getRealViewportHeight() * 0.22
+    getRealViewportHeight() * 0.12
   );
 
 }
@@ -4510,10 +4510,10 @@ if (
 
             ? safariStart(
                 home6TallPillar,
-                0.05
+                -0.05
               )
 
-            : "top 5%",
+            : "top -5%",
 
 
         // ==================================================
