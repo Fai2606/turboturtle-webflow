@@ -3454,7 +3454,6 @@ function initHomeSection6() {
       ".home6_building",
       ".home6_building1",
       ".home6_biggate",
-      ".home6_giraffe",
       ".home6_castle",
       ".home6_pyramid",
       ".home6_dinosaur"
@@ -3490,6 +3489,8 @@ function initHomeSection6() {
     var cat =
       q(".home6_cat");
 
+    var giraffe = 
+      q(".home6_giraffe);
 
     // ========================================================
     // INITIAL STATES
@@ -3533,7 +3534,15 @@ function initHomeSection6() {
     if (rocket) {
 
       gsap.set(rocket, {
-        yPercent: 4560,
+        yPercent: 500,
+        force3D: true
+      });
+    }
+    
+    if (giraffe) {
+
+      gsap.set(giraffe, {
+        yPercent: 400,
         force3D: true
       });
     }
