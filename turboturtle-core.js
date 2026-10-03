@@ -3507,7 +3507,7 @@ function initHomeSection6() {
     if (home6BuildLayers.length) {
 
       gsap.set(home6BuildLayers, {
-        yPercent: 60,
+        yPercent: 70,
         force3D: true
       });
     }
@@ -3516,7 +3516,7 @@ function initHomeSection6() {
     if (camel) {
 
       gsap.set(camel, {
-        yPercent: 30,
+        yPercent: 40,
         force3D: true
       });
     }
@@ -3525,7 +3525,7 @@ function initHomeSection6() {
     if (monster) {
 
       gsap.set(monster, {
-        yPercent: 30,
+        yPercent: 40,
         force3D: true
       });
     }
@@ -3542,7 +3542,7 @@ function initHomeSection6() {
     if (giraffe) {
 
       gsap.set(giraffe, {
-        yPercent: 200,
+        yPercent: 180,
         force3D: true
       });
     }
@@ -3551,7 +3551,7 @@ function initHomeSection6() {
     if (emperor) {
 
       gsap.set(emperor, {
-        yPercent: 60,
+        yPercent: 70,
         force3D: true
       });
     }
@@ -3569,7 +3569,7 @@ function initHomeSection6() {
     if (castleInside) {
 
       gsap.set(castleInside, {
-        yPercent: 60,
+        yPercent: 70,
         force3D: true
       });
     }
@@ -3578,14 +3578,14 @@ function initHomeSection6() {
     if (cat) {
 
       gsap.set(cat, {
-        yPercent: 80,
+        yPercent: 90,
         force3D: true
       });
     }
 
 
     gsap.set(home6TallPillar, {
-      yPercent: 60,
+      yPercent: 70,
       force3D: true
     });
 
@@ -3909,26 +3909,41 @@ if (emperorRocket) {
 
   gsap.fromTo(
     emperorRocket,
-
+  
     {
       y: 0
     },
-
+  
     {
       y: function() {
-        return -45 * vh;
+  
+        // Current VISUAL position after all city scaling / zoom
+        var rect =
+          emperorRocket.getBoundingClientRect();
+  
+        // Distance required for the whole Emperor
+        // to pass above viewport top.
+        //
+        // rect.bottom = actual visual bottom position
+        // + 10vh safety margin
+        return -(
+          rect.bottom +
+          getRealViewportHeight() * 0.10
+        );
       },
-
-      ease: "power3.in",
-
+  
+      ease: "power2.in",
+  
       force3D: true,
-
+  
       immediateRender: false,
-
+  
       scrollTrigger:
         emperorRocketTrigger
     }
   );
+
+  
 }
 
 
