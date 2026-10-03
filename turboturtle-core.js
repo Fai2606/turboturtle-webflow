@@ -3618,6 +3618,7 @@ function initHomeSection6() {
         force3D: true
       }, 0.5);
     }
+    
 
 
     if (emperor) {
