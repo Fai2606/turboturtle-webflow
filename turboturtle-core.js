@@ -4141,17 +4141,18 @@ if (emperorRocket) {
   // awkwardly stop near the top edge.
   // ======================================================
 
-function emperorFlightDistance() {
-
-  // Fly upward by about 22% of viewport height.
-  // He stays visible instead of leaving the screen.
-
-  return -(
-    getRealViewportHeight() * 0.08
-  );
-
-}
-
+  function emperorFlightDistance() {
+  
+    var cityScale =
+      getCityScale();
+  
+    return -(
+      getRealViewportHeight() *
+      0.08 /
+      cityScale
+    );
+  
+  }
 
   // ======================================================
   // STOP FLOAT
