@@ -4395,13 +4395,10 @@ function hideHome6UFO() {
 // ==========================================================
 // UFO TRIGGER
 //
-// EMPEROR:
-// Tall Pillar top = 40%
+// EMPEROR = 40%
+// UFO     = 32%
 //
-// UFO:
-// Tall Pillar top = -20%
-//
-// Therefore UFO needs MORE scrolling before appearing.
+// UFO appears slightly after Emperor launches.
 // ==========================================================
 
 if (
@@ -4417,14 +4414,15 @@ if (
         : home6TallPillar,
 
 
-  (isSafari && section && city)
+    start:
+      (isSafari && section && city)
 
-    ? safariStart(
-        home6TallPillar,
-        0.32
-      )
+        ? safariStart(
+            home6TallPillar,
+            0.32
+          )
 
-    : "top 32%",
+        : "top 32%",
 
 
     invalidateOnRefresh: true,
