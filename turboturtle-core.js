@@ -3964,7 +3964,7 @@ if (emperorRocket) {
 
 // ==========================================================
 // UFO + LIGHT TRANSITION
-// DELAYED + FULLY REVERSIBLE
+// SCROLL-CONTROLLED UFO + TIMED LIGHT ANIMATION
 // ==========================================================
 
 var home6UFO = q(".home6_ufo");
@@ -4060,11 +4060,8 @@ if (home7WhiteCover) {
 function turnHome6LightsOn() {
 
   if (lightsAreOn) return;
-
   if (!lightTriggerReached) return;
-
   if (!ufoHasLanded) return;
-
 
   lightsAreOn = true;
 
@@ -4091,13 +4088,9 @@ function turnHome6LightsOn() {
     lightTL.set(
       home6Light,
       {
-
         scaleX: 0,
-
         visibility: "visible",
-
         opacity: 0.9
-
       },
       0
     );
@@ -4106,7 +4099,6 @@ function turnHome6LightsOn() {
     lightTL.to(
       home6Light,
       {
-
         scaleX: 1,
 
         duration: 0.22,
@@ -4114,7 +4106,6 @@ function turnHome6LightsOn() {
         ease: "power2.out",
 
         force3D: true
-
       },
       0
     );
@@ -4127,13 +4118,9 @@ function turnHome6LightsOn() {
     lightTL.set(
       home7LightBlur,
       {
-
         scaleX: 0,
-
         visibility: "visible",
-
         opacity: 1
-
       },
       0
     );
@@ -4142,7 +4129,6 @@ function turnHome6LightsOn() {
     lightTL.to(
       home7LightBlur,
       {
-
         scaleX: 1,
 
         duration: 0.22,
@@ -4150,7 +4136,6 @@ function turnHome6LightsOn() {
         ease: "power2.out",
 
         force3D: true
-
       },
       0
     );
@@ -4163,13 +4148,11 @@ function turnHome6LightsOn() {
     lightTL.to(
       home7WhiteCover,
       {
-
         opacity: 0,
 
         duration: 1,
 
         ease: "power3.out"
-
       },
       0
     );
@@ -4180,7 +4163,7 @@ function turnHome6LightsOn() {
 
 
 // ==========================================================
-// LIGHT OFF — REVERSE ANIMATION
+// LIGHT OFF
 // ==========================================================
 
 function turnHome6LightsOff() {
@@ -4192,13 +4175,10 @@ function turnHome6LightsOff() {
 
     gsap.killTweensOf(home6Light);
 
-
     gsap.to(
       home6Light,
       {
-
         scaleX: 0,
-
         opacity: 0,
 
         duration: 0.28,
@@ -4206,7 +4186,6 @@ function turnHome6LightsOff() {
         ease: "power2.in",
 
         force3D: true,
-
 
         onComplete: function() {
 
@@ -4229,13 +4208,10 @@ function turnHome6LightsOff() {
 
     gsap.killTweensOf(home7LightBlur);
 
-
     gsap.to(
       home7LightBlur,
       {
-
         scaleX: 0,
-
         opacity: 0,
 
         duration: 0.28,
@@ -4243,7 +4219,6 @@ function turnHome6LightsOff() {
         ease: "power2.in",
 
         force3D: true,
-
 
         onComplete: function() {
 
@@ -4268,17 +4243,14 @@ function turnHome6LightsOff() {
       home7WhiteCover
     );
 
-
     gsap.to(
       home7WhiteCover,
       {
-
         opacity: 1,
 
         duration: 0.55,
 
         ease: "power2.out"
-
       }
     );
 
@@ -4288,117 +4260,18 @@ function turnHome6LightsOff() {
 
 
 // ==========================================================
-// UFO FLY DOWN
-// ==========================================================
-
-function showHome6UFO() {
-
-  if (!home6UFO) return;
-
-
-  gsap.killTweensOf(
-    home6UFO
-  );
-
-
-  ufoHasLanded = false;
-
-
-  gsap.set(
-    home6UFO,
-    {
-
-      visibility: "visible",
-
-      opacity: 1
-
-    }
-  );
-
-
-  gsap.to(
-    home6UFO,
-    {
-
-      y: 0,
-
-      duration: 1.2,
-
-      ease: "power3.out",
-
-      force3D: true,
-
-
-      onComplete: function() {
-
-        ufoHasLanded = true;
-
-        turnHome6LightsOn();
-
-      }
-
-    }
-  );
-
-}
-
-
-// ==========================================================
-// UFO FLY BACK UP
-// ==========================================================
-
-function hideHome6UFO() {
-
-  if (!home6UFO) return;
-
-
-  ufoHasLanded = false;
-
-
-  gsap.killTweensOf(
-    home6UFO
-  );
-
-
-  gsap.to(
-    home6UFO,
-    {
-
-      y: getHome6UFOHiddenY(),
-
-      opacity: 0,
-
-      duration: 1.05,
-
-      ease: "power3.in",
-
-      force3D: true,
-
-
-      onComplete: function() {
-
-        gsap.set(
-          home6UFO,
-          {
-            visibility: "hidden"
-          }
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-// ==========================================================
-// UFO TRIGGER
+// UFO — SCROLL CONTROLLED DESCENT
 //
-// EMPEROR = 40%
-// UFO     = 32%
+// EMPEROR:
+// top 40% → launch
 //
-// UFO appears slightly after Emperor launches.
+// UFO:
+// top 32% → starts coming down
+// top 18% → fully landed + LIGHT ON
+//
+// Scroll back:
+// 18% → LIGHT OFF
+// 32% → UFO fully back in sky
 // ==========================================================
 
 if (
@@ -4406,104 +4279,169 @@ if (
   home6UFO
 ) {
 
-  ScrollTrigger.create({
+  gsap.fromTo(
+    home6UFO,
 
-    trigger:
-      (isSafari && section && city)
-        ? section
-        : home6TallPillar,
-
-
-    start:
-      (isSafari && section && city)
-
-        ? safariStart(
-            home6TallPillar,
-            0.32
-          )
-
-        : "top 32%",
-
-
-    invalidateOnRefresh: true,
-
-
-    // SCROLL DOWN
-    onEnter: function() {
-
-      showHome6UFO();
-
+    {
+      y: getHome6UFOHiddenY()
     },
 
+    {
+      y: 0,
 
-    // SCROLL BACK UP
-    onLeaveBack: function() {
+      ease: "none",
 
-      hideHome6UFO();
+      force3D: true,
+
+      immediateRender: false,
+
+
+      scrollTrigger: {
+
+        trigger:
+          (isSafari && section && city)
+            ? section
+            : home6TallPillar,
+
+
+        // ----------------------------------------------
+        // UFO START
+        // ----------------------------------------------
+
+        start:
+          (isSafari && section && city)
+
+            ? safariStart(
+                home6TallPillar,
+                0.32
+              )
+
+            : "top 32%",
+
+
+        // ----------------------------------------------
+        // UFO LAND
+        // ----------------------------------------------
+
+        end:
+          (isSafari && section && city)
+
+            ? safariStart(
+                home6TallPillar,
+                0.18
+              )
+
+            : "top 18%",
+
+
+        // Slight smoothing but still controlled by scroll
+        scrub: 0.35,
+
+        invalidateOnRefresh: true,
+
+
+        // ----------------------------------------------
+        // SCROLL DOWN
+        // UFO ENTERS
+        // ----------------------------------------------
+
+        onEnter: function() {
+
+          ufoHasLanded = false;
+
+          lightTriggerReached = false;
+
+
+          gsap.set(
+            home6UFO,
+            {
+              visibility: "visible",
+
+              opacity: 1
+            }
+          );
+
+        },
+
+
+        // ----------------------------------------------
+        // UFO FINISHED LANDING
+        // LIGHT ON
+        // ----------------------------------------------
+
+        onLeave: function() {
+
+          ufoHasLanded = true;
+
+          lightTriggerReached = true;
+
+
+          gsap.set(
+            home6UFO,
+            {
+              y: 0,
+
+              visibility: "visible",
+
+              opacity: 1
+            }
+          );
+
+
+          turnHome6LightsOn();
+
+        },
+
+
+        // ----------------------------------------------
+        // SCROLL BACK UP
+        // FIRST: LIGHT OFF
+        // THEN UFO STARTS FLYING BACK UP WITH SCROLL
+        // ----------------------------------------------
+
+        onEnterBack: function() {
+
+          lightTriggerReached = false;
+
+          ufoHasLanded = false;
+
+
+          turnHome6LightsOff();
+
+        },
+
+
+        // ----------------------------------------------
+        // UFO FULLY BACK IN SKY
+        // ----------------------------------------------
+
+        onLeaveBack: function() {
+
+          lightTriggerReached = false;
+
+          ufoHasLanded = false;
+
+
+          turnHome6LightsOff();
+
+
+          gsap.set(
+            home6UFO,
+            {
+              y: getHome6UFOHiddenY(),
+
+              visibility: "hidden",
+
+              opacity: 0
+            }
+          );
+
+        }
+
+      }
 
     }
-
-  });
-
-}
-
-
-// ==========================================================
-// LIGHT TRIGGER
-//
-// UFO starts at -20%
-//
-// LIGHT starts later at -40%
-//
-// Reverse order:
-// LIGHT OFF first
-// then UFO flies back up
-// ==========================================================
-
-if (home6TallPillar) {
-
-  ScrollTrigger.create({
-
-    trigger:
-      (isSafari && section && city)
-        ? section
-        : home6TallPillar,
-
-
-    start:
-      (isSafari && section && city)
-    
-        ? safariStart(
-            home6TallPillar,
-            0.25
-          )
-    
-        : "top 25%",
-
-
-    invalidateOnRefresh: true,
-
-
-    // SCROLL DOWN
-    onEnter: function() {
-
-      lightTriggerReached = true;
-
-      turnHome6LightsOn();
-
-    },
-
-
-    // SCROLL BACK UP
-    onLeaveBack: function() {
-
-      lightTriggerReached = false;
-
-      turnHome6LightsOff();
-
-    }
-
-  });
+  );
 
 }
 
