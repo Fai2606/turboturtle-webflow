@@ -5109,31 +5109,22 @@ function applyCityTypography(city, scale) {
   // ==========================================================
 
   function applyHomeBodyWidth(mode) {
-
+  
     var homeBodyTexts =
       document.querySelectorAll(
         '[class*="home_section"] .body_text'
       );
-
-
+  
     homeBodyTexts.forEach(
       function(el) {
-
-        if (mode === "phone") {
-
-          el.style.width = "68%";
-          el.style.maxWidth = "68%";
-
-        } else {
-
-          el.style.width = "";
-          el.style.maxWidth = "";
-
-        }
-
+  
+        // Let Webflow control body text width / max-width
+        el.style.width = "";
+        el.style.maxWidth = "";
+  
       }
     );
-
+  
   }
 
 
