@@ -3639,7 +3639,7 @@ function initHomeSection6() {
         emperorScrollTrigger = {
           trigger: section,
     
-          start: safariStart(home6TallPillar, 0.80),
+          start: safariStart(home6TallPillar, 0.60),
     
           end: safariStart(home6TallPillar, 0.20),
     
@@ -3653,7 +3653,7 @@ function initHomeSection6() {
         emperorScrollTrigger = {
           trigger: home6TallPillar,
     
-          start: "top 80%",
+          start: "top 60%",
           end: "top 20%",
     
           scrub: 1,
