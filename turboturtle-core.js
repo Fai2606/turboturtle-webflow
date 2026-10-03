@@ -4427,10 +4427,16 @@ var home6LightOnDelay = null;
 
 function getHome6UFOHiddenY() {
 
-  return -getRealViewportHeight() * 1.15;
+  var cityScale =
+    getCityScale();
+
+  return -(
+    getRealViewportHeight() *
+    1.15 /
+    cityScale
+  );
 
 }
-
 
 // ==========================================================
 // INITIAL STATES
