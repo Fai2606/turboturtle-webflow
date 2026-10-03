@@ -3626,16 +3626,17 @@ function initHomeSection6() {
 // EMPEROR — TWO-STAGE SCROLL PARALLAX
 //
 // STAGE 1:
-// top 100% → top 80%
+// top 100% → top 60%
 // yPercent: 100 → 0
+// cubic ease-out
 //
 // HOLD:
-// top 80% → top 35%
-// yPercent stays at 0
+// top 60% → top 40%
 //
 // STAGE 2:
-// top 35% → top 0%
+// top 40% → top 0%
 // yPercent: 0 → -100
+// cubic ease-in
 // ========================================================
 
 if (emperor) {
@@ -3651,7 +3652,7 @@ if (emperor) {
       trigger: section,
 
       start: safariStart(home6TallPillar, 1.00),
-      end: safariStart(home6TallPillar, 0.80),
+      end: safariStart(home6TallPillar, 0.60),
 
       scrub: 1,
       invalidateOnRefresh: true
@@ -3660,7 +3661,7 @@ if (emperor) {
     emperorStage2Trigger = {
       trigger: section,
 
-      start: safariStart(home6TallPillar, 0.35),
+      start: safariStart(home6TallPillar, 0.40),
       end: safariStart(home6TallPillar, 0.00),
 
       scrub: 1,
@@ -3674,7 +3675,7 @@ if (emperor) {
       trigger: home6TallPillar,
 
       start: "top 100%",
-      end: "top 80%",
+      end: "top 60%",
 
       scrub: 1,
       invalidateOnRefresh: true
@@ -3683,7 +3684,7 @@ if (emperor) {
     emperorStage2Trigger = {
       trigger: home6TallPillar,
 
-      start: "top 35%",
+      start: "top 40%",
       end: "top 0%",
 
       scrub: 1,
@@ -3693,8 +3694,12 @@ if (emperor) {
   }
 
 
+  // ======================================================
   // STAGE 1
-  // 100% BELOW → WEBFLOW POSITION
+  // +100% → 0%
+  // EASE OUT CUBIC
+  // ======================================================
+
   gsap.fromTo(
     emperor,
     {
@@ -3703,7 +3708,7 @@ if (emperor) {
     {
       yPercent: 0,
 
-      ease: "none",
+      ease: "power3.out",
       force3D: true,
 
       scrollTrigger: emperorStage1Trigger
@@ -3711,8 +3716,12 @@ if (emperor) {
   );
 
 
+  // ======================================================
   // STAGE 2
-  // WEBFLOW POSITION → 100% ABOVE
+  // 0% → -100%
+  // EASE IN CUBIC
+  // ======================================================
+
   gsap.fromTo(
     emperor,
     {
@@ -3721,7 +3730,7 @@ if (emperor) {
     {
       yPercent: -100,
 
-      ease: "none",
+      ease: "power3.in",
       force3D: true,
       immediateRender: false,
 
