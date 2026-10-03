@@ -3506,7 +3506,7 @@ function initHomeSection6() {
     if (home6BuildLayers.length) {
 
       gsap.set(home6BuildLayers, {
-        yPercent: 45,
+        yPercent: 60,
         force3D: true
       });
     }
@@ -3533,7 +3533,7 @@ function initHomeSection6() {
     if (rocket) {
 
       gsap.set(rocket, {
-        yPercent: 45,
+        yPercent: 4560,
         force3D: true
       });
     }
@@ -3542,7 +3542,7 @@ function initHomeSection6() {
     if (emperor) {
 
       gsap.set(emperor, {
-        yPercent: 45,
+        yPercent: 60,
         force3D: true
       });
     }
@@ -3560,7 +3560,7 @@ function initHomeSection6() {
     if (castleInside) {
 
       gsap.set(castleInside, {
-        yPercent: 45,
+        yPercent: 60,
         force3D: true
       });
     }
@@ -3569,14 +3569,14 @@ function initHomeSection6() {
     if (cat) {
 
       gsap.set(cat, {
-        yPercent: 45,
+        yPercent: 80,
         force3D: true
       });
     }
 
 
     gsap.set(home6TallPillar, {
-      yPercent: 45,
+      yPercent: 60,
       force3D: true
     });
 
@@ -3605,7 +3605,7 @@ function makeBuildTrigger() {
       end:
         safariStart(
           home6TallPillar,
-          0.30
+          0.40
         ),
 
       scrub: 0.6,
@@ -3625,7 +3625,7 @@ function makeBuildTrigger() {
       "top 95%",
 
     end:
-      "top 30%",
+      "top 40%",
 
     scrub: 0.6,
 
@@ -3842,7 +3842,7 @@ if (emperorRocket) {
       start:
         safariStart(
           home6TallPillar,
-          0.50
+          0.40
         ),
 
       end:
@@ -3864,7 +3864,7 @@ if (emperorRocket) {
         home6TallPillar,
 
       start:
-        "top 50%",
+        "top 40%",
 
       end:
         "top 0%",
@@ -3888,7 +3888,7 @@ if (emperorRocket) {
         return -45 * vh;
       },
 
-      ease: "power2.in",
+      ease: "power3.in",
 
       force3D: true,
 
