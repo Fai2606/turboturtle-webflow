@@ -2075,63 +2075,324 @@ if (cityLight2) {
 
 
 
-  // -------------------------------------------------------------
-  // HOME 2 — GROW UP
-  // Desktop only
-  // -------------------------------------------------------------
-  
-  var enableGrowup =
-    !/Mobi|Android|iPhone|iPad|iPod/i.test(
-      navigator.userAgent
-    );
-  
-  
+// -------------------------------------------------------------
+// HOME 2 — GROW UP
+//
+// CSS-ZOOM SAFE VERSION
+//
+// IMPORTANT:
+// Do NOT let ScrollTrigger measure .growup directly.
+// .home_section2_city is CSS-zoomed.
+//
+// Instead:
+// section document top
+// + element offset inside city × city zoom
+// = TRUE visual document position
+// -------------------------------------------------------------
+
+var enableGrowup =
+  !/Mobi|Android|iPhone|iPad|iPod/i.test(
+    navigator.userAgent
+  );
+
+
 if (enableGrowup) {
 
-  gsap.utils.toArray(
-    ".home_section2_city .growup"
-  ).forEach(function(el) {
+  var home2City =
+    q(".home_section2_city");
 
-    gsap.fromTo(
-      el,
 
-      {
-        yPercent: 100
-      },
+  var growupItems =
+    gsap.utils.toArray(
+      ".home_section2_city .growup"
+    );
 
-      {
-        yPercent: 0,
 
-        ease: "power2.out",
+  // ========================================================
+  // GET CITY ZOOM
+  // ========================================================
 
-        force3D: true,
+  function getHome2CityZoom() {
 
-        scrollTrigger: {
+    if (!home2City) return 1;
 
-          // Use the growup object itself.
-          // Don't depend on parent geometry.
-          trigger:
-            el,
 
-          // Start earlier as the object approaches viewport.
-          start:
-            "top 100%",
+    var zoom =
+      parseFloat(
+        window.getComputedStyle(
+          home2City
+        ).zoom
+      );
 
-          // Finish while it is properly inside the screen.
-          end:
-            "top 45%",
 
-          scrub: 0.6,
+    return zoom || 1;
 
-          invalidateOnRefresh:
-            true
+  }
 
+
+  // ========================================================
+  // GET ELEMENT OFFSET INSIDE CITY
+  //
+  // offsetTop = unscaled layout position
+  // ========================================================
+
+  function getHome2GrowupOffset(el) {
+
+    if (
+      !el ||
+      !home2City
+    ) {
+      return 0;
+    }
+
+
+    var total = 0;
+
+    var current = el;
+
+
+    while (
+      current &&
+      current !== home2City
+    ) {
+
+      total +=
+        current.offsetTop || 0;
+
+      current =
+        current.offsetParent;
+
+    }
+
+
+    return total;
+
+  }
+
+
+  // ========================================================
+  // TRUE VISUAL DOCUMENT TOP
+  // ========================================================
+
+  function getHome2GrowupDocumentTop(el) {
+
+    if (
+      !section ||
+      !home2City ||
+      !el
+    ) {
+      return 0;
+    }
+
+
+    var sectionDocumentTop =
+      section.getBoundingClientRect().top +
+      window.scrollY;
+
+
+    var cityTopInsideSection =
+      home2City.offsetTop || 0;
+
+
+    var zoom =
+      getHome2CityZoom();
+
+
+    var growupOffset =
+      getHome2GrowupOffset(el);
+
+
+    return (
+      sectionDocumentTop +
+      cityTopInsideSection +
+      growupOffset * zoom
+    );
+
+  }
+
+
+  // ========================================================
+  // PREPARE GROWUP ITEMS
+  // ========================================================
+
+  growupItems.forEach(
+    function(el) {
+
+      gsap.set(
+        el,
+        {
+          yPercent: 100,
+          force3D: true
         }
+      );
+
+    }
+  );
+
+
+  // ========================================================
+  // MANUAL UPDATE
+  //
+  // START:
+  // object visual top reaches 115% viewport
+  //
+  // END:
+  // object visual top reaches 55% viewport
+  //
+  // This starts BEFORE the object becomes clearly visible.
+  // ========================================================
+
+  function updateHome2Growups() {
+
+    if (
+      !section ||
+      !home2City
+    ) {
+      return;
+    }
+
+
+    var viewportHeight =
+      getRealViewportHeight();
+
+
+    var scrollY =
+      window.scrollY;
+
+
+    growupItems.forEach(
+      function(el) {
+
+        var elementDocumentTop =
+          getHome2GrowupDocumentTop(
+            el
+          );
+
+
+        // Start BEFORE it reaches viewport bottom.
+        var startScroll =
+          elementDocumentTop -
+          viewportHeight * 1.15;
+
+
+        // Finish around middle-lower viewport.
+        var endScroll =
+          elementDocumentTop -
+          viewportHeight * 0.55;
+
+
+        var distance =
+          endScroll -
+          startScroll;
+
+
+        var progress =
+          distance !== 0
+
+            ? (
+                scrollY -
+                startScroll
+              ) /
+              distance
+
+            : 1;
+
+
+        progress =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              progress
+            )
+          );
+
+
+        // Slight ease-out.
+        var eased =
+          1 -
+          Math.pow(
+            1 - progress,
+            2
+          );
+
+
+        gsap.set(
+          el,
+          {
+            yPercent:
+              100 *
+              (
+                1 -
+                eased
+              ),
+
+            force3D: true
+          }
+        );
 
       }
     );
 
-  });
+  }
+
+
+  // ========================================================
+  // UPDATE WITH REAL SCROLL
+  // ========================================================
+
+  window.addEventListener(
+    "scroll",
+    updateHome2Growups,
+    {
+      passive: true
+    }
+  );
+
+
+  // Lenis scroll
+  if (
+    lenis &&
+    lenis.on
+  ) {
+
+    lenis.on(
+      "scroll",
+      updateHome2Growups
+    );
+
+  }
+
+
+  // ========================================================
+  // REFRESH AFTER RESPONSIVE CITY ZOOM CHANGES
+  // ========================================================
+
+  ScrollTrigger.addEventListener(
+    "refresh",
+    updateHome2Growups
+  );
+
+
+  window.addEventListener(
+    "resize",
+    function() {
+
+      requestAnimationFrame(
+        updateHome2Growups
+      );
+
+    }
+  );
+
+
+  // ========================================================
+  // INITIAL POSITION
+  // ========================================================
+
+  requestAnimationFrame(
+    updateHome2Growups
+  );
 
 }
 
