@@ -3521,7 +3521,7 @@ function initHomeSection6() {
     // EMPEROR — handled separately by scroll parallax
     if (emperor) {
       gsap.set(emperor, {
-        yPercent: 60,
+        yPercent: 100,
         force3D: true
       });
     }
@@ -3668,11 +3668,11 @@ function initHomeSection6() {
         emperor,
     
         {
-          yPercent: 60
+          yPercent: 100
         },
     
         {
-          yPercent: 0,
+          yPercent: -30,
     
           ease: "none",
           force3D: true,
