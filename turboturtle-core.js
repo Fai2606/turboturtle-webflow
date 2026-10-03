@@ -3521,7 +3521,7 @@ function initHomeSection6() {
     // EMPEROR — handled separately by scroll parallax
     if (emperor) {
       gsap.set(emperor, {
-        yPercent: 40,
+        yPercent: 60,
         force3D: true
       });
     }
@@ -3559,7 +3559,7 @@ function initHomeSection6() {
 
       buildTL.to(home6BuildLayers, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.2,
         stagger: 0.035,
         ease: "power3.out",
         force3D: true
@@ -3571,7 +3571,7 @@ function initHomeSection6() {
 
       buildTL.to(camel, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.5,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -3582,7 +3582,7 @@ function initHomeSection6() {
 
       buildTL.to(monster, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.2,
         ease: "power3.out",
         force3D: true
       }, 0);
@@ -3593,7 +3593,7 @@ function initHomeSection6() {
 
       buildTL.to(rocket, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.2,
         ease: "power3.out",
         force3D: true
       }, 0.5);
@@ -3604,7 +3604,7 @@ function initHomeSection6() {
 
       buildTL.to(cat, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.2,
         ease: "power3.out",
         force3D: true
       }, 0.5);
@@ -3668,11 +3668,11 @@ function initHomeSection6() {
         emperor,
     
         {
-          yPercent: 40
+          yPercent: 60
         },
     
         {
-          yPercent: -40,
+          yPercent: 0,
     
           ease: "none",
           force3D: true,
@@ -3690,7 +3690,7 @@ function initHomeSection6() {
 
       buildTL.to(castleInside, {
         yPercent: 0,
-        duration: 1.6,
+        duration: 1.2,
         ease: "power3.out",
         force3D: true
       }, 0.8);
@@ -3699,7 +3699,7 @@ function initHomeSection6() {
 
     buildTL.to(home6TallPillar, {
       yPercent: 0,
-      duration: 2.1,
+      duration: 1.7,
       ease: "power3.out",
       force3D: true
     }, 0);
