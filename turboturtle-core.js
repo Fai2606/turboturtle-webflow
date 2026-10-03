@@ -3622,67 +3622,114 @@ function initHomeSection6() {
     // }
 
 
-    // ========================================================
-    // EMPEROR — SCROLL PARALLAX
-    //
-    // Uses the SAME tall pillar area as reference.
-    // Scroll down  = Emperor moves upward.
-    // Scroll back  = Emperor moves downward.
-    // ========================================================
-    
-    if (emperor) {
-    
-      var emperorScrollTrigger;
-    
-      if (isSafari && section && city) {
-    
-        emperorScrollTrigger = {
-          trigger: section,
-    
-          start: safariStart(home6TallPillar, 0.60),
-    
-          end: safariStart(home6TallPillar, 0.20),
-    
-          scrub: 1,
-    
-          invalidateOnRefresh: true
-        };
-    
-      } else {
-    
-        emperorScrollTrigger = {
-          trigger: home6TallPillar,
-    
-          start: "top 60%",
-          end: "top 20%",
-    
-          scrub: 1,
-    
-          invalidateOnRefresh: true
-        };
-    
-      }
-    
-    
-      gsap.fromTo(
-        emperor,
-    
-        {
-          yPercent: 100
-        },
-    
-        {
-          yPercent: -100,
-    
-          ease: "none",
-          force3D: true,
-    
-          scrollTrigger: emperorScrollTrigger
-        }
-      );
-    
-    }
+// ========================================================
+// EMPEROR — TWO-STAGE SCROLL PARALLAX
+//
+// STAGE 1:
+// top 100% → top 80%
+// yPercent: 100 → 0
+//
+// HOLD:
+// top 80% → top 35%
+// yPercent stays at 0
+//
+// STAGE 2:
+// top 35% → top 0%
+// yPercent: 0 → -100
+// ========================================================
 
+if (emperor) {
+
+  var emperorStage1Trigger;
+  var emperorStage2Trigger;
+
+
+  // SAFARI
+  if (isSafari && section && city) {
+
+    emperorStage1Trigger = {
+      trigger: section,
+
+      start: safariStart(home6TallPillar, 1.00),
+      end: safariStart(home6TallPillar, 0.80),
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+    emperorStage2Trigger = {
+      trigger: section,
+
+      start: safariStart(home6TallPillar, 0.35),
+      end: safariStart(home6TallPillar, 0.00),
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+  } else {
+
+    // CHROME / OTHER BROWSERS
+    emperorStage1Trigger = {
+      trigger: home6TallPillar,
+
+      start: "top 100%",
+      end: "top 80%",
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+    emperorStage2Trigger = {
+      trigger: home6TallPillar,
+
+      start: "top 35%",
+      end: "top 0%",
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+  }
+
+
+  // STAGE 1
+  // 100% BELOW → WEBFLOW POSITION
+  gsap.fromTo(
+    emperor,
+    {
+      yPercent: 100
+    },
+    {
+      yPercent: 0,
+
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: emperorStage1Trigger
+    }
+  );
+
+
+  // STAGE 2
+  // WEBFLOW POSITION → 100% ABOVE
+  gsap.fromTo(
+    emperor,
+    {
+      yPercent: 0
+    },
+    {
+      yPercent: -100,
+
+      ease: "none",
+      force3D: true,
+      immediateRender: false,
+
+      scrollTrigger: emperorStage2Trigger
+    }
+  );
+
+}
 
     
 
