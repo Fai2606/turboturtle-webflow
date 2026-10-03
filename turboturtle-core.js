@@ -4319,7 +4319,7 @@ if (
     {
       y: 0,
 
-      ease: "power1.out",
+      ease: "none",
 
       force3D: true,
 
@@ -4376,7 +4376,7 @@ if (
         //
         // No delayed catch-up at the landing point.
         // Therefore no final snap / glitch.
-        scrub: true,
+        scrub: 0.35,
 
 
         invalidateOnRefresh: true,
@@ -4443,15 +4443,17 @@ if (
 // ==========================================================
 // LIGHT TRIGGER
 //
-// UFO centre reaches viewport 55%
-// → LIGHT ON
+// IMPORTANT:
+// During normal downward page scroll, this UFO moves visually
+// UP through the viewport because the whole Home 6 composition
+// is also scrolling upward.
 //
-// Reverse:
-// UFO centre rises above 55%
-// → LIGHT OFF
+// So:
+// UFO centre crosses ABOVE viewport 55% -> LIGHT ON
+// Reverse crosses BELOW viewport 55%   -> LIGHT OFF
 // ==========================================================
 
-var ufoLightWasBelow55 = false;
+var ufoLightWasAbove55 = false;
 
 
 function updateHome6UFOLight() {
@@ -4472,18 +4474,14 @@ function updateHome6UFOLight() {
     getRealViewportHeight() * 0.55;
 
 
-  var isBelow55 =
-    ufoCenter >= lightLine;
+  var isAbove55 =
+    ufoCenter <= lightLine;
 
 
-  // ----------------------------------------------
-  // DOWN
-  // Cross 55% → LIGHT ON
-  // ----------------------------------------------
-
+  // DOWN: UFO visually crosses upward past 55% -> ON
   if (
-    isBelow55 &&
-    !ufoLightWasBelow55
+    isAbove55 &&
+    !ufoLightWasAbove55
   ) {
 
     turnHome6LightsOn();
@@ -4491,14 +4489,10 @@ function updateHome6UFOLight() {
   }
 
 
-  // ----------------------------------------------
-  // UP
-  // Cross 55% upward → LIGHT OFF
-  // ----------------------------------------------
-
+  // UP: UFO visually crosses downward past 55% -> OFF
   if (
-    !isBelow55 &&
-    ufoLightWasBelow55
+    !isAbove55 &&
+    ufoLightWasAbove55
   ) {
 
     turnHome6LightsOff();
@@ -4506,8 +4500,8 @@ function updateHome6UFOLight() {
   }
 
 
-  ufoLightWasBelow55 =
-    isBelow55;
+  ufoLightWasAbove55 =
+    isAbove55;
 
 }
 
