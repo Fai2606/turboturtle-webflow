@@ -3996,38 +3996,7 @@ function getHome6UFOHiddenY() {
 
 }
 
-function getHome6UFOLandingY() {
 
-  if (!home6UFO) return 0;
-
-  // Temporarily read its Webflow/original position
-  var currentY =
-    gsap.getProperty(home6UFO, "y");
-
-  gsap.set(home6UFO, {
-    y: 0
-  });
-
-  var rect =
-    home6UFO.getBoundingClientRect();
-
-  gsap.set(home6UFO, {
-    y: currentY
-  });
-
-
-  // Put UFO centre at 55% of viewport height
-  var targetY =
-    getRealViewportHeight() * 0.55;
-
-  var originalCenter =
-    rect.top +
-    rect.height * 0.5;
-
-
-  return targetY - originalCenter;
-
-}
 
 
 // ==========================================================
@@ -4348,7 +4317,7 @@ if (
     },
 
     {
-      y: getHome6UFOLandingY,
+      y: 0,
 
       ease: "power1.out",
 
@@ -4472,77 +4441,96 @@ if (
 
 
 // ==========================================================
-// LIGHT — SEPARATE TRIGGER
+// LIGHT TRIGGER
 //
-// UFO finishes landing:
-// Tall Pillar -5%
+// UFO centre reaches viewport 55%
+// → LIGHT ON
 //
-// Light ON:
-// Tall Pillar -12%
-//
-// There is therefore another 7vh after UFO landing.
-//
-// REVERSE:
-//
-// -12% → LIGHT OFF
-//
-// user must scroll another 7vh upward
-//
-// -5% → UFO starts moving upward
-//
-// This fixes:
-// "燈未關，UFO已經飛走"
+// Reverse:
+// UFO centre rises above 55%
+// → LIGHT OFF
 // ==========================================================
 
-if (
-  home6TallPillar
-) {
+var ufoLightWasBelow55 = false;
+
+
+function updateHome6UFOLight() {
+
+  if (!home6UFO) return;
+
+
+  var rect =
+    home6UFO.getBoundingClientRect();
+
+
+  var ufoCenter =
+    rect.top +
+    rect.height * 0.5;
+
+
+  var lightLine =
+    getRealViewportHeight() * 0.55;
+
+
+  var isBelow55 =
+    ufoCenter >= lightLine;
+
+
+  // ----------------------------------------------
+  // DOWN
+  // Cross 55% → LIGHT ON
+  // ----------------------------------------------
+
+  if (
+    isBelow55 &&
+    !ufoLightWasBelow55
+  ) {
+
+    turnHome6LightsOn();
+
+  }
+
+
+  // ----------------------------------------------
+  // UP
+  // Cross 55% upward → LIGHT OFF
+  // ----------------------------------------------
+
+  if (
+    !isBelow55 &&
+    ufoLightWasBelow55
+  ) {
+
+    turnHome6LightsOff();
+
+  }
+
+
+  ufoLightWasBelow55 =
+    isBelow55;
+
+}
+
+
+if (home6UFO) {
 
   ScrollTrigger.create({
 
-    trigger:
-      (isSafari && section && city)
-        ? section
-        : home6TallPillar,
+    trigger: section,
 
+    start: "top bottom",
 
-    start:
-      (isSafari && section && city)
+    end: "bottom top",
 
-        ? safariStart(
-            home6TallPillar,
-            -0.12
-          )
+    onUpdate:
+      updateHome6UFOLight,
 
-        : "top -12%",
-
-
-    invalidateOnRefresh: true,
-
-
-    // ================================================
-    // DOWN — LIGHT ON
-    // ================================================
-
-    onEnter: function() {
-
-      turnHome6LightsOn();
-
-    },
-
-
-    // ================================================
-    // UP — LIGHT OFF FIRST
-    // ================================================
-
-    onLeaveBack: function() {
-
-      turnHome6LightsOff();
-
-    }
+    invalidateOnRefresh:
+      true
 
   });
 
+}
 }
 
   requestAnimationFrame(
