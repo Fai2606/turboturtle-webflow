@@ -3623,119 +3623,138 @@ function initHomeSection6() {
 
 
 // ========================================================
-// EMPEROR — TWO-STAGE SCROLL PARALLAX
+// EMPEROR — TWO-STAGE SCROLL
 //
-// STAGE 1:
-// top 100% → top 60%
-// yPercent: 100 → 0
-// cubic ease-out
-//
-// HOLD:
-// top 60% → top 40%
-//
-// STAGE 2:
-// top 40% → top 0%
-// yPercent: 0 → -100
-// cubic ease-in
+// 100% → 60% : +100 → 0, cubic out
+// 60%  → 40% : HOLD at 0
+// 40%  → 0%  : 0 → -100, cubic in
 // ========================================================
 
 if (emperor) {
 
-  var emperorStage1Trigger;
-  var emperorStage2Trigger;
+  var emperorTrigger;
 
-
-  // SAFARI
   if (isSafari && section && city) {
 
-    emperorStage1Trigger = {
+    emperorTrigger = {
       trigger: section,
 
       start: safariStart(home6TallPillar, 1.00),
-      end: safariStart(home6TallPillar, 0.60),
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-    emperorStage2Trigger = {
-      trigger: section,
-
-      start: safariStart(home6TallPillar, 0.40),
       end: safariStart(home6TallPillar, 0.00),
 
-      scrub: 1,
+      scrub: true,
       invalidateOnRefresh: true
     };
 
   } else {
 
-    // CHROME / OTHER BROWSERS
-    emperorStage1Trigger = {
+    emperorTrigger = {
       trigger: home6TallPillar,
 
       start: "top 100%",
-      end: "top 60%",
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-    emperorStage2Trigger = {
-      trigger: home6TallPillar,
-
-      start: "top 40%",
       end: "top 0%",
 
-      scrub: 1,
+      scrub: true,
       invalidateOnRefresh: true
     };
 
   }
 
 
-  // ======================================================
-  // STAGE 1
-  // +100% → 0%
-  // EASE OUT CUBIC
-  // ======================================================
+  ScrollTrigger.create(
+    Object.assign(
+      {},
+      emperorTrigger,
+      {
 
-  gsap.fromTo(
-    emperor,
-    {
-      yPercent: 100
-    },
-    {
-      yPercent: 0,
+        onUpdate: function(self) {
 
-      ease: "power3.out",
-      force3D: true,
+          var p = self.progress;
 
-      scrollTrigger: emperorStage1Trigger
-    }
-  );
+          var y;
 
 
-  // ======================================================
-  // STAGE 2
-  // 0% → -100%
-  // EASE IN CUBIC
-  // ======================================================
+          // ================================================
+          // STAGE 1
+          // top 100% → top 60%
+          //
+          // Overall progress:
+          // 0.00 → 0.40
+          //
+          // yPercent:
+          // 100 → 0
+          //
+          // CUBIC OUT
+          // ================================================
 
-  gsap.fromTo(
-    emperor,
-    {
-      yPercent: 0
-    },
-    {
-      yPercent: -100,
+          if (p <= 0.40) {
 
-      ease: "power3.in",
-      force3D: true,
-      immediateRender: false,
+            var t1 =
+              p / 0.40;
 
-      scrollTrigger: emperorStage2Trigger
-    }
+            var eased1 =
+              1 - Math.pow(1 - t1, 3);
+
+            y =
+              100 * (1 - eased1);
+
+          }
+
+
+          // ================================================
+          // HOLD
+          // top 60% → top 40%
+          //
+          // Overall progress:
+          // 0.40 → 0.60
+          // ================================================
+
+          else if (p <= 0.60) {
+
+            y = 0;
+
+          }
+
+
+          // ================================================
+          // STAGE 2
+          // top 40% → top 0%
+          //
+          // Overall progress:
+          // 0.60 → 1.00
+          //
+          // yPercent:
+          // 0 → -100
+          //
+          // CUBIC IN
+          // ================================================
+
+          else {
+
+            var t2 =
+              (p - 0.60) / 0.40;
+
+            var eased2 =
+              Math.pow(t2, 3);
+
+            y =
+              -100 * eased2;
+
+          }
+
+
+          gsap.set(
+            emperor,
+            {
+              yPercent: y,
+              force3D: true
+            }
+          );
+
+        }
+
+      }
+    )
   );
 
 }
