@@ -3672,7 +3672,7 @@ function initHomeSection6() {
         },
     
         {
-          yPercent: -30,
+          yPercent: -100,
     
           ease: "none",
           force3D: true,
