@@ -3418,537 +3418,176 @@ function initHomeSection6() {
   }
 
 
-  // ==========================================================
-  // HOME 6 — CASTLE BUILD
-  // ==========================================================
+// ==========================================================
+// HOME 6 — CASTLE PARALLAX
+//
+// ONE SHARED TRIGGER.
+// All objects move together with scroll.
+//
+// Objects previously using 80%:
+//   +40% → -40%
+//
+// Objects previously using 50%:
+//   +25% → -25%
+//
+// Because this uses yPercent, taller objects naturally
+// travel more pixels than shorter objects.
+// ==========================================================
 
-  if (home6TallPillar) {
+if (home6TallPillar) {
 
-    var home6BuildSelectors = [
-      ".home6_tree",
-      ".home6_bloodcell",
-      ".home6_cone",
-      ".home6_castlepeak",
-      ".home6_conetop",
-      ".home6_sphere",
-      ".home6_backcastle",
-      ".home6_building",
-      ".home6_building1",
-      ".home6_biggate",
-      ".home6_giraffe",
-      ".home6_castle",
-      ".home6_pyramid",
-      ".home6_dinosaur"
-    ];
+  // --------------------------------------------------------
+  // NORMAL / STRONG PARALLAX GROUP
+  // --------------------------------------------------------
 
-    var home6BuildLayers = home6BuildSelectors
-      .map(function(selector) {
-        return document.querySelector(selector);
-      })
-      .filter(Boolean);
+  var home6BuildSelectors = [
+    ".home6_tree",
+    ".home6_bloodcell",
+    ".home6_cone",
+    ".home6_castlepeak",
+    ".home6_conetop",
+    ".home6_sphere",
+    ".home6_backcastle",
+    ".home6_building",
+    ".home6_building1",
+    ".home6_biggate",
+    ".home6_giraffe",
+    ".home6_castle",
+    ".home6_pyramid",
+    ".home6_dinosaur"
+  ];
 
-
-    var camel = q(".home6_camel");
-    var monster = q(".home6_monster");
-    var rocket = q(".home6_rocket");
-    var emperor = q(".home6_emperor");
-    var castleInside = q(".home6_castleinside");
-    var cat = q(".home6_cat");
+  var home6BuildLayers = home6BuildSelectors
+    .map(function(selector) {
+      return document.querySelector(selector);
+    })
+    .filter(Boolean);
 
 
-    // NORMAL BUILD LAYERS
+  // --------------------------------------------------------
+  // SPECIAL ELEMENTS
+  // --------------------------------------------------------
 
-    if (home6BuildLayers.length) {
+  var camel = q(".home6_camel");
+  var monster = q(".home6_monster");
+  var rocket = q(".home6_rocket");
+  var emperor = q(".home6_emperor");
+  var castleInside = q(".home6_castleinside");
+  var cat = q(".home6_cat");
 
-      gsap.set(home6BuildLayers, {
-        yPercent: 80,
-        force3D: true
-      });
+
+  // --------------------------------------------------------
+  // STRONG GROUP
+  // Existing movement strength = 80%
+  // We split it around the Webflow position:
+  //
+  // +40% → 0 → -40%
+  // --------------------------------------------------------
+
+  var strongLayers = home6BuildLayers.slice();
+
+  [
+    rocket,
+    emperor,
+    castleInside,
+    cat,
+    home6TallPillar
+  ].forEach(function(el) {
+
+    if (el) {
+      strongLayers.push(el);
     }
 
-
-    // SPECIAL LAYERS
-
-    if (camel) {
-      gsap.set(camel, {
-        yPercent: 50,
-        force3D: true
-      });
-    }
-
-    if (monster) {
-      gsap.set(monster, {
-        yPercent: 50,
-        force3D: true
-      });
-    }
-
-    if (rocket) {
-      gsap.set(rocket, {
-        yPercent: 80,
-        force3D: true
-      });
-    }
-
-    if (emperor) {
-      gsap.set(emperor, {
-        yPercent: 80,
-        force3D: true
-      });
-    }
-
-    if (castleInside) {
-      gsap.set(castleInside, {
-        yPercent: 80,
-        force3D: true
-      });
-    }
-
-    if (cat) {
-      gsap.set(cat, {
-        yPercent: 80,
-        force3D: true
-      });
-    }
-
-    gsap.set(home6TallPillar, {
-      yPercent: 80,
-      force3D: true
-    });
-
-
-    // ========================================================
-    // BUILD TIMELINE
-    // ========================================================
-
-    var buildTL = gsap.timeline({
-      paused: true
-    });
-
-
-    if (home6BuildLayers.length) {
-
-      buildTL.to(home6BuildLayers, {
-        yPercent: 0,
-        duration: 1.6,
-        stagger: 0.035,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-    }
-
-
-    if (camel) {
-
-      buildTL.to(camel, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-    }
-
-
-    if (monster) {
-
-      buildTL.to(monster, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-    }
-
-
-    if (rocket) {
-
-      buildTL.to(rocket, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
-    }
-
-
-    if (cat) {
-
-      buildTL.to(cat, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
-    }
-
-
-    if (emperor) {
-
-      buildTL.to(emperor, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.65);
-    }
-
-
-    if (castleInside) {
-
-      buildTL.to(castleInside, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.8);
-    }
-
-
-    buildTL.to(home6TallPillar, {
-      yPercent: 0,
-      duration: 2.1,
-      ease: "power3.out",
-      force3D: true
-    }, 0);
-
-
-    var buildTrigger = {
-
-      trigger:
-        (isSafari && section && city)
-          ? section
-          : home6TallPillar,
-
-      start:
-        (isSafari && section && city)
-          ? safariStart(home6TallPillar, 0.80)
-          : "top 80%",
-
-      invalidateOnRefresh: true,
-
-      onEnter: function() {
-        buildTL.timeScale(1).play();
-      },
-
-      onLeaveBack: function() {
-        buildTL.timeScale(2).reverse();
-      }
-    };
-
-
-    ScrollTrigger.create(buildTrigger);
-  }
-
-
-  // ==========================================================
-  // UFO + LIGHT TRANSITION
-  // ==========================================================
-
-  var home6UFO = q(".home6_ufo");
-  var home6Light = q(".home6_light");
-
-  var home7LightBlur = q(".home7_lightblur");
-  var home7WhiteCover = q(".home7_whitecover");
-
-
-  var ufoHasLanded = false;
-  var lightTriggerReached = false;
-  var lightsAreOn = false;
-
-
-  // ==========================================================
-  // INITIAL STATES
-  // ==========================================================
-
-  if (home6UFO) {
-
-    gsap.set(home6UFO, {
-      y: -document.documentElement.clientHeight * 1.5,
-      visibility: "hidden",
-      opacity: 0,
-      force3D: true
-    });
-  }
-
-
-  if (home6Light) {
-
-    gsap.set(home6Light, {
-      scaleX: 0,
-      transformOrigin: "50% 0%",
-      visibility: "hidden",
-      opacity: 0,
-      force3D: true
-    });
-  }
-
-
-  if (home7LightBlur) {
-
-    gsap.set(home7LightBlur, {
-      scaleX: 0,
-      transformOrigin: "50% 0%",
-      visibility: "hidden",
-      opacity: 0,
-      force3D: true
-    });
-  }
-
-
-  if (home7WhiteCover) {
-
-    gsap.set(home7WhiteCover, {
-      opacity: 1
-    });
-  }
-
-
-  // ==========================================================
-  // TURN LIGHTS ON
-  // ==========================================================
-
-  function turnHome6LightsOn() {
-
-    if (lightsAreOn) return;
-    if (!lightTriggerReached) return;
-    if (!ufoHasLanded) return;
-
-
-    lightsAreOn = true;
-
-
-    if (home6Light) {
-      gsap.killTweensOf(home6Light);
-    }
-
-    if (home7LightBlur) {
-      gsap.killTweensOf(home7LightBlur);
-    }
-
-
-    var lightTL = gsap.timeline();
-
-
-    if (home6Light) {
-
-      lightTL.set(home6Light, {
-        scaleX: 0,
-        visibility: "visible",
-        opacity: 0.9
-      }, 0);
-
-      lightTL.to(home6Light, {
-        scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
-        force3D: true
-      }, 0);
-    }
-
-
-    if (home7LightBlur) {
-
-      lightTL.set(home7LightBlur, {
-        scaleX: 0,
-        visibility: "visible",
-        opacity: 1
-      }, 0);
-
-      lightTL.to(home7LightBlur, {
-        scaleX: 1,
-        duration: 0.18,
-        ease: "power2.out",
-        force3D: true
-      }, 0);
-    }
-
-
-    if (home7WhiteCover) {
-
-      lightTL.to(home7WhiteCover, {
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out"
-      }, 0);
-    }
-  }
-
-
-  // ==========================================================
-  // UFO ENTER
-  // ==========================================================
-
-  function showHome6UFO() {
-
-    if (!home6UFO) return;
-
-
-    gsap.killTweensOf(home6UFO);
-
-    ufoHasLanded = false;
-
-
-    gsap.set(home6UFO, {
-      visibility: "visible",
-      opacity: 1
-    });
-
-
-    gsap.to(home6UFO, {
-
-      y: 0,
-
-      duration: 1.2,
-
-      ease: "power3.out",
-
-      force3D: true,
-
-      onComplete: function() {
-
-        ufoHasLanded = true;
-
-        turnHome6LightsOn();
-      }
-
-    });
-  }
-
-
-  // ==========================================================
-  // RESET
-  // ==========================================================
-
-  function resetHome6UFO() {
-
-    ufoHasLanded = false;
-    lightTriggerReached = false;
-    lightsAreOn = false;
-
-
-    if (home6Light) {
-
-      gsap.killTweensOf(home6Light);
-
-      gsap.set(home6Light, {
-        scaleX: 0,
-        visibility: "hidden",
-        opacity: 0
-      });
-    }
-
-
-    if (home7LightBlur) {
-
-      gsap.killTweensOf(home7LightBlur);
-
-      gsap.set(home7LightBlur, {
-        scaleX: 0,
-        visibility: "hidden",
-        opacity: 0
-      });
-    }
-
-
-    if (home7WhiteCover) {
-
-      gsap.killTweensOf(home7WhiteCover);
-
-      gsap.set(home7WhiteCover, {
-        opacity: 1
-      });
-    }
-
-
-    if (home6UFO) {
-
-      gsap.killTweensOf(home6UFO);
-
-      gsap.set(home6UFO, {
-        y: -document.documentElement.clientHeight * 1.5,
-        visibility: "hidden",
-        opacity: 0,
-        force3D: true
-      });
-    }
-  }
-
-
-  // ==========================================================
-  // UFO TRIGGER
-  // ==========================================================
-
-  if (weirdSun && home6UFO) {
-
-    ScrollTrigger.create({
-
-      trigger:
-        (isSafari && section && city)
-          ? section
-          : weirdSun,
-
-      start:
-        (isSafari && section && city)
-          ? safariStart(weirdSun, 0.10)
-          : "top 10%",
-
-      invalidateOnRefresh: true,
-
-      onEnter: function() {
-        showHome6UFO();
-      },
-
-      onLeaveBack: function() {
-        resetHome6UFO();
-      }
-
-    });
-  }
-
-
-  // ==========================================================
-  // LIGHT TRIGGER
-  // ==========================================================
-
-  if (home6Lake) {
-
-    ScrollTrigger.create({
-
-      trigger:
-        (isSafari && section && city)
-          ? section
-          : home6Lake,
-
-      start:
-        (isSafari && section && city)
-          ? safariStart(home6Lake, 0.70)
-          : "top 70%",
-
-      invalidateOnRefresh: true,
-
-      onEnter: function() {
-
-        lightTriggerReached = true;
-
-        turnHome6LightsOn();
-      },
-
-      onLeaveBack: function() {
-
-        lightTriggerReached = false;
-      }
-
-    });
-  }
-
-
-  requestAnimationFrame(function() {
-
-    requestAnimationFrame(function() {
-
-      ScrollTrigger.refresh();
-    });
   });
+
+
+  if (strongLayers.length) {
+
+    gsap.fromTo(
+      strongLayers,
+
+      {
+        yPercent: 40
+      },
+
+      {
+        yPercent: -40,
+
+        ease: "none",
+
+        force3D: true,
+
+        scrollTrigger: {
+
+          // ONE COMMON TRIGGER
+          trigger: section,
+
+          // Start when Home 6 enters lower part of screen
+          start: "top 70%",
+
+          // Continue through Home 6
+          end: "bottom 10%",
+
+          scrub: 1,
+
+          invalidateOnRefresh: true
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // --------------------------------------------------------
+  // SOFTER GROUP
+  // Existing movement strength = 50%
+  //
+  // +25% → 0 → -25%
+  // --------------------------------------------------------
+
+  var softLayers = [
+    camel,
+    monster
+  ].filter(Boolean);
+
+
+  if (softLayers.length) {
+
+    gsap.fromTo(
+      softLayers,
+
+      {
+        yPercent: 25
+      },
+
+      {
+        yPercent: -25,
+
+        ease: "none",
+
+        force3D: true,
+
+        scrollTrigger: {
+
+          // EXACT SAME TRIGGER
+          trigger: section,
+
+          start: "top 70%",
+
+          end: "bottom 10%",
+
+          scrub: 1,
+
+          invalidateOnRefresh: true
+
+        }
+
+      }
+    );
+
+  }
 
 }
   
