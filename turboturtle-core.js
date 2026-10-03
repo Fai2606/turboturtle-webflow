@@ -3845,36 +3845,140 @@ function makeBuildTrigger() {
 // ========================================================
 // EMPEROR — STAGE 2
 //
-// NO SCRUB.
+// STRUCTURE:
 //
-// When Tall Pillar reaches 40%:
-// Emperor launches automatically.
+// .home6_emperor
+//   └── .home6_emperor_rocket
+//         └── .home6_emperor_float
 //
-// Flight duration:
-// 2 seconds.
-//
-// Destination:
-// Calculated from actual VISUAL position,
-// so it also works with mobile city scaling.
+// emperorRocket = actual flight
+// emperorFloat  = subtle floating only
 // ========================================================
+
+var emperorFloat =
+  q(".home6_emperor_float");
+
 
 if (emperorRocket) {
 
-  var emperorFlightDistance = function() {
+  var emperorFloatTween = null;
+
+
+  // ======================================================
+  // FLIGHT DESTINATION
+  //
+  // OLD = 10vh above viewport
+  // NEW = 35vh above viewport
+  //
+  // This prevents mobile from seeing Emperor
+  // awkwardly stop near the top edge.
+  // ======================================================
+
+  function emperorFlightDistance() {
 
     var rect =
       emperorRocket.getBoundingClientRect();
 
-    // Move far enough for the WHOLE Emperor
-    // to clear the top of the viewport.
-    //
-    // Extra 10vh = safety margin.
+
     return -(
       rect.bottom +
-      getRealViewportHeight() * 0.10
+      getRealViewportHeight() * 0.35
     );
-  };
 
+  }
+
+
+  // ======================================================
+  // STOP FLOAT
+  // ======================================================
+
+  function stopEmperorFloat() {
+
+    if (emperorFloatTween) {
+
+      emperorFloatTween.kill();
+
+      emperorFloatTween = null;
+
+    }
+
+
+    if (emperorFloat) {
+
+      gsap.killTweensOf(
+        emperorFloat
+      );
+
+
+      gsap.set(
+        emperorFloat,
+        {
+          y: 0,
+          force3D: true
+        }
+      );
+
+    }
+
+  }
+
+
+  // ======================================================
+  // START FLOAT
+  //
+  // Inner wrapper only.
+  // Does NOT interfere with emperorRocket flight.
+  // ======================================================
+
+  function startEmperorFloat() {
+
+    if (!emperorFloat) return;
+
+
+    stopEmperorFloat();
+
+
+    emperorFloatTween =
+      gsap.to(
+        emperorFloat,
+        {
+          y: -12,
+
+          duration: 1.15,
+
+          ease: "sine.inOut",
+
+          repeat: -1,
+
+          yoyo: true,
+
+          force3D: true
+        }
+      );
+
+  }
+
+
+  // ======================================================
+  // INITIAL FLOAT STATE
+  // ======================================================
+
+  if (emperorFloat) {
+
+    gsap.set(
+      emperorFloat,
+      {
+        y: 0,
+        force3D: true
+      }
+    );
+
+  }
+
+
+  // ======================================================
+  // LAUNCH TRIGGER
+  // ======================================================
 
   var emperorLaunchTrigger = {
 
@@ -3883,71 +3987,100 @@ if (emperorRocket) {
         ? section
         : home6TallPillar,
 
+
     start:
       (isSafari && section && city)
+
         ? safariStart(
             home6TallPillar,
             0.40
           )
+
         : "top 40%",
+
 
     invalidateOnRefresh: true,
 
 
-    // ----------------------------------------------
-    // SCROLL DOWN → LAUNCH
-    // ----------------------------------------------
+    // ====================================================
+    // SCROLL DOWN
+    //
+    // 1. Stop any old float
+    // 2. Fly upward
+    // 3. Ease gently into final position
+    // 4. Start subtle floating
+    // ====================================================
 
     onEnter: function() {
 
+      stopEmperorFloat();
+
+
       gsap.killTweensOf(
         emperorRocket
       );
 
+
       gsap.to(
         emperorRocket,
         {
-
           y:
             emperorFlightDistance,
 
-          duration: 2,
+          duration: 2.2,
 
-          ease:
-            "power2.in",
+          ease: "power2.inOut",
 
-          force3D: true
+          force3D: true,
+
+          overwrite: true,
+
+
+          onComplete: function() {
+
+            startEmperorFloat();
+
+          }
 
         }
       );
+
     },
 
 
-    // ----------------------------------------------
-    // SCROLL BACK UP → RETURN
-    // ----------------------------------------------
+    // ====================================================
+    // SCROLL UP
+    //
+    // Stop float first,
+    // then return Emperor to Webflow position.
+    // ====================================================
 
     onLeaveBack: function() {
+
+      stopEmperorFloat();
+
 
       gsap.killTweensOf(
         emperorRocket
       );
 
+
       gsap.to(
         emperorRocket,
         {
-
           y: 0,
 
-          duration: 1.2,
+          duration: 1.4,
 
-          ease:
-            "power2.out",
+          ease: "power2.inOut",
 
-          force3D: true
+          force3D: true,
+
+          overwrite: true
 
         }
       );
+
     }
 
   };
@@ -3956,8 +4089,8 @@ if (emperorRocket) {
   ScrollTrigger.create(
     emperorLaunchTrigger
   );
-}
 
+}
 // CLOSE: if (home6TallPillar)
 }
 
