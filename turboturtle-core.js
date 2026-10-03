@@ -3605,7 +3605,7 @@ function makeBuildTrigger() {
       end:
         safariStart(
           home6TallPillar,
-          0.40
+          0.30
         ),
 
       scrub: 0.6,
@@ -3625,7 +3625,7 @@ function makeBuildTrigger() {
       "top 95%",
 
     end:
-      "top 40%",
+      "top 30%",
 
     scrub: 0.6,
 
@@ -3842,7 +3842,7 @@ if (emperorRocket) {
       start:
         safariStart(
           home6TallPillar,
-          0.40
+          0.50
         ),
 
       end:
@@ -3851,7 +3851,7 @@ if (emperorRocket) {
           0.00
         ),
 
-      scrub: 0.6,
+      scrub: 0.5,
 
       invalidateOnRefresh: true
     };
@@ -3864,12 +3864,12 @@ if (emperorRocket) {
         home6TallPillar,
 
       start:
-        "top 40%",
+        "top 50%",
 
       end:
         "top 0%",
 
-      scrub: 0.6,
+      scrub: 0.5,
 
       invalidateOnRefresh: true
     };
@@ -3885,7 +3885,7 @@ if (emperorRocket) {
 
     {
       y: function() {
-        return -50 * vh;
+        return -45 * vh;
       },
 
       ease: "power2.in",
