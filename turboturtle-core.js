@@ -3964,19 +3964,17 @@ if (emperorRocket) {
 
 // ==========================================================
 // UFO + LIGHT TRANSITION
-//
-// NEW FLOW:
+// LONG SCROLL VERSION
 //
 // DOWN:
-// Emperor 40%
-// UFO start 35%
-// UFO lands -10%
-// Light ON -18%
+// weirdSun top 90%  -> UFO begins long descent
+// tallPillar top -5% -> UFO reaches Webflow position
+// tallPillar top -12% -> LIGHT ON
 //
 // UP:
-// Light OFF -18%
-// UFO starts returning -10%
-// UFO hidden 35%
+// tallPillar top -12% -> LIGHT OFF first
+// tallPillar top -5%  -> UFO begins rising
+// weirdSun top 90%    -> UFO fully leaves
 // ==========================================================
 
 var home6UFO = q(".home6_ufo");
@@ -3994,7 +3992,7 @@ var lightsAreOn = false;
 
 function getHome6UFOHiddenY() {
 
-  return -getRealViewportHeight() * 1.5;
+  return -getRealViewportHeight() * 1.15;
 
 }
 
@@ -4011,7 +4009,7 @@ if (home6UFO) {
       y: getHome6UFOHiddenY(),
 
       visibility: "hidden",
-      opacity: 0,
+      opacity: 1,
 
       force3D: true
     }
@@ -4082,23 +4080,15 @@ function turnHome6LightsOn() {
 
 
   if (home6Light) {
-
     gsap.killTweensOf(home6Light);
-
   }
-
 
   if (home7LightBlur) {
-
     gsap.killTweensOf(home7LightBlur);
-
   }
 
-
   if (home7WhiteCover) {
-
     gsap.killTweensOf(home7WhiteCover);
-
   }
 
 
@@ -4114,7 +4104,6 @@ function turnHome6LightsOn() {
         scaleX: 0,
 
         visibility: "visible",
-
         opacity: 0.9
       },
       0
@@ -4146,7 +4135,6 @@ function turnHome6LightsOn() {
         scaleX: 0,
 
         visibility: "visible",
-
         opacity: 1
       },
       0
@@ -4192,8 +4180,9 @@ function turnHome6LightsOn() {
 // ==========================================================
 // LIGHT OFF
 //
-// Faster reverse.
-// UFO does NOT move yet.
+// IMPORTANT:
+// Reverse時先關燈。
+// UFO仍然保持landing位置一段scroll distance。
 // ==========================================================
 
 function turnHome6LightsOff() {
@@ -4211,10 +4200,9 @@ function turnHome6LightsOff() {
       home6Light,
       {
         scaleX: 0,
-
         opacity: 0,
 
-        duration: 0.18,
+        duration: 0.16,
 
         ease: "power2.in",
 
@@ -4248,10 +4236,9 @@ function turnHome6LightsOff() {
       home7LightBlur,
       {
         scaleX: 0,
-
         opacity: 0,
 
-        duration: 0.18,
+        duration: 0.16,
 
         ease: "power2.in",
 
@@ -4288,7 +4275,7 @@ function turnHome6LightsOff() {
       {
         opacity: 1,
 
-        duration: 0.25,
+        duration: 0.20,
 
         ease: "power2.out"
       }
@@ -4300,17 +4287,22 @@ function turnHome6LightsOff() {
 
 
 // ==========================================================
-// UFO PARALLAX
+// UFO — LONG SCROLL DESCENT
 //
-// LONGER FLIGHT:
+// START:
+// 當 weirdSun 去到 viewport 90%。
+// 即係你開始見到太陽附近，UFO已經開始由上面落。
 //
-// 35%  = starts entering
-// -10% = fully landed
+// END:
+// Tall Pillar去到 -5%。
+// UFO先真正去到Webflow原本位置。
 //
-// Total scroll distance = 45vh
+// 所以飛行距離係橫跨Home6一大段，
+// 唔再係scroll少少就完成。
 // ==========================================================
 
 if (
+  weirdSun &&
   home6TallPillar &&
   home6UFO
 ) {
@@ -4337,18 +4329,32 @@ if (
         trigger:
           (isSafari && section && city)
             ? section
-            : home6TallPillar,
+            : weirdSun,
 
+
+        // ================================================
+        // UFO STARTS DESCENDING
+        // ================================================
 
         start:
           (isSafari && section && city)
 
             ? safariStart(
-                home6TallPillar,
-                0.35
+                weirdSun,
+                0.90
               )
 
-            : "top 35%",
+            : "top 90%",
+
+
+        // ================================================
+        // UFO FINISHES AT WEBFLOW POSITION
+        // ================================================
+
+        endTrigger:
+          (isSafari && section && city)
+            ? section
+            : home6TallPillar,
 
 
         end:
@@ -4356,16 +4362,27 @@ if (
 
             ? safariStart(
                 home6TallPillar,
-                -0.10
+                -0.05
               )
 
-            : "top -10%",
+            : "top -5%",
 
 
-        scrub: 0.6,
+        // IMPORTANT:
+        //
+        // TRUE instead of 0.6.
+        //
+        // No delayed catch-up at the landing point.
+        // Therefore no final snap / glitch.
+        scrub: true,
+
 
         invalidateOnRefresh: true,
 
+
+        // ================================================
+        // ENTER
+        // ================================================
 
         onEnter: function() {
 
@@ -4380,29 +4397,12 @@ if (
         },
 
 
-        onLeave: function() {
-
-          gsap.set(
-            home6UFO,
-            {
-              y: 0,
-
-              visibility: "visible",
-              opacity: 1
-            }
-          );
-
-        },
-
+        // ================================================
+        // REVERSE — UFO BECOMES ACTIVE AGAIN
+        // ================================================
 
         onEnterBack: function() {
 
-          // IMPORTANT:
-          // Do nothing to the light here.
-          //
-          // Light has already been switched off
-          // by its own earlier trigger.
-
           gsap.set(
             home6UFO,
             {
@@ -4413,16 +4413,18 @@ if (
 
         },
 
+
+        // ================================================
+        // COMPLETELY BACK ABOVE HOME6
+        // ================================================
 
         onLeaveBack: function() {
 
           gsap.set(
             home6UFO,
             {
-              y: getHome6UFOHiddenY(),
-
               visibility: "hidden",
-              opacity: 0
+              opacity: 1
             }
           );
 
@@ -4439,18 +4441,24 @@ if (
 // ==========================================================
 // LIGHT — SEPARATE TRIGGER
 //
-// UFO lands at -10%.
+// UFO finishes landing:
+// Tall Pillar -5%
 //
-// Continue another 8vh,
-// THEN play light.
+// Light ON:
+// Tall Pillar -12%
 //
-// Reverse:
+// There is therefore another 7vh after UFO landing.
 //
-// Cross -18% upward
-// → light turns OFF
+// REVERSE:
 //
-// UFO stays landed until -10%
-// → THEN UFO starts flying upward.
+// -12% → LIGHT OFF
+//
+// user must scroll another 7vh upward
+//
+// -5% → UFO starts moving upward
+//
+// This fixes:
+// "燈未關，UFO已經飛走"
 // ==========================================================
 
 if (
@@ -4470,14 +4478,18 @@ if (
 
         ? safariStart(
             home6TallPillar,
-            -0.18
+            -0.12
           )
 
-        : "top -18%",
+        : "top -12%",
 
 
     invalidateOnRefresh: true,
 
+
+    // ================================================
+    // DOWN — LIGHT ON
+    // ================================================
 
     onEnter: function() {
 
@@ -4485,6 +4497,10 @@ if (
 
     },
 
+
+    // ================================================
+    // UP — LIGHT OFF FIRST
+    // ================================================
 
     onLeaveBack: function() {
 
