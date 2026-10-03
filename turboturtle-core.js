@@ -94,9 +94,30 @@ root.addEventListener("resize", function () {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       MorphSVGPlugin = root.MorphSVGPlugin;
-
-      if (MorphSVGPlugin) gsap.registerPlugin(ScrollTrigger, MorphSVGPlugin);
-      else gsap.registerPlugin(ScrollTrigger);
+  
+      var SplitText = root.SplitText;
+  
+      if (MorphSVGPlugin && SplitText) {
+        gsap.registerPlugin(
+          ScrollTrigger,
+          MorphSVGPlugin,
+          SplitText
+        );
+      } else if (MorphSVGPlugin) {
+        gsap.registerPlugin(
+          ScrollTrigger,
+          MorphSVGPlugin
+        );
+      } else if (SplitText) {
+        gsap.registerPlugin(
+          ScrollTrigger,
+          SplitText
+        );
+      } else {
+        gsap.registerPlugin(
+          ScrollTrigger
+        );
+    }
 
       ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
 
