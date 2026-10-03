@@ -3946,23 +3946,26 @@ function stopEmperorFloat(instant) {
     stopEmperorFloat();
 
 
-    emperorFloatTween =
-      gsap.to(
-        emperorFloat,
-        {
-          y: -12,
+emperorFloatTween =
+  gsap.to(
+    emperorFloat,
+    {
+      // IMPORTANT:
+      // First floating movement goes DOWN,
+      // so it continues naturally after the upward flight.
+      y: 12,
 
-          duration: 0.855,
+      duration: 0.75,
 
-          ease: "sine.inOut",
+      ease: "sine.inOut",
 
-          repeat: -1,
+      repeat: -1,
 
-          yoyo: true,
+      yoyo: true,
 
-          force3D: true
-        }
-      );
+      force3D: true
+    }
+  );
 
   }
 
