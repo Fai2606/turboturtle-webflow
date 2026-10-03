@@ -3588,50 +3588,50 @@ function initHomeSection6() {
     // top 100% → top 60%
     // ========================================================
 
-    function makeBuildTrigger() {
+function makeBuildTrigger() {
 
-      if (isSafari && section && city) {
+  if (isSafari && section && city) {
 
-        return {
+    return {
 
-          trigger: section,
+      trigger: section,
 
-          start:
-            safariStart(
-              home6TallPillar,
-              1.00
-            ),
-
-          end:
-            safariStart(
-              home6TallPillar,
-              0.60
-            ),
-
-          scrub: 0.6,
-
-          invalidateOnRefresh: true
-        };
-
-      }
-
-
-      return {
-
-        trigger:
+      start:
+        safariStart(
           home6TallPillar,
+          0.95
+        ),
 
-        start:
-          "top 100%",
+      end:
+        safariStart(
+          home6TallPillar,
+          0.40
+        ),
 
-        end:
-          "top 60%",
+      scrub: 0.6,
 
-        scrub: 0.6,
+      invalidateOnRefresh: true
+    };
 
-        invalidateOnRefresh: true
-      };
-    }
+  }
+
+
+  return {
+
+    trigger:
+      home6TallPillar,
+
+    start:
+      "top 95%",
+
+    end:
+      "top 40%",
+
+    scrub: 0.6,
+
+    invalidateOnRefresh: true
+  };
+}
 
 
     // ========================================================
@@ -3811,92 +3811,94 @@ function initHomeSection6() {
     }
 
 
-    // ========================================================
-    // EMPEROR — STAGE 2
-    //
-    // OLD:
-    // top 40% → top 0%
-    // yPercent 0 → -120
-    //
-    // NEW:
-    // top 45% → top 0%
-    // yPercent 0 → -90
-    //
-    // Starts earlier + travels less
-    // = slower / smoother visual launch
-    // ========================================================
+// ========================================================
+// EMPEROR — STAGE 2
+//
+// Parent .home6_emperor stays at Webflow position.
+//
+// Inner .home6_emperor_rocket flies upward.
+//
+// START:
+// Tall Pillar top 40%
+//
+// END:
+// Tall Pillar top 0%
+//
+// DISTANCE:
+// 50vh upward
+// ========================================================
 
-    if (emperorRocket) {
+if (emperorRocket) {
 
-      var emperorRocketTrigger;
-
-
-      if (isSafari && section && city) {
-
-        emperorRocketTrigger = {
-
-          trigger: section,
-
-          start:
-            safariStart(
-              home6TallPillar,
-              0.45
-            ),
-
-          end:
-            safariStart(
-              home6TallPillar,
-              0.00
-            ),
-
-          scrub: 0.6,
-
-          invalidateOnRefresh: true
-        };
-
-      } else {
-
-        emperorRocketTrigger = {
-
-          trigger:
-            home6TallPillar,
-
-          start:
-            "top 45%",
-
-          end:
-            "top 0%",
-
-          scrub: 0.6,
-
-          invalidateOnRefresh: true
-        };
-      }
+  var emperorRocketTrigger;
 
 
-      gsap.fromTo(
-        emperorRocket,
+  if (isSafari && section && city) {
 
-        {
-          yPercent: 0
-        },
+    emperorRocketTrigger = {
 
-        {
-          yPercent: -90,
+      trigger: section,
 
-          ease: "power3.in",
+      start:
+        safariStart(
+          home6TallPillar,
+          0.40
+        ),
 
-          force3D: true,
+      end:
+        safariStart(
+          home6TallPillar,
+          0.00
+        ),
 
-          immediateRender: false,
+      scrub: 0.6,
 
-          scrollTrigger:
-            emperorRocketTrigger
-        }
-      );
-    }
+      invalidateOnRefresh: true
+    };
 
+  } else {
+
+    emperorRocketTrigger = {
+
+      trigger:
+        home6TallPillar,
+
+      start:
+        "top 40%",
+
+      end:
+        "top 0%",
+
+      scrub: 0.6,
+
+      invalidateOnRefresh: true
+    };
   }
+
+
+  gsap.fromTo(
+    emperorRocket,
+
+    {
+      y: 0
+    },
+
+    {
+      y: function() {
+        return -50 * vh;
+      },
+
+      ease: "power2.in",
+
+      force3D: true,
+
+      immediateRender: false,
+
+      scrollTrigger:
+        emperorRocketTrigger
+    }
+  );
+}
 
 
   // ==========================================================
