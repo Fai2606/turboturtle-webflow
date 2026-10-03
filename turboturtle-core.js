@@ -3472,7 +3472,10 @@ function initHomeSection6() {
     var camel = q(".home6_camel");
     var monster = q(".home6_monster");
     var rocket = q(".home6_rocket");
+    
     var emperor = q(".home6_emperor");
+    var emperorRocket = q(".home6_emperor_rocket");
+    
     var castleInside = q(".home6_castleinside");
     var cat = q(".home6_cat");
 
@@ -3518,10 +3521,16 @@ function initHomeSection6() {
     //   });
     // }
 
-    // EMPEROR — handled separately by scroll parallax
     if (emperor) {
       gsap.set(emperor, {
-        yPercent: 100,
+        yPercent: 80,
+        force3D: true
+      });
+    }
+    
+    if (emperorRocket) {
+      gsap.set(emperorRocket, {
+        yPercent: 0,
         force3D: true
       });
     }
@@ -3611,54 +3620,39 @@ function initHomeSection6() {
     }
 
 
-    // if (emperor) {
-
-    //   buildTL.to(emperor, {
-    //     yPercent: 0,
-    //     duration: 1.6,
-    //     ease: "power3.out",
-    //     force3D: true
-    //   }, 0.65);
-    // }
+    if (emperor) {
+    
+      buildTL.to(emperor, {
+        yPercent: 0,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true
+      }, 0.65);
+    
+    }
 
 
 // ========================================================
-// EMPEROR — TWO-STAGE SCROLL PARALLAX
+// EMPEROR — ROCKET LAUNCH
 //
-// STAGE 1:
-// top 100% → top 60%
-// yPercent: 100 → 0
-// cubic ease-out
-//
-// HOLD:
-// top 60% → top 40%
+// STAGE 1 is handled by buildTL above.
 //
 // STAGE 2:
-// top 40% → top 0%
-// yPercent: 0 → -100
-// cubic ease-in
+// home6TallPillar top 40% → top 0%
+// Move INNER .home6_emperor_rocket upward.
+//
+// Parent .home6_emperor stays untouched.
 // ========================================================
 
-if (emperor) {
+if (emperorRocket) {
 
-  var emperorStage1Trigger;
-  var emperorStage2Trigger;
+  var emperorRocketTrigger;
 
 
   // SAFARI
   if (isSafari && section && city) {
 
-    emperorStage1Trigger = {
-      trigger: section,
-
-      start: safariStart(home6TallPillar, 1.00),
-      end: safariStart(home6TallPillar, 0.60),
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-    emperorStage2Trigger = {
+    emperorRocketTrigger = {
       trigger: section,
 
       start: safariStart(home6TallPillar, 0.40),
@@ -3671,17 +3665,7 @@ if (emperor) {
   } else {
 
     // CHROME / OTHER BROWSERS
-    emperorStage1Trigger = {
-      trigger: home6TallPillar,
-
-      start: "top 100%",
-      end: "top 60%",
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-    emperorStage2Trigger = {
+    emperorRocketTrigger = {
       trigger: home6TallPillar,
 
       start: "top 40%",
@@ -3694,52 +3678,29 @@ if (emperor) {
   }
 
 
-  // ======================================================
-  // STAGE 1
-  // +100% → 0%
-  // EASE OUT CUBIC
-  // ======================================================
-
   gsap.fromTo(
-    emperor,
-    {
-      yPercent: 100
-    },
-    {
-      yPercent: 0,
+    emperorRocket,
 
-      ease: "power2.out",
-      force3D: true,
-
-      scrollTrigger: emperorStage1Trigger
-    }
-  );
-
-
-  // ======================================================
-  // STAGE 2
-  // 0% → -100%
-  // EASE IN CUBIC
-  // ======================================================
-
-  gsap.fromTo(
-    emperor,
     {
       yPercent: 0
     },
+
     {
+      // Fly upward by its own full height
       yPercent: -100,
 
       ease: "power2.in",
+
       force3D: true,
+
       immediateRender: false,
 
-      scrollTrigger: emperorStage2Trigger
+      scrollTrigger:
+        emperorRocketTrigger
     }
   );
 
 }
-
     
 
     if (castleInside) {
