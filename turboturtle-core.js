@@ -2086,48 +2086,54 @@ if (cityLight2) {
     );
   
   
-  if (enableGrowup) {
-  
-    gsap.utils.toArray(
-      ".home_section2_city .growup"
-    ).forEach(function(el) {
-  
-      gsap.fromTo(
-        el,
-  
-        {
-          yPercent: 100
-        },
-  
-        {
-          yPercent: 0,
-  
-          ease: "power2.out",
-  
-          scrollTrigger: {
-  
-            trigger:
-              el.parentElement,
-  
-            start:
-              "top 85%",
-  
-            end:
-              "top 35%",
-  
-            scrub: 1,
-  
-            invalidateOnRefresh:
-              true
-  
-          }
-  
+if (enableGrowup) {
+
+  gsap.utils.toArray(
+    ".home_section2_city .growup"
+  ).forEach(function(el) {
+
+    gsap.fromTo(
+      el,
+
+      {
+        yPercent: 100
+      },
+
+      {
+        yPercent: 0,
+
+        ease: "power2.out",
+
+        force3D: true,
+
+        scrollTrigger: {
+
+          // Use the growup object itself.
+          // Don't depend on parent geometry.
+          trigger:
+            el,
+
+          // Start earlier as the object approaches viewport.
+          start:
+            "top 100%",
+
+          // Finish while it is properly inside the screen.
+          end:
+            "top 45%",
+
+          scrub: 0.6,
+
+          invalidateOnRefresh:
+            true
+
         }
-      );
-  
-    });
-  
-  }
+
+      }
+    );
+
+  });
+
+}
 
 
   
@@ -4510,10 +4516,10 @@ if (
 
             ? safariStart(
                 home6TallPillar,
-                -0.05
+                0.30
               )
 
-            : "top -5%",
+            : "top 30%",
 
 
         // ==================================================
@@ -4562,7 +4568,7 @@ if (
 
           home6LightOnDelay =
             gsap.delayedCall(
-              0.35,
+              0.12,
               function() {
 
                 home6LightOnDelay = null;
