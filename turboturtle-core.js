@@ -4417,15 +4417,14 @@ if (
         : home6TallPillar,
 
 
-    start:
-      (isSafari && section && city)
+  (isSafari && section && city)
 
-        ? safariStart(
-            home6TallPillar,
-            -0.20
-          )
+    ? safariStart(
+        home6TallPillar,
+        0.32
+      )
 
-        : "top -20%",
+    : "top 32%",
 
 
     invalidateOnRefresh: true,
@@ -4475,13 +4474,13 @@ if (home6TallPillar) {
 
     start:
       (isSafari && section && city)
-
+    
         ? safariStart(
             home6TallPillar,
-            -0.40
+            0.25
           )
-
-        : "top -40%",
+    
+        : "top 25%",
 
 
     invalidateOnRefresh: true,
