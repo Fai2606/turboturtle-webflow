@@ -4458,6 +4458,7 @@ function getHome6UFOHiddenY() {
   return distance;
 
 }
+  
 
 // ==========================================================
 // INITIAL STATES
