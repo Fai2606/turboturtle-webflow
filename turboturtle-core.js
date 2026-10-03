@@ -3896,35 +3896,39 @@ function emperorFlightDistance() {
   // STOP FLOAT
   // ======================================================
 
-  function stopEmperorFloat() {
+function stopEmperorFloat(instant) {
 
-    if (emperorFloatTween) {
+  if (emperorFloatTween) {
 
-      emperorFloatTween.kill();
+    emperorFloatTween.kill();
 
-      emperorFloatTween = null;
-
-    }
-
-
-    if (emperorFloat) {
-
-      gsap.killTweensOf(
-        emperorFloat
-      );
-
-
-      gsap.set(
-        emperorFloat,
-        {
-          y: 0,
-          force3D: true
-        }
-      );
-
-    }
+    emperorFloatTween = null;
 
   }
+
+
+  if (!emperorFloat) return;
+
+
+  gsap.killTweensOf(
+    emperorFloat
+  );
+
+
+  // Normal cleanup / before launching
+  if (instant) {
+
+    gsap.set(
+      emperorFloat,
+      {
+        y: 0,
+        force3D: true
+      }
+    );
+
+  }
+
+}
 
 
   // ======================================================
@@ -4016,8 +4020,8 @@ function emperorFlightDistance() {
     // ====================================================
 
     onEnter: function() {
-
-      stopEmperorFloat();
+    
+      stopEmperorFloat(true);
 
 
       gsap.killTweensOf(
@@ -4059,33 +4063,58 @@ function emperorFlightDistance() {
     // then return Emperor to Webflow position.
     // ====================================================
 
-    onLeaveBack: function() {
+onLeaveBack: function() {
 
-      stopEmperorFloat();
-
-
-      gsap.killTweensOf(
-        emperorRocket
-      );
+  // Stop floating WITHOUT snapping float wrapper to y:0
+  stopEmperorFloat(false);
 
 
-      gsap.to(
-        emperorRocket,
-        {
-          y: 0,
+  gsap.killTweensOf(
+    emperorRocket
+  );
 
-          duration: 1.4,
 
-          ease: "power2.inOut",
+  // Smoothly absorb whatever floating offset
+  // Emperor currently has while he starts descending.
+  if (emperorFloat) {
 
-          force3D: true,
+    gsap.to(
+      emperorFloat,
+      {
+        y: 0,
 
-          overwrite: true
+        duration: 0.25,
 
-        }
-      );
+        ease: "power2.out",
+
+        force3D: true,
+
+        overwrite: true
+      }
+    );
+
+  }
+
+
+  // Emperor returns to Webflow position
+  // at the same time.
+  gsap.to(
+    emperorRocket,
+    {
+      y: 0,
+
+      duration: 1.4,
+
+      ease: "power2.inOut",
+
+      force3D: true,
+
+      overwrite: true
 
     }
+  );
+
+}
 
   };
 
