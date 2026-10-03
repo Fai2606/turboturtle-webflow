@@ -3540,7 +3540,7 @@ function initHomeSection6() {
     if (rocket) {
 
       gsap.set(rocket, {
-        yPercent: 150,
+        yPercent: 100,
         force3D: true
       });
     }
@@ -3548,7 +3548,7 @@ function initHomeSection6() {
     if (giraffe) {
 
       gsap.set(giraffe, {
-        yPercent: 180,
+        yPercent: 120,
         force3D: true
       });
     }
