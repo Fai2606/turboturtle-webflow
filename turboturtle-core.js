@@ -3490,9 +3490,17 @@ function initHomeSection6() {
       });
     }
 
+    // if (emperor) {
+    //   gsap.set(emperor, {
+    //     yPercent: 80,
+    //     force3D: true
+    //   });
+    // }
+
+    // EMPEROR — handled separately by scroll parallax
     if (emperor) {
       gsap.set(emperor, {
-        yPercent: 80,
+        yPercent: 50,
         force3D: true
       });
     }
@@ -3582,16 +3590,80 @@ function initHomeSection6() {
     }
 
 
-    if (emperor) {
+    // if (emperor) {
 
-      buildTL.to(emperor, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.65);
+    //   buildTL.to(emperor, {
+    //     yPercent: 0,
+    //     duration: 1.6,
+    //     ease: "power3.out",
+    //     force3D: true
+    //   }, 0.65);
+    // }
+
+
+    // ========================================================
+    // EMPEROR — SCROLL PARALLAX
+    //
+    // Uses the SAME tall pillar area as reference.
+    // Scroll down  = Emperor moves upward.
+    // Scroll back  = Emperor moves downward.
+    // ========================================================
+    
+    if (emperor) {
+    
+      var emperorScrollTrigger;
+    
+      if (isSafari && section && city) {
+    
+        emperorScrollTrigger = {
+          trigger: section,
+    
+          start: safariStart(home6TallPillar, 0.80),
+    
+          end: safariStart(home6TallPillar, 0.10),
+    
+          scrub: 1,
+    
+          invalidateOnRefresh: true
+        };
+    
+      } else {
+    
+        emperorScrollTrigger = {
+          trigger: home6TallPillar,
+    
+          start: "top 80%",
+          end: "top 10%",
+    
+          scrub: 1,
+    
+          invalidateOnRefresh: true
+        };
+    
+      }
+    
+    
+      gsap.fromTo(
+        emperor,
+    
+        {
+          yPercent: 50
+        },
+    
+        {
+          yPercent: -50,
+    
+          ease: "none",
+          force3D: true,
+    
+          scrollTrigger: emperorScrollTrigger
+        }
+      );
+    
     }
 
+
+    
 
     if (castleInside) {
 
