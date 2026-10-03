@@ -3164,10 +3164,6 @@ function initHomeSection5() {
 
 } // END initHomeSection5
   
-// =============================================================
-// HOMEPAGE SECTION 6
-// =============================================================
-  
 function initHomeSection6() {
 
   var section = q(".home_section6");
@@ -3194,17 +3190,6 @@ function initHomeSection6() {
 
   // ==========================================================
   // SAFARI-SAFE CITY GEOMETRY
-  //
-  // Safari can report incorrect getBoundingClientRect() values
-  // for descendants of a CSS-zoomed CITY.
-  //
-  // We calculate their real visual position from:
-  //
-  // SECTION TOP
-  // +
-  // INTERNAL OFFSET INSIDE CITY × CITY ZOOM
-  //
-  // Chrome keeps using normal ScrollTrigger geometry.
   // ==========================================================
 
   function getCityScale() {
@@ -3440,7 +3425,12 @@ function initHomeSection6() {
 
 
   // ==========================================================
-  // HOME 6 — CASTLE BUILD
+  // HOME 6 — SCROLL-LINKED CASTLE BUILD
+  //
+  // top 100% → top 60%
+  // Everything rises into its Webflow position.
+  //
+  // No time-based build timeline anymore.
   // ==========================================================
 
   if (home6TallPillar) {
@@ -3462,25 +3452,40 @@ function initHomeSection6() {
       ".home6_dinosaur"
     ];
 
-    var home6BuildLayers = home6BuildSelectors
-      .map(function(selector) {
-        return document.querySelector(selector);
-      })
-      .filter(Boolean);
+
+    var home6BuildLayers =
+      home6BuildSelectors
+        .map(function(selector) {
+          return document.querySelector(selector);
+        })
+        .filter(Boolean);
 
 
-    var camel = q(".home6_camel");
-    var monster = q(".home6_monster");
-    var rocket = q(".home6_rocket");
-    
-    var emperor = q(".home6_emperor");
-    var emperorRocket = q(".home6_emperor_rocket");
-    
-    var castleInside = q(".home6_castleinside");
-    var cat = q(".home6_cat");
+    var camel =
+      q(".home6_camel");
+
+    var monster =
+      q(".home6_monster");
+
+    var rocket =
+      q(".home6_rocket");
+
+    var emperor =
+      q(".home6_emperor");
+
+    var emperorRocket =
+      q(".home6_emperor_rocket");
+
+    var castleInside =
+      q(".home6_castleinside");
+
+    var cat =
+      q(".home6_cat");
 
 
-    // NORMAL BUILD LAYERS
+    // ========================================================
+    // INITIAL STATES
+    // ========================================================
 
     if (home6BuildLayers.length) {
 
@@ -3491,63 +3496,68 @@ function initHomeSection6() {
     }
 
 
-    // SPECIAL LAYERS
-
     if (camel) {
+
       gsap.set(camel, {
         yPercent: 50,
         force3D: true
       });
     }
 
+
     if (monster) {
+
       gsap.set(monster, {
         yPercent: 50,
         force3D: true
       });
     }
 
+
     if (rocket) {
+
       gsap.set(rocket, {
         yPercent: 80,
         force3D: true
       });
     }
 
-    // if (emperor) {
-    //   gsap.set(emperor, {
-    //     yPercent: 80,
-    //     force3D: true
-    //   });
-    // }
 
     if (emperor) {
+
       gsap.set(emperor, {
         yPercent: 80,
         force3D: true
       });
     }
-    
+
+
     if (emperorRocket) {
+
       gsap.set(emperorRocket, {
         yPercent: 0,
         force3D: true
       });
     }
 
+
     if (castleInside) {
+
       gsap.set(castleInside, {
         yPercent: 80,
         force3D: true
       });
     }
 
+
     if (cat) {
+
       gsap.set(cat, {
         yPercent: 80,
         force3D: true
       });
     }
+
 
     gsap.set(home6TallPillar, {
       yPercent: 80,
@@ -3556,203 +3566,318 @@ function initHomeSection6() {
 
 
     // ========================================================
-    // BUILD TIMELINE
+    // SHARED BUILD TRIGGER
+    //
+    // Tall Pillar:
+    // top 100% → top 60%
     // ========================================================
 
-    var buildTL = gsap.timeline({
-      paused: true
-    });
+    function makeBuildTrigger() {
 
+      if (isSafari && section && city) {
+
+        return {
+          trigger: section,
+
+          start:
+            safariStart(
+              home6TallPillar,
+              1.00
+            ),
+
+          end:
+            safariStart(
+              home6TallPillar,
+              0.60
+            ),
+
+          scrub: 0.6,
+
+          invalidateOnRefresh: true
+        };
+
+      }
+
+
+      return {
+        trigger: home6TallPillar,
+
+        start: "top 100%",
+        end: "top 60%",
+
+        scrub: 0.6,
+
+        invalidateOnRefresh: true
+      };
+    }
+
+
+    // ========================================================
+    // NORMAL CASTLE LAYERS
+    // ========================================================
 
     if (home6BuildLayers.length) {
 
-      buildTL.to(home6BuildLayers, {
-        yPercent: 0,
-        duration: 1.2,
-        stagger: 0.035,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
+      gsap.to(
+        home6BuildLayers,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
+
+    // ========================================================
+    // CAMEL
+    // ========================================================
 
     if (camel) {
 
-      buildTL.to(camel, {
-        yPercent: 0,
-        duration: 1.5,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
+      gsap.to(
+        camel,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
+
+    // ========================================================
+    // MONSTER
+    // ========================================================
 
     if (monster) {
 
-      buildTL.to(monster, {
-        yPercent: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
+      gsap.to(
+        monster,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
+
+    // ========================================================
+    // ROCKET
+    // ========================================================
 
     if (rocket) {
 
-      buildTL.to(rocket, {
-        yPercent: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
+      gsap.to(
+        rocket,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
+
+    // ========================================================
+    // CAT
+    // ========================================================
 
     if (cat) {
 
-      buildTL.to(cat, {
-        yPercent: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true
-      }, 0.5);
-    }
-    
+      gsap.to(
+        cat,
+        {
+          yPercent: 0,
 
+          ease: "power3.out",
 
-    if (emperor) {
-    
-      buildTL.to(emperor, {
-        yPercent: 0,
-        duration: 1.6,
-        ease: "power3.out",
-        force3D: true
-      }, 0.65);
-    
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
 
-// ========================================================
-// EMPEROR — ROCKET LAUNCH
-//
-// STAGE 1 is handled by buildTL above.
-//
-// STAGE 2:
-// home6TallPillar top 40% → top 0%
-// Move INNER .home6_emperor_rocket upward.
-//
-// Parent .home6_emperor stays untouched.
-// ========================================================
-
-if (emperorRocket) {
-
-  var emperorRocketTrigger;
-
-
-  // SAFARI
-  if (isSafari && section && city) {
-
-    emperorRocketTrigger = {
-      trigger: section,
-
-      start: safariStart(home6TallPillar, 0.40),
-      end: safariStart(home6TallPillar, 0.00),
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-  } else {
-
-    // CHROME / OTHER BROWSERS
-    emperorRocketTrigger = {
-      trigger: home6TallPillar,
-
-      start: "top 40%",
-      end: "top 0%",
-
-      scrub: 1,
-      invalidateOnRefresh: true
-    };
-
-  }
-
-
-  gsap.fromTo(
-    emperorRocket,
-
-    {
-      yPercent: 0
-    },
-
-    {
-      // Fly upward by its own full height
-      yPercent: -100,
-
-      ease: "power2.in",
-
-      force3D: true,
-
-      immediateRender: false,
-
-      scrollTrigger:
-        emperorRocketTrigger
-    }
-  );
-
-}
-    
+    // ========================================================
+    // CASTLE INSIDE
+    // ========================================================
 
     if (castleInside) {
 
-      buildTL.to(castleInside, {
-        yPercent: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true
-      }, 0.8);
+      gsap.to(
+        castleInside,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
     }
 
 
-    buildTL.to(home6TallPillar, {
-      yPercent: 0,
-      duration: 1.7,
-      ease: "power3.out",
-      force3D: true
-    }, 0);
+    // ========================================================
+    // TALL PILLAR
+    // ========================================================
 
+    gsap.to(
+      home6TallPillar,
+      {
+        yPercent: 0,
 
-    var buildTrigger = {
+        ease: "power3.out",
 
-      trigger:
-        (isSafari && section && city)
-          ? section
-          : home6TallPillar,
+        force3D: true,
 
-      start:
-        (isSafari && section && city)
-          ? safariStart(home6TallPillar, 0.80)
-          : "top 80%",
-
-      invalidateOnRefresh: true,
-
-      onEnter: function() {
-        buildTL.timeScale(1).play();
-      },
-
-      onLeaveBack: function() {
-        buildTL.timeScale(2).reverse();
+        scrollTrigger:
+          makeBuildTrigger()
       }
-    };
+    );
 
 
-    ScrollTrigger.create(buildTrigger);
+    // ========================================================
+    // EMPEROR — STAGE 1
+    //
+    // Moves WITH the other objects.
+    //
+    // top 100% → top 60%
+    // +80% → Webflow position
+    // ========================================================
+
+    if (emperor) {
+
+      gsap.to(
+        emperor,
+        {
+          yPercent: 0,
+
+          ease: "power3.out",
+
+          force3D: true,
+
+          scrollTrigger:
+            makeBuildTrigger()
+        }
+      );
+    }
+
+
+    // ========================================================
+    // EMPEROR — STAGE 2
+    //
+    // Parent stays at Webflow position.
+    //
+    // Only .home6_emperor_rocket moves.
+    //
+    // Tall Pillar:
+    // top 40% → top 0%
+    // ========================================================
+
+    if (emperorRocket) {
+
+      var emperorRocketTrigger;
+
+
+      if (isSafari && section && city) {
+
+        emperorRocketTrigger = {
+
+          trigger: section,
+
+          start:
+            safariStart(
+              home6TallPillar,
+              0.40
+            ),
+
+          end:
+            safariStart(
+              home6TallPillar,
+              0.00
+            ),
+
+          scrub: 0.6,
+
+          invalidateOnRefresh: true
+        };
+
+      } else {
+
+        emperorRocketTrigger = {
+
+          trigger:
+            home6TallPillar,
+
+          start:
+            "top 40%",
+
+          end:
+            "top 0%",
+
+          scrub: 0.6,
+
+          invalidateOnRefresh: true
+        };
+      }
+
+
+      gsap.fromTo(
+        emperorRocket,
+
+        {
+          yPercent: 0
+        },
+
+        {
+          yPercent: -120,
+
+          ease: "power3.in",
+
+          force3D: true,
+
+          immediateRender: false,
+
+          scrollTrigger:
+            emperorRocketTrigger
+        }
+      );
+    }
+
   }
 
 
   // ==========================================================
   // UFO + LIGHT TRANSITION
+  //
+  // UNCHANGED
   // ==========================================================
 
   var home6UFO = q(".home6_ufo");
