@@ -4427,14 +4427,35 @@ var home6LightOnDelay = null;
 
 function getHome6UFOHiddenY() {
 
+  if (
+    !home6UFO ||
+    !weirdSun ||
+    !city
+  ) {
+    return -getRealViewportHeight() * 1.15;
+  }
+
+
   var cityScale =
     getCityScale();
 
-  return -(
-    getRealViewportHeight() *
-    1.15 /
-    cityScale
-  );
+
+  // Position of UFO and Sun
+  // inside the unscaled city coordinate system.
+  var ufoTop =
+    getOffsetInsideCity(home6UFO);
+
+  var sunTop =
+    getOffsetInsideCity(weirdSun);
+
+
+  // Move UFO from its Webflow destination
+  // up to approximately the Sun's position.
+  var distance =
+    sunTop - ufoTop;
+
+
+  return distance;
 
 }
 
