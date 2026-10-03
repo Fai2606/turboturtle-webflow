@@ -3623,138 +3623,119 @@ function initHomeSection6() {
 
 
 // ========================================================
-// EMPEROR — TWO-STAGE SCROLL
+// EMPEROR — TWO-STAGE SCROLL PARALLAX
 //
-// 100% → 60% : +100 → 0, cubic out
-// 60%  → 40% : HOLD at 0
-// 40%  → 0%  : 0 → -100, cubic in
+// STAGE 1:
+// top 100% → top 60%
+// yPercent: 100 → 0
+// cubic ease-out
+//
+// HOLD:
+// top 60% → top 40%
+//
+// STAGE 2:
+// top 40% → top 0%
+// yPercent: 0 → -100
+// cubic ease-in
 // ========================================================
 
 if (emperor) {
 
-  var emperorTrigger;
+  var emperorStage1Trigger;
+  var emperorStage2Trigger;
 
+
+  // SAFARI
   if (isSafari && section && city) {
 
-    emperorTrigger = {
+    emperorStage1Trigger = {
       trigger: section,
 
       start: safariStart(home6TallPillar, 1.00),
+      end: safariStart(home6TallPillar, 0.60),
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+    emperorStage2Trigger = {
+      trigger: section,
+
+      start: safariStart(home6TallPillar, 0.40),
       end: safariStart(home6TallPillar, 0.00),
 
-      scrub: true,
+      scrub: 1,
       invalidateOnRefresh: true
     };
 
   } else {
 
-    emperorTrigger = {
+    // CHROME / OTHER BROWSERS
+    emperorStage1Trigger = {
       trigger: home6TallPillar,
 
       start: "top 100%",
+      end: "top 60%",
+
+      scrub: 1,
+      invalidateOnRefresh: true
+    };
+
+    emperorStage2Trigger = {
+      trigger: home6TallPillar,
+
+      start: "top 40%",
       end: "top 0%",
 
-      scrub: true,
+      scrub: 1,
       invalidateOnRefresh: true
     };
 
   }
 
 
-  ScrollTrigger.create(
-    Object.assign(
-      {},
-      emperorTrigger,
-      {
+  // ======================================================
+  // STAGE 1
+  // +100% → 0%
+  // EASE OUT CUBIC
+  // ======================================================
 
-        onUpdate: function(self) {
+  gsap.fromTo(
+    emperor,
+    {
+      yPercent: 100
+    },
+    {
+      yPercent: 0,
 
-          var p = self.progress;
+      ease: "power2.out",
+      force3D: true,
 
-          var y;
-
-
-          // ================================================
-          // STAGE 1
-          // top 100% → top 60%
-          //
-          // Overall progress:
-          // 0.00 → 0.40
-          //
-          // yPercent:
-          // 100 → 0
-          //
-          // CUBIC OUT
-          // ================================================
-
-          if (p <= 0.40) {
-
-            var t1 =
-              p / 0.40;
-
-            var eased1 =
-              1 - Math.pow(1 - t1, 3);
-
-            y =
-              100 * (1 - eased1);
-
-          }
+      scrollTrigger: emperorStage1Trigger
+    }
+  );
 
 
-          // ================================================
-          // HOLD
-          // top 60% → top 40%
-          //
-          // Overall progress:
-          // 0.40 → 0.60
-          // ================================================
+  // ======================================================
+  // STAGE 2
+  // 0% → -100%
+  // EASE IN CUBIC
+  // ======================================================
 
-          else if (p <= 0.60) {
+  gsap.fromTo(
+    emperor,
+    {
+      yPercent: 0
+    },
+    {
+      yPercent: -100,
 
-            y = 0;
+      ease: "power2.in",
+      force3D: true,
+      immediateRender: false,
 
-          }
-
-
-          // ================================================
-          // STAGE 2
-          // top 40% → top 0%
-          //
-          // Overall progress:
-          // 0.60 → 1.00
-          //
-          // yPercent:
-          // 0 → -100
-          //
-          // CUBIC IN
-          // ================================================
-
-          else {
-
-            var t2 =
-              (p - 0.60) / 0.40;
-
-            var eased2 =
-              Math.pow(t2, 3);
-
-            y =
-              -100 * eased2;
-
-          }
-
-
-          gsap.set(
-            emperor,
-            {
-              yPercent: y,
-              force3D: true
-            }
-          );
-
-        }
-
-      }
-    )
+      scrollTrigger: emperorStage2Trigger
+    }
   );
 
 }
