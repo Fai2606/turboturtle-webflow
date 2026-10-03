@@ -3886,7 +3886,7 @@ function emperorFlightDistance() {
   // He stays visible instead of leaving the screen.
 
   return -(
-    getRealViewportHeight() * 0.12
+    getRealViewportHeight() * 0.07
   );
 
 }
