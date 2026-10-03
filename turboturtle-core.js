@@ -3996,6 +3996,39 @@ function getHome6UFOHiddenY() {
 
 }
 
+function getHome6UFOLandingY() {
+
+  if (!home6UFO) return 0;
+
+  // Temporarily read its Webflow/original position
+  var currentY =
+    gsap.getProperty(home6UFO, "y");
+
+  gsap.set(home6UFO, {
+    y: 0
+  });
+
+  var rect =
+    home6UFO.getBoundingClientRect();
+
+  gsap.set(home6UFO, {
+    y: currentY
+  });
+
+
+  // Put UFO centre at 55% of viewport height
+  var targetY =
+    getRealViewportHeight() * 0.55;
+
+  var originalCenter =
+    rect.top +
+    rect.height * 0.5;
+
+
+  return targetY - originalCenter;
+
+}
+
 
 // ==========================================================
 // INITIAL STATES
@@ -4315,9 +4348,9 @@ if (
     },
 
     {
-      y: 0,
+      y: getHome6UFOLandingY,
 
-      ease: "none",
+      ease: "power1.out",
 
       force3D: true,
 
