@@ -3964,17 +3964,19 @@ if (emperorRocket) {
 
 // ==========================================================
 // UFO + LIGHT TRANSITION
-// LONG SCROLL VERSION
+//
+// FLOW:
 //
 // DOWN:
-// weirdSun top 90%  -> UFO begins long descent
-// tallPillar top -5% -> UFO reaches Webflow position
-// tallPillar top -12% -> LIGHT ON
+// UFO starts when weirdSun reaches viewport
+// UFO slowly travels down
+// UFO reaches Webflow final position
+// small settling delay
+// LIGHT ON
 //
 // UP:
-// tallPillar top -12% -> LIGHT OFF first
-// tallPillar top -5%  -> UFO begins rising
-// weirdSun top 90%    -> UFO fully leaves
+// LIGHT OFF immediately
+// UFO then travels back upward
 // ==========================================================
 
 var home6UFO = q(".home6_ufo");
@@ -3984,6 +3986,8 @@ var home7LightBlur = q(".home7_lightblur");
 var home7WhiteCover = q(".home7_whitecover");
 
 var lightsAreOn = false;
+
+var home6LightOnDelay = null;
 
 
 // ==========================================================
@@ -3995,8 +3999,6 @@ function getHome6UFOHiddenY() {
   return -getRealViewportHeight() * 1.15;
 
 }
-
-
 
 
 // ==========================================================
@@ -4181,10 +4183,6 @@ function turnHome6LightsOn() {
 
 // ==========================================================
 // LIGHT OFF
-//
-// IMPORTANT:
-// Reverse時先關燈。
-// UFO仍然保持landing位置一段scroll distance。
 // ==========================================================
 
 function turnHome6LightsOff() {
@@ -4289,18 +4287,35 @@ function turnHome6LightsOff() {
 
 
 // ==========================================================
-// UFO — LONG SCROLL DESCENT
+// CANCEL PENDING LIGHT
+// ==========================================================
+
+function cancelHome6LightDelay() {
+
+  if (!home6LightOnDelay) return;
+
+  home6LightOnDelay.kill();
+
+  home6LightOnDelay = null;
+
+}
+
+
+// ==========================================================
+// UFO LONG SCROLL DESCENT
+//
+// IMPORTANT:
+//
+// Keep the movement you said is already correct.
 //
 // START:
-// 當 weirdSun 去到 viewport 90%。
-// 即係你開始見到太陽附近，UFO已經開始由上面落。
+// weirdSun top 90%
 //
 // END:
-// Tall Pillar去到 -5%。
-// UFO先真正去到Webflow原本位置。
+// tallPillar top -5%
 //
-// 所以飛行距離係橫跨Home6一大段，
-// 唔再係scroll少少就完成。
+// scrub 0.35 gives the UFO a small amount of settling
+// without changing the actual travel range.
 // ==========================================================
 
 if (
@@ -4334,9 +4349,9 @@ if (
             : weirdSun,
 
 
-        // ================================================
-        // UFO STARTS DESCENDING
-        // ================================================
+        // ==================================================
+        // UFO START
+        // ==================================================
 
         start:
           (isSafari && section && city)
@@ -4349,9 +4364,9 @@ if (
             : "top 90%",
 
 
-        // ================================================
-        // UFO FINISHES AT WEBFLOW POSITION
-        // ================================================
+        // ==================================================
+        // UFO FINAL WEBFLOW POSITION
+        // ==================================================
 
         endTrigger:
           (isSafari && section && city)
@@ -4370,24 +4385,27 @@ if (
             : "top -5%",
 
 
-        // IMPORTANT:
-        //
-        // TRUE instead of 0.6.
-        //
-        // No delayed catch-up at the landing point.
-        // Therefore no final snap / glitch.
+        // ==================================================
+        // SMALL SMOOTH SETTLING
+        // ==================================================
+
         scrub: 0.35,
 
 
         invalidateOnRefresh: true,
 
 
-        // ================================================
-        // ENTER
-        // ================================================
+        // ==================================================
+        // UFO ENTERS
+        // ==================================================
 
         onEnter: function() {
 
+          cancelHome6LightDelay();
+
+          turnHome6LightsOff();
+
+
           gsap.set(
             home6UFO,
             {
@@ -4399,12 +4417,50 @@ if (
         },
 
 
-        // ================================================
-        // REVERSE — UFO BECOMES ACTIVE AGAIN
-        // ================================================
+        // ==================================================
+        // UFO HAS REACHED THE END OF ITS SCROLL RANGE
+        //
+        // Wait for scrub smoothing to settle,
+        // THEN turn light on.
+        // ==================================================
+
+        onLeave: function() {
+
+          cancelHome6LightDelay();
+
+
+          home6LightOnDelay =
+            gsap.delayedCall(
+              0.35,
+              function() {
+
+                home6LightOnDelay = null;
+
+                turnHome6LightsOn();
+
+              }
+            );
+
+        },
+
+
+        // ==================================================
+        // REVERSE
+        //
+        // FIRST:
+        // cancel pending light + turn light OFF
+        //
+        // THEN:
+        // scrubbed UFO starts travelling upward.
+        // ==================================================
 
         onEnterBack: function() {
 
+          cancelHome6LightDelay();
+
+          turnHome6LightsOff();
+
+
           gsap.set(
             home6UFO,
             {
@@ -4416,11 +4472,16 @@ if (
         },
 
 
-        // ================================================
-        // COMPLETELY BACK ABOVE HOME6
-        // ================================================
+        // ==================================================
+        // UFO COMPLETELY LEAVES ABOVE HOME6
+        // ==================================================
 
         onLeaveBack: function() {
+
+          cancelHome6LightDelay();
+
+          turnHome6LightsOff();
+
 
           gsap.set(
             home6UFO,
@@ -4440,91 +4501,6 @@ if (
 }
 
 
-// ==========================================================
-// LIGHT TRIGGER
-//
-// IMPORTANT:
-// During normal downward page scroll, this UFO moves visually
-// UP through the viewport because the whole Home 6 composition
-// is also scrolling upward.
-//
-// So:
-// UFO centre crosses ABOVE viewport 55% -> LIGHT ON
-// Reverse crosses BELOW viewport 55%   -> LIGHT OFF
-// ==========================================================
-
-var ufoLightWasAbove55 = false;
-
-
-function updateHome6UFOLight() {
-
-  if (!home6UFO) return;
-
-
-  var rect =
-    home6UFO.getBoundingClientRect();
-
-
-  var ufoCenter =
-    rect.top +
-    rect.height * 0.5;
-
-
-  var lightLine =
-    getRealViewportHeight() * 0.55;
-
-
-  var isAbove55 =
-    ufoCenter <= lightLine;
-
-
-  // DOWN: UFO visually crosses upward past 55% -> ON
-  if (
-    isAbove55 &&
-    !ufoLightWasAbove55
-  ) {
-
-    turnHome6LightsOn();
-
-  }
-
-
-  // UP: UFO visually crosses downward past 55% -> OFF
-  if (
-    !isAbove55 &&
-    ufoLightWasAbove55
-  ) {
-
-    turnHome6LightsOff();
-
-  }
-
-
-  ufoLightWasAbove55 =
-    isAbove55;
-
-}
-
-
-if (home6UFO) {
-
-  ScrollTrigger.create({
-
-    trigger: section,
-
-    start: "top bottom",
-
-    end: "bottom top",
-
-    onUpdate:
-      updateHome6UFOLight,
-
-    invalidateOnRefresh:
-      true
-
-  });
-
-}
 
   requestAnimationFrame(
     function() {
