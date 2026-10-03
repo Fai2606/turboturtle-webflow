@@ -3958,11 +3958,6 @@ if (emperorRocket) {
   );
 }
 
-
-// CLOSE: if (home6TallPillar)
-}
-
-
 // CLOSE: if (home6TallPillar)
 }
 
