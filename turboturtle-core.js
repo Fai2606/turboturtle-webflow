@@ -2567,7 +2567,7 @@ if (enableGrowup) {
       { sel: ".home3_cat",     x: 40, y: -12, r:  0 },
       { sel: ".home3_moon",    x:  0, y:  30, r:  0 },
       { sel: ".home3_jet",     x: 90, y:  -5, r:  0 },
-      { sel: ".home3_turtle",  x: 20, y:   6, r: -5 },
+      { sel: ".home3_turtle",  x: 20, y:  12, r: -5 },
       { sel: ".home3_lion",    x: 12, y:  -3, r: -2 },
       { sel: ".home3_bear",    x: 10, y:  30, r:  0 }
     ];
