@@ -4472,7 +4472,8 @@ if (home6UFO) {
       y: getHome6UFOHiddenY(),
 
       visibility: "hidden",
-      opacity: 1,
+      opacity: 0,
+      filter: "blur(5px)",
 
       force3D: true
     }
@@ -4853,6 +4854,42 @@ if (
 
         invalidateOnRefresh: true,
 
+        onUpdate: function(self) {
+
+        // First 5% of UFO journey = reveal.
+        var revealProgress =
+          Math.min(
+            1,
+            self.progress / 0.05
+          );
+      
+      
+        // Smooth ease-out.
+        var reveal =
+          1 -
+          Math.pow(
+            1 - revealProgress,
+            2
+          );
+      
+      
+        gsap.set(
+          home6UFO,
+          {
+            opacity: reveal,
+      
+            filter:
+              "blur(" +
+              (
+                5 *
+                (1 - reveal)
+              ) +
+              "px)"
+          }
+        );
+      
+      },
+
 
         // ==================================================
         // UFO ENTERS
@@ -4869,7 +4906,6 @@ if (
             home6UFO,
             {
               visibility: "visible",
-              opacity: 1
             }
           );
 
@@ -4942,13 +4978,14 @@ if (
           turnHome6LightsOff();
 
 
-          gsap.set(
-            home6UFO,
-            {
-              visibility: "hidden",
-              opacity: 1
-            }
-          );
+        gsap.set(
+          home6UFO,
+          {
+            visibility: "hidden",
+            opacity: 0,
+            filter: "blur(5px)"
+          }
+        );
 
         }
 
