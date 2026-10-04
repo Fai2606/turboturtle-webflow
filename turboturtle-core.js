@@ -2021,12 +2021,12 @@ if (cityLight) {
     cityLight,
 
     {
-      rotation: -25,
+      rotation: -30,
       transformOrigin: "50% 100%"
     },
 
     {
-      rotation: 5,
+      rotation: 0,
 
       ease: "none",
 
@@ -2112,12 +2112,12 @@ if (cityLight4) {
     cityLight4,
 
     {
-      rotation: 30,
+      rotation: 10,
       transformOrigin: "50% 100%"
     },
 
     {
-      rotation: 10,
+      rotation: 0,
 
       ease: "none",
 
