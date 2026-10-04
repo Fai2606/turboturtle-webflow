@@ -2007,6 +2007,12 @@ var cityLight =
 var cityLight2 =
   q(".home2_citylight2");
 
+var cityLight3 =
+  q(".home2_citylight3");
+
+var cityLight4 =
+  q(".home2_citylight4");
+
 
 // LIGHT 1
 if (cityLight) {
@@ -2044,6 +2050,66 @@ if (cityLight2) {
 
   gsap.fromTo(
     cityLight2,
+
+    {
+      rotation: 10,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: -10,
+
+      ease: "none",
+
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+
+}
+
+// LIGHT 3
+if (cityLight3) {
+
+  gsap.fromTo(
+    cityLight3,
+
+    {
+      rotation: 10,
+      transformOrigin: "50% 100%"
+    },
+
+    {
+      rotation: -10,
+
+      ease: "none",
+
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+
+}
+
+// LIGHT 4
+if (cityLight4) {
+
+  gsap.fromTo(
+    cityLight4,
 
     {
       rotation: 10,
