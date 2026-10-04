@@ -5213,8 +5213,8 @@ function initHomeSection7() {
         gsap.set(dino2Arm, {
       
           rotation:
-            -70 +
-            (120 * p),
+            -90 +
+            (110 * p),
       
           force3D: true
       
