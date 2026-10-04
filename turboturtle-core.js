@@ -2112,12 +2112,12 @@ if (cityLight4) {
     cityLight4,
 
     {
-      rotation: 10,
+      rotation: 45,
       transformOrigin: "50% 100%"
     },
 
     {
-      rotation: 0,
+      rotation: 15,
 
       ease: "none",
 
