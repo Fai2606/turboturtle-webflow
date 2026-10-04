@@ -2931,64 +2931,96 @@ function initHomeSection5() {
   }
 
 
-  // ============================================================
-  // ROCKET TIP
-  // ============================================================
+// ============================================================
+// ROCKET TIP
+// Drop = gravity + bounce
+// Return = simple smooth rise
+// ============================================================
 
-  if (rocketTip) {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: rocketTip,
-        start: "top 40%",
-        toggleActions: "play reverse play reverse"
-      }
-    });
-  
-    tl
-      // FALL — starts slow, accelerates like gravity
+if (rocketTip) {
+
+  function dropRocketTip() {
+
+    gsap.killTweensOf(rocketTip);
+
+    gsap.timeline()
+
+      // FALL
       .to(rocketTip, {
         y: 145,
         duration: 1.1,
         ease: "power2.in",
         force3D: true
       })
-  
+
       // BOUNCE 1
       .to(rocketTip, {
         y: 105,
         duration: 0.28,
         ease: "power2.out"
       })
+
       .to(rocketTip, {
         y: 145,
         duration: 0.28,
         ease: "power2.in"
       })
-  
+
       // BOUNCE 2
       .to(rocketTip, {
         y: 128,
         duration: 0.18,
         ease: "power2.out"
       })
+
       .to(rocketTip, {
         y: 145,
         duration: 0.18,
         ease: "power2.in"
       })
-  
-      // BOUNCE 3 — tiny final bounce
+
+      // BOUNCE 3
       .to(rocketTip, {
         y: 139,
         duration: 0.11,
         ease: "power2.out"
       })
+
       .to(rocketTip, {
         y: 145,
         duration: 0.11,
         ease: "power2.in"
       });
   }
+
+
+  function returnRocketTip() {
+
+    gsap.killTweensOf(rocketTip);
+
+    gsap.to(rocketTip, {
+      y: 0,
+      duration: 0.8,
+      ease: "power2.inOut",
+      force3D: true
+    });
+  }
+
+
+  ScrollTrigger.create({
+
+    trigger: rocketTip,
+    start: "top 40%",
+
+    // scrolling DOWN
+    onEnter: dropRocketTip,
+
+    // scrolling BACK UP
+    onLeaveBack: returnRocketTip
+
+  });
+
+}
 
 
   // ============================================================
