@@ -4452,7 +4452,7 @@ function getHome6UFOHiddenY() {
   // Move UFO from its Webflow destination
   // up to approximately the Sun's position.
   var distance =
-    (sunTop - ufoTop) * 0.95;
+    (sunTop - ufoTop) * 0.88;
 
 
   return distance;
@@ -4818,10 +4818,10 @@ if (
 
             ? safariStart(
                 weirdSun,
-                0.70
+                0.50
               )
 
-            : "top 70%",
+            : "top 50%",
 
 
         // ==================================================
