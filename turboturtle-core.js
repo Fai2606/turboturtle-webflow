@@ -4860,7 +4860,7 @@ if (
         var revealProgress =
           Math.min(
             1,
-            self.progress / 0.05
+            self.progress / 0.08
           );
       
       
