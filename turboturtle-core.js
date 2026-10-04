@@ -5118,6 +5118,8 @@ function initHomeSection7() {
   var moon       = q(".home7_moon");
   var satellite  = q(".home7_satellite");
 
+  var dino2Arm   = q(".home7_dino2_arm");
+
   var fish1      = q(".home7_fishhero1");
   var fish2      = q(".home7_fishhero2");
 
@@ -5197,6 +5199,27 @@ function initHomeSection7() {
 
         });
 
+      }
+      
+
+      // ========================================================
+      // DINO 2 ARM
+      // -26deg → 18deg
+      // Same scroll progress as balloon
+      // ========================================================
+      
+      if (dino2Arm) {
+      
+        gsap.set(dino2Arm, {
+      
+          rotation:
+            -26 +
+            (44 * p),
+      
+          force3D: true
+      
+        });
+      
       }
 
 
