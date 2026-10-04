@@ -4452,8 +4452,9 @@ function getHome6UFOHiddenY() {
   // Move UFO from its Webflow destination
   // up to approximately the Sun's position.
   // UFO appears
+  // UFO distance
   var distance =
-    (sunTop - ufoTop) * 0.8;
+    (sunTop - ufoTop) * 0.82;
 
 
   return distance;
@@ -4819,10 +4820,10 @@ if (
 
             ? safariStart(
                 weirdSun,
-                0.50
+                0.45
               )
 
-            : "top 50%",
+            : "top 45%",
 
 
         // ==================================================
@@ -4857,12 +4858,12 @@ if (
 
         onUpdate: function(self) {
 
-        // First 12% of UFO journey = reveal.
+        // First 20% of UFO journey = reveal.
         // UFO blur
         var revealProgress =
           Math.min(
             1,
-            self.progress / 0.12
+            self.progress / 0.2
           );
       
       
