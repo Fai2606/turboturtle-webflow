@@ -3230,7 +3230,7 @@ if (rocketTip) {
 
 // ============================================================
 // UMBRELLA CAT
-// SIMPLE CITY-ZOOM SAFE VERSION
+// ARC FLIGHT — CITY-ZOOM SAFE
 // ============================================================
 
 if (umbrellaCat) {
@@ -3256,30 +3256,37 @@ if (umbrellaCat) {
 
 
   // ----------------------------------------------------------
-  // CAT'S ORIGINAL POSITION INSIDE CITY
-  //
-  // offsetTop is stable on iOS Chrome/Safari.
-  // Do NOT use cat.getBoundingClientRect().
+  // POSITION INSIDE CITY
+  // Stable on iOS Safari + Chrome
   // ----------------------------------------------------------
 
   function getUmbrellaOffsetInsideCity() {
 
-    var total = 0;
-    var current = umbrellaCat;
+    var x = 0;
+    var y = 0;
+
+    var current =
+      umbrellaCat;
 
     while (
       current &&
       current !== home5City
     ) {
 
-      total +=
+      x +=
+        current.offsetLeft || 0;
+
+      y +=
         current.offsetTop || 0;
 
       current =
         current.offsetParent;
     }
 
-    return total;
+    return {
+      x: x,
+      y: y
+    };
   }
 
 
@@ -3288,17 +3295,22 @@ if (umbrellaCat) {
   // ----------------------------------------------------------
 
   gsap.set(umbrellaCat, {
+
     x: 0,
     y: 0,
+
     rotation: 0,
+
     opacity: 1,
     visibility: "hidden",
+
     force3D: true
+
   });
 
 
   // ----------------------------------------------------------
-  // FALL
+  // ARC FLIGHT
   // ----------------------------------------------------------
 
   ScrollTrigger.create({
@@ -3324,7 +3336,18 @@ if (umbrellaCat) {
         getUmbrellaScale();
 
 
-      // Actual VISUAL cat height
+      var offsets =
+        getUmbrellaOffsetInsideCity();
+
+
+      var visualWidth =
+        (
+          umbrellaCat.offsetWidth ||
+          120
+        ) *
+        scale;
+
+
       var visualHeight =
         (
           umbrellaCat.offsetHeight ||
@@ -3334,12 +3357,7 @@ if (umbrellaCat) {
 
 
       // ======================================================
-      // FALL PROGRESS
-      //
-      // Keep old timing:
-      // starts around 28% through Home5.
-      //
-      // Travel duration ≈ 1.15 viewport heights.
+      // FLIGHT PROGRESS
       // ======================================================
 
       var triggerDistance =
@@ -3349,10 +3367,11 @@ if (umbrellaCat) {
         );
 
 
-      var fallSpan =
+      // Slightly longer / calmer flight
+      var flightSpan =
         (
           viewportHeight *
-          1.15
+          1.35
         ) /
         triggerDistance;
 
@@ -3362,7 +3381,7 @@ if (umbrellaCat) {
           self.progress -
           0.28
         ) /
-        fallSpan;
+        flightSpan;
 
 
       p =
@@ -3373,20 +3392,80 @@ if (umbrellaCat) {
 
 
       // ======================================================
-      // SCREEN POSITION
-      //
-      // Start completely ABOVE screen.
-      // End completely BELOW screen.
+      // NATURAL SCREEN POSITION
       // ======================================================
+
+      var sectionRect =
+        section.getBoundingClientRect();
+
+
+      var naturalLeft =
+        sectionRect.left +
+        (
+          offsets.x *
+          scale
+        );
+
+
+      var naturalTop =
+        sectionRect.top +
+        (
+          offsets.y *
+          scale
+        );
+
+
+      // ======================================================
+      // ARC
+      //
+      // Start:
+      // above screen
+      //
+      // End:
+      // outside LEFT side
+      // around 65% down viewport
+      // ======================================================
+
+      var startLeft =
+        naturalLeft;
+
 
       var startTop =
         -visualHeight -
+        60;
+
+
+      var endLeft =
+        -visualWidth -
         80;
 
 
       var endTop =
-        viewportHeight +
-        80;
+        viewportHeight *
+        0.65;
+
+
+      // Horizontal movement accelerates later.
+      // Creates the curved shape from your drawing.
+      var curveX =
+        Math.pow(
+          p,
+          1.65
+        );
+
+
+      // Vertical movement stays gentle / steady.
+      var curveY =
+        p;
+
+
+      var desiredLeft =
+        startLeft +
+        (
+          endLeft -
+          startLeft
+        ) *
+        curveX;
 
 
       var desiredTop =
@@ -3395,46 +3474,25 @@ if (umbrellaCat) {
           endTop -
           startTop
         ) *
-        p;
+        curveY;
 
 
       // ======================================================
-      // CAT'S NATURAL SCREEN POSITION
-      //
-      // IMPORTANT:
-      // section = safe, non-zoomed geometry
-      // offsetTop × scale = visual CITY position
-      //
-      // Works around iOS Chrome/Safari CSS zoom bug.
+      // SCREEN → CITY LOCAL COORDINATES
       // ======================================================
 
-      var naturalTop =
-        section
-          .getBoundingClientRect()
-          .top +
+      var localX =
         (
-          getUmbrellaOffsetInsideCity() *
-          scale
-        );
+          desiredLeft -
+          naturalLeft
+        ) /
+        scale;
 
-
-      // ======================================================
-      // CONVERT SCREEN POSITION → CITY LOCAL POSITION
-      // ======================================================
 
       var localY =
         (
           desiredTop -
           naturalTop
-        ) /
-        scale;
-
-
-      var localX =
-        (
-          -viewportWidth *
-          0.06 *
-          p
         ) /
         scale;
 
@@ -3450,13 +3508,11 @@ if (umbrellaCat) {
         y: localY,
 
         rotation:
-          -15 *
+          -18 *
           p,
 
-        // Once fall begins, leave it visible.
-        // It disappears naturally by physically leaving screen.
         visibility:
-          self.progress > 0.28
+          p > 0.001
             ? "visible"
             : "hidden",
 
@@ -3467,22 +3523,26 @@ if (umbrellaCat) {
     },
 
 
-    // Section completely passed
     onLeave: function() {
 
-      gsap.set(umbrellaCat, {
-        visibility: "hidden"
-      });
+      gsap.set(
+        umbrellaCat,
+        {
+          visibility: "hidden"
+        }
+      );
 
     },
 
 
-    // Back above Home5
     onLeaveBack: function() {
 
-      gsap.set(umbrellaCat, {
-        visibility: "hidden"
-      });
+      gsap.set(
+        umbrellaCat,
+        {
+          visibility: "hidden"
+        }
+      );
 
     }
 
