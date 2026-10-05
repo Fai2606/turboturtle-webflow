@@ -3379,7 +3379,7 @@ if (umbrellaCat) {
       var p =
         (
           self.progress -
-          0.15
+          0.1
         ) /
         flightSpan;
 
@@ -3442,7 +3442,7 @@ if (umbrellaCat) {
 
       var endTop =
         viewportHeight *
-        0.65;
+        0.6;
 
 
     // Softer arc:
@@ -3506,7 +3506,7 @@ if (umbrellaCat) {
         y: localY,
 
         rotation:
-          42 * curveX,
+          60 * curveX,
 
         visibility:
           p > 0.001
