@@ -3230,121 +3230,75 @@ if (rocketTip) {
 
 // ============================================================
 // UMBRELLA CAT
-// CITY-ZOOM SAFE
+// SIMPLE CITY-ZOOM SAFE VERSION
 // ============================================================
 
 if (umbrellaCat) {
-
-  var umbrellaReady = false;
-  var umbrellaTriggerScroll = 0;
-
-  var umbrellaStartY = 0;
-  var umbrellaVisualHeight = 0;
-  var umbrellaDesiredTop = 0;
 
   var home5City =
     q(".home_section5_city");
 
 
   // ----------------------------------------------------------
-  // GET CITY SCALE
+  // CITY SCALE
   // ----------------------------------------------------------
 
-  function getUmbrellaCityScale() {
+  function getUmbrellaScale() {
 
     if (!home5City) return 1;
 
-    var scale =
+    return (
       parseFloat(
-        window
-          .getComputedStyle(home5City)
-          .zoom
-      );
-
-    return scale || 1;
+        getComputedStyle(home5City).zoom
+      ) || 1
+    );
   }
 
 
   // ----------------------------------------------------------
-  // RESET OLD STYLES
+  // CAT'S ORIGINAL POSITION INSIDE CITY
+  //
+  // offsetTop is stable on iOS Chrome/Safari.
+  // Do NOT use cat.getBoundingClientRect().
+  // ----------------------------------------------------------
+
+  function getUmbrellaOffsetInsideCity() {
+
+    var total = 0;
+    var current = umbrellaCat;
+
+    while (
+      current &&
+      current !== home5City
+    ) {
+
+      total +=
+        current.offsetTop || 0;
+
+      current =
+        current.offsetParent;
+    }
+
+    return total;
+  }
+
+
+  // ----------------------------------------------------------
+  // INITIAL STATE
   // ----------------------------------------------------------
 
   gsap.set(umbrellaCat, {
-    clearProps:
-      "position,top,left,right,bottom,width,zIndex,transform"
-  });
-
-
-  gsap.set(umbrellaCat, {
-    visibility: "hidden",
-    opacity: 1,
     x: 0,
     y: 0,
     rotation: 0,
+    opacity: 1,
+    visibility: "hidden",
     force3D: true
   });
 
 
   // ----------------------------------------------------------
-  // PREPARE
-  // ----------------------------------------------------------
-
-  function prepareUmbrellaCat() {
-
-    if (umbrellaReady) return;
-
-    umbrellaReady = true;
-
-    umbrellaTriggerScroll =
-      window.scrollY;
-
-
-    var scale =
-      getUmbrellaCityScale();
-
-
-    var rect =
-      umbrellaCat.getBoundingClientRect();
-
-
-    umbrellaVisualHeight =
-      rect.height ||
-      (
-        umbrellaCat.offsetHeight *
-        scale
-      ) ||
-      120;
-
-
-    // Start completely ABOVE screen
-    umbrellaDesiredTop =
-      -umbrellaVisualHeight -
-      100;
-
-
-    // Convert SCREEN distance
-    // into CITY-local distance
-    umbrellaStartY =
-      (
-        umbrellaDesiredTop -
-        rect.top
-      ) /
-      scale;
-
-
-    gsap.set(umbrellaCat, {
-      x: 0,
-      y: umbrellaStartY,
-      rotation: 0,
-      visibility: "hidden",
-      force3D: true
-    });
-
-  }
-
-
-  // ----------------------------------------------------------
-  // MASTER SCROLL WATCHER
+  // FALL
   // ----------------------------------------------------------
 
   ScrollTrigger.create({
@@ -3366,177 +3320,167 @@ if (umbrellaCat) {
         document.documentElement.clientHeight;
 
 
-      // ------------------------------------------------------
-      // WAIT
-      // ------------------------------------------------------
-
-      if (!umbrellaReady) {
-
-        if (self.progress < 0.28) {
-
-          gsap.set(umbrellaCat, {
-            visibility: "hidden"
-          });
-
-          return;
-        }
-
-        prepareUmbrellaCat();
-      }
-
-
       var scale =
-        getUmbrellaCityScale();
+        getUmbrellaScale();
 
 
-      // ------------------------------------------------------
-      // SCROLL PROGRESS
-      // ------------------------------------------------------
-
-      var scrollDistance =
-        window.scrollY -
-        umbrellaTriggerScroll;
-
-
-      var scrollNeeded =
-        viewportHeight *
-        1.15;
+      // Actual VISUAL cat height
+      var visualHeight =
+        (
+          umbrellaCat.offsetHeight ||
+          120
+        ) *
+        scale;
 
 
-      var progress =
-        scrollDistance /
-        scrollNeeded;
+      // ======================================================
+      // FALL PROGRESS
+      //
+      // Keep old timing:
+      // starts around 28% through Home5.
+      //
+      // Travel duration ≈ 1.15 viewport heights.
+      // ======================================================
 
-
-      progress =
+      var triggerDistance =
         Math.max(
-          0,
-          Math.min(1, progress)
+          1,
+          self.end - self.start
         );
 
 
-      // ------------------------------------------------------
-      // VISUAL FALL DISTANCE
-      // ------------------------------------------------------
-
-      var visualFallDistance =
+      var fallSpan =
         (
           viewportHeight *
-          1.55
-        ) +
-        umbrellaVisualHeight;
+          1.15
+        ) /
+        triggerDistance;
 
 
-      // ------------------------------------------------------
-      // CITY-LOCAL MOVEMENT
-      //
-      // Everything inside CITY is visually multiplied
-      // by the CITY zoom.
-      //
-      // Therefore divide screen movement by scale.
-      // ------------------------------------------------------
+      var p =
+        (
+          self.progress -
+          0.28
+        ) /
+        fallSpan;
 
-      var parentCompensation =
+
+      p =
         Math.max(
           0,
-          scrollDistance
-        ) /
-        scale;
+          Math.min(1, p)
+        );
 
 
-      var fallMovement =
+      // ======================================================
+      // SCREEN POSITION
+      //
+      // Start completely ABOVE screen.
+      // End completely BELOW screen.
+      // ======================================================
+
+      var startTop =
+        -visualHeight -
+        80;
+
+
+      var endTop =
+        viewportHeight +
+        80;
+
+
+      var desiredTop =
+        startTop +
         (
-          visualFallDistance *
-          progress
+          endTop -
+          startTop
+        ) *
+        p;
+
+
+      // ======================================================
+      // CAT'S NATURAL SCREEN POSITION
+      //
+      // IMPORTANT:
+      // section = safe, non-zoomed geometry
+      // offsetTop × scale = visual CITY position
+      //
+      // Works around iOS Chrome/Safari CSS zoom bug.
+      // ======================================================
+
+      var naturalTop =
+        section
+          .getBoundingClientRect()
+          .top +
+        (
+          getUmbrellaOffsetInsideCity() *
+          scale
+        );
+
+
+      // ======================================================
+      // CONVERT SCREEN POSITION → CITY LOCAL POSITION
+      // ======================================================
+
+      var localY =
+        (
+          desiredTop -
+          naturalTop
         ) /
         scale;
 
 
-      var finalY =
-        umbrellaStartY +
-        parentCompensation +
-        fallMovement;
-
-
-      var leftMovement =
+      var localX =
         (
           -viewportWidth *
           0.06 *
-          progress
+          p
         ) /
         scale;
 
 
-      // ------------------------------------------------------
+      // ======================================================
       // APPLY
-      // ------------------------------------------------------
+      // ======================================================
 
       gsap.set(umbrellaCat, {
 
-        x: leftMovement,
+        x: localX,
 
-        y: finalY,
+        y: localY,
 
         rotation:
           -15 *
-          progress,
+          p,
+
+        // Once fall begins, leave it visible.
+        // It disappears naturally by physically leaving screen.
+        visibility:
+          self.progress > 0.28
+            ? "visible"
+            : "hidden",
 
         force3D: true
-
-      });
-
-
-      // ------------------------------------------------------
-      // VISIBILITY
-      //
-      // Do NOT use transformed getBoundingClientRect()
-      // here — avoids iOS + CSS zoom geometry problems.
-      // ------------------------------------------------------
-
-      var visualTop =
-        umbrellaDesiredTop +
-        (
-          visualFallDistance *
-          progress
-        );
-
-
-      var visualBottom =
-        visualTop +
-        umbrellaVisualHeight;
-
-
-      var catIsOnScreen =
-        progress > 0.001 &&
-        visualBottom > 0 &&
-        visualTop < viewportHeight;
-
-
-      gsap.set(umbrellaCat, {
-
-        visibility:
-          catIsOnScreen
-            ? "visible"
-            : "hidden"
 
       });
 
     },
 
 
-    // --------------------------------------------------------
-    // RESET WHEN SCROLLING BACK ABOVE HOME 5
-    // --------------------------------------------------------
-
-    onLeaveBack: function() {
-
-      if (!umbrellaReady) return;
-
+    // Section completely passed
+    onLeave: function() {
 
       gsap.set(umbrellaCat, {
-        x: 0,
-        y: umbrellaStartY,
-        rotation: 0,
+        visibility: "hidden"
+      });
+
+    },
+
+
+    // Back above Home5
+    onLeaveBack: function() {
+
+      gsap.set(umbrellaCat, {
         visibility: "hidden"
       });
 
@@ -3545,7 +3489,6 @@ if (umbrellaCat) {
   });
 
 }
-
 
 
 } // END initHomeSection5
