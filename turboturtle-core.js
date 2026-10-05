@@ -3379,7 +3379,7 @@ if (umbrellaCat) {
       var p =
         (
           self.progress -
-          0.28
+          0.24
         ) /
         flightSpan;
 
