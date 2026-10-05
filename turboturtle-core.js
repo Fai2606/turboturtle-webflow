@@ -3445,19 +3445,15 @@ if (umbrellaCat) {
         0.65;
 
 
-      // Strong "FALL → SLIDE" curve
-      
-      // Barely moves left at first,
-      // then sweeps strongly left near the end.
-      var curveX =
-        Math.pow(p, 3.2);
-      
-      
-      // Falls strongly at first,
-      // then vertical movement flattens out
-      // while the cat slides left.
-      var curveY =
-        1 - Math.pow(1 - p, 3);
+    // Softer arc:
+    // starts bending left earlier,
+    // but still becomes a strong slide near the end.
+    
+    var curveX =
+      Math.pow(p, 2.5);
+    
+    var curveY =
+      1 - Math.pow(1 - p, 2.8);
 
       
 
@@ -3510,7 +3506,7 @@ if (umbrellaCat) {
         y: localY,
 
         rotation:
-          35 * curveX,
+          42 * curveX,
 
         visibility:
           p > 0.001
