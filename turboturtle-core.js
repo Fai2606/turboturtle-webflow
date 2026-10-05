@@ -3445,19 +3445,21 @@ if (umbrellaCat) {
         0.65;
 
 
-      // Horizontal movement accelerates later.
-      // Creates the curved shape from your drawing.
+      // Strong "FALL → SLIDE" curve
+      
+      // Barely moves left at first,
+      // then sweeps strongly left near the end.
       var curveX =
-        Math.pow(
-          p,
-          1.65
-        );
-
-
-      // Vertical movement stays gentle / steady.
+        Math.pow(p, 3.2);
+      
+      
+      // Falls strongly at first,
+      // then vertical movement flattens out
+      // while the cat slides left.
       var curveY =
-        p;
+        1 - Math.pow(1 - p, 3);
 
+      
 
       var desiredLeft =
         startLeft +
