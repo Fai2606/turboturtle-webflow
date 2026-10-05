@@ -3510,8 +3510,7 @@ if (umbrellaCat) {
         y: localY,
 
         rotation:
-          -18 *
-          p,
+          35 * curveX,
 
         visibility:
           p > 0.001
