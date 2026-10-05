@@ -3547,27 +3547,6 @@ if (umbrellaCat) {
 }
 
 
-      // --------------------------------------------------------
-      // RESET ABOVE SECTION
-      // --------------------------------------------------------
-
-      onLeaveBack: function() {
-
-        if (!umbrellaReady) return;
-
-
-        gsap.set(umbrellaCat, {
-          x: 0,
-          y: umbrellaStartY,
-          rotation: 0,
-          visibility: "hidden"
-        });
-      }
-
-    });
-
-  }
-
 
 } // END initHomeSection5
 
