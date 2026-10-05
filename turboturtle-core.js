@@ -3228,281 +3228,323 @@ if (rocketTip) {
   }
 
 
-  // ============================================================
-  // UMBRELLA CAT
-  //
-  // DOWN:
-  // - waits ABOVE screen and INVISIBLE
-  // - falls downward
-  // - drifts slightly left
-  // - rotates anticlockwise to -15deg
-  // - invisible after completely leaving bottom
-  //
-  // UP:
-  // - reappears when physically entering from bottom
-  // - rises upward
-  // - returns right
-  // - rotates back to 0deg
-  // - invisible again when it reaches the waiting/top state
-  //
-  // Fully reversible / repeatable.
-  // ============================================================
+// ============================================================
+// UMBRELLA CAT
+// CITY-ZOOM SAFE
+// ============================================================
 
-  if (umbrellaCat) {
+if (umbrellaCat) {
 
-    var umbrellaReady = false;
+  var umbrellaReady = false;
+  var umbrellaTriggerScroll = 0;
 
-    var umbrellaTriggerScroll = 0;
+  var umbrellaStartY = 0;
+  var umbrellaVisualHeight = 0;
+  var umbrellaDesiredTop = 0;
 
-    var umbrellaStartY = 0;
-    var umbrellaStartRectTop = 0;
-    var umbrellaHeight = 0;
+  var home5City =
+    q(".home_section5_city");
 
 
-    // ----------------------------------------------------------
-    // REMOVE OLD EXPERIMENTAL INLINE STYLES
-    // ----------------------------------------------------------
+  // ----------------------------------------------------------
+  // GET CITY SCALE
+  // ----------------------------------------------------------
+
+  function getUmbrellaCityScale() {
+
+    if (!home5City) return 1;
+
+    var scale =
+      parseFloat(
+        window
+          .getComputedStyle(home5City)
+          .zoom
+      );
+
+    return scale || 1;
+  }
+
+
+  // ----------------------------------------------------------
+  // RESET OLD STYLES
+  // ----------------------------------------------------------
+
+  gsap.set(umbrellaCat, {
+    clearProps:
+      "position,top,left,right,bottom,width,zIndex,transform"
+  });
+
+
+  gsap.set(umbrellaCat, {
+    visibility: "hidden",
+    opacity: 1,
+    x: 0,
+    y: 0,
+    rotation: 0,
+    force3D: true
+  });
+
+
+  // ----------------------------------------------------------
+  // PREPARE
+  // ----------------------------------------------------------
+
+  function prepareUmbrellaCat() {
+
+    if (umbrellaReady) return;
+
+    umbrellaReady = true;
+
+    umbrellaTriggerScroll =
+      window.scrollY;
+
+
+    var scale =
+      getUmbrellaCityScale();
+
+
+    var rect =
+      umbrellaCat.getBoundingClientRect();
+
+
+    umbrellaVisualHeight =
+      rect.height ||
+      (
+        umbrellaCat.offsetHeight *
+        scale
+      ) ||
+      120;
+
+
+    // Start completely ABOVE screen
+    umbrellaDesiredTop =
+      -umbrellaVisualHeight -
+      100;
+
+
+    // Convert SCREEN distance
+    // into CITY-local distance
+    umbrellaStartY =
+      (
+        umbrellaDesiredTop -
+        rect.top
+      ) /
+      scale;
+
 
     gsap.set(umbrellaCat, {
-      clearProps:
-        "position,top,left,right,bottom,width,zIndex,transform"
-    });
-
-
-    // ----------------------------------------------------------
-    // DEFAULT — ALWAYS INVISIBLE
-    // ----------------------------------------------------------
-
-    gsap.set(umbrellaCat, {
-      visibility: "hidden",
-      opacity: 1,
       x: 0,
-      y: 0,
+      y: umbrellaStartY,
       rotation: 0,
+      visibility: "hidden",
       force3D: true
     });
 
-
-    // ----------------------------------------------------------
-    // PREPARE
-    // ----------------------------------------------------------
-
-    function prepareUmbrellaCat() {
-
-      if (umbrellaReady) return;
-
-      umbrellaReady = true;
-
-      umbrellaTriggerScroll =
-        window.scrollY;
+  }
 
 
-      // Measure original Webflow position.
-      var rect =
-        umbrellaCat.getBoundingClientRect();
+  // ----------------------------------------------------------
+  // MASTER SCROLL WATCHER
+  // ----------------------------------------------------------
+
+  ScrollTrigger.create({
+
+    trigger: section,
+
+    start: "top bottom",
+    end: "bottom top",
+
+    invalidateOnRefresh: true,
 
 
-      umbrellaStartRectTop =
-        rect.top;
+    onUpdate: function(self) {
+
+      var viewportWidth =
+        document.documentElement.clientWidth;
+
+      var viewportHeight =
+        document.documentElement.clientHeight;
 
 
-      umbrellaHeight =
-        rect.height ||
-        umbrellaCat.offsetHeight ||
-        120;
+      // ------------------------------------------------------
+      // WAIT
+      // ------------------------------------------------------
+
+      if (!umbrellaReady) {
+
+        if (self.progress < 0.28) {
+
+          gsap.set(umbrellaCat, {
+            visibility: "hidden"
+          });
+
+          return;
+        }
+
+        prepareUmbrellaCat();
+      }
 
 
-      // --------------------------------------------------------
-      // START FARTHER ABOVE VIEWPORT
+      var scale =
+        getUmbrellaCityScale();
+
+
+      // ------------------------------------------------------
+      // SCROLL PROGRESS
+      // ------------------------------------------------------
+
+      var scrollDistance =
+        window.scrollY -
+        umbrellaTriggerScroll;
+
+
+      var scrollNeeded =
+        viewportHeight *
+        1.15;
+
+
+      var progress =
+        scrollDistance /
+        scrollNeeded;
+
+
+      progress =
+        Math.max(
+          0,
+          Math.min(1, progress)
+        );
+
+
+      // ------------------------------------------------------
+      // VISUAL FALL DISTANCE
+      // ------------------------------------------------------
+
+      var visualFallDistance =
+        (
+          viewportHeight *
+          1.55
+        ) +
+        umbrellaVisualHeight;
+
+
+      // ------------------------------------------------------
+      // CITY-LOCAL MOVEMENT
       //
-      // Previous = -40px
-      // New      = -100px
+      // Everything inside CITY is visually multiplied
+      // by the CITY zoom.
       //
-      // Gives us more safety space above the screen.
-      // --------------------------------------------------------
+      // Therefore divide screen movement by scale.
+      // ------------------------------------------------------
 
-      var desiredTop =
-        -umbrellaHeight - 100;
+      var parentCompensation =
+        Math.max(
+          0,
+          scrollDistance
+        ) /
+        scale;
 
 
-      umbrellaStartY =
-        desiredTop -
-        umbrellaStartRectTop;
+      var fallMovement =
+        (
+          visualFallDistance *
+          progress
+        ) /
+        scale;
+
+
+      var finalY =
+        umbrellaStartY +
+        parentCompensation +
+        fallMovement;
+
+
+      var leftMovement =
+        (
+          -viewportWidth *
+          0.06 *
+          progress
+        ) /
+        scale;
+
+
+      // ------------------------------------------------------
+      // APPLY
+      // ------------------------------------------------------
+
+      gsap.set(umbrellaCat, {
+
+        x: leftMovement,
+
+        y: finalY,
+
+        rotation:
+          -15 *
+          progress,
+
+        force3D: true
+
+      });
+
+
+      // ------------------------------------------------------
+      // VISIBILITY
+      //
+      // Do NOT use transformed getBoundingClientRect()
+      // here — avoids iOS + CSS zoom geometry problems.
+      // ------------------------------------------------------
+
+      var visualTop =
+        umbrellaDesiredTop +
+        (
+          visualFallDistance *
+          progress
+        );
+
+
+      var visualBottom =
+        visualTop +
+        umbrellaVisualHeight;
+
+
+      var catIsOnScreen =
+        progress > 0.001 &&
+        visualBottom > 0 &&
+        visualTop < viewportHeight;
+
+
+      gsap.set(umbrellaCat, {
+
+        visibility:
+          catIsOnScreen
+            ? "visible"
+            : "hidden"
+
+      });
+
+    },
+
+
+    // --------------------------------------------------------
+    // RESET WHEN SCROLLING BACK ABOVE HOME 5
+    // --------------------------------------------------------
+
+    onLeaveBack: function() {
+
+      if (!umbrellaReady) return;
 
 
       gsap.set(umbrellaCat, {
         x: 0,
         y: umbrellaStartY,
         rotation: 0,
-        visibility: "hidden",
-        force3D: true
+        visibility: "hidden"
       });
+
     }
 
+  });
 
-    // ----------------------------------------------------------
-    // MASTER SCROLL WATCHER
-    // ----------------------------------------------------------
-
-    ScrollTrigger.create({
-
-      trigger: section,
-
-      start: "top bottom",
-      end: "bottom top",
-
-      invalidateOnRefresh: true,
-
-
-      onUpdate: function(self) {
-
-        // ------------------------------------------------------
-        // WAIT UNTIL WORKING START AREA
-        // ------------------------------------------------------
-
-        if (!umbrellaReady) {
-
-          if (self.progress < 0.28) {
-
-            // Extra safety:
-            // cat must remain invisible while waiting.
-            gsap.set(umbrellaCat, {
-              visibility: "hidden"
-            });
-
-            return;
-          }
-
-          prepareUmbrellaCat();
-        }
-
-
-        // ------------------------------------------------------
-        // SCROLL DISTANCE
-        // ------------------------------------------------------
-
-        var scrollDistance =
-          window.scrollY -
-          umbrellaTriggerScroll;
-
-
-        // ------------------------------------------------------
-        // FALL DURATION
-        // ------------------------------------------------------
-
-        var scrollNeeded =
-          window.innerHeight * 1.15;
-
-
-        var progress =
-          scrollDistance /
-          scrollNeeded;
-
-
-        progress =
-          Math.max(
-            0,
-            Math.min(1, progress)
-          );
-
-
-        // ------------------------------------------------------
-        // COMPENSATE FOR PARENT MOVING UP
-        // ------------------------------------------------------
-
-        var parentCompensation =
-          Math.max(0, scrollDistance);
-
-
-        // ------------------------------------------------------
-        // DOWNWARD FALL
-        // ------------------------------------------------------
-
-        var fallDistance =
-          (window.innerHeight * 1.55) +
-          umbrellaHeight;
-
-
-        var fallMovement =
-          fallDistance *
-          progress;
-
-
-        var finalY =
-          umbrellaStartY +
-          parentCompensation +
-          fallMovement;
-
-
-        // ------------------------------------------------------
-        // LEFT DRIFT
-        // ------------------------------------------------------
-
-        var leftMovement =
-          -window.innerWidth *
-          0.06 *
-          progress;
-
-
-        // ------------------------------------------------------
-        // APPLY MOVEMENT
-        // ------------------------------------------------------
-
-        gsap.set(umbrellaCat, {
-
-          x:
-            leftMovement,
-
-          y:
-            finalY,
-
-          rotation:
-            -15 * progress,
-
-          force3D: true
-        });
-
-
-        // ------------------------------------------------------
-        // VISIBILITY — IMPORTANT FIX
-        //
-        // progress 0 = ALWAYS hidden.
-        //
-        // This prevents the cat sitting visibly at the top
-        // before the actual fall begins.
-        //
-        // Once movement begins, visibility is determined by
-        // the cat's REAL viewport position.
-        // ------------------------------------------------------
-
-        if (progress <= 0.001) {
-
-          gsap.set(umbrellaCat, {
-            visibility: "hidden"
-          });
-
-        } else {
-
-          var catRect =
-            umbrellaCat.getBoundingClientRect();
-
-
-          var catIsOnScreen =
-            catRect.bottom > 0 &&
-            catRect.top < window.innerHeight;
-
-
-          gsap.set(umbrellaCat, {
-
-            visibility:
-              catIsOnScreen
-                ? "visible"
-                : "hidden"
-          });
-
-        }
-
-      },
+}
 
 
       // --------------------------------------------------------
