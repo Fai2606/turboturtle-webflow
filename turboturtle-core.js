@@ -6149,62 +6149,62 @@ function initHomeResponsiveScale() {
 
 
 
-// ==========================================================
-// UNIVERSAL TYPOGRAPHY COMPENSATION
-//
-// CITY is scaled with CSS zoom.
-//
-// Text must visually remain at the Webflow-designed size.
-//
-// Example:
-// Webflow = 60px
-// CITY scale = 0.40
-//
-// Internal font = 60 / 0.40 = 150px
-// Visual result  = 150 × 0.40 = 60px
-// ==========================================================
+// // ==========================================================
+// // UNIVERSAL TYPOGRAPHY COMPENSATION
+// //
+// // CITY is scaled with CSS zoom.
+// //
+// // Text must visually remain at the Webflow-designed size.
+// //
+// // Example:
+// // Webflow = 60px
+// // CITY scale = 0.40
+// //
+// // Internal font = 60 / 0.40 = 150px
+// // Visual result  = 150 × 0.40 = 60px
+// // ==========================================================
 
-function applyCityTypography(city, scale) {
+// function applyCityTypography(city, scale) {
 
-  var textElements =
-    city.querySelectorAll(
-      ".big_heading, .section_heading, .body_text"
-    );
-
-
-  textElements.forEach(function(el) {
-
-    if (!el.dataset.webflowFontSize) {
-
-      var computed =
-        window.getComputedStyle(el);
-
-      var originalSize =
-        parseFloat(computed.fontSize);
-
-      if (!originalSize) return;
-
-      el.dataset.webflowFontSize =
-        originalSize;
-    }
+//   var textElements =
+//     city.querySelectorAll(
+//       ".big_heading, .section_heading, .body_text"
+//     );
 
 
-    var visualSize =
-      parseFloat(
-        el.dataset.webflowFontSize
-      );
+//   textElements.forEach(function(el) {
+
+//     if (!el.dataset.webflowFontSize) {
+
+//       var computed =
+//         window.getComputedStyle(el);
+
+//       var originalSize =
+//         parseFloat(computed.fontSize);
+
+//       if (!originalSize) return;
+
+//       el.dataset.webflowFontSize =
+//         originalSize;
+//     }
 
 
-    el.style.fontSize =
-      (
-        visualSize /
-        scale
-      ) +
-      "px";
+//     var visualSize =
+//       parseFloat(
+//         el.dataset.webflowFontSize
+//       );
 
-  });
 
-}
+//     el.style.fontSize =
+//       (
+//         visualSize /
+//         scale
+//       ) +
+//       "px";
+
+//   });
+
+// }
 
 
   
@@ -6220,24 +6220,24 @@ function applyCityTypography(city, scale) {
   // About Us is NOT touched.
   // ==========================================================
 
-  function applyHomeBodyWidth(mode) {
+  // function applyHomeBodyWidth(mode) {
   
-    var homeBodyTexts =
-      document.querySelectorAll(
-        '[class*="home_section"] .body_text'
-      );
+  //   var homeBodyTexts =
+  //     document.querySelectorAll(
+  //       '[class*="home_section"] .body_text'
+  //     );
   
-    homeBodyTexts.forEach(
-      function(el) {
+  //   homeBodyTexts.forEach(
+  //     function(el) {
   
-        // Let Webflow control body text width / max-width
-        el.style.width = "";
-        el.style.maxWidth = "";
+  //       // Let Webflow control body text width / max-width
+  //       el.style.width = "";
+  //       el.style.maxWidth = "";
   
-      }
-    );
+  //     }
+  //   );
   
-  }
+  // }
 
 
 
@@ -6346,14 +6346,14 @@ if (width < 1920) {
 }
 
 
-    // ====================================================
-    // TYPOGRAPHY
-    // ====================================================
+    // // ====================================================
+    // // TYPOGRAPHY
+    // // ====================================================
 
-    applyCityTypography(
-      city,
-      scale
-    );
+    // applyCityTypography(
+    //   city,
+    //   scale
+    // );
 
 
     // ====================================================
@@ -6413,13 +6413,13 @@ if (width < 1920) {
   });
 
 
-  // ====================================================
-  // HOMEPAGE BODY TEXT WIDTH
-  // ====================================================
+  // // ====================================================
+  // // HOMEPAGE BODY TEXT WIDTH
+  // // ====================================================
 
-  applyHomeBodyWidth(
-    mode
-  );
+  // applyHomeBodyWidth(
+  //   mode
+  // );
 
 
   // ====================================================
