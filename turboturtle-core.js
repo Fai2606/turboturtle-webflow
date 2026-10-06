@@ -3565,6 +3565,7 @@ function initHomeSection6() {
 
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
+  var weirdSunText = q(".weirdsun_text");
   var home6TallPillar = q(".home6_tallpillar");
   var home6Lake = q(".home6_lake");
 
@@ -3765,39 +3766,47 @@ function initHomeSection6() {
 
 
   // ==========================================================
-  // WEIRD SUN PARALLAX
+  // WEIRD SUN + TEXT PARALLAX
+  //
+  // Trigger/detection = Weird Sun
+  // Text follows the exact same scroll progress.
   // ==========================================================
-
+  
   if (weirdSun) {
-
+  
     var weirdSunScrollTrigger;
-
+  
+  
+    // ----------------------------------------------------------
+    // TRIGGER ALWAYS BASED ON WEIRD SUN
+    // ----------------------------------------------------------
+  
     if (isSafari && section && city) {
-
+  
       weirdSunScrollTrigger = {
-
+  
         trigger: section,
-
+  
         start: function() {
           return (
             getSafariVisualTop(weirdSun) -
             document.documentElement.clientHeight
           );
         },
-
+  
         end: function() {
           return (
             getSafariVisualTop(weirdSun) +
             getSafariVisualHeight(weirdSun)
           );
         },
-
+  
         scrub: true,
         invalidateOnRefresh: true
       };
-
+  
     } else {
-
+  
       weirdSunScrollTrigger = {
         trigger: weirdSun,
         start: "top bottom",
@@ -3805,18 +3814,51 @@ function initHomeSection6() {
         scrub: true,
         invalidateOnRefresh: true
       };
+  
     }
-
-
-    gsap.to(weirdSun, {
-      y: 360,
-      ease: "none",
-      force3D: true,
-
-      scrollTrigger: weirdSunScrollTrigger
-    });
+  
+  
+    // ----------------------------------------------------------
+    // ONE TIMELINE = SUN + TEXT ALWAYS MOVE TOGETHER
+    // ----------------------------------------------------------
+  
+    var weirdSunTimeline =
+      gsap.timeline({
+        scrollTrigger: weirdSunScrollTrigger
+      });
+  
+  
+    // Weird Sun is INSIDE scaled CITY
+    weirdSunTimeline.to(
+      weirdSun,
+      {
+        y: 360,
+        ease: "none",
+        force3D: true
+      },
+      0
+    );
+  
+  
+    // Text is OUTSIDE CITY.
+    // Match the Sun's actual VISUAL movement.
+    if (weirdSunText) {
+  
+      weirdSunTimeline.to(
+        weirdSunText,
+        {
+          y: function() {
+            return 360 * getCityScale();
+          },
+          ease: "none",
+          force3D: true
+        },
+        0
+      );
+  
+    }
+  
   }
-
 
   // ==========================================================
   // HOME 6 — SCROLL-LINKED CASTLE BUILD
