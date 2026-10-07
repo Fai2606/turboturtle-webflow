@@ -1957,14 +1957,91 @@ function initHomeSection2() {
 
 // ==========================================================
 // STATUE FIRE + PUNCH
-// JETMAN-STYLE LAUNCH + RETURN
+// FIXED-ANGLE JETMAN-STYLE LAUNCH + RETURN
 // ==========================================================
 
-var statueShots = gsap.utils.toArray(
-  ".home2_statue_fire, .home2_statue_punch"
-);
+var statuePunch =
+  q(".home2_statue_punch");
+
+var statueFire =
+  q(".home2_statue_fire");
+
+var statueShots = [
+  statuePunch,
+  statueFire
+].filter(Boolean);
+
+var home2City =
+  q(".home_section2_city");
+
 
 if (statueShots.length) {
+
+
+  // --------------------------------------------------------
+  // CITY SCALE
+  // Needed so flight angle stays visually identical
+  // across desktop / tablet / mobile.
+  // --------------------------------------------------------
+
+  function getHome2CityScale() {
+
+    if (!home2City) {
+      return 1;
+    }
+
+    return (
+      parseFloat(
+        getComputedStyle(home2City).zoom
+      ) || 1
+    );
+  }
+
+
+  // --------------------------------------------------------
+  // FIXED 10 O'CLOCK FLIGHT
+  //
+  // 10 o'clock = 30deg above horizontal.
+  //
+  // X and Y are calculated from the SAME pixel distance,
+  // so aspect ratio no longer changes the angle.
+  // --------------------------------------------------------
+
+  function getPunchTravelX() {
+
+    var visualDistance =
+      getRealViewportWidth() * 1.25;
+
+    return (
+      -visualDistance /
+      getHome2CityScale()
+    );
+  }
+
+
+  function getPunchTravelY() {
+
+    var visualDistance =
+      getRealViewportWidth() * 1.25;
+
+    var visualY =
+      visualDistance *
+      Math.tan(
+        30 * Math.PI / 180
+      );
+
+    return (
+      -visualY /
+      getHome2CityScale()
+    );
+  }
+
+
+  // --------------------------------------------------------
+  // INITIAL STATE
+  // Punch visible.
+  // Fire hidden until launch.
+  // --------------------------------------------------------
 
   gsap.set(statueShots, {
     x: 0,
@@ -1973,50 +2050,103 @@ if (statueShots.length) {
     force3D: true
   });
 
+
+  if (statueFire) {
+
+    gsap.set(statueFire, {
+      autoAlpha: 0
+    });
+  }
+
+
+  // --------------------------------------------------------
+  // TRIGGER
+  // --------------------------------------------------------
+
   ScrollTrigger.create({
 
     trigger: section,
 
-    // Later — statue will be higher on screen
-    start: "top -30%",
+    // Desktop timing stays as-is.
+    // Mobile fires slightly earlier.
+    start: isMobile
+      ? "top -15%"
+      : "top -30%",
 
+
+    // ======================================================
     // FLY OUT
+    // ======================================================
+
     onEnter: function() {
 
       gsap.killTweensOf(statueShots);
 
+
+      // Fire only appears during launch.
+
+      if (statueFire) {
+
+        gsap.set(statueFire, {
+          autoAlpha: 1
+        });
+      }
+
+
       gsap.to(statueShots, {
 
-        x: -62.5 * vw,
-        y: -112.5 * vh,
+        x: getPunchTravelX,
+        y: getPunchTravelY,
 
         scale: 1.5,
 
         duration: 1.4,
-        ease: "power3.in",
+
+        // power3 → power2
+        ease: "power2.in",
 
         force3D: true
       });
     },
 
+
+    // ======================================================
     // FLY BACK
+    // ======================================================
+
     onLeaveBack: function() {
 
       gsap.killTweensOf(statueShots);
+
+
+      // No fire during return.
+
+      if (statueFire) {
+
+        gsap.set(statueFire, {
+          autoAlpha: 0
+        });
+      }
+
 
       gsap.to(statueShots, {
 
         x: 0,
         y: 0,
+
         scale: 1,
 
-        duration: 1.2,
-        ease: "power3.out",
+        // Faster return
+        duration: 0.7,
+
+        ease: "power2.out",
 
         force3D: true
       });
     }
+
   });
+
 }
 
   // ==========================================================
