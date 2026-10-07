@@ -2099,9 +2099,9 @@ if (statueShots.length) {
 
         scale: 2,
 
-        duration: 1.5,
+        duration: 2,
 
-        ease: "power3.in",
+        ease: "power4.in",
 
         force3D: true
       });
