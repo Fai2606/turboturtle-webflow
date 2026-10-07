@@ -2325,7 +2325,7 @@ if (cityLight3) {
     },
 
     {
-      rotation: 0,
+      rotation: 5,
 
       ease: "none",
 
@@ -2355,7 +2355,7 @@ if (cityLight4) {
     },
 
     {
-      rotation: -1,
+      rotation: -5,
 
       ease: "none",
 
