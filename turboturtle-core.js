@@ -1953,6 +1953,51 @@ function initHomeSection2() {
   );
 
 
+
+
+  // ==========================================================
+  // STATUE FIRE + PUNCH
+  // ==========================================================
+
+  var statueShots = gsap.utils.toArray(
+    ".home2_statue_fire, .home2_statue_punch"
+  );
+
+  var statueGroup = document.querySelector(
+    ".home2_statue_group"
+  );
+
+  if (statueShots.length && statueGroup) {
+
+    gsap.to(statueShots, {
+
+      x: function() {
+        return -25 * vw;
+      },
+
+      y: function() {
+        return -45 * vh;
+      },
+
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: statueGroup,
+        start: "top 50%",
+        end: "top 25%",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+
+  // ==========================================================
+  // OCEAN BALL FLOAT
+  // ==========================================================
+  
+
   // ==========================================================
   // OCEAN BALL FLOAT
   //
