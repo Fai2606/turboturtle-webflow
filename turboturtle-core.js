@@ -2069,7 +2069,7 @@ if (statueShots.length) {
     // Desktop timing stays as-is.
     // Mobile fires slightly earlier.
     start: isMobile
-      ? "top -15%"
+      ? "top 10%"
       : "top -30%",
 
 
