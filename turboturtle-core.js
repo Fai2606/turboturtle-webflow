@@ -1104,12 +1104,12 @@ if (
           trigger: ".about_bigfly",
           start: "-20% bottom",
           end: "bottom -20%",
-          scrub: 0.5,
+          scrub: 0.35,
           invalidateOnRefresh: true,
 
           onUpdate: function (self) {
             var t = self.progress;
-            var x = 40 * vw * t;
+            var x = 20 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh;
             var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
