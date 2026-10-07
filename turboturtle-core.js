@@ -1957,32 +1957,64 @@ function initHomeSection2() {
 
 // ==========================================================
 // STATUE FIRE + PUNCH
+// JETMAN-STYLE LAUNCH
 // ==========================================================
 
 var statueShots = gsap.utils.toArray(
   ".home2_statue_fire, .home2_statue_punch"
 );
 
-if (statueShots.length) {
+var statue = q(".home2_statue");
 
-  gsap.to(statueShots, {
+if (statueShots.length && statue) {
 
-    x: -25 * vw,
-    y: -45 * vh,
+  gsap.set(statueShots, {
+    x: 0,
+    y: 0,
+    scale: 1,
+    force3D: true
+  });
 
-    scale: 1.2,
+  ScrollTrigger.create({
 
-    ease: "power3.in",
-    force3D: true,
+    trigger: statue,
 
-    scrollTrigger: {
-      trigger: section,
+    // Fire when the TOP of statue reaches
+    // around the middle of the screen
+    start: "top 50%",
 
-      start: "top 20%",
-      end: "top 0%",
+    onEnter: function() {
 
-      scrub: 1,
-      invalidateOnRefresh: true
+      gsap.killTweensOf(statueShots);
+
+      gsap.to(statueShots, {
+
+        // 10 o'clock
+        x: -25 * vw,
+        y: -45 * vh,
+
+        // 100% → 120%
+        scale: 1.2,
+
+        duration: 1.15,
+
+        // Cubic acceleration
+        ease: "power3.in",
+
+        force3D: true
+      });
+    },
+
+    onLeaveBack: function() {
+
+      gsap.killTweensOf(statueShots);
+
+      gsap.set(statueShots, {
+        x: 0,
+        y: 0,
+        scale: 1,
+        force3D: true
+      });
     }
   });
 }
