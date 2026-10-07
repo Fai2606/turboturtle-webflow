@@ -1109,7 +1109,7 @@ if (
 
           onUpdate: function (self) {
             var t = self.progress;
-            var x = 60 * vw * t;
+            var x = 40 * vw * t;
             var arc = (isMobile ? 24 : 32) * vh;
             var climbY = -arc * Math.pow(t, 2.1);
             var y = -3 * vw + climbY;
