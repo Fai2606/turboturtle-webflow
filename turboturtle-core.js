@@ -2097,12 +2097,11 @@ if (statueShots.length) {
         x: getPunchTravelX,
         y: getPunchTravelY,
 
-        scale: 1.5,
+        scale: 2,
 
-        duration: 1.4,
+        duration: 1.5,
 
-        // power3 → power2
-        ease: "power2.in",
+        ease: "power3.in",
 
         force3D: true
       });
