@@ -1955,68 +1955,69 @@ function initHomeSection2() {
 
 
 
-  // ==========================================================
-  // STATUE FIRE + PUNCH
-  // JETMAN-STYLE LAUNCH + RETURN
-  // ==========================================================
-  
-  var statueShots = gsap.utils.toArray(
-    ".home2_statue_fire, .home2_statue_punch"
-  );
-  
-  if (statueShots.length) {
-  
-    gsap.set(statueShots, {
-      x: 0,
-      y: 0,
-      scale: 1,
-      force3D: true
-    });
-  
-    ScrollTrigger.create({
-  
-      trigger: section,
-      start: "top -15%",
-  
-      // FLY OUT
-      onEnter: function() {
-  
-        gsap.killTweensOf(statueShots);
-  
-        gsap.to(statueShots, {
-  
-          x: -62.5 * vw,
-          y: -112.5 * vh,
-  
-          scale: 1.5,
-  
-          duration: 0.9,
-          ease: "power3.in",
-  
-          force3D: true
-        });
-      },
-  
-      // FLY BACK
-      onLeaveBack: function() {
-  
-        gsap.killTweensOf(statueShots);
-  
-        gsap.to(statueShots, {
-  
-          x: 0,
-          y: 0,
-  
-          scale: 1,
-  
-          duration: 0.8,
-          ease: "power3.out",
-  
-          force3D: true
-        });
-      }
-    });
-  }
+// ==========================================================
+// STATUE FIRE + PUNCH
+// JETMAN-STYLE LAUNCH + RETURN
+// ==========================================================
+
+var statueShots = gsap.utils.toArray(
+  ".home2_statue_fire, .home2_statue_punch"
+);
+
+if (statueShots.length) {
+
+  gsap.set(statueShots, {
+    x: 0,
+    y: 0,
+    scale: 1,
+    force3D: true
+  });
+
+  ScrollTrigger.create({
+
+    trigger: section,
+
+    // Later — statue will be higher on screen
+    start: "top -30%",
+
+    // FLY OUT
+    onEnter: function() {
+
+      gsap.killTweensOf(statueShots);
+
+      gsap.to(statueShots, {
+
+        x: -62.5 * vw,
+        y: -112.5 * vh,
+
+        scale: 1.5,
+
+        duration: 1.4,
+        ease: "power3.in",
+
+        force3D: true
+      });
+    },
+
+    // FLY BACK
+    onLeaveBack: function() {
+
+      gsap.killTweensOf(statueShots);
+
+      gsap.to(statueShots, {
+
+        x: 0,
+        y: 0,
+        scale: 1,
+
+        duration: 1.2,
+        ease: "power3.out",
+
+        force3D: true
+      });
+    }
+  });
+}
 
   // ==========================================================
   // OCEAN BALL FLOAT
