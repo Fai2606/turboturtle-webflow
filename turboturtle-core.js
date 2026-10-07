@@ -206,38 +206,38 @@ getBoundingClientRect: function () {
         });
       }
 
-      // -------------------------------------------------------------
-      // ABOUT US — PARALLAX
-      // -------------------------------------------------------------
-      tweenIf(".about_planet", stable({ targetEl: ".about_planet", y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 1 } }));
-      tweenIf(".spacecats", stable({ targetEl: ".spacecats", x: () => -3 * vw, y: () => 40 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 0.5 } }));
-      tweenIf(".about_saturn", stable({ targetEl: ".about_saturn", x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 1 } }));
-      tweenIf(".satellitemove", stable({ targetEl: ".satellitemove", x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 1 } }));
-      tweenIf(".about_watermoon", stable({ targetEl: ".about_watermoon", yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: 1 } }));
-      tweenIf(".about_section_1", stable({ targetEl: ".about_section_1", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: 1 } }));
-      tweenIf(".about_section_2", stable({ targetEl: ".about_section_2", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".lakeshrink", stable({ targetEl: ".lakeshrink", scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".duckswim", stable({ targetEl: ".duckswim", x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_turtle2", stable({ targetEl: ".about_turtle2", x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: 1 } }));
-      tweenIf(".about_turtle1", stable({ targetEl: ".about_turtle1", x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_nessie", stable({ targetEl: ".about_nessie", x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_giant_squid", stable({ targetEl: ".about_giant_squid", x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: 1 } }));
-      tweenIf(".about_bigbigfly", stable({ targetEl: ".about_bigbigfly", x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: 0.5 } }));
-      tweenIf(".about_turtle3", stable({ targetEl: ".about_turtle3", x: () => 40 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: 1 } }));
-      tweenIf(".about_turtle4", stable({ targetEl: ".about_turtle4", x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: 1 } }));
-      tweenIf(".about_chickenfish", stable({ targetEl: ".about_chickenfish", x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_flyduck", stable({ targetEl: ".about_flyduck", x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: isMobile ? "top 120%" : "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_octopus1", stable({ targetEl: ".about_octopus1", x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_octopus2", stable({ targetEl: ".about_octopus2", x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: 1 } }));
-      tweenIf(".about_bubble", stable({ targetEl: ".about_bubble", y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: 1 } }));
-      tweenIf(".about_bigbubble", stable({ targetEl: ".about_bigbubble", y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: 1 } }));
-      tweenIf(".about_small_planet1", stable({ targetEl: ".about_small_planet1", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_small_planet2", stable({ targetEl: ".about_small_planet2", y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".footer_ask", stable({ targetEl: ".footer_ask", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".footer_credit", stable({ targetEl: ".footer_credit", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_citymoon", stable({ targetEl: ".about_citymoon", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_citymoon", start: "top bottom", end: "bottom top", scrub: 1 } }));
-      tweenIf(".about_cityballoon", stable({ targetEl: ".about_cityballoon", y: () => 30 * vh, ease: "none", scrollTrigger: { trigger: ".about_cityballoon", start: "top bottom", end: "bottom top", scrub: 1 } }));
-
+// -------------------------------------------------------------
+// ABOUT US — PARALLAX
+// DIRECT SCROLL-LINKED — NO SCRUB LAG
+// -------------------------------------------------------------
+tweenIf(".about_planet", stable({ targetEl: ".about_planet", y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+tweenIf(".spacecats", stable({ targetEl: ".spacecats", x: () => -3 * vw, y: () => 40 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+tweenIf(".about_saturn", stable({ targetEl: ".about_saturn", x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+tweenIf(".satellitemove", stable({ targetEl: ".satellitemove", x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+tweenIf(".about_watermoon", stable({ targetEl: ".about_watermoon", yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_section_1", stable({ targetEl: ".about_section_1", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
+tweenIf(".about_section_2", stable({ targetEl: ".about_section_2", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".lakeshrink", stable({ targetEl: ".lakeshrink", scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".duckswim", stable({ targetEl: ".duckswim", x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_turtle2", stable({ targetEl: ".about_turtle2", x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_turtle1", stable({ targetEl: ".about_turtle1", x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_nessie", stable({ targetEl: ".about_nessie", x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_giant_squid", stable({ targetEl: ".about_giant_squid", x: () => 15 * vw, y: () => 100 * vh, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_giant_squid", start: "top bottom", end: "bottom -250%", scrub: true } }));
+tweenIf(".about_bigbigfly", stable({ targetEl: ".about_bigbigfly", x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: true } }));
+tweenIf(".about_turtle3", stable({ targetEl: ".about_turtle3", x: () => 40 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_turtle4", stable({ targetEl: ".about_turtle4", x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_chickenfish", stable({ targetEl: ".about_chickenfish", x: () => 12 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_chickenfish", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_flyduck", stable({ targetEl: ".about_flyduck", x: () => 140 * vw, y: () => 5 * vh, ease: "none", scrollTrigger: { trigger: ".about_flyduck", start: isMobile ? "top 120%" : "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_octopus1", stable({ targetEl: ".about_octopus1", x: () => 20 * vw, y: () => -15 * vh, rotation: -10, ease: "none", scrollTrigger: { trigger: ".about_octopus1", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_octopus2", stable({ targetEl: ".about_octopus2", x: () => 15 * vw, y: () => 25 * vh, rotation: 10, ease: "none", scrollTrigger: { trigger: ".about_octopus2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_bubble", stable({ targetEl: ".about_bubble", y: () => -400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bubble", start: "top bottom", end: "bottom -200%", scrub: true } }));
+tweenIf(".about_bigbubble", stable({ targetEl: ".about_bigbubble", y: () => -1400 * vh, x: () => 2 * vw, ease: "none", scrollTrigger: { trigger: ".about_bigbubble", start: "top bottom", end: "bottom -400%", scrub: true } }));
+tweenIf(".about_small_planet1", stable({ targetEl: ".about_small_planet1", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet1", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_small_planet2", stable({ targetEl: ".about_small_planet2", y: () => 15 * vh, ease: "none", scrollTrigger: { trigger: ".about_small_planet2", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".footer_ask", stable({ targetEl: ".footer_ask", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_ask", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".footer_credit", stable({ targetEl: ".footer_credit", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_citymoon", stable({ targetEl: ".about_citymoon", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_citymoon", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".about_cityballoon", stable({ targetEl: ".about_cityballoon", y: () => 30 * vh, ease: "none", scrollTrigger: { trigger: ".about_cityballoon", start: "top bottom", end: "bottom top", scrub: true } }));
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1 });
 
