@@ -2001,35 +2001,34 @@ if (statueShots.length) {
   // --------------------------------------------------------
   // FIXED 10 O'CLOCK FLIGHT
   //
-  // 10 o'clock = 30deg above horizontal.
   //
   // X and Y are calculated from the SAME pixel distance,
   // so aspect ratio no longer changes the angle.
   // --------------------------------------------------------
 
   function getPunchTravelX() {
-
+  
     var visualDistance =
       getRealViewportWidth() * 1.25;
-
+  
     return (
       -visualDistance /
       getHome2CityScale()
     );
   }
-
-
+  
+  
   function getPunchTravelY() {
-
+  
     var visualDistance =
       getRealViewportWidth() * 1.25;
-
+  
     var visualY =
       visualDistance *
       Math.tan(
-        30 * Math.PI / 180
+        53.4 * Math.PI / 180
       );
-
+  
     return (
       -visualY /
       getHome2CityScale()
