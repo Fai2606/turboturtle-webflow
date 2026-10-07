@@ -243,37 +243,39 @@ if (giantSquid) {
 
   var squidSpeed = 0.36;
 
+  // Freeze these measurements.
+  // Mobile URL bar appearing/disappearing must NOT change them.
+  var squidViewportHeight = document.documentElement.clientHeight;
+  var squidElementHeight = giantSquid.offsetHeight;
+
   function squidDistance() {
-    return giantSquid.offsetHeight + document.documentElement.clientHeight;
+    return squidElementHeight + squidViewportHeight;
   }
 
   gsap.to(giantSquid, {
 
-    y: function() {
-      return squidDistance() * ((1 / squidSpeed) - 1);
-    },
+    y: squidDistance() * ((1 / squidSpeed) - 1),
 
-    x: function() {
-      return 8 * vw;
-    },
+    x: 8 * vw,
 
     ease: "none",
     force3D: true,
 
     scrollTrigger: {
       trigger: giantSquid,
+
       start: "top bottom",
 
-      end: function() {
-        return "+=" + (squidDistance() / squidSpeed);
-      },
+      end: "+=" + (squidDistance() / squidSpeed),
 
       scrub: isMobile ? 0.6 : true,
-      invalidateOnRefresh: true
+
+      // IMPORTANT:
+      // don't rebuild squid movement when URL bar changes height
+      invalidateOnRefresh: false
     }
   });
 }
-
       
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1 });
