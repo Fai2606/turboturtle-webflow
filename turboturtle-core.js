@@ -3496,25 +3496,32 @@ if (umbrellaCat) {
 
 
       // ======================================================
-      // APPLY
+      // APPLY — SMOOTH SCRUB FEEL
       // ======================================================
-
+      
       gsap.set(umbrellaCat, {
-
-        x: localX,
-
-        y: localY,
-
-        rotation:
-          60 * curveX,
-
         visibility:
           p > 0.001
             ? "visible"
-            : "hidden",
-
+            : "hidden"
+      });
+      
+      
+      gsap.to(umbrellaCat, {
+      
+        x: localX,
+      
+        y: localY,
+      
+        rotation:
+          60 * curveX,
+      
+        duration: 0.5,
+        ease: "power2.out",
+      
+        overwrite: "auto",
         force3D: true
-
+      
       });
 
     },
@@ -5369,60 +5376,68 @@ function initHomeSection7() {
 
 
       // ========================================================
-      // FISH 1
+      // FISH 1 — SMOOTH SCRUB
       // ========================================================
-
+      
       if (fish1) {
-
-        gsap.set(fish1, {
-
+      
+        gsap.to(fish1, {
+      
           x:
             -18 *
             MASTER_VW *
             p,
-
+      
           y:
             -55 *
             MASTER_VH *
             p,
-
+      
           rotation:
             -3 *
             p,
-
+      
+          duration: 0.5,
+          ease: "power2.out",
+      
+          overwrite: "auto",
           force3D: true
-
+      
         });
-
+      
       }
 
 
       // ========================================================
-      // FISH 2
+      // FISH 2 — SMOOTH SCRUB
       // ========================================================
-
+      
       if (fish2) {
-
-        gsap.set(fish2, {
-
+      
+        gsap.to(fish2, {
+      
           x:
             -38 *
             MASTER_VW *
             p,
-
+      
           y:
             -116 *
             MASTER_VH *
             p,
-
+      
           rotation:
             -4 *
             p,
-
+      
+          duration: 0.5,
+          ease: "power2.out",
+      
+          overwrite: "auto",
           force3D: true
-
+      
         });
-
+      
       }
 
 
