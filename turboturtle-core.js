@@ -241,7 +241,7 @@ var giantSquid = document.querySelector(".about_giant_squid");
 
 if (giantSquid) {
 
-  var squidSpeed = 0.38;
+  var squidSpeed = 0.36;
 
   function squidDistance() {
     return giantSquid.offsetHeight + document.documentElement.clientHeight;
@@ -254,7 +254,7 @@ if (giantSquid) {
     },
 
     x: function() {
-      return 10 * vw;
+      return 8 * vw;
     },
 
     ease: "none",
@@ -268,12 +268,11 @@ if (giantSquid) {
         return "+=" + (squidDistance() / squidSpeed);
       },
 
-      scrub: true,
+      scrub: isMobile ? 0.6 : true,
       invalidateOnRefresh: true
     }
   });
 }
-
 
       
       if (exists(".about_balloon")) {
