@@ -2097,7 +2097,7 @@ if (statueShots.length) {
         x: getPunchTravelX,
         y: getPunchTravelY,
 
-        scale: 2,
+        scale: 10,
 
         duration: 2,
 
