@@ -222,7 +222,6 @@ tweenIf(".duckswim", stable({ targetEl: ".duckswim", x: () => -5 * vw - 80, yPer
 tweenIf(".about_turtle2", stable({ targetEl: ".about_turtle2", x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
 tweenIf(".about_turtle1", stable({ targetEl: ".about_turtle1", x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_nessie", stable({ targetEl: ".about_nessie", x: () => 7 * vw, y: () => -13 * vw, rotation: -30, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
-var giantSquid = document.querySelector(".about_giant_squid"); if (giantSquid) { var squidSpeed = 0.36; function squidDistance() { return giantSquid.offsetHeight + document.documentElement.clientHeight; } gsap.to(giantSquid, { y: function() { return squidDistance() * ((1 / squidSpeed) - 1); }, ease: "none", force3D: true, scrollTrigger: { trigger: giantSquid, start: "top bottom", end: function() { return "+=" + (squidDistance() / squidSpeed); }, scrub: true, invalidateOnRefresh: true } }); }
 tweenIf(".about_bigbigfly", stable({ targetEl: ".about_bigbigfly", x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: true } }));
 tweenIf(".about_turtle3", stable({ targetEl: ".about_turtle3", x: () => 40 * vw, y: () => -5 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle3", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
 tweenIf(".about_turtle4", stable({ targetEl: ".about_turtle4", x: () => 20 * vw, y: () => 8 * vh, ease: "none", scrollTrigger: { trigger: ".about_turtle4", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
@@ -238,6 +237,45 @@ tweenIf(".footer_ask", stable({ targetEl: ".footer_ask", y: () => -10 * vh, ease
 tweenIf(".footer_credit", stable({ targetEl: ".footer_credit", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".footer_credit", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_citymoon", stable({ targetEl: ".about_citymoon", y: () => 10 * vh, ease: "none", scrollTrigger: { trigger: ".about_citymoon", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_cityballoon", stable({ targetEl: ".about_cityballoon", y: () => 30 * vh, ease: "none", scrollTrigger: { trigger: ".about_cityballoon", start: "top bottom", end: "bottom top", scrub: true } }));
+var giantSquid = document.querySelector(".about_giant_squid");
+
+if (giantSquid) {
+
+  var squidSpeed = 0.36;
+
+  function squidDistance() {
+    return giantSquid.offsetHeight + document.documentElement.clientHeight;
+  }
+
+  gsap.to(giantSquid, {
+
+    y: function() {
+      return squidDistance() * ((1 / squidSpeed) - 1);
+    },
+
+    x: function() {
+      return 8 * vw;
+    },
+
+    ease: "none",
+    force3D: true,
+
+    scrollTrigger: {
+      trigger: giantSquid,
+      start: "top bottom",
+
+      end: function() {
+        return "+=" + (squidDistance() / squidSpeed);
+      },
+
+      scrub: true,
+      invalidateOnRefresh: true
+    }
+  });
+}
+
+
+      
       if (exists(".about_balloon")) {
         gsap.set(".about_balloon", { force3D: true, z: 0.1 });
 
