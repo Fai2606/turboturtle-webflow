@@ -241,7 +241,7 @@ var giantSquid = document.querySelector(".about_giant_squid");
 
 if (giantSquid) {
 
-  var squidSpeed = 0.36;
+  var squidSpeed = 0.38;
 
   function squidDistance() {
     return giantSquid.offsetHeight + document.documentElement.clientHeight;
@@ -254,7 +254,7 @@ if (giantSquid) {
     },
 
     x: function() {
-      return 8 * vw;
+      return 10 * vw;
     },
 
     ease: "none",
