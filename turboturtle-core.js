@@ -1957,7 +1957,7 @@ function initHomeSection2() {
 
 // ==========================================================
 // STATUE FIRE + PUNCH
-// JETMAN-STYLE LAUNCH
+// JETMAN-STYLE LAUNCH + RETURN
 // ==========================================================
 
 var statueShots = gsap.utils.toArray(
@@ -1975,43 +1975,47 @@ if (statueShots.length) {
 
   ScrollTrigger.create({
 
-    // IMPORTANT:
-    // use stable Section 2, NOT the moving statue
     trigger: section,
 
-    // Later timing
+    // Keep current launch timing
     start: "top -15%",
 
+    // FLY OUT
     onEnter: function() {
 
       gsap.killTweensOf(statueShots);
 
       gsap.to(statueShots, {
 
-        // 10 o'clock direction
-        x: -25 * vw,
-        y: -45 * vh,
+        // Same 10 o'clock direction,
+        // but continue FAR enough to leave screen
+        x: -62.5 * vw,
+        y: -112.5 * vh,
 
-        // 100% → 120%
         scale: 1.2,
 
-        duration: 1.15,
-
-        // Accelerates like Jetman
+        duration: 1.4,
         ease: "power3.in",
 
         force3D: true
       });
     },
 
+    // FLY BACK when scrolling upward
     onLeaveBack: function() {
 
       gsap.killTweensOf(statueShots);
 
-      gsap.set(statueShots, {
+      gsap.to(statueShots, {
+
         x: 0,
         y: 0,
+
         scale: 1,
+
+        duration: 1.2,
+        ease: "power3.out",
+
         force3D: true
       });
     }
