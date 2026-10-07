@@ -2097,11 +2097,11 @@ if (statueShots.length) {
         x: getPunchTravelX,
         y: getPunchTravelY,
 
-        scale: 7.5,
+        scale: isMobile ? 4 : 7.5,
 
-        duration: 2,
+        duration: 1.8,
 
-        ease: "power4.in",
+        ease: "power3.in",
 
         force3D: true
       });
