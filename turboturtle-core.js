@@ -1970,14 +1970,16 @@ if (statueShots.length) {
     x: -25 * vw,
     y: -45 * vh,
 
-    ease: "none",
+    scale: 1.2,
+
+    ease: "power3.in",
     force3D: true,
 
     scrollTrigger: {
       trigger: section,
 
-      start: "top 35%",
-      end: "top 10%",
+      start: "top 20%",
+      end: "top 0%",
 
       scrub: 1,
       invalidateOnRefresh: true
