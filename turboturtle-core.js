@@ -1964,9 +1964,7 @@ var statueShots = gsap.utils.toArray(
   ".home2_statue_fire, .home2_statue_punch"
 );
 
-var statue = q(".home2_statue");
-
-if (statueShots.length && statue) {
+if (statueShots.length) {
 
   gsap.set(statueShots, {
     x: 0,
@@ -1977,11 +1975,12 @@ if (statueShots.length && statue) {
 
   ScrollTrigger.create({
 
-    trigger: statue,
+    // IMPORTANT:
+    // use stable Section 2, NOT the moving statue
+    trigger: section,
 
-    // Fire when the TOP of statue reaches
-    // around the middle of the screen
-    start: "top 50%",
+    // Later timing
+    start: "top -15%",
 
     onEnter: function() {
 
@@ -1989,7 +1988,7 @@ if (statueShots.length && statue) {
 
       gsap.to(statueShots, {
 
-        // 10 o'clock
+        // 10 o'clock direction
         x: -25 * vw,
         y: -45 * vh,
 
@@ -1998,7 +1997,7 @@ if (statueShots.length && statue) {
 
         duration: 1.15,
 
-        // Cubic acceleration
+        // Accelerates like Jetman
         ease: "power3.in",
 
         force3D: true
