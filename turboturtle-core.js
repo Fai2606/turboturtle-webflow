@@ -1894,7 +1894,7 @@ function initHomeSection2() {
 
     // Lower = more oscillations before settling
     // Higher = settles faster
-    var PENDULUM_DAMPING = 1.35;
+    var PENDULUM_DAMPING = isMobile ? 0.7 : 1.0;
 
     // Lower = more sensitive to slow scrolling
     // Higher = needs faster scrolling for a large swing
@@ -1997,7 +1997,7 @@ function initHomeSection2() {
       // Extreme scroll never creates infinite force
 
       var normalizedVelocity =
-        -scrollVelocity /
+        (isMobile ? scrollVelocity : -scrollVelocity) /
         PENDULUM_SCROLL_SENSITIVITY;
 
       var desiredTilt =
