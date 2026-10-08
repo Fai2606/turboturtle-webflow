@@ -5929,9 +5929,9 @@ function initHomeSection9() {
 
   
 
+
   // ==========================================================
-  // HOME 9 — INTERACTIVE FIREFLIES V2
-  // Container position and size controlled by Webflow
+  // HOME 9 — INTERACTIVE FIREFLIES V3
   // ==========================================================
 
   var fireflyField =
@@ -5944,69 +5944,65 @@ function initHomeSection9() {
     // SETTINGS
     // ========================================================
 
-    var FIREFLY_COUNT = 20;
+    var FIREFLY_COUNT = 30;
 
-    var FIREFLY_MIN_SIZE = 5;
-    var FIREFLY_MAX_SIZE = 10;
+    var FIREFLY_MIN_SIZE = 3;
+    var FIREFLY_MAX_SIZE = 8;
     var FIREFLY_COLOR = "#efff5b";
 
-    // Gentle idle movement
-    var WANDER_DISTANCE = 18;
-    var WANDER_MIN_DURATION = 5;
-    var WANDER_MAX_DURATION = 9;
+    // More noticeable wandering
+    var WANDER_DISTANCE = 40;
+    var WANDER_MIN_DURATION = 2.5;
+    var WANDER_MAX_DURATION = 6;
 
-    // Mouse interaction
+    // Lifetime and regeneration
+    var LIFE_MIN = 1;
+    var LIFE_MAX = 20;
+    var DEATH_FADE = 0.7;
+    var RESPAWN_MIN = 1;
+    var RESPAWN_MAX = 3;
+
+    // Mouse escape
     var MOUSE_RADIUS = 85;
     var FLEE_DISTANCE = 55;
     var FLEE_DURATION = 1.6;
     var FLEE_HIDE_TIME = 1.4;
     var REAPPEAR_DURATION = 0.7;
 
-    // 75% of dots spawn in the middle 50% of the width
+    // Center-weighted spawning
     var CENTER_SPAWN_CHANCE = 0.75;
+
+    var fireflies = [];
 
     // ========================================================
     // HELPERS
     // ========================================================
-
-    var fireflies = [];
 
     function random(min, max) {
       return min + Math.random() * (max - min);
     }
 
     function randomSpawnX() {
-
       if (Math.random() < CENTER_SPAWN_CHANCE) {
         return random(25, 75);
       }
 
-      if (Math.random() < 0.5) {
-        return random(5, 25);
-      }
-
-      return random(75, 95);
+      return Math.random() < 0.5
+        ? random(5, 25)
+        : random(75, 95);
     }
 
     // ========================================================
-    // SLOW IDLE WANDERING
+    // IDLE WANDERING
     // ========================================================
 
     function wander(fly) {
 
-      if (fly.fleeing) return;
+      if (!fly.alive || fly.fleeing) return;
 
       fly.wanderTween = gsap.to(fly.el, {
-
-        x: random(
-          -WANDER_DISTANCE,
-          WANDER_DISTANCE
-        ),
-
-        y: random(
-          -WANDER_DISTANCE,
-          WANDER_DISTANCE
-        ),
+        x: random(-WANDER_DISTANCE, WANDER_DISTANCE),
+        y: random(-WANDER_DISTANCE, WANDER_DISTANCE),
 
         duration: random(
           WANDER_MIN_DURATION,
@@ -6022,12 +6018,88 @@ function initHomeSection9() {
     }
 
     // ========================================================
-    // SLOW CURVED ESCAPE
+    // DEATH + REGENERATION
+    // ========================================================
+
+    function die(fly) {
+
+      if (!fly.alive) return;
+
+      fly.alive = false;
+      fly.fleeing = false;
+
+      if (fly.wanderTween) fly.wanderTween.kill();
+      if (fly.fleeTween) fly.fleeTween.kill();
+
+      gsap.killTweensOf(fly.el);
+
+      // Gradually disappear
+      gsap.to(fly.el, {
+        opacity: 0,
+        duration: DEATH_FADE,
+        ease: "sine.inOut",
+
+        onComplete: function() {
+
+          // Wait 1–3 seconds before a new firefly
+          gsap.delayedCall(
+            random(RESPAWN_MIN, RESPAWN_MAX),
+            function() {
+              spawn(fly);
+            }
+          );
+        }
+      });
+    }
+
+    // ========================================================
+    // SPAWN / RESPAWN
+    // ========================================================
+
+    function spawn(fly) {
+
+      var size = random(
+        FIREFLY_MIN_SIZE,
+        FIREFLY_MAX_SIZE
+      );
+
+      // New random home position
+      fly.el.style.left = randomSpawnX() + "%";
+      fly.el.style.top = random(10, 90) + "%";
+
+      fly.el.style.width = size + "px";
+      fly.el.style.height = size + "px";
+
+      fly.alive = true;
+      fly.fleeing = false;
+      fly.armed = true;
+
+      // Always fully visible at birth
+      gsap.set(fly.el, {
+        x: 0,
+        y: 0,
+        opacity: 1
+      });
+
+      // Begin wandering
+      wander(fly);
+
+      // Individual random lifespan
+      fly.lifeTimer = gsap.delayedCall(
+        random(LIFE_MIN, LIFE_MAX),
+        function() {
+          die(fly);
+        }
+      );
+    }
+
+    // ========================================================
+    // CURVED MOUSE ESCAPE
     // ========================================================
 
     function flee(fly, mouseX, mouseY) {
 
-      if (fly.fleeing) return;
+      if (!fly.alive || fly.fleeing) return;
 
       fly.fleeing = true;
 
@@ -6047,31 +6119,26 @@ function initHomeSection9() {
 
       if (length < 1) {
         var angle = random(0, Math.PI * 2);
-
         dx = Math.cos(angle);
         dy = Math.sin(angle);
         length = 1;
       }
 
-      // Normalize direction
       dx /= length;
       dy /= length;
 
-      // Compensate for Webflow CSS zoom
-      var scale =
-        fireflyField.offsetWidth
-          ? fireflyField.getBoundingClientRect().width /
-            fireflyField.offsetWidth
-          : 1;
+      // Compensate for Webflow city zoom
+      var scale = fireflyField.offsetWidth
+        ? fireflyField.getBoundingClientRect().width /
+          fireflyField.offsetWidth
+        : 1;
 
       scale = scale || 1;
 
-      // Escape distance in local coordinates
-      var distance =
-        random(
-          FLEE_DISTANCE * 0.7,
-          FLEE_DISTANCE * 1.3
-        ) / scale;
+      var distance = random(
+        FLEE_DISTANCE * 0.7,
+        FLEE_DISTANCE * 1.3
+      ) / scale;
 
       var startX =
         Number(gsap.getProperty(fly.el, "x")) || 0;
@@ -6079,27 +6146,21 @@ function initHomeSection9() {
       var startY =
         Number(gsap.getProperty(fly.el, "y")) || 0;
 
-      // Perpendicular vector creates a curved path
       var perpendicularX = -dy;
       var perpendicularY = dx;
 
-      var curve =
-        random(-35, 35) / scale;
+      var curve = random(-35, 35) / scale;
 
       var flight = { progress: 0 };
 
-      gsap.timeline({
-
+      fly.fleeTween = gsap.timeline({
         onComplete: function() {
           fly.fleeing = false;
-          wander(fly);
+          if (fly.alive) wander(fly);
         }
+      });
 
-      })
-
-      // Slow curved escape + fade
-      .to(flight, {
-
+      fly.fleeTween.to(flight, {
         progress: 1,
         duration: FLEE_DURATION,
         ease: "power2.out",
@@ -6107,83 +6168,59 @@ function initHomeSection9() {
         onUpdate: function() {
 
           var t = flight.progress;
-
-          // Curved trajectory
-          var bend =
-            Math.sin(t * Math.PI) * curve;
-
-          var x =
-            startX +
-            dx * distance * t +
-            perpendicularX * bend;
-
-          var y =
-            startY +
-            dy * distance * t +
-            perpendicularY * bend;
+          var bend = Math.sin(t * Math.PI) * curve;
 
           gsap.set(fly.el, {
-            x: x,
-            y: y,
-            opacity: fly.opacity * (1 - t)
+            x: startX +
+               dx * distance * t +
+               perpendicularX * bend,
+
+            y: startY +
+               dy * distance * t +
+               perpendicularY * bend,
+
+            opacity: 1 - t
           });
         }
-      })
+      });
 
-      // Remain invisible
-      .to({}, {
+      fly.fleeTween.to({}, {
         duration: FLEE_HIDE_TIME
-      })
+      });
 
-      // Return invisibly to original position
-      .set(fly.el, {
+      fly.fleeTween.set(fly.el, {
         x: 0,
         y: 0,
         opacity: 0
-      })
+      });
 
-      // Gently reappear
-      .to(fly.el, {
-        opacity: fly.opacity,
+      fly.fleeTween.to(fly.el, {
+        opacity: 1,
         duration: REAPPEAR_DURATION,
         ease: "sine.out"
       });
     }
 
     // ========================================================
-    // CREATE FIREFLIES
+    // CREATE FIREFLY POOL
     // ========================================================
 
     for (var i = 0; i < FIREFLY_COUNT; i++) {
 
       var dot = document.createElement("div");
 
-      var size = random(
-        FIREFLY_MIN_SIZE,
-        FIREFLY_MAX_SIZE
-      );
-
-      var opacity = random(0.65, 1);
-
       Object.assign(dot.style, {
-
         position: "absolute",
-
-        left: randomSpawnX() + "%",
-        top: random(10, 90) + "%",
-
-        width: size + "px",
-        height: size + "px",
 
         borderRadius: "50%",
         background: FIREFLY_COLOR,
 
+        // Half-strength outer glow
         boxShadow:
-          "0 0 4px 2px rgba(239,255,91,0.85), " +
-          "0 0 10px 4px rgba(239,255,91,0.25)",
+          "0 0 2px 1px rgba(239,255,91,0.85), " +
+          "0 0 5px 2px rgba(239,255,91,0.25)",
 
         pointerEvents: "none",
-
         willChange: "transform, opacity"
       });
 
@@ -6191,21 +6228,25 @@ function initHomeSection9() {
 
       var fly = {
         el: dot,
-        opacity: opacity,
+        alive: false,
         fleeing: false,
         armed: true,
-        wanderTween: null
+        wanderTween: null,
+        fleeTween: null,
+        lifeTimer: null
       };
 
       fireflies.push(fly);
 
-      gsap.set(dot, {
-        opacity: opacity,
-        x: 0,
-        y: 0
-      });
-
-      wander(fly);
+      // Stagger initial appearances slightly
+      gsap.delayedCall(
+        random(0, 2),
+        (function(currentFly) {
+          return function() {
+            spawn(currentFly);
+          };
+        })(fly)
+      );
     }
 
     // ========================================================
@@ -6220,10 +6261,9 @@ function initHomeSection9() {
 
         fireflies.forEach(function(fly) {
 
-          if (fly.fleeing) return;
+          if (!fly.alive || fly.fleeing) return;
 
-          var rect =
-            fly.el.getBoundingClientRect();
+          var rect = fly.el.getBoundingClientRect();
 
           var cx = rect.left + rect.width / 2;
           var cy = rect.top + rect.height / 2;
@@ -6237,10 +6277,7 @@ function initHomeSection9() {
             fly.armed = true;
           }
 
-          if (
-            fly.armed &&
-            distance < MOUSE_RADIUS
-          ) {
+          if (fly.armed && distance < MOUSE_RADIUS) {
             fly.armed = false;
 
             flee(
@@ -6254,6 +6291,7 @@ function initHomeSection9() {
       { passive: true }
     );
   }
+
 
 
 
