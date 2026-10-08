@@ -6034,25 +6034,27 @@ function initHomeSection9() {
     // GLOW GENERATOR
     // ========================================================
 
-    function getFireflyGlow() {
+function getFireflyGlow(fireflySize) {
 
-      var strength = Math.max(0, GLOW_STRENGTH);
-      var size = Math.max(0, GLOW_SIZE);
+  var strength = Math.max(0, GLOW_STRENGTH);
 
-      var innerOpacity = Math.min(1, 0.85 * strength);
-      var outerOpacity = Math.min(1, 0.25 * strength);
+  // 5px firefly = current glow size
+  // 2px firefly = 40% of current glow size
+  var scale = (fireflySize / 5) * GLOW_SIZE;
 
-      return (
-        "0 0 " + (2 * size) + "px " +
-        (1 * size) + "px rgba(239,255,91," +
-        innerOpacity + "), " +
+  var innerOpacity = Math.min(1, 0.85 * strength);
+  var outerOpacity = Math.min(1, 0.25 * strength);
 
-        "0 0 " + (5 * size) + "px " +
-        (2 * size) + "px rgba(239,255,91," +
-        outerOpacity + ")"
-      );
-    }
+  return (
+    "0 0 " + (2 * scale) + "px " +
+    (1 * scale) + "px rgba(239,255,91," +
+    innerOpacity + "), " +
 
+    "0 0 " + (5 * scale) + "px " +
+    (2 * scale) + "px rgba(239,255,91," +
+    outerOpacity + ")"
+  );
+}
     // ========================================================
     // COMBINED MOVEMENT
     // ========================================================
@@ -6224,6 +6226,8 @@ function initHomeSection9() {
       fly.el.style.width = size + "px";
       fly.el.style.height = size + "px";
 
+      fly.el.style.boxShadow = getFireflyGlow(size);
+
       fly.motion = {
         wanderX: 0,
         wanderY: 0,
@@ -6388,7 +6392,7 @@ function initHomeSection9() {
         background: FIREFLY_COLOR,
 
         // Glow controlled by aliases above
-        boxShadow: getFireflyGlow(),
+        boxShadow: "none",
 
         pointerEvents: "none",
         willChange: "transform, opacity",
