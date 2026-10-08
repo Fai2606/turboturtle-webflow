@@ -2012,7 +2012,7 @@ function initHomeSection2() {
 // ==========================================================
 
 // Laser when punch shoots OUT
-var LASER_SHOOT_OUT = true;  // true = ON, false = OFF
+var LASER_SHOOT_OUT = false;  // true = ON, false = OFF
 
 // Laser when punch flies BACK
 var LASER_RETURN = true;     // true = ON, false = OFF
@@ -2031,13 +2031,18 @@ var punchSpot1 = q(".punch_spot1");
 var punchSpot2 = q(".punch_spot2");
 
 // ----------------------------------------------------------
-// LASER VISUAL — DOES NOT MODIFY PUNCH OR DOTS
+// LASER VISUAL — DRAW FROM SPOT 2 TO SPOT 1
 // ----------------------------------------------------------
 
 var punchLaser = null;
 var punchLaserRunning = false;
 
+var punchLaserDraw = {
+  progress: 0
+};
+
 if (statuePunch && punchSpot1 && punchSpot2) {
+
   punchLaser = document.createElement("div");
 
   Object.assign(punchLaser.style, {
@@ -2056,7 +2061,13 @@ if (statuePunch && punchSpot1 && punchSpot2) {
   document.body.appendChild(punchLaser);
 }
 
+
+// ----------------------------------------------------------
+// UPDATE LASER POSITION
+// ----------------------------------------------------------
+
 function updatePunchLaser() {
+
   if (!punchLaser || !punchLaserRunning) return;
 
   var a = punchSpot1.getBoundingClientRect();
@@ -2064,34 +2075,69 @@ function updatePunchLaser() {
 
   var x1 = a.left + a.width / 2;
   var y1 = a.top + a.height / 2;
+
   var x2 = b.left + b.width / 2;
   var y2 = b.top + b.height / 2;
 
-  var dx = x2 - x1;
-  var dy = y2 - y1;
+  // Direction: SPOT 2 → SPOT 1
+  var dx = x1 - x2;
+  var dy = y1 - y2;
 
-  punchLaser.style.width = Math.hypot(dx, dy) + "px";
+  var fullLength = Math.hypot(dx, dy);
+
+  punchLaser.style.width =
+    (fullLength * punchLaserDraw.progress) + "px";
+
   punchLaser.style.transform =
-    "translate3d(" + x1 + "px," + y1 + "px,0) " +
+    "translate3d(" + x2 + "px," + y2 + "px,0) " +
     "rotate(" + Math.atan2(dy, dx) + "rad)";
 }
 
+
+// ----------------------------------------------------------
+// START LASER — DRAW IN 0.2 SECONDS
+// ----------------------------------------------------------
+
 function startPunchLaser() {
+
   if (!punchLaser) return;
-  if (punchLaserRunning) return;
+
+  gsap.killTweensOf(punchLaserDraw);
+
+  punchLaserDraw.progress = 0;
 
   punchLaserRunning = true;
   punchLaser.style.display = "block";
+
   updatePunchLaser();
+
+  gsap.ticker.remove(updatePunchLaser);
   gsap.ticker.add(updatePunchLaser);
+
+  gsap.to(punchLaserDraw, {
+    progress: 1,
+    duration: 0.2,
+    ease: "power2.out"
+  });
 }
 
+
+// ----------------------------------------------------------
+// STOP LASER
+// ----------------------------------------------------------
+
 function stopPunchLaser() {
+
   if (!punchLaser) return;
 
+  gsap.killTweensOf(punchLaserDraw);
+
   punchLaserRunning = false;
+
   gsap.ticker.remove(updatePunchLaser);
+
   punchLaser.style.display = "none";
+  punchLaserDraw.progress = 0;
 }
 
 // ----------------------------------------------------------
