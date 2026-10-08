@@ -2048,7 +2048,7 @@ if (statuePunch && punchSpot1 && punchSpot2) {
     top: "0px",
     width: "0px",
     height: "3px",
-    background: "repeating-linear-gradient(to right, #e4f643 0px, #e4f643 4px, transparent 4px, transparent 10px)",
+    background: "repeating-linear-gradient(to right, #e4f643 2px, #e4f643 2px, transparent 2px, transparent 6px)",
     transformOrigin: "0 50%",
     pointerEvents: "none",
     zIndex: "9999",
