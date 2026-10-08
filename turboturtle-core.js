@@ -5950,7 +5950,12 @@ function initHomeSection9() {
     // ========================================================
 
     // Population
-    var FIREFLY_COUNT = 48;
+    var FIREFLY_COUNT_DESKTOP = 50;
+    var FIREFLY_COUNT_MOBILE = 35;
+    
+    var FIREFLY_COUNT = isMobile
+      ? FIREFLY_COUNT_MOBILE
+      : FIREFLY_COUNT_DESKTOP;
 
     // Appearance
     var FIREFLY_MIN_SIZE = 2;
