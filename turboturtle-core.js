@@ -2007,7 +2007,17 @@ function initHomeSection2() {
 // STATUE FIRE + PUNCH + RETURN LASER
 // Original punch movement preserved. Laser only reads spots.
 // ==========================================================
+// ==========================================================
+// LASER SETTINGS
+// ==========================================================
 
+// Laser when punch shoots OUT
+var LASER_SHOOT_OUT = true;  // true = ON, false = OFF
+
+// Laser when punch flies BACK
+var LASER_RETURN = true;     // true = ON, false = OFF
+
+  
 var statuePunch = q(".home2_statue_punch_group");
 var statueFire = q(".home2_statue_fire");
 
@@ -2126,7 +2136,11 @@ if (statueShots.length) {
 
     // FLY OUT — ORIGINAL MOVEMENT, NO LASER
     onEnter: function () {
-      stopPunchLaser();
+      if (LASER_SHOOT_OUT) {
+            startPunchLaser();
+          } else {
+            stopPunchLaser();
+          }
       gsap.killTweensOf(statueShots);
 
       if (statueFire) {
@@ -2140,6 +2154,8 @@ if (statueShots.length) {
         duration: 1.8,
         ease: "power3.in",
         force3D: true
+
+        onComplete: stopPunchLaser
       });
     },
 
@@ -2151,7 +2167,11 @@ if (statueShots.length) {
         gsap.set(statueFire, { autoAlpha: 0 });
       }
 
-      startPunchLaser();
+      if (LASER_RETURN) {
+          startPunchLaser();
+        } else {
+          stopPunchLaser();
+        }
 
       gsap.to(statueShots, {
         x: 0,
