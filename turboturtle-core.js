@@ -1203,10 +1203,7 @@ if (
     // -------------------------------------------------------------
     bootUFO();
     
-      } catch (e) {
-        console.error("[TT] startCore crashed", e);
-      }
-    }
+
 
     // =============================================================
     // UFO TRAIL ENGINE
@@ -1933,8 +1930,9 @@ function initHomeSection2() {
 
       lastPushTime = now;
 
-      // Random left or right
-      var direction = Math.random() < 0.5 ? -1 : 1;
+      // Scroll down = swing right
+      // Scroll up = swing left
+      var direction = event.velocity > 0 ? 1 : -1;
 
       // Faster scroll creates a stronger swing
       var intensity = gsap.utils.clamp(
@@ -7648,14 +7646,15 @@ if (width < 1920) {
 
 }
 
+      } catch (e) {
+        console.error("[TT] startCore crashed", e);
+      }
+    }
 
 
 
 
-
-
-
-
+  
 })(window);
 
 
