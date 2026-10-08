@@ -182,9 +182,6 @@ getBoundingClientRect: function () {
         var PENDULUM_RESPONSE = 12;
         var PENDULUM_RELEASE = 9;
 
-        // Pivot
-        var PENDULUM_PIVOT_X = "50%";
-        var PENDULUM_PIVOT_Y = "0%";
 
         // ==========================================================
         // PHYSICS STATE
@@ -204,8 +201,6 @@ getBoundingClientRect: function () {
 
         gsap.set(pendulumElements, {
           rotation: 0,
-          transformOrigin:
-            PENDULUM_PIVOT_X + " " + PENDULUM_PIVOT_Y,
           force3D: true
         });
 
