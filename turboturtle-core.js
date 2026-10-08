@@ -5949,19 +5949,19 @@ function initHomeSection9() {
 
     var FIREFLY_COUNT = 40;
 
-    var FIREFLY_MIN_SIZE = 3;
-    var FIREFLY_MAX_SIZE = 10;
+    var FIREFLY_MIN_SIZE = 2;
+    var FIREFLY_MAX_SIZE = 6;
     var FIREFLY_COLOR = "#efff5b";
 
     // Idle wandering
     var WANDER_X = 40;
-    var WANDER_Y = 20;
-    var WANDER_MIN_DURATION = 5;
-    var WANDER_MAX_DURATION = 10;
+    var WANDER_Y = 30;
+    var WANDER_MIN_DURATION = 10;
+    var WANDER_MAX_DURATION = 15;
 
     // Continuous upward tendency (pixels per second)
-    var RISE_MIN_SPEED = 4;
-    var RISE_MAX_SPEED = 12;
+    var RISE_MIN_SPEED = 0;
+    var RISE_MAX_SPEED = 3;
 
     // Life cycle
     var LIFE_MIN = 1;
