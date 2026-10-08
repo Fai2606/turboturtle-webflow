@@ -2152,8 +2152,9 @@ function initHomeSection2() {
 
   
 
+
   // ==========================================================
-  // HOME 2 — CLOUD FAST UPWARD PARALLAX
+  // HOME 2 — CLOUD REVEAL
   // ==========================================================
 
   var home2Cloud = q(".home2_cloud");
@@ -2161,22 +2162,28 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    var HOME2_CLOUD_SPEED = 220;
+    var CLOUD_MOVE_UP = 160; // Master vh (160 × 11 = 1760px)
 
     gsap.fromTo(home2Cloud,
       {
         y: 0
       },
       {
-        y: -HOME2_CLOUD_SPEED * MASTER_VH,
+        y: -CLOUD_MOVE_UP * MASTER_VH,
         ease: "none",
         force3D: true,
+        immediateRender: false,
 
         scrollTrigger: {
           trigger: section,
+
+          // Start as soon as Home 2 enters the viewport
           start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
+
+          // Finish early, rather than across the entire section
+          end: "top 30%",
+
+          scrub: true,
           invalidateOnRefresh: true
         }
       }
