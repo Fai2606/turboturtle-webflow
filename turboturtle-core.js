@@ -1755,6 +1755,8 @@ if (
   
     var MASTER_VW = 21.95;
     var MASTER_VH = 11;
+
+    
   
   
     // ==========================================================
@@ -2147,6 +2149,38 @@ function initHomeSection2() {
   // ==========================================================
 
   var MASTER_VH = 11;
+
+  
+  // ==========================================================
+  // HOME 2 — CLOUD UPWARD SCROLL
+  // Same mechanism as Home 1 cloud
+  // ==========================================================
+
+  var home2Cloud = q(".home2_cloud");
+
+  if (home2Cloud) {
+
+    // SETTINGS
+    // Home 1 cloud uses 50
+    // Higher = faster upward movement
+    var HOME2_CLOUD_SPEED = 65;
+
+    gsap.to(home2Cloud, {
+      y: -HOME2_CLOUD_SPEED * MASTER_VH,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+    });
+
+  }
+
 
 
   // ==========================================================
