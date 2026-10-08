@@ -2151,6 +2151,35 @@ function initHomeSection2() {
   var MASTER_VH = 11;
 
   
+  
+  // ==========================================================
+  // HOME 2 — HEADING SLOW PARALLAX
+  // ==========================================================
+
+  var home2Heading = q(".section_heading.home2");
+
+  if (home2Heading) {
+
+    // SETTINGS
+    var HEADING_SLOWNESS = 30;
+
+    gsap.to(home2Heading, {
+      y: HEADING_SLOWNESS * MASTER_VH,
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    });
+
+  }
+
+  
 
 
   // ==========================================================
@@ -2162,7 +2191,7 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    var CLOUD_MOVE_UP = 140;
+    var CLOUD_MOVE_UP = 100;
 
     gsap.fromTo(home2Cloud,
       {
