@@ -2162,7 +2162,7 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    var CLOUD_MOVE_UP = 160; // Master vh (160 × 11 = 1760px)
+    var CLOUD_MOVE_UP = 75;
 
     gsap.fromTo(home2Cloud,
       {
@@ -2181,7 +2181,7 @@ function initHomeSection2() {
           start: "top bottom",
 
           // Finish early, rather than across the entire section
-          end: "top 30%",
+          end: "bottom top",
 
           scrub: true,
           invalidateOnRefresh: true
