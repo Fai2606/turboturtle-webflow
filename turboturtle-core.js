@@ -2069,14 +2069,14 @@ function initHomeSection2() {
   // HOME 2 — SCROLL ROTATION
   // ==========================================================
 
-  // DINOSAUR: -9° → 9°
+
   if (q(".home2_dinosaur")) {
     gsap.fromTo(".home2_dinosaur",
       {
-        rotation: -9
+        rotation: -27
       },
       {
-        rotation: 9,
+        rotation: 27,
         ease: "none",
         force3D: true,
         scrollTrigger: {
@@ -2090,14 +2090,14 @@ function initHomeSection2() {
     );
   }
 
-  // SPARK: 18° → -4°
+
   if (q(".home2_spark")) {
     gsap.fromTo(".home2_spark",
       {
-        rotation: 18
+        rotation: -4
       },
       {
-        rotation: -4,
+        rotation: 40,
         ease: "none",
         force3D: true,
         scrollTrigger: {
