@@ -1883,12 +1883,12 @@ function initHomeSection2() {
     // SETTINGS
     // ==========================================================
 
-    var PENDULUM_MAX_ANGLE = 30;       // Degrees
-    var PENDULUM_SPRING = 20;          // Swing frequency
-    var PENDULUM_DAMPING = 3.5;        // How fast it settles
-
-    var PENDULUM_MIN_FORCE = 0.8;      // Gentle scroll
-    var PENDULUM_MAX_FORCE = 2.5;      // Fast scroll
+    var PENDULUM_MAX_ANGLE = 60;    // Was 30 — double swing range
+    var PENDULUM_SPRING = 20;       // Keep same swing frequency
+    var PENDULUM_DAMPING = 1.75;    // Was 3.5 — longer-lasting swings
+    
+    var PENDULUM_MIN_FORCE = 1.6;   // Was 0.8 — double
+    var PENDULUM_MAX_FORCE = 5.0;   // Was 2.5 — double
 
     var PENDULUM_COOLDOWN = 650;       // Minimum ms between pushes
     var PENDULUM_MIN_SPEED = 0.5;      // Ignore tiny scroll motion
