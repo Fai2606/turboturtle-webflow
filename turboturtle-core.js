@@ -2015,7 +2015,7 @@ function initHomeSection2() {
 var LASER_SHOOT_OUT = false;  // true = ON, false = OFF
 
 // Laser when punch flies BACK
-var LASER_RETURN = true;     // true = ON, false = OFF
+var LASER_RETURN = false;     // true = ON, false = OFF
 
   
 var statuePunch = q(".home2_statue_punch_group");
