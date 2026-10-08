@@ -5924,7 +5924,296 @@ function initHomeSection9() {
 
   });
 
+  
+  // ==========================================================
+  // HOME 9 — INTERACTIVE FIREFLIES
+  // ==========================================================
 
+  var fireflyField =
+    q(".home_fireflies") ||
+    q(".home9_fireflies");
+
+  if (fireflyField) {
+
+    // -------------------------------
+    // SETTINGS
+    // -------------------------------
+
+    var FIREFLY_COUNT = 20;
+
+    var FIREFLY_MIN_SIZE = 5;
+    var FIREFLY_MAX_SIZE = 10;
+
+    var FIREFLY_COLOR = "#efff5b";
+
+    var WANDER_DISTANCE = 25;
+    var WANDER_MIN_DURATION = 3;
+    var WANDER_MAX_DURATION = 6;
+
+    var MOUSE_RADIUS = 100;
+    var FLEE_DISTANCE = 120;
+    var FLEE_TIME = 3;
+
+    // Spawn area, in percentages
+    var SPAWN_LEFT = 8;
+    var SPAWN_RIGHT = 92;
+    var SPAWN_TOP = 25;
+    var SPAWN_BOTTOM = 80;
+
+    // -------------------------------
+    // PREPARE CONTAINER
+    // -------------------------------
+
+    var parent = fireflyField.parentElement;
+
+    if (parent &&
+        getComputedStyle(parent).position === "static") {
+      parent.style.position = "relative";
+    }
+
+    Object.assign(fireflyField.style, {
+      position: "absolute",
+      inset: "0",
+      pointerEvents: "none",
+      overflow: "visible",
+      zIndex: "20"
+    });
+
+    var fireflies = [];
+
+    function random(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    // -------------------------------
+    // SLOW RANDOM WANDERING
+    // -------------------------------
+
+    function wander(fly) {
+
+      if (fly.fleeing) return;
+
+      fly.wanderTween = gsap.to(fly.el, {
+        x: random(-WANDER_DISTANCE, WANDER_DISTANCE),
+        y: random(-WANDER_DISTANCE, WANDER_DISTANCE),
+
+        duration: random(
+          WANDER_MIN_DURATION,
+          WANDER_MAX_DURATION
+        ),
+
+        ease: "sine.inOut",
+
+        onComplete: function() {
+          wander(fly);
+        }
+      });
+    }
+
+    // -------------------------------
+    // MOUSE ESCAPE
+    // -------------------------------
+
+    function flee(fly, mouseX, mouseY) {
+
+      if (fly.fleeing) return;
+
+      fly.fleeing = true;
+
+      if (fly.wanderTween) {
+        fly.wanderTween.kill();
+      }
+
+      var rect = fly.el.getBoundingClientRect();
+
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+
+      var dx = cx - mouseX;
+      var dy = cy - mouseY;
+
+      var distance = Math.hypot(dx, dy);
+
+      if (distance < 1) {
+        var angle = random(0, Math.PI * 2);
+        dx = Math.cos(angle);
+        dy = Math.sin(angle);
+        distance = 1;
+      }
+
+      // Compensate for CSS zoom on the city
+      var fieldScale =
+        fireflyField.offsetWidth
+          ? fireflyField.getBoundingClientRect().width /
+            fireflyField.offsetWidth
+          : 1;
+
+      fieldScale = fieldScale || 1;
+
+      var moveX =
+        (dx / distance) * FLEE_DISTANCE / fieldScale;
+
+      var moveY =
+        (dy / distance) * FLEE_DISTANCE / fieldScale;
+
+      var currentX =
+        Number(gsap.getProperty(fly.el, "x")) || 0;
+
+      var currentY =
+        Number(gsap.getProperty(fly.el, "y")) || 0;
+
+      gsap.timeline({
+
+        onComplete: function() {
+          fly.fleeing = false;
+          wander(fly);
+        }
+
+      })
+
+      // Fly away and dim
+      .to(fly.el, {
+        x: currentX + moveX,
+        y: currentY + moveY,
+        opacity: 0.03,
+        duration: 0.6,
+        ease: "power2.out"
+      })
+
+      // Stay hidden
+      .to({}, {
+        duration: FLEE_TIME - 0.6
+      })
+
+      // Reset invisibly to its own position
+      .set(fly.el, {
+        x: 0,
+        y: 0,
+        opacity: 0
+      })
+
+      // Reappear
+      .to(fly.el, {
+        opacity: fly.opacity,
+        duration: 0.5,
+        ease: "sine.out"
+      });
+    }
+
+    
+    // -------------------------------
+    // CREATE 20 FIREFLIES
+    // -------------------------------
+
+    for (var i = 0; i < FIREFLY_COUNT; i++) {
+
+      var dot = document.createElement("div");
+
+      var size = random(
+        FIREFLY_MIN_SIZE,
+        FIREFLY_MAX_SIZE
+      );
+
+      var opacity = random(0.65, 1);
+
+      Object.assign(dot.style, {
+        position: "absolute",
+
+        left: random(
+          SPAWN_LEFT,
+          SPAWN_RIGHT
+        ) + "%",
+
+        top: random(
+          SPAWN_TOP,
+          SPAWN_BOTTOM
+        ) + "%",
+
+        width: size + "px",
+        height: size + "px",
+
+        borderRadius: "50%",
+        background: FIREFLY_COLOR,
+
+        boxShadow:
+          "0 0 4px 2px rgba(239,255,91,0.85), " +
+          "0 0 12px 4px rgba(239,255,91,0.25)",
+
+        pointerEvents: "none",
+        willChange: "transform, opacity"
+      });
+
+      fireflyField.appendChild(dot);
+
+      var fly = {
+        el: dot,
+        opacity: opacity,
+        fleeing: false,
+        armed: true,
+        wanderTween: null
+      };
+
+      fireflies.push(fly);
+
+      gsap.set(dot, {
+        opacity: opacity,
+        x: 0,
+        y: 0
+      });
+
+      wander(fly);
+    }
+
+    // -------------------------------
+    // MOUSE INTERACTION
+    // -------------------------------
+
+    section.addEventListener(
+      "pointermove",
+      function(event) {
+
+        if (event.pointerType === "touch") return;
+
+        fireflies.forEach(function(fly) {
+
+          if (fly.fleeing) return;
+
+          var rect =
+            fly.el.getBoundingClientRect();
+
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+
+          var distance = Math.hypot(
+            cx - event.clientX,
+            cy - event.clientY
+          );
+
+          // Re-arm after mouse moves away
+          if (distance > MOUSE_RADIUS * 1.5) {
+            fly.armed = true;
+          }
+
+          if (
+            fly.armed &&
+            distance < MOUSE_RADIUS
+          ) {
+            fly.armed = false;
+
+            flee(
+              fly,
+              event.clientX,
+              event.clientY
+            );
+          }
+        });
+      },
+      { passive: true }
+    );
+  }
+
+
+  
   requestAnimationFrame(function() {
     ScrollTrigger.refresh();
   });
