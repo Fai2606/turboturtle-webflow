@@ -2151,9 +2151,9 @@ function initHomeSection2() {
   var MASTER_VH = 11;
 
   
+
   // ==========================================================
-  // HOME 2 — CLOUD UPWARD SCROLL
-  // Same mechanism as Home 1 cloud
+  // HOME 2 — CLOUD FAST UPWARD PARALLAX
   // ==========================================================
 
   var home2Cloud = q(".home2_cloud");
@@ -2161,25 +2161,29 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    // Home 1 cloud uses 50
-    // Higher = faster upward movement
-    var HOME2_CLOUD_SPEED = 65;
+    var HOME2_CLOUD_SPEED = 220;
 
-    gsap.to(home2Cloud, {
-      y: -HOME2_CLOUD_SPEED * MASTER_VH,
-      ease: "none",
-      force3D: true,
+    gsap.fromTo(home2Cloud,
+      {
+        y: 0
+      },
+      {
+        y: -HOME2_CLOUD_SPEED * MASTER_VH,
+        ease: "none",
+        force3D: true,
 
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
       }
-    });
+    );
 
   }
+
 
 
 
