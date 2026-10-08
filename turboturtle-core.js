@@ -1890,7 +1890,7 @@ function initHomeSection2() {
 
     // Lower = slower, heavier swinging
     // Higher = faster swinging
-    var PENDULUM_SPRING = 22;
+    var PENDULUM_SPRING = 36;
 
     // Lower = more oscillations before settling
     // Higher = settles faster
@@ -1997,7 +1997,7 @@ function initHomeSection2() {
       // Extreme scroll never creates infinite force
 
       var normalizedVelocity =
-        scrollVelocity /
+        -scrollVelocity /
         PENDULUM_SCROLL_SENSITIVITY;
 
       var desiredTilt =
