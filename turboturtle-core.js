@@ -2172,7 +2172,7 @@ function initHomeSection2() {
         trigger: section,
         start: "top bottom",
         end: "bottom top",
-        scrub: 0.5,
+        scrub: true,
         invalidateOnRefresh: true
       }
     });
