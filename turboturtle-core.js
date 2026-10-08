@@ -5962,10 +5962,10 @@ function initHomeSection9() {
     // --------------------------------------------------------
 
     // 0 = no glow, 0.7 = current glow, 1 = original glow
-    var GLOW_STRENGTH = 0.7;
+    var GLOW_STRENGTH = 0;
 
     // 0.5 = half radius, 1 = current, 2 = double radius
-    var GLOW_SIZE = 1;
+    var GLOW_SIZE = 0;
 
     // --------------------------------------------------------
     // IDLE MOVEMENT
