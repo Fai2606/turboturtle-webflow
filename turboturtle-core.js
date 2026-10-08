@@ -1869,6 +1869,152 @@ function initHomeSection2() {
     return;
   }
 
+  
+  // ============================================================
+  // HOME 2 — 5 CENT CAT PENDULUM
+  // SCROLL-REACTIVE PHYSICAL SWING
+  // ============================================================
+
+  var catPendulum = q(".home2_5centcat_pendulum");
+
+  if (catPendulum && lenis) {
+
+    // ==========================================================
+    // SETTINGS
+    // ==========================================================
+
+    var PENDULUM_MAX_ANGLE = 30;       // Degrees
+    var PENDULUM_SPRING = 20;          // Swing frequency
+    var PENDULUM_DAMPING = 3.5;        // How fast it settles
+
+    var PENDULUM_MIN_FORCE = 0.8;      // Gentle scroll
+    var PENDULUM_MAX_FORCE = 2.5;      // Fast scroll
+
+    var PENDULUM_COOLDOWN = 650;       // Minimum ms between pushes
+    var PENDULUM_MIN_SPEED = 0.5;      // Ignore tiny scroll motion
+
+    var PENDULUM_PIVOT_X = "50%";
+    var PENDULUM_PIVOT_Y = "0%";
+
+    // ==========================================================
+    // PHYSICS STATE
+    // ==========================================================
+
+    var angle = 0;
+    var angularVelocity = 0;
+
+    var lastPushTime = -Infinity;
+
+    var maxAngle =
+      PENDULUM_MAX_ANGLE * Math.PI / 180;
+
+    gsap.set(catPendulum, {
+      rotation: 0,
+      transformOrigin:
+        PENDULUM_PIVOT_X + " " + PENDULUM_PIVOT_Y,
+      force3D: true
+    });
+
+    // ==========================================================
+    // SCROLL IMPULSE
+    // ==========================================================
+
+    lenis.on("scroll", function(event) {
+
+      var now = performance.now();
+
+      var speed = Math.abs(event.velocity || 0);
+
+      if (speed < PENDULUM_MIN_SPEED) return;
+
+      if (now - lastPushTime < PENDULUM_COOLDOWN) {
+        return;
+      }
+
+      lastPushTime = now;
+
+      // Random left or right
+      var direction = Math.random() < 0.5 ? -1 : 1;
+
+      // Faster scroll creates a stronger swing
+      var intensity = gsap.utils.clamp(
+        0,
+        1,
+        speed / 25
+      );
+
+      var force =
+        PENDULUM_MIN_FORCE +
+        intensity *
+        (PENDULUM_MAX_FORCE - PENDULUM_MIN_FORCE);
+
+      // Add momentum, don't restart animation
+      angularVelocity += direction * force;
+
+      angularVelocity = gsap.utils.clamp(
+        -PENDULUM_MAX_FORCE * 1.5,
+        PENDULUM_MAX_FORCE * 1.5,
+        angularVelocity
+      );
+
+    });
+
+    // ==========================================================
+    // PHYSICAL PENDULUM
+    // ==========================================================
+
+    gsap.ticker.add(function(time, deltaTime) {
+
+      var totalDt = Math.min(deltaTime / 1000, 0.05);
+
+      // Small integration steps improve stability
+      var steps = Math.max(
+        1,
+        Math.ceil(totalDt / (1 / 120))
+      );
+
+      var dt = totalDt / steps;
+
+      for (var i = 0; i < steps; i++) {
+
+        var acceleration =
+          -PENDULUM_SPRING * Math.sin(angle) -
+          PENDULUM_DAMPING * angularVelocity;
+
+        angularVelocity += acceleration * dt;
+        angle += angularVelocity * dt;
+
+        // Limit maximum swing
+        if (angle > maxAngle) {
+          angle = maxAngle;
+          angularVelocity = Math.min(0, angularVelocity);
+        }
+
+        if (angle < -maxAngle) {
+          angle = -maxAngle;
+          angularVelocity = Math.max(0, angularVelocity);
+        }
+
+      }
+
+      // Stop very small movement
+      if (
+        Math.abs(angle) < 0.0001 &&
+        Math.abs(angularVelocity) < 0.0001
+      ) {
+        angle = 0;
+        angularVelocity = 0;
+      }
+
+      gsap.set(catPendulum, {
+        rotation: angle * 180 / Math.PI
+      });
+
+    });
+
+  }
+
+
 
   // ==========================================================
   // ORIGINAL DESIGN HEIGHT
