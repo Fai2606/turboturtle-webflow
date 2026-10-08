@@ -1508,7 +1508,7 @@ if (
       yPercent: -220,
       rotation: 480,
   
-      ease: "power2.out"
+      ease: "power2.out",
       force3D: true,
   
       scrollTrigger: {
