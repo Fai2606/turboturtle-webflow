@@ -5950,11 +5950,11 @@ function initHomeSection9() {
     // ========================================================
 
     // Population
-    var FIREFLY_COUNT = 300;
+    var FIREFLY_COUNT = 40;
 
     // Appearance
     var FIREFLY_MIN_SIZE = 2;
-    var FIREFLY_MAX_SIZE = 5;
+    var FIREFLY_MAX_SIZE = 20;
     var FIREFLY_COLOR = "#efff5b";
 
     // --------------------------------------------------------
