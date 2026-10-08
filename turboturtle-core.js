@@ -6212,7 +6212,7 @@ function getFireflyGlow(fireflySize) {
       var size = random(
         FIREFLY_MIN_SIZE,
         FIREFLY_MAX_SIZE
-      );
+      ) * (isMobile ? 2 : 1);
 
       var lifetime = random(
         LIFE_MIN,
