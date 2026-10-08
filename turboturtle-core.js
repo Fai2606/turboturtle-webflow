@@ -5950,7 +5950,7 @@ function initHomeSection9() {
     // ========================================================
 
     // Population
-    var FIREFLY_COUNT = 80;
+    var FIREFLY_COUNT = 300;
 
     // Appearance
     var FIREFLY_MIN_SIZE = 2;
