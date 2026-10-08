@@ -2152,6 +2152,7 @@ function initHomeSection2() {
 
   
   
+ 
   // ==========================================================
   // HOME 2 — HEADING SLOW PARALLAX
   // ==========================================================
@@ -2162,22 +2163,26 @@ function initHomeSection2() {
 
     // SETTINGS
     var HEADING_SLOWNESS = isMobile ? 90 : 120;
+    var HEADING_SCRUB = isMobile ? 0.8 : true;
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
       ease: "none",
-      force3D: true,
+
+      // Avoid 3D text rendering issues on mobile
+      force3D: !isMobile,
 
       scrollTrigger: {
         trigger: section,
         start: "top bottom",
         end: "bottom top",
-        scrub: 0.2,
+        scrub: HEADING_SCRUB,
         invalidateOnRefresh: true
       }
     });
 
   }
+
 
   
 
