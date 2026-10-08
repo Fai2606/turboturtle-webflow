@@ -5947,17 +5947,17 @@ function initHomeSection9() {
     // SETTINGS
     // ========================================================
 
-    var FIREFLY_COUNT = 50;
+    var FIREFLY_COUNT = 40;
 
     var FIREFLY_MIN_SIZE = 3;
-    var FIREFLY_MAX_SIZE = 8;
+    var FIREFLY_MAX_SIZE = 10;
     var FIREFLY_COLOR = "#efff5b";
 
     // Idle wandering
     var WANDER_X = 40;
     var WANDER_Y = 20;
-    var WANDER_MIN_DURATION = 2.5;
-    var WANDER_MAX_DURATION = 6;
+    var WANDER_MIN_DURATION = 5;
+    var WANDER_MAX_DURATION = 10;
 
     // Continuous upward tendency (pixels per second)
     var RISE_MIN_SPEED = 4;
