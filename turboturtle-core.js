@@ -5954,14 +5954,14 @@ function initHomeSection9() {
     var FIREFLY_COLOR = "#efff5b";
 
     // Idle wandering
-    var WANDER_X = 40;
-    var WANDER_Y = 30;
+    var WANDER_X = 100;
+    var WANDER_Y = 80;
     var WANDER_MIN_DURATION = 10;
     var WANDER_MAX_DURATION = 15;
 
     // Continuous upward tendency (pixels per second)
     var RISE_MIN_SPEED = 0;
-    var RISE_MAX_SPEED = 3;
+    var RISE_MAX_SPEED = 1;
 
     // Life cycle
     var LIFE_MIN = 1;
