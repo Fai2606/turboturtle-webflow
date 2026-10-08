@@ -2161,7 +2161,7 @@ function initHomeSection2() {
   if (home2Heading) {
 
     // SETTINGS
-    var HEADING_SLOWNESS = 30;
+    var HEADING_SLOWNESS = 70;
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
@@ -2191,7 +2191,7 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    var CLOUD_MOVE_UP = 100;
+    var CLOUD_MOVE_UP = 80;
 
     gsap.fromTo(home2Cloud,
       {
