@@ -5930,46 +5930,55 @@ function initHomeSection9() {
   
 
 
+
   // ==========================================================
-  // HOME 9 — INTERACTIVE FIREFLIES V3
+  // HOME 9 — INTERACTIVE FIREFLIES V4
   // ==========================================================
 
   var fireflyField =
     q(".home9_fireflies") ||
     q(".home_fireflies");
 
-  if (fireflyField) {
+  if (fireflyField && !fireflyField.dataset.firefliesInitialized) {
+
+    fireflyField.dataset.firefliesInitialized = "1";
 
     // ========================================================
     // SETTINGS
     // ========================================================
 
-    var FIREFLY_COUNT = 30;
+    var FIREFLY_COUNT = 50;
 
     var FIREFLY_MIN_SIZE = 3;
     var FIREFLY_MAX_SIZE = 8;
     var FIREFLY_COLOR = "#efff5b";
 
-    // More noticeable wandering
-    var WANDER_DISTANCE = 40;
+    // Idle wandering
+    var WANDER_X = 40;
+    var WANDER_Y = 20;
     var WANDER_MIN_DURATION = 2.5;
     var WANDER_MAX_DURATION = 6;
 
-    // Lifetime and regeneration
+    // Continuous upward tendency (pixels per second)
+    var RISE_MIN_SPEED = 4;
+    var RISE_MAX_SPEED = 12;
+
+    // Life cycle
     var LIFE_MIN = 1;
     var LIFE_MAX = 20;
+
+    var SPAWN_FADE_DURATION = 0.7;
     var DEATH_FADE = 0.7;
+
     var RESPAWN_MIN = 1;
     var RESPAWN_MAX = 3;
 
-    // Mouse escape
+    // Mouse / touch escape
     var MOUSE_RADIUS = 85;
     var FLEE_DISTANCE = 55;
     var FLEE_DURATION = 1.6;
-    var FLEE_HIDE_TIME = 1.4;
-    var REAPPEAR_DURATION = 0.7;
 
-    // Center-weighted spawning
+    // Spawn distribution
     var CENTER_SPAWN_CHANCE = 0.75;
 
     var fireflies = [];
@@ -5983,6 +5992,7 @@ function initHomeSection9() {
     }
 
     function randomSpawnX() {
+
       if (Math.random() < CENTER_SPAWN_CHANCE) {
         return random(25, 75);
       }
@@ -5993,16 +6003,31 @@ function initHomeSection9() {
     }
 
     // ========================================================
-    // IDLE WANDERING
+    // RENDER COMBINED MOVEMENT
+    // ========================================================
+
+    function renderMotion(fly) {
+
+      if (!fly.alive || fly.fleeing) return;
+
+      gsap.set(fly.el, {
+        x: fly.motion.wanderX,
+        y: fly.motion.wanderY + fly.motion.riseY
+      });
+    }
+
+    // ========================================================
+    // RANDOM IDLE WANDERING
     // ========================================================
 
     function wander(fly) {
 
       if (!fly.alive || fly.fleeing) return;
 
-      fly.wanderTween = gsap.to(fly.el, {
-        x: random(-WANDER_DISTANCE, WANDER_DISTANCE),
-        y: random(-WANDER_DISTANCE, WANDER_DISTANCE),
+      fly.wanderTween = gsap.to(fly.motion, {
+
+        wanderX: random(-WANDER_X, WANDER_X),
+        wanderY: random(-WANDER_Y, WANDER_Y),
 
         duration: random(
           WANDER_MIN_DURATION,
@@ -6011,6 +6036,10 @@ function initHomeSection9() {
 
         ease: "sine.inOut",
 
+        onUpdate: function() {
+          renderMotion(fly);
+        },
+
         onComplete: function() {
           wander(fly);
         }
@@ -6018,36 +6047,106 @@ function initHomeSection9() {
     }
 
     // ========================================================
-    // DEATH + REGENERATION
+    // CONTINUOUS UPWARD DRIFT
     // ========================================================
 
-    function die(fly) {
+    function startRising(fly, lifetime) {
+
+      // Each firefly gets its own upward speed
+      var riseSpeed = random(
+        RISE_MIN_SPEED,
+        RISE_MAX_SPEED
+      );
+
+      fly.riseTween = gsap.to(fly.motion, {
+
+        riseY: -(riseSpeed * lifetime),
+
+        duration: lifetime,
+        ease: "none",
+
+        onUpdate: function() {
+          renderMotion(fly);
+        }
+      });
+    }
+
+    // ========================================================
+    // STOP ALL MOVEMENT
+    // ========================================================
+
+    function stopMovement(fly) {
+
+      if (fly.wanderTween) {
+        fly.wanderTween.kill();
+        fly.wanderTween = null;
+      }
+
+      if (fly.riseTween) {
+        fly.riseTween.kill();
+        fly.riseTween = null;
+      }
+    }
+
+    // ========================================================
+    // SCHEDULE RESPAWN
+    // ========================================================
+
+    function scheduleRespawn(fly) {
+
+      gsap.delayedCall(
+        random(RESPAWN_MIN, RESPAWN_MAX),
+        function() {
+          spawn(fly);
+        }
+      );
+    }
+
+    // ========================================================
+    // DEATH
+    // ========================================================
+
+    function die(fly, alreadyHidden) {
 
       if (!fly.alive) return;
 
       fly.alive = false;
       fly.fleeing = false;
 
-      if (fly.wanderTween) fly.wanderTween.kill();
-      if (fly.fleeTween) fly.fleeTween.kill();
+      if (fly.lifeTimer) {
+        fly.lifeTimer.kill();
+        fly.lifeTimer = null;
+      }
+
+      stopMovement(fly);
+
+      if (fly.fleeTween) {
+        fly.fleeTween.kill();
+        fly.fleeTween = null;
+      }
 
       gsap.killTweensOf(fly.el);
 
-      // Gradually disappear
+      // Already faded during mouse/touch escape
+      if (alreadyHidden) {
+
+        gsap.set(fly.el, {
+          opacity: 0
+        });
+
+        scheduleRespawn(fly);
+        return;
+      }
+
+      // Natural death: fade out
       gsap.to(fly.el, {
+
         opacity: 0,
         duration: DEATH_FADE,
         ease: "sine.inOut",
 
         onComplete: function() {
-
-          // Wait 1–3 seconds before a new firefly
-          gsap.delayedCall(
-            random(RESPAWN_MIN, RESPAWN_MAX),
-            function() {
-              spawn(fly);
-            }
-          );
+          scheduleRespawn(fly);
         }
       });
     }
@@ -6063,38 +6162,58 @@ function initHomeSection9() {
         FIREFLY_MAX_SIZE
       );
 
-      // New random home position
+      var lifetime = random(
+        LIFE_MIN,
+        LIFE_MAX
+      );
+
+      // New random position
       fly.el.style.left = randomSpawnX() + "%";
       fly.el.style.top = random(10, 90) + "%";
 
       fly.el.style.width = size + "px";
       fly.el.style.height = size + "px";
 
+      // Reset movement
+      fly.motion = {
+        wanderX: 0,
+        wanderY: 0,
+        riseY: 0
+      };
+
       fly.alive = true;
       fly.fleeing = false;
-      fly.armed = true;
 
-      // Always fully visible at birth
+      // Start invisible
       gsap.set(fly.el, {
         x: 0,
         y: 0,
-        opacity: 1
+        opacity: 0
       });
 
-      // Begin wandering
-      wander(fly);
+      // Fade in
+      gsap.to(fly.el, {
 
-      // Individual random lifespan
+        opacity: 1,
+        duration: SPAWN_FADE_DURATION,
+        ease: "sine.out"
+      });
+
+      // Start independent movement systems
+      wander(fly);
+      startRising(fly, lifetime);
+
+      // Random lifespan
       fly.lifeTimer = gsap.delayedCall(
-        random(LIFE_MIN, LIFE_MAX),
+        lifetime,
         function() {
-          die(fly);
+          die(fly, false);
         }
       );
     }
 
     // ========================================================
-    // CURVED MOUSE ESCAPE
+    // CURVED MOUSE / TOUCH ESCAPE
     // ========================================================
 
     function flee(fly, mouseX, mouseY) {
@@ -6103,9 +6222,17 @@ function initHomeSection9() {
 
       fly.fleeing = true;
 
-      if (fly.wanderTween) {
-        fly.wanderTween.kill();
+      // Cancel natural death timer.
+      // This escape will count as death instead.
+      if (fly.lifeTimer) {
+        fly.lifeTimer.kill();
+        fly.lifeTimer = null;
       }
+
+      stopMovement(fly);
+
+      // Stop any ongoing birth fade
+      gsap.killTweensOf(fly.el, "opacity");
 
       var rect = fly.el.getBoundingClientRect();
 
@@ -6118,9 +6245,12 @@ function initHomeSection9() {
       var length = Math.hypot(dx, dy);
 
       if (length < 1) {
+
         var angle = random(0, Math.PI * 2);
+
         dx = Math.cos(angle);
         dy = Math.sin(angle);
+
         length = 1;
       }
 
@@ -6133,7 +6263,9 @@ function initHomeSection9() {
           fireflyField.offsetWidth
         : 1;
 
-      scale = scale || 1;
+      if (!isFinite(scale) || scale <= 0) {
+        scale = 1;
+      }
 
       var distance = random(
         FLEE_DISTANCE * 0.7,
@@ -6146,6 +6278,10 @@ function initHomeSection9() {
       var startY =
         Number(gsap.getProperty(fly.el, "y")) || 0;
 
+      var startOpacity =
+        Number(gsap.getProperty(fly.el, "opacity")) || 0;
+
+      // Perpendicular direction creates curve
       var perpendicularX = -dy;
       var perpendicularY = dx;
 
@@ -6153,14 +6289,8 @@ function initHomeSection9() {
 
       var flight = { progress: 0 };
 
-      fly.fleeTween = gsap.timeline({
-        onComplete: function() {
-          fly.fleeing = false;
-          if (fly.alive) wander(fly);
-        }
-      });
+      fly.fleeTween = gsap.to(flight, {
 
-      fly.fleeTween.to(flight, {
         progress: 1,
         duration: FLEE_DURATION,
         ease: "power2.out",
@@ -6168,36 +6298,34 @@ function initHomeSection9() {
         onUpdate: function() {
 
           var t = flight.progress;
-          var bend = Math.sin(t * Math.PI) * curve;
+
+          var bend =
+            Math.sin(t * Math.PI) * curve;
+
+          var x =
+            startX +
+            dx * distance * t +
+            perpendicularX * bend;
+
+          var y =
+            startY +
+            dy * distance * t +
+            perpendicularY * bend;
 
           gsap.set(fly.el, {
-            x: startX +
-               dx * distance * t +
-               perpendicularX * bend,
-
-            y: startY +
-               dy * distance * t +
-               perpendicularY * bend,
-
-            opacity: 1 - t
+            x: x,
+            y: y,
+            opacity: startOpacity * (1 - t)
           });
+        },
+
+        onComplete: function() {
+
+          fly.fleeTween = null;
+
+          // Escape = death
+          die(fly, true);
         }
-      });
-
-      fly.fleeTween.to({}, {
-        duration: FLEE_HIDE_TIME
-      });
-
-      fly.fleeTween.set(fly.el, {
-        x: 0,
-        y: 0,
-        opacity: 0
-      });
-
-      fly.fleeTween.to(fly.el, {
-        opacity: 1,
-        duration: REAPPEAR_DURATION,
-        ease: "sine.out"
       });
     }
 
@@ -6210,37 +6338,50 @@ function initHomeSection9() {
       var dot = document.createElement("div");
 
       Object.assign(dot.style, {
+
         position: "absolute",
 
         borderRadius: "50%",
         background: FIREFLY_COLOR,
 
-        // Half-strength outer glow
+        // Reduced glow: 70% of previous opacity
         boxShadow:
-          "0 0 2px 1px rgba(239,255,91,0.85), " +
-          "0 0 5px 2px rgba(239,255,91,0.25)",
+          "0 0 2px 1px rgba(239,255,91,0.595), " +
+          "0 0 5px 2px rgba(239,255,91,0.175)",
 
         pointerEvents: "none",
-        willChange: "transform, opacity"
+        willChange: "transform, opacity",
+
+        opacity: "0"
       });
 
       fireflyField.appendChild(dot);
 
       var fly = {
+
         el: dot,
+
         alive: false,
         fleeing: false,
-        armed: true,
+
+        motion: {
+          wanderX: 0,
+          wanderY: 0,
+          riseY: 0
+        },
+
         wanderTween: null,
+        riseTween: null,
         fleeTween: null,
         lifeTimer: null
       };
 
       fireflies.push(fly);
 
-      // Stagger initial appearances slightly
+      // Stagger initial spawning
       gsap.delayedCall(
-        random(0, 2),
+        random(0, 3),
+
         (function(currentFly) {
           return function() {
             spawn(currentFly);
@@ -6250,47 +6391,52 @@ function initHomeSection9() {
     }
 
     // ========================================================
-    // MOUSE INTERACTION
+    // MOUSE + TOUCH INTERACTION
     // ========================================================
 
+    function reactToFireflyPointer(event) {
+
+      fireflies.forEach(function(fly) {
+
+        if (!fly.alive || fly.fleeing) return;
+
+        var rect = fly.el.getBoundingClientRect();
+
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+
+        var distance = Math.hypot(
+          cx - event.clientX,
+          cy - event.clientY
+        );
+
+        if (distance < MOUSE_RADIUS) {
+
+          flee(
+            fly,
+            event.clientX,
+            event.clientY
+          );
+        }
+      });
+    }
+
+    // Mouse movement and finger dragging
     section.addEventListener(
       "pointermove",
-      function(event) {
-
-        if (event.pointerType === "touch") return;
-
-        fireflies.forEach(function(fly) {
-
-          if (!fly.alive || fly.fleeing) return;
-
-          var rect = fly.el.getBoundingClientRect();
-
-          var cx = rect.left + rect.width / 2;
-          var cy = rect.top + rect.height / 2;
-
-          var distance = Math.hypot(
-            cx - event.clientX,
-            cy - event.clientY
-          );
-
-          if (distance > MOUSE_RADIUS * 1.5) {
-            fly.armed = true;
-          }
-
-          if (fly.armed && distance < MOUSE_RADIUS) {
-            fly.armed = false;
-
-            flee(
-              fly,
-              event.clientX,
-              event.clientY
-            );
-          }
-        });
-      },
+      reactToFireflyPointer,
       { passive: true }
     );
+
+    // Finger tap
+    section.addEventListener(
+      "pointerdown",
+      reactToFireflyPointer,
+      { passive: true }
+    );
+
   }
+
 
 
 
