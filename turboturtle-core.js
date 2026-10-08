@@ -2005,6 +2005,7 @@ function initHomeSection2() {
 
 // ==========================================================
 // STATUE FIRE + PUNCH + RETURN LASER
+// Original punch movement preserved. Laser only reads spots.
 // ==========================================================
 
 var statuePunch = q(".home2_statue_punch_group");
@@ -2016,140 +2017,97 @@ var statueShots = [
 ].filter(Boolean);
 
 var home2City = q(".home_section2_city");
-
-// ==========================================================
-// LASER — CONNECT TWO SPOTS
-// ==========================================================
-
 var punchSpot1 = q(".punch_spot1");
 var punchSpot2 = q(".punch_spot2");
 
-var punchLaserSVG = null;
-var punchLaserLine = null;
+// ----------------------------------------------------------
+// LASER VISUAL — DOES NOT MODIFY PUNCH OR DOTS
+// ----------------------------------------------------------
+
+var punchLaser = null;
+var punchLaserRunning = false;
 
 if (statuePunch && punchSpot1 && punchSpot2) {
+  punchLaser = document.createElement("div");
 
-  punchLaserSVG = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "svg"
-  );
-
-  punchLaserLine = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "line"
-  );
-
-  Object.assign(punchLaserSVG.style, {
+  Object.assign(punchLaser.style, {
     position: "fixed",
-    inset: "0",
-    width: "100%",
-    height: "100%",
+    left: "0px",
+    top: "0px",
+    width: "0px",
+    height: "2px",
+    background: "#e4f643",
+    transformOrigin: "0 50%",
     pointerEvents: "none",
     zIndex: "9999",
-    display: "none",
-    overflow: "hidden"
+    display: "none"
   });
 
-  punchLaserLine.setAttribute("stroke", "#e4f643");
-  punchLaserLine.setAttribute("stroke-width", "2");
-  punchLaserLine.setAttribute("stroke-linecap", "round");
-
-  punchLaserSVG.appendChild(punchLaserLine);
-  document.body.appendChild(punchLaserSVG);
+  document.body.appendChild(punchLaser);
 }
 
-
-// ==========================================================
-// UPDATE LASER POSITION
-// ==========================================================
-
 function updatePunchLaser() {
-
-  if (!punchLaserLine) return;
+  if (!punchLaser || !punchLaserRunning) return;
 
   var a = punchSpot1.getBoundingClientRect();
   var b = punchSpot2.getBoundingClientRect();
 
-  punchLaserLine.setAttribute(
-    "x1",
-    a.left + a.width / 2
-  );
+  var x1 = a.left + a.width / 2;
+  var y1 = a.top + a.height / 2;
+  var x2 = b.left + b.width / 2;
+  var y2 = b.top + b.height / 2;
 
-  punchLaserLine.setAttribute(
-    "y1",
-    a.top + a.height / 2
-  );
+  var dx = x2 - x1;
+  var dy = y2 - y1;
 
-  punchLaserLine.setAttribute(
-    "x2",
-    b.left + b.width / 2
-  );
-
-  punchLaserLine.setAttribute(
-    "y2",
-    b.top + b.height / 2
-  );
+  punchLaser.style.width = Math.hypot(dx, dy) + "px";
+  punchLaser.style.transform =
+    "translate3d(" + x1 + "px," + y1 + "px,0) " +
+    "rotate(" + Math.atan2(dy, dx) + "rad)";
 }
 
+function startPunchLaser() {
+  if (!punchLaser) return;
+  if (punchLaserRunning) return;
 
-function showPunchLaser() {
-
-  if (!punchLaserSVG) return;
-
-  punchLaserSVG.style.display = "block";
+  punchLaserRunning = true;
+  punchLaser.style.display = "block";
   updatePunchLaser();
+  gsap.ticker.add(updatePunchLaser);
 }
 
+function stopPunchLaser() {
+  if (!punchLaser) return;
 
-function hidePunchLaser() {
-
-  if (!punchLaserSVG) return;
-
-  punchLaserSVG.style.display = "none";
+  punchLaserRunning = false;
+  gsap.ticker.remove(updatePunchLaser);
+  punchLaser.style.display = "none";
 }
 
-
-// ==========================================================
-// EXISTING PUNCH ANIMATION
-// ==========================================================
+// ----------------------------------------------------------
+// ORIGINAL PUNCH FLIGHT
+// ----------------------------------------------------------
 
 if (statueShots.length) {
 
   function getHome2CityScale() {
-
     if (!home2City) return 1;
 
     return (
-      parseFloat(
-        getComputedStyle(home2City).zoom
-      ) || 1
+      parseFloat(getComputedStyle(home2City).zoom) || 1
     );
   }
 
-
   function getPunchTravelX() {
-
-    var visualDistance =
-      getRealViewportWidth() * 1.25;
-
+    var visualDistance = getRealViewportWidth() * 1.25;
     return -visualDistance / getHome2CityScale();
   }
 
-
   function getPunchTravelY() {
-
-    var visualDistance =
-      getRealViewportWidth() * 1.25;
-
-    var visualY =
-      visualDistance *
-      Math.tan(53.4 * Math.PI / 180);
-
+    var visualDistance = getRealViewportWidth() * 1.25;
+    var visualY = visualDistance * Math.tan(53.4 * Math.PI / 180);
     return -visualY / getHome2CityScale();
   }
-
-
-  // INITIAL STATE
 
   gsap.set(statueShots, {
     x: 0,
@@ -2159,93 +2117,53 @@ if (statueShots.length) {
   });
 
   if (statueFire) {
-    gsap.set(statueFire, {
-      autoAlpha: 0
-    });
+    gsap.set(statueFire, { autoAlpha: 0 });
   }
 
-
-  // SCROLL TRIGGER
-
   ScrollTrigger.create({
-
     trigger: section,
+    start: isMobile ? "top 10%" : "top -30%",
 
-    start: isMobile
-      ? "top 10%"
-      : "top -30%",
-
-
-    // ======================================================
-    // FLY OUT — NO LASER
-    // ======================================================
-
-    onEnter: function() {
-
-      hidePunchLaser();
-
+    // FLY OUT — ORIGINAL MOVEMENT, NO LASER
+    onEnter: function () {
+      stopPunchLaser();
       gsap.killTweensOf(statueShots);
 
       if (statueFire) {
-        gsap.set(statueFire, {
-          autoAlpha: 1
-        });
+        gsap.set(statueFire, { autoAlpha: 1 });
       }
 
       gsap.to(statueShots, {
-
         x: getPunchTravelX,
         y: getPunchTravelY,
-
         scale: isMobile ? 4 : 7.5,
-
         duration: 1.8,
         ease: "power3.in",
         force3D: true
-
       });
     },
 
-
-    // ======================================================
-    // FLY BACK — LASER ON
-    // ======================================================
-
-    onLeaveBack: function() {
-
+    // FLY BACK — ORIGINAL MOVEMENT + LASER
+    onLeaveBack: function () {
       gsap.killTweensOf(statueShots);
 
-      // Hide fire
       if (statueFire) {
-        gsap.set(statueFire, {
-          autoAlpha: 0
-        });
+        gsap.set(statueFire, { autoAlpha: 0 });
       }
 
-      // Show laser immediately
-      showPunchLaser();
+      startPunchLaser();
 
       gsap.to(statueShots, {
-
         x: 0,
         y: 0,
         scale: 1,
-
         duration: 0.7,
         ease: "power2.out",
         force3D: true,
-
-        // Follow the moving punch
-        onUpdate: updatePunchLaser,
-
-        // Hide laser once punch returns
-        onComplete: hidePunchLaser
-
+        onComplete: stopPunchLaser
       });
     }
-
   });
-
 }
 
   // ==========================================================
