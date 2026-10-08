@@ -5988,8 +5988,8 @@ function initHomeSection9() {
     var LIFE_MIN = 1;
     var LIFE_MAX = 20;
 
-    var SPAWN_FADE_DURATION = 0.5;
-    var DEATH_FADE = 0.5;
+    var SPAWN_FADE_DURATION = 0.7;
+    var DEATH_FADE = 0.7;
 
     var RESPAWN_MIN = 1;
     var RESPAWN_MAX = 3;
