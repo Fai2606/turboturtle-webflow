@@ -7,7 +7,7 @@
 
 // ==========================================================
 // REAL VIEWPORT UNITS
-// Do NOT use window.innerWidth / innerHeight.
+// Do NOT use window.innerWidth / innerHeight.city
 // Some Android browsers report a scaled layout viewport.
 // ==========================================================
 
@@ -1474,8 +1474,56 @@ if (
   initHomeSection7();
   initHomeSection8();
   initHomeSection9();
-  
   initHomeResponsiveScale();
+
+  
+  // ============================================================
+  // REUSABLE — ROTATE FLOAT
+  // Add .rotate_float to any element
+  // ============================================================
+  
+  gsap.utils.toArray(".rotate_float").forEach(function(el) {
+  
+    // Find the object's home/about section
+    var section = el.parentElement;
+  
+    while (section) {
+  
+      var isSection = Array.from(section.classList).some(
+        function(className) {
+          return /^(home|about)_section\d+$/.test(className);
+        }
+      );
+  
+      if (isSection) break;
+  
+      section = section.parentElement;
+    }
+  
+    if (!section) return;
+  
+    gsap.to(el, {
+  
+      xPercent: 400,
+      yPercent: -220,
+      rotation: 480,
+  
+      ease: "power2.out"
+      force3D: true,
+  
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1.5,
+        invalidateOnRefresh: true
+      }
+  
+    });
+  
+  });
+
+
   
 
 
@@ -2325,7 +2373,7 @@ if (cityLight3) {
     },
 
     {
-      rotation: 5,
+      rotation: 4,
 
       ease: "none",
 
@@ -3369,28 +3417,6 @@ if (rocketTip) {
   }
 
 
-  // ============================================================
-  // BLOOD CELL
-  // ============================================================
-
-  if (bloodcell) {
-
-    gsap.to(bloodcell, {
-      xPercent: 400,
-      yPercent: -220,
-      rotation: 220,
-      ease: "none",
-      force3D: true,
-
-      scrollTrigger: {
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1.5,
-        invalidateOnRefresh: true
-      }
-    });
-  }
 
 
   // ============================================================
