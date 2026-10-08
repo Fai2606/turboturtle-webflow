@@ -6192,11 +6192,9 @@ function getFireflyGlow(fireflySize) {
 
       // Natural death
       gsap.to(fly.el, {
-
         opacity: 0,
         duration: DEATH_FADE,
-        ease: "sine.inOut",
-
+        ease: "power3.in",
         onComplete: function() {
           scheduleRespawn(fly);
         }
@@ -6212,7 +6210,7 @@ function getFireflyGlow(fireflySize) {
       var size = random(
         FIREFLY_MIN_SIZE,
         FIREFLY_MAX_SIZE
-      ) * (isMobile ? 2 : 1);
+      ) * (isMobile ? 1.2 : 1);
 
       var lifetime = random(
         LIFE_MIN,
@@ -6244,11 +6242,11 @@ function getFireflyGlow(fireflySize) {
         opacity: 0
       });
 
-      // Fade in to 100%
+      // Fade in
       gsap.to(fly.el, {
         opacity: 1,
         duration: SPAWN_FADE_DURATION,
-        ease: "sine.out"
+        ease: "power3.out"
       });
 
       wander(fly);
@@ -6362,7 +6360,7 @@ function getFireflyGlow(fireflySize) {
               dy * distance * t +
               perpendicularY * bend,
 
-            opacity: startOpacity * (1 - t)
+            opacity: startOpacity * (1 - Math.pow(t, 3))
           });
         },
 
