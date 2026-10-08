@@ -3832,6 +3832,58 @@ function initHomeSection6() {
 
   if (!window.gsap || !window.ScrollTrigger) return;
 
+  
+  // ============================================================
+  // DINOSAUR BOUNCE — SAME AS HOME 5 BURGER
+  // ============================================================
+
+  var dinosaurBounce = q(".home6_dinosaur_bounce");
+
+  if (dinosaurBounce) {
+
+    gsap.timeline({
+      repeat: -1,
+      repeatDelay: 4
+    })
+
+    .to(dinosaurBounce, {
+      y: -7,
+      duration: 0.15,
+      ease: "power3.out"
+    })
+
+    .to(dinosaurBounce, {
+      y: 0,
+      duration: 0.19,
+      ease: "bounce.out"
+    })
+
+    .to(dinosaurBounce, {
+      y: -5,
+      duration: 0.13,
+      ease: "power3.out"
+    })
+
+    .to(dinosaurBounce, {
+      y: 0,
+      duration: 0.17,
+      ease: "bounce.out"
+    })
+
+    .to(dinosaurBounce, {
+      y: -2,
+      duration: 0.11,
+      ease: "power3.out"
+    })
+
+    .to(dinosaurBounce, {
+      y: 0,
+      duration: 0.15,
+      ease: "bounce.out"
+    });
+  }
+
+
 
   // ==========================================================
   // SAFARI DETECTION
