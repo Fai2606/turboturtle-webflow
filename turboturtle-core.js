@@ -2073,10 +2073,10 @@ function initHomeSection2() {
   if (q(".home2_dinosaur")) {
     gsap.fromTo(".home2_dinosaur",
       {
-        rotation: -27
+        rotation: -30
       },
       {
-        rotation: 27,
+        rotation: 30,
         ease: "none",
         force3D: true,
         scrollTrigger: {
@@ -2094,10 +2094,10 @@ function initHomeSection2() {
   if (q(".home2_spark")) {
     gsap.fromTo(".home2_spark",
       {
-        rotation: -4
+        rotation: 10
       },
       {
-        rotation: 40,
+        rotation: -40,
         ease: "none",
         force3D: true,
         scrollTrigger: {
