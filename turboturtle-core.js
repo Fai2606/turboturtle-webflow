@@ -2037,9 +2037,6 @@ var punchSpot2 = q(".punch_spot2");
 var punchLaser = null;
 var punchLaserRunning = false;
 
-var punchLaserDraw = {
-  progress: 0
-};
 
 if (statuePunch && punchSpot1 && punchSpot2) {
 
@@ -2062,12 +2059,7 @@ if (statuePunch && punchSpot1 && punchSpot2) {
 }
 
 
-// ----------------------------------------------------------
-// UPDATE LASER POSITION
-// ----------------------------------------------------------
-
 function updatePunchLaser() {
-
   if (!punchLaser || !punchLaserRunning) return;
 
   var a = punchSpot1.getBoundingClientRect();
@@ -2075,70 +2067,34 @@ function updatePunchLaser() {
 
   var x1 = a.left + a.width / 2;
   var y1 = a.top + a.height / 2;
-
   var x2 = b.left + b.width / 2;
   var y2 = b.top + b.height / 2;
 
-  // Direction: SPOT 2 → SPOT 1
   var dx = x1 - x2;
   var dy = y1 - y2;
 
-  var fullLength = Math.hypot(dx, dy);
-
-  punchLaser.style.width =
-    (fullLength * punchLaserDraw.progress) + "px";
-
+  punchLaser.style.width = Math.hypot(dx, dy) + "px";
   punchLaser.style.transform =
     "translate3d(" + x2 + "px," + y2 + "px,0) " +
     "rotate(" + Math.atan2(dy, dx) + "rad)";
 }
 
-
-// ----------------------------------------------------------
-// START LASER — DRAW IN 0.2 SECONDS
-// ----------------------------------------------------------
-
 function startPunchLaser() {
-
-  if (!punchLaser) return;
-
-  gsap.killTweensOf(punchLaserDraw);
-
-  punchLaserDraw.progress = 0;
+  if (!punchLaser || punchLaserRunning) return;
 
   punchLaserRunning = true;
   punchLaser.style.display = "block";
 
   updatePunchLaser();
-
-  gsap.ticker.remove(updatePunchLaser);
   gsap.ticker.add(updatePunchLaser);
-
-  gsap.to(punchLaserDraw, {
-    progress: 1,
-    delay: 0.35,
-    duration: 0.2,
-    ease: "power2.out"
-  });
 }
 
-
-// ----------------------------------------------------------
-// STOP LASER
-// ----------------------------------------------------------
-
 function stopPunchLaser() {
-
   if (!punchLaser) return;
 
-  gsap.killTweensOf(punchLaserDraw);
-
   punchLaserRunning = false;
-
   gsap.ticker.remove(updatePunchLaser);
-
   punchLaser.style.display = "none";
-  punchLaserDraw.progress = 0;
 }
 
 // ----------------------------------------------------------
