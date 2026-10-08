@@ -1504,8 +1504,8 @@ if (
   
     gsap.to(el, {
   
-      xPercent: 450,
-      yPercent: -250,
+      xPercent: 300,
+      yPercent: -200,
       rotation: 640,
   
       ease: "none",
