@@ -2061,6 +2061,29 @@ function initHomeSection2() {
   }
 
   
+  
+  // ==========================================================
+  // HOME 2 — WALKER GENTLE FLOAT
+  // ==========================================================
+
+  var home2Walker = q(".home2_walker");
+
+  if (home2Walker) {
+
+    // SETTINGS
+    var WALKER_FLOAT_AMPLITUDE = 6;  // Pixels (Emperor = 12)
+    var WALKER_FLOAT_DURATION = 2.0; // Seconds per half-cycle
+
+    gsap.to(home2Walker, {
+      y: WALKER_FLOAT_AMPLITUDE,
+      duration: WALKER_FLOAT_DURATION,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      force3D: true
+    });
+
+  }
 
 
   
