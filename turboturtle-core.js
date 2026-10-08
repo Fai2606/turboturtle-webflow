@@ -2161,7 +2161,7 @@ function initHomeSection2() {
   if (home2Heading) {
 
     // SETTINGS
-    var HEADING_SLOWNESS = 30;
+    var HEADING_SLOWNESS = isMobile ? 60 : 120;
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
