@@ -1890,7 +1890,7 @@ function initHomeSection2() {
 
     // Lower = slower, heavier swinging
     // Higher = faster swinging
-    var PENDULUM_SPRING = 36;
+    var PENDULUM_SPRING = 45;
 
     // Lower = more oscillations before settling
     // Higher = settles faster
