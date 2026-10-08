@@ -2161,7 +2161,7 @@ function initHomeSection2() {
   if (home2Heading) {
 
     // SETTINGS
-    var HEADING_SLOWNESS = 90;
+    var HEADING_SLOWNESS = 120;
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
