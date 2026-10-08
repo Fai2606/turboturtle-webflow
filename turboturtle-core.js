@@ -2004,39 +2004,120 @@ function initHomeSection2() {
 
 
 // ==========================================================
-// STATUE FIRE + PUNCH
-// FIXED-ANGLE JETMAN-STYLE LAUNCH + RETURN
+// STATUE FIRE + PUNCH + RETURN LASER
 // ==========================================================
 
-var statuePunch =
-  q(".home2_statue_punch");
-
-var statueFire =
-  q(".home2_statue_fire");
+var statuePunch = q(".home2_statue_punch_group");
+var statueFire = q(".home2_statue_fire");
 
 var statueShots = [
   statuePunch,
   statueFire
 ].filter(Boolean);
 
-var home2City =
-  q(".home_section2_city");
+var home2City = q(".home_section2_city");
 
+// ==========================================================
+// LASER — CONNECT TWO SPOTS
+// ==========================================================
+
+var punchSpot1 = q(".punch_spot1");
+var punchSpot2 = q(".punch_spot2");
+
+var punchLaserSVG = null;
+var punchLaserLine = null;
+
+if (statuePunch && punchSpot1 && punchSpot2) {
+
+  punchLaserSVG = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+
+  punchLaserLine = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "line"
+  );
+
+  Object.assign(punchLaserSVG.style, {
+    position: "fixed",
+    inset: "0",
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+    zIndex: "9999",
+    display: "none",
+    overflow: "hidden"
+  });
+
+  punchLaserLine.setAttribute("stroke", "#e4f643");
+  punchLaserLine.setAttribute("stroke-width", "2");
+  punchLaserLine.setAttribute("stroke-linecap", "round");
+
+  punchLaserSVG.appendChild(punchLaserLine);
+  document.body.appendChild(punchLaserSVG);
+}
+
+
+// ==========================================================
+// UPDATE LASER POSITION
+// ==========================================================
+
+function updatePunchLaser() {
+
+  if (!punchLaserLine) return;
+
+  var a = punchSpot1.getBoundingClientRect();
+  var b = punchSpot2.getBoundingClientRect();
+
+  punchLaserLine.setAttribute(
+    "x1",
+    a.left + a.width / 2
+  );
+
+  punchLaserLine.setAttribute(
+    "y1",
+    a.top + a.height / 2
+  );
+
+  punchLaserLine.setAttribute(
+    "x2",
+    b.left + b.width / 2
+  );
+
+  punchLaserLine.setAttribute(
+    "y2",
+    b.top + b.height / 2
+  );
+}
+
+
+function showPunchLaser() {
+
+  if (!punchLaserSVG) return;
+
+  punchLaserSVG.style.display = "block";
+  updatePunchLaser();
+}
+
+
+function hidePunchLaser() {
+
+  if (!punchLaserSVG) return;
+
+  punchLaserSVG.style.display = "none";
+}
+
+
+// ==========================================================
+// EXISTING PUNCH ANIMATION
+// ==========================================================
 
 if (statueShots.length) {
 
-
-  // --------------------------------------------------------
-  // CITY SCALE
-  // Needed so flight angle stays visually identical
-  // across desktop / tablet / mobile.
-  // --------------------------------------------------------
-
   function getHome2CityScale() {
 
-    if (!home2City) {
-      return 1;
-    }
+    if (!home2City) return 1;
 
     return (
       parseFloat(
@@ -2046,49 +2127,29 @@ if (statueShots.length) {
   }
 
 
-  // --------------------------------------------------------
-  // FIXED 10 O'CLOCK FLIGHT
-  //
-  //
-  // X and Y are calculated from the SAME pixel distance,
-  // so aspect ratio no longer changes the angle.
-  // --------------------------------------------------------
-
   function getPunchTravelX() {
-  
+
     var visualDistance =
       getRealViewportWidth() * 1.25;
-  
-    return (
-      -visualDistance /
-      getHome2CityScale()
-    );
+
+    return -visualDistance / getHome2CityScale();
   }
-  
-  
+
+
   function getPunchTravelY() {
-  
+
     var visualDistance =
       getRealViewportWidth() * 1.25;
-  
+
     var visualY =
       visualDistance *
-      Math.tan(
-        53.4 * Math.PI / 180
-      );
-  
-    return (
-      -visualY /
-      getHome2CityScale()
-    );
+      Math.tan(53.4 * Math.PI / 180);
+
+    return -visualY / getHome2CityScale();
   }
 
 
-  // --------------------------------------------------------
   // INITIAL STATE
-  // Punch visible.
-  // Fire hidden until launch.
-  // --------------------------------------------------------
 
   gsap.set(statueShots, {
     x: 0,
@@ -2097,48 +2158,39 @@ if (statueShots.length) {
     force3D: true
   });
 
-
   if (statueFire) {
-
     gsap.set(statueFire, {
       autoAlpha: 0
     });
   }
 
 
-  // --------------------------------------------------------
-  // TRIGGER
-  // --------------------------------------------------------
+  // SCROLL TRIGGER
 
   ScrollTrigger.create({
 
     trigger: section,
 
-    // Desktop timing stays as-is.
-    // Mobile fires slightly earlier.
     start: isMobile
       ? "top 10%"
       : "top -30%",
 
 
     // ======================================================
-    // FLY OUT
+    // FLY OUT — NO LASER
     // ======================================================
 
     onEnter: function() {
 
+      hidePunchLaser();
+
       gsap.killTweensOf(statueShots);
 
-
-      // Fire only appears during launch.
-
       if (statueFire) {
-
         gsap.set(statueFire, {
           autoAlpha: 1
         });
       }
-
 
       gsap.to(statueShots, {
 
@@ -2148,46 +2200,47 @@ if (statueShots.length) {
         scale: isMobile ? 4 : 7.5,
 
         duration: 1.8,
-
         ease: "power3.in",
-
         force3D: true
+
       });
     },
 
 
     // ======================================================
-    // FLY BACK
+    // FLY BACK — LASER ON
     // ======================================================
 
     onLeaveBack: function() {
 
       gsap.killTweensOf(statueShots);
 
-
-      // No fire during return.
-
+      // Hide fire
       if (statueFire) {
-
         gsap.set(statueFire, {
           autoAlpha: 0
         });
       }
 
+      // Show laser immediately
+      showPunchLaser();
 
       gsap.to(statueShots, {
 
         x: 0,
         y: 0,
-
         scale: 1,
 
-        // Faster return
         duration: 0.7,
-
         ease: "power2.out",
+        force3D: true,
 
-        force3D: true
+        // Follow the moving punch
+        onUpdate: updatePunchLaser,
+
+        // Hide laser once punch returns
+        onComplete: hidePunchLaser
+
       });
     }
 
