@@ -151,6 +151,205 @@ getBoundingClientRect: function () {
       });
 
       lenis.on("scroll", ScrollTrigger.update);
+      
+      
+      // ============================================================
+      // GLOBAL — REUSABLE PENDULUM ACTION
+      // Apply .pendulum_action to any Webflow element
+      // ============================================================
+
+      var pendulumElements =
+        gsap.utils.toArray(".pendulum_action");
+
+      if (pendulumElements.length) {
+
+        // ==========================================================
+        // SETTINGS
+        // ==========================================================
+
+        var PENDULUM_SCROLL_TILT = 38;
+
+        // Swing speed
+        var PENDULUM_SPRING = 36;
+
+        // Momentum retention
+        var PENDULUM_DAMPING = isMobile ? 0.7 : 1.0;
+
+        // Scroll sensitivity
+        var PENDULUM_SCROLL_SENSITIVITY = 3.5;
+
+        // Response and release
+        var PENDULUM_RESPONSE = 12;
+        var PENDULUM_RELEASE = 9;
+
+        // Pivot
+        var PENDULUM_PIVOT_X = "50%";
+        var PENDULUM_PIVOT_Y = "0%";
+
+        // ==========================================================
+        // PHYSICS STATE
+        // ==========================================================
+
+        var pendulumAngle = 0;
+        var pendulumVelocity = 0;
+        var scrollInfluence = 0;
+        var scrollVelocity = 0;
+        var lastScrollEventTime = -Infinity;
+
+        var DEG_TO_RAD = Math.PI / 180;
+        var RAD_TO_DEG = 180 / Math.PI;
+
+        var maxTilt =
+          PENDULUM_SCROLL_TILT * DEG_TO_RAD;
+
+        gsap.set(pendulumElements, {
+          rotation: 0,
+          transformOrigin:
+            PENDULUM_PIVOT_X + " " + PENDULUM_PIVOT_Y,
+          force3D: true
+        });
+
+        // ==========================================================
+        // GLOBAL SCROLL INPUT
+        // ==========================================================
+
+        lenis.on("scroll", function(event) {
+
+          scrollVelocity = event.velocity || 0;
+
+          lastScrollEventTime = performance.now();
+
+        });
+
+        // ==========================================================
+        // PENDULUM PHYSICS
+        // ==========================================================
+
+        gsap.ticker.add(function(time, deltaTime) {
+
+          var totalDt = Math.min(
+            deltaTime / 1000,
+            0.05
+          );
+
+          var steps = Math.max(
+            1,
+            Math.ceil(totalDt / (1 / 120))
+          );
+
+          var dt = totalDt / steps;
+
+          // ------------------------------------------
+          // Scroll inactivity
+          // ------------------------------------------
+
+          if (
+            performance.now() -
+            lastScrollEventTime > 100
+          ) {
+            scrollVelocity = 0;
+          }
+
+          // ------------------------------------------
+          // Scroll direction
+          //
+          // Desktop:
+          // Down = Left
+          // Up   = Right
+          //
+          // Mobile:
+          // Down = Right
+          // Up   = Left
+          // ------------------------------------------
+
+          var normalizedVelocity =
+            (isMobile ? scrollVelocity : -scrollVelocity) /
+            PENDULUM_SCROLL_SENSITIVITY;
+
+          // ------------------------------------------
+          // Target tilt
+          // ------------------------------------------
+
+          var desiredTilt =
+            maxTilt *
+            (
+              normalizedVelocity /
+              (
+                1 +
+                Math.abs(normalizedVelocity)
+              )
+            );
+
+          // ------------------------------------------
+          // Smooth scroll influence
+          // ------------------------------------------
+
+          var responseRate =
+            Math.abs(desiredTilt) >
+            Math.abs(scrollInfluence)
+              ? PENDULUM_RESPONSE
+              : PENDULUM_RELEASE;
+
+          var influenceBlend =
+            1 - Math.exp(
+              -responseRate * totalDt
+            );
+
+          scrollInfluence +=
+            (desiredTilt - scrollInfluence) *
+            influenceBlend;
+
+          // ------------------------------------------
+          // Spring physics
+          // ------------------------------------------
+
+          for (var i = 0; i < steps; i++) {
+
+            var displacement =
+              pendulumAngle - scrollInfluence;
+
+            var acceleration =
+              -PENDULUM_SPRING *
+              Math.sin(displacement)
+              -
+              PENDULUM_DAMPING *
+              pendulumVelocity;
+
+            pendulumVelocity +=
+              acceleration * dt;
+
+            pendulumAngle +=
+              pendulumVelocity * dt;
+
+          }
+
+          // ------------------------------------------
+          // Natural settling
+          // ------------------------------------------
+
+          if (
+            Math.abs(pendulumAngle) < 0.00005 &&
+            Math.abs(pendulumVelocity) < 0.00005 &&
+            Math.abs(scrollInfluence) < 0.00005
+          ) {
+            pendulumAngle = 0;
+            pendulumVelocity = 0;
+            scrollInfluence = 0;
+          }
+
+          // ------------------------------------------
+          // Apply to ALL pendulum_action elements
+          // ------------------------------------------
+
+          gsap.set(pendulumElements, {
+            rotation:
+              pendulumAngle * RAD_TO_DEG
+          });
+
+        });
+
+      }
+
       ScrollTrigger.addEventListener("refresh", function () {
         if (lenis.resize) lenis.resize();
       });
@@ -1870,232 +2069,6 @@ function initHomeSection2() {
 
 
   
-
-  // ============================================================
-  // HOME 2 — 5 CENT CAT PENDULUM
-  // V2 — CONTINUOUS SCROLL-DRIVEN SPRING PHYSICS
-  // ============================================================
-
-  var catPendulum = q(".home2_5centcat_pendulum");
-
-  if (catPendulum && lenis) {
-
-    // ==========================================================
-    // SETTINGS
-    // ==========================================================
-
-    // Maximum angle that scrolling pulls toward.
-    // Actual swing can naturally overshoot this value.
-    var PENDULUM_SCROLL_TILT = 38;
-
-    // Lower = slower, heavier swinging
-    // Higher = faster swinging
-    var PENDULUM_SPRING = 45;
-
-    // Lower = more oscillations before settling
-    // Higher = settles faster
-    var PENDULUM_DAMPING = isMobile ? 0.7 : 1.0;
-
-    // Lower = more sensitive to slow scrolling
-    // Higher = needs faster scrolling for a large swing
-    var PENDULUM_SCROLL_SENSITIVITY = 3.5;
-
-    // How quickly the scroll influence changes
-    // Higher = more immediate response
-    var PENDULUM_RESPONSE = 12;
-
-    // How quickly scroll influence disappears after stopping
-    var PENDULUM_RELEASE = 9;
-
-    // Rotation pivot
-    var PENDULUM_PIVOT_X = "50%";
-    var PENDULUM_PIVOT_Y = "0%";
-
-
-    // ==========================================================
-    // PHYSICS STATE
-    // ==========================================================
-
-    var angle = 0;
-    var angularVelocity = 0;
-
-    var targetAngle = 0;
-    var scrollInfluence = 0;
-
-    var scrollVelocity = 0;
-    var lastScrollEventTime = -Infinity;
-
-    var DEG_TO_RAD = Math.PI / 180;
-    var RAD_TO_DEG = 180 / Math.PI;
-
-    var maxTilt =
-      PENDULUM_SCROLL_TILT * DEG_TO_RAD;
-
-    gsap.set(catPendulum, {
-      rotation: 0,
-      transformOrigin:
-        PENDULUM_PIVOT_X + " " + PENDULUM_PIVOT_Y,
-      force3D: true
-    });
-
-
-    // ==========================================================
-    // SCROLL INPUT
-    // ==========================================================
-
-    lenis.on("scroll", function(event) {
-
-      // Positive velocity = scrolling down
-      // Negative velocity = scrolling up
-      scrollVelocity = event.velocity || 0;
-
-      lastScrollEventTime = performance.now();
-
-    });
-
-
-    // ==========================================================
-    // PHYSICAL PENDULUM
-    // ==========================================================
-
-    gsap.ticker.add(function(time, deltaTime) {
-
-      var totalDt = Math.min(
-        deltaTime / 1000,
-        0.05
-      );
-
-      // Use small steps for stable physics
-      var steps = Math.max(
-        1,
-        Math.ceil(totalDt / (1 / 120))
-      );
-
-      var dt = totalDt / steps;
-
-      // ------------------------------------------
-      // Detect scroll inactivity
-      // ------------------------------------------
-
-      var elapsed =
-        performance.now() - lastScrollEventTime;
-
-      // If Lenis stopped emitting scroll updates,
-      // don't keep using stale velocity.
-      if (elapsed > 100) {
-        scrollVelocity = 0;
-      }
-
-
-      // ------------------------------------------
-      // Convert scroll velocity to target tilt
-      // ------------------------------------------
-
-      // Smooth saturation:
-      // Slow scroll = small tilt
-      // Fast scroll = stronger tilt
-      // Extreme scroll never creates infinite force
-
-      var normalizedVelocity =
-        (isMobile ? scrollVelocity : -scrollVelocity) /
-        PENDULUM_SCROLL_SENSITIVITY;
-
-      var desiredTilt =
-        maxTilt *
-        (
-          normalizedVelocity /
-          (
-            1 +
-            Math.abs(normalizedVelocity)
-          )
-        );
-
-
-      // ------------------------------------------
-      // Smooth scroll influence
-      // ------------------------------------------
-
-      var responseRate =
-        Math.abs(desiredTilt) >
-        Math.abs(scrollInfluence)
-          ? PENDULUM_RESPONSE
-          : PENDULUM_RELEASE;
-
-      var influenceBlend =
-        1 - Math.exp(
-          -responseRate * totalDt
-        );
-
-      scrollInfluence +=
-        (desiredTilt - scrollInfluence) *
-        influenceBlend;
-
-      targetAngle = scrollInfluence;
-
-
-      // ------------------------------------------
-      // Spring pendulum simulation
-      // ------------------------------------------
-
-      for (var i = 0; i < steps; i++) {
-
-        // Spring pulls the medal toward the
-        // scroll-influenced equilibrium.
-        //
-        // Damping removes energy gradually.
-        //
-        // No artificial cooldown.
-        // No hard angle clipping.
-        // No velocity reset at the extremes.
-
-        var displacement =
-          angle - targetAngle;
-
-        var acceleration =
-          -PENDULUM_SPRING *
-          Math.sin(displacement)
-          -
-          PENDULUM_DAMPING *
-          angularVelocity;
-
-        angularVelocity +=
-          acceleration * dt;
-
-        angle +=
-          angularVelocity * dt;
-
-      }
-
-
-      // ------------------------------------------
-      // Settle cleanly only when truly at rest
-      // ------------------------------------------
-
-      if (
-        Math.abs(angle) < 0.00005 &&
-        Math.abs(angularVelocity) < 0.00005 &&
-        Math.abs(targetAngle) < 0.00005
-      ) {
-        angle = 0;
-        angularVelocity = 0;
-        targetAngle = 0;
-        scrollInfluence = 0;
-      }
-
-
-      // ------------------------------------------
-      // Apply rotation
-      // ------------------------------------------
-
-      gsap.set(catPendulum, {
-        rotation: angle * RAD_TO_DEG
-      });
-
-    });
-
-  }
-
-
 
 
 
