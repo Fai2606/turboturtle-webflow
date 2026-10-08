@@ -2094,7 +2094,7 @@ function initHomeSection2() {
   if (q(".home2_spark")) {
     gsap.fromTo(".home2_spark",
       {
-        rotation: 10
+        rotation: 40
       },
       {
         rotation: -40,
