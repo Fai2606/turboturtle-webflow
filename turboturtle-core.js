@@ -1504,11 +1504,11 @@ if (
   
     gsap.to(el, {
   
-      xPercent: 400,
-      yPercent: -220,
-      rotation: 480,
+      xPercent: 450,
+      yPercent: -250,
+      rotation: 640,
   
-      ease: "power2.out",
+      ease: none,
       force3D: true,
   
       scrollTrigger: {
