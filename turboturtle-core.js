@@ -5924,60 +5924,50 @@ function initHomeSection9() {
 
   });
 
+
+
+
   
+
   // ==========================================================
-  // HOME 9 — INTERACTIVE FIREFLIES
+  // HOME 9 — INTERACTIVE FIREFLIES V2
+  // Container position and size controlled by Webflow
   // ==========================================================
 
   var fireflyField =
-    q(".home_fireflies") ||
-    q(".home9_fireflies");
+    q(".home9_fireflies") ||
+    q(".home_fireflies");
 
   if (fireflyField) {
 
-    // -------------------------------
+    // ========================================================
     // SETTINGS
-    // -------------------------------
+    // ========================================================
 
     var FIREFLY_COUNT = 20;
 
     var FIREFLY_MIN_SIZE = 5;
     var FIREFLY_MAX_SIZE = 10;
-
     var FIREFLY_COLOR = "#efff5b";
 
-    var WANDER_DISTANCE = 25;
-    var WANDER_MIN_DURATION = 3;
-    var WANDER_MAX_DURATION = 6;
+    // Gentle idle movement
+    var WANDER_DISTANCE = 18;
+    var WANDER_MIN_DURATION = 5;
+    var WANDER_MAX_DURATION = 9;
 
-    var MOUSE_RADIUS = 100;
-    var FLEE_DISTANCE = 120;
-    var FLEE_TIME = 3;
+    // Mouse interaction
+    var MOUSE_RADIUS = 85;
+    var FLEE_DISTANCE = 55;
+    var FLEE_DURATION = 1.6;
+    var FLEE_HIDE_TIME = 1.4;
+    var REAPPEAR_DURATION = 0.7;
 
-    // Spawn area, in percentages
-    var SPAWN_LEFT = 8;
-    var SPAWN_RIGHT = 92;
-    var SPAWN_TOP = 25;
-    var SPAWN_BOTTOM = 80;
+    // 75% of dots spawn in the middle 50% of the width
+    var CENTER_SPAWN_CHANCE = 0.75;
 
-    // -------------------------------
-    // PREPARE CONTAINER
-    // -------------------------------
-
-    var parent = fireflyField.parentElement;
-
-    if (parent &&
-        getComputedStyle(parent).position === "static") {
-      parent.style.position = "relative";
-    }
-
-    Object.assign(fireflyField.style, {
-      position: "absolute",
-      inset: "0",
-      pointerEvents: "none",
-      overflow: "visible",
-      zIndex: "20"
-    });
+    // ========================================================
+    // HELPERS
+    // ========================================================
 
     var fireflies = [];
 
@@ -5985,17 +5975,38 @@ function initHomeSection9() {
       return min + Math.random() * (max - min);
     }
 
-    // -------------------------------
-    // SLOW RANDOM WANDERING
-    // -------------------------------
+    function randomSpawnX() {
+
+      if (Math.random() < CENTER_SPAWN_CHANCE) {
+        return random(25, 75);
+      }
+
+      if (Math.random() < 0.5) {
+        return random(5, 25);
+      }
+
+      return random(75, 95);
+    }
+
+    // ========================================================
+    // SLOW IDLE WANDERING
+    // ========================================================
 
     function wander(fly) {
 
       if (fly.fleeing) return;
 
       fly.wanderTween = gsap.to(fly.el, {
-        x: random(-WANDER_DISTANCE, WANDER_DISTANCE),
-        y: random(-WANDER_DISTANCE, WANDER_DISTANCE),
+
+        x: random(
+          -WANDER_DISTANCE,
+          WANDER_DISTANCE
+        ),
+
+        y: random(
+          -WANDER_DISTANCE,
+          WANDER_DISTANCE
+        ),
 
         duration: random(
           WANDER_MIN_DURATION,
@@ -6010,9 +6021,9 @@ function initHomeSection9() {
       });
     }
 
-    // -------------------------------
-    // MOUSE ESCAPE
-    // -------------------------------
+    // ========================================================
+    // SLOW CURVED ESCAPE
+    // ========================================================
 
     function flee(fly, mouseX, mouseY) {
 
@@ -6032,35 +6043,50 @@ function initHomeSection9() {
       var dx = cx - mouseX;
       var dy = cy - mouseY;
 
-      var distance = Math.hypot(dx, dy);
+      var length = Math.hypot(dx, dy);
 
-      if (distance < 1) {
+      if (length < 1) {
         var angle = random(0, Math.PI * 2);
+
         dx = Math.cos(angle);
         dy = Math.sin(angle);
-        distance = 1;
+        length = 1;
       }
 
-      // Compensate for CSS zoom on the city
-      var fieldScale =
+      // Normalize direction
+      dx /= length;
+      dy /= length;
+
+      // Compensate for Webflow CSS zoom
+      var scale =
         fireflyField.offsetWidth
           ? fireflyField.getBoundingClientRect().width /
             fireflyField.offsetWidth
           : 1;
 
-      fieldScale = fieldScale || 1;
+      scale = scale || 1;
 
-      var moveX =
-        (dx / distance) * FLEE_DISTANCE / fieldScale;
+      // Escape distance in local coordinates
+      var distance =
+        random(
+          FLEE_DISTANCE * 0.7,
+          FLEE_DISTANCE * 1.3
+        ) / scale;
 
-      var moveY =
-        (dy / distance) * FLEE_DISTANCE / fieldScale;
-
-      var currentX =
+      var startX =
         Number(gsap.getProperty(fly.el, "x")) || 0;
 
-      var currentY =
+      var startY =
         Number(gsap.getProperty(fly.el, "y")) || 0;
+
+      // Perpendicular vector creates a curved path
+      var perpendicularX = -dy;
+      var perpendicularY = dx;
+
+      var curve =
+        random(-35, 35) / scale;
+
+      var flight = { progress: 0 };
 
       gsap.timeline({
 
@@ -6071,39 +6097,62 @@ function initHomeSection9() {
 
       })
 
-      // Fly away and dim
-      .to(fly.el, {
-        x: currentX + moveX,
-        y: currentY + moveY,
-        opacity: 0.03,
-        duration: 0.6,
-        ease: "power2.out"
+      // Slow curved escape + fade
+      .to(flight, {
+
+        progress: 1,
+        duration: FLEE_DURATION,
+        ease: "power2.out",
+
+        onUpdate: function() {
+
+          var t = flight.progress;
+
+          // Curved trajectory
+          var bend =
+            Math.sin(t * Math.PI) * curve;
+
+          var x =
+            startX +
+            dx * distance * t +
+            perpendicularX * bend;
+
+          var y =
+            startY +
+            dy * distance * t +
+            perpendicularY * bend;
+
+          gsap.set(fly.el, {
+            x: x,
+            y: y,
+            opacity: fly.opacity * (1 - t)
+          });
+        }
       })
 
-      // Stay hidden
+      // Remain invisible
       .to({}, {
-        duration: FLEE_TIME - 0.6
+        duration: FLEE_HIDE_TIME
       })
 
-      // Reset invisibly to its own position
+      // Return invisibly to original position
       .set(fly.el, {
         x: 0,
         y: 0,
         opacity: 0
       })
 
-      // Reappear
+      // Gently reappear
       .to(fly.el, {
         opacity: fly.opacity,
-        duration: 0.5,
+        duration: REAPPEAR_DURATION,
         ease: "sine.out"
       });
     }
 
-    
-    // -------------------------------
-    // CREATE 20 FIREFLIES
-    // -------------------------------
+    // ========================================================
+    // CREATE FIREFLIES
+    // ========================================================
 
     for (var i = 0; i < FIREFLY_COUNT; i++) {
 
@@ -6117,17 +6166,11 @@ function initHomeSection9() {
       var opacity = random(0.65, 1);
 
       Object.assign(dot.style, {
+
         position: "absolute",
 
-        left: random(
-          SPAWN_LEFT,
-          SPAWN_RIGHT
-        ) + "%",
-
-        top: random(
-          SPAWN_TOP,
-          SPAWN_BOTTOM
-        ) + "%",
+        left: randomSpawnX() + "%",
+        top: random(10, 90) + "%",
 
         width: size + "px",
         height: size + "px",
@@ -6137,9 +6180,10 @@ function initHomeSection9() {
 
         boxShadow:
           "0 0 4px 2px rgba(239,255,91,0.85), " +
-          "0 0 12px 4px rgba(239,255,91,0.25)",
+          "0 0 10px 4px rgba(239,255,91,0.25)",
 
         pointerEvents: "none",
+
         willChange: "transform, opacity"
       });
 
@@ -6164,9 +6208,9 @@ function initHomeSection9() {
       wander(fly);
     }
 
-    // -------------------------------
+    // ========================================================
     // MOUSE INTERACTION
-    // -------------------------------
+    // ========================================================
 
     section.addEventListener(
       "pointermove",
@@ -6189,7 +6233,6 @@ function initHomeSection9() {
             cy - event.clientY
           );
 
-          // Re-arm after mouse moves away
           if (distance > MOUSE_RADIUS * 1.5) {
             fly.armed = true;
           }
@@ -6213,10 +6256,8 @@ function initHomeSection9() {
   }
 
 
+
   
-  requestAnimationFrame(function() {
-    ScrollTrigger.refresh();
-  });
 
 } // END initHomeSection9
 
