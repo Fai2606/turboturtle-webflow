@@ -2162,7 +2162,7 @@ function initHomeSection2() {
   if (home2Cloud) {
 
     // SETTINGS
-    var CLOUD_MOVE_UP = 75;
+    var CLOUD_MOVE_UP = 120;
 
     gsap.fromTo(home2Cloud,
       {
