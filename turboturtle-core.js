@@ -2047,7 +2047,7 @@ if (statuePunch && punchSpot1 && punchSpot2) {
     left: "0px",
     top: "0px",
     width: "0px",
-    height: "3px",
+    height: "4px",
     background: "#e4f643",
     transformOrigin: "0 50%",
     pointerEvents: "none",
