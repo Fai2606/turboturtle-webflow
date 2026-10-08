@@ -5950,11 +5950,11 @@ function initHomeSection9() {
     // ========================================================
 
     // Population
-    var FIREFLY_COUNT = 40;
+    var FIREFLY_COUNT = 48;
 
     // Appearance
     var FIREFLY_MIN_SIZE = 2;
-    var FIREFLY_MAX_SIZE = 20;
+    var FIREFLY_MAX_SIZE = 6;
     var FIREFLY_COLOR = "#efff5b";
 
     // --------------------------------------------------------
@@ -5988,8 +5988,8 @@ function initHomeSection9() {
     var LIFE_MIN = 1;
     var LIFE_MAX = 20;
 
-    var SPAWN_FADE_DURATION = 0.7;
-    var DEATH_FADE = 0.7;
+    var SPAWN_FADE_DURATION = 0.5;
+    var DEATH_FADE = 0.5;
 
     var RESPAWN_MIN = 1;
     var RESPAWN_MAX = 3;
