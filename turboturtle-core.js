@@ -2153,7 +2153,7 @@ if (statueShots.length) {
         scale: isMobile ? 4 : 7.5,
         duration: 1.8,
         ease: "power3.in",
-        force3D: true
+        force3D: true,
 
         onComplete: stopPunchLaser
       });
