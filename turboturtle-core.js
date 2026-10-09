@@ -1767,16 +1767,16 @@ if (
     
   
   
-    // ==========================================================
-    // LAYER ORDER
-    // ==========================================================
+    // // ==========================================================
+    // // LAYER ORDER
+    // // ==========================================================
   
-    if (galaxy) gsap.set(galaxy, { zIndex: 1 });
-    if (realMoon) gsap.set(realMoon, { zIndex: 2 });
-    if (pyramid) gsap.set(pyramid, { zIndex: 3 });
-    if (text) gsap.set(text, { zIndex: 5 });
-    if (moon) gsap.set(moon, { zIndex: 7 });
-    if (cloud) gsap.set(cloud, { zIndex: 10 });
+    // if (galaxy) gsap.set(galaxy, { zIndex: 1 });
+    // if (realMoon) gsap.set(realMoon, { zIndex: 2 });
+    // if (pyramid) gsap.set(pyramid, { zIndex: 3 });
+    // if (text) gsap.set(text, { zIndex: 5 });
+    // if (moon) gsap.set(moon, { zIndex: 7 });
+    // if (cloud) gsap.set(cloud, { zIndex: 10 });
   
   
     // ==========================================================
@@ -1864,37 +1864,40 @@ if (
     }
   
   
-    // ==========================================================
-    // PYRAMID
-    // ==========================================================
-  
-    if (pyramid) {
-  
-      gsap.to(pyramid, {
-  
-        y: -10 * MASTER_VH,
-  
-        ease: "none",
-  
-        force3D: true,
-  
-        scrollTrigger: {
-  
-          trigger: section,
-  
-          start: "top top",
-  
-          end: "bottom top",
-  
-          scrub: 1,
-  
-          invalidateOnRefresh: true
-  
-        }
-  
-      });
-  
+ // ==========================================================
+// PYRAMID — SLOW PARALLAX
+// ==========================================================
+
+if (pyramid) {
+
+  // SETTINGS
+  // 1.0 = normal scroll speed
+  // 0.7 = slightly slower
+  // 0.5 = half scroll speed
+  // 0.3 = very slow
+
+  var PYRAMID_SPEED = 0.5;
+
+  gsap.to(pyramid, {
+
+    y: function () {
+      return section.offsetHeight * (1 - PYRAMID_SPEED);
+    },
+
+    ease: "none",
+    force3D: true,
+
+    scrollTrigger: {
+      trigger: section,
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+      invalidateOnRefresh: true
     }
+
+  });
+
+}
   
   
 
