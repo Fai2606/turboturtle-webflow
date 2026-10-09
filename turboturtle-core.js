@@ -159,7 +159,8 @@ getBoundingClientRect: function () {
       // ============================================================
 
       var pendulumElements =
-        gsap.utils.toArray(".pendulum_action");
+        gsap.utils.toArray(".pendulum_action, .pendulum_action2");
+        var PENDULUM_ACTION2_MAGNITUDE = 0.75;
 
       if (pendulumElements.length) {
 
@@ -336,9 +337,16 @@ getBoundingClientRect: function () {
           // Apply to ALL pendulum_action elements
           // ------------------------------------------
 
-          gsap.set(pendulumElements, {
-            rotation:
-              pendulumAngle * RAD_TO_DEG
+          pendulumElements.forEach(function(el) {
+          
+            var magnitude = el.classList.contains("pendulum_action2")
+              ? PENDULUM_ACTION2_MAGNITUDE
+              : 1;
+          
+            gsap.set(el, {
+              rotation: pendulumAngle * RAD_TO_DEG * magnitude
+            });
+          
           });
 
         });
