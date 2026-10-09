@@ -2178,7 +2178,11 @@ function initHomeSection2() {
         scrollTrigger: {
           trigger: section,
 
-          start: "top bottom",
+start: function () {
+  return isMobile
+    ? "top bottom+=" + Math.round(window.innerHeight * 0.4)
+    : "top bottom";
+},
 
           // Same scroll distance as Home 1 = same speed
           end: function () {
@@ -2189,7 +2193,7 @@ function initHomeSection2() {
             );
           },
 
-          scrub: 1,
+          scrub: true,
           invalidateOnRefresh: true
         }
       }
