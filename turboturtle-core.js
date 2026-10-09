@@ -2159,7 +2159,7 @@ function initHomeSection2() {
   // No ScrollTrigger / No scrub / Stable mobile viewport
   // ==========================================================
 
-  var home2TextGroup = q(".home2_text_group");
+  var home2TextGroup = q('[class~="home_section1.5"]');
 
   if (home2TextGroup) {
 
