@@ -2062,7 +2062,38 @@ function initHomeSection2() {
     return;
   }
 
+
   
+  // ==========================================================
+  // HOME 2 — CLOUD
+  // Same movement as HOME 1 cloud
+  // ==========================================================
+  
+  var home2Cloud = q(".home2_cloud");
+  
+  if (home2Cloud) {
+  
+    gsap.to(home2Cloud, {
+  
+      y: -30 * MASTER_VH,
+  
+      ease: "none",
+      force3D: true,
+  
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        invalidateOnRefresh: true
+      }
+  
+    });
+  
+  }
+
+
+
   
   // ==========================================================
   // HOME 2 — WALKER GENTLE FLOAT
