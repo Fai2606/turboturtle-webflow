@@ -1839,7 +1839,7 @@ if (
   
       gsap.to(cloud, {
   
-        y: -30 * MASTER_VH,
+        y: -40 * MASTER_VH,
   
         ease: "none",
   
@@ -2169,7 +2169,7 @@ function initHomeSection2() {
         y: 0
       },
       {
-        y: -30 * MASTER_VH,
+        y: -40 * MASTER_VH,
 
         ease: "none",
         force3D: true,
