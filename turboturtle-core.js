@@ -2167,7 +2167,7 @@ function initHomeSection2() {
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
-      ease: = isMobile ? power2.out : none;
+      ease: "none",
 
       // Avoid 3D text rendering issues on mobile
       force3D: !isMobile,
