@@ -2422,11 +2422,22 @@ function initHomeSection2() {
 
       var maskStyle = cloudMaskText.style;
 
-      maskStyle.webkitMaskImage =
-        'url("' + cloudMaskURL + '")';
-
-      maskStyle.maskImage =
-        'url("' + cloudMaskURL + '")';
+      // Original SVG + solid extension below its flat base
+      
+      var cloudMaskLayers =
+        'url("' + cloudMaskURL + '"), ' +
+        'linear-gradient(to bottom, ' +
+        'transparent var(--cloud-mask-bottom), ' +
+        '#000 var(--cloud-mask-bottom))';
+      
+      maskStyle.webkitMaskImage = cloudMaskLayers;
+      maskStyle.maskImage = cloudMaskLayers;
+      
+      maskStyle.webkitMaskComposite = "source-over";
+      maskStyle.maskComposite = "add";
+      
+      maskStyle.webkitMaskRepeat = "no-repeat, no-repeat";
+      maskStyle.maskRepeat = "no-repeat, no-repeat";
 
       maskStyle.webkitMaskRepeat = "no-repeat";
       maskStyle.maskRepeat = "no-repeat";
@@ -2482,11 +2493,26 @@ var maskY =
         var size =
           maskWidth + "px " + maskHeight + "px";
 
-        maskStyle.webkitMaskPosition = position;
-        maskStyle.maskPosition = position;
-
-        maskStyle.webkitMaskSize = size;
-        maskStyle.maskSize = size;
+        // SVG follows cloud; solid extension fills below it
+        
+        var maskBottom = maskY + maskHeight - 1;
+        
+        maskStyle.setProperty(
+          "--cloud-mask-bottom",
+          maskBottom + "px"
+        );
+        
+        maskStyle.webkitMaskPosition =
+          position + ", 0px 0px";
+        
+        maskStyle.maskPosition =
+          position + ", 0px 0px";
+        
+        maskStyle.webkitMaskSize =
+          size + ", 100% 100%";
+        
+        maskStyle.maskSize =
+          size + ", 100% 100%";
 
       }
 
