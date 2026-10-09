@@ -2460,9 +2460,9 @@ if (statueShots.length) {
     gsap.set(statueFire, { autoAlpha: 0 });
   }
 
-  ScrollTrigger.create({
-    trigger: section,
-    start: isMobile ? "top 10%" : "top -80%",
+    ScrollTrigger.create({
+      trigger: ".home2_statue",
+      start: "center 55%",
 
     // FLY OUT — ORIGINAL MOVEMENT, NO LASER
     onEnter: function () {
