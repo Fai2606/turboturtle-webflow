@@ -2153,90 +2153,176 @@ function initHomeSection2() {
   
   
  
-// ==========================================================
-// HOME 2 — TEXT GROUP TRUE SLOW PARALLAX
-// Direct scroll tracking — no scrub lag
-// ==========================================================
 
-var home2Heading = q(".home2_text_group");
+  // ==========================================================
+  // HOME 2 — TEXT GROUP STABLE PARALLAX
+  // No ScrollTrigger / No scrub / Stable mobile viewport
+  // ==========================================================
 
-if (home2Heading) {
+  var home2TextGroup = q(".home2_text_group");
 
-  // ========================================================
-  // SETTINGS
-  // ========================================================
+  if (home2TextGroup) {
 
-  // 1.0 = normal page scroll speed
-  // 0.7 = slightly slower
-  // 0.5 = half scroll speed
-  // 0.3 = very slow
+    // ========================================================
+    // SETTINGS
+    // ========================================================
 
-  var TEXT_SCROLL_SPEED = isMobile ? 0.45 : 0.50;
+    // 1.0 = normal scroll speed
+    // 0.7 = slightly slower
+    // 0.5 = half speed
+    // 0.3 = very slow
 
-  var home2CityForText = q(".home_section2_city");
+    var TEXT_SCROLL_SPEED = isMobile ? 0.45 : 0.50;
 
-  var textInsideCity =
-    home2CityForText &&
-    home2CityForText.contains(home2Heading);
+    // ========================================================
+    // SETUP
+    // ========================================================
 
-  // Use 2D transforms for more stable mobile text rendering
-  gsap.set(home2Heading, {
-    y: 0,
-    force3D: false
-  });
+    var textCity = q(".home_section2_city");
 
-  var setTextY = gsap.quickSetter(
-    home2Heading,
-    "y",
-    "px"
-  );
+    var textInsideCity =
+      textCity && textCity.contains(home2TextGroup);
 
-  function updateHome2Text(self) {
+    var textStartScroll = 0;
+    var textZoom = 1;
 
-    // Actual ScrollTrigger distance in screen pixels
-    var scrollDistance = self.end - self.start;
+    var previousTextWidth =
+      document.documentElement.clientWidth;
 
-    // Counteract normal page scrolling
-    var compensation =
-      scrollDistance * (1 - TEXT_SCROLL_SPEED);
+    var previousTextPortrait =
+      document.documentElement.clientHeight >
+      previousTextWidth;
 
-    // Account for CSS zoom if text is inside the city
-    var cityZoom = 1;
+    var textResizeTimer;
 
-    if (textInsideCity) {
-      cityZoom =
-        parseFloat(
-          getComputedStyle(home2CityForText).zoom
-        ) || 1;
+    gsap.set(home2TextGroup, {
+      y: 0,
+      force3D: false
+    });
+
+    var setTextY = gsap.quickSetter(
+      home2TextGroup,
+      "y",
+      "px"
+    );
+
+    function getTextScroll() {
+      return (
+        lenis && typeof lenis.scroll === "number"
+      )
+        ? lenis.scroll
+        : (window.scrollY || 0);
     }
 
-    // Direct scroll-linked position
-    var y =
-      self.progress *
-      compensation /
-      cityZoom;
+    // ========================================================
+    // UPDATE — DIRECT SCROLL TRACKING
+    // ========================================================
 
-    // Pixel alignment to reduce text flickering
-    y = Math.round(y);
+    function updateHome2Text() {
 
-    setTextY(y);
+      var scroll = getTextScroll();
+
+      var distance = Math.max(
+        0,
+        scroll - textStartScroll
+      );
+
+      var y =
+        distance *
+        (1 - TEXT_SCROLL_SPEED) /
+        textZoom;
+
+      setTextY(y);
+    }
+
+    // ========================================================
+    // MEASURE ONCE
+    // ========================================================
+
+    function measureHome2Text() {
+
+      var scroll = getTextScroll();
+
+      // Document position of Home 2
+      var sectionTop =
+        section.getBoundingClientRect().top +
+        scroll;
+
+      // Capture viewport height ONCE.
+      // URL bar changes will not modify this value.
+      var fixedViewportHeight =
+        document.documentElement.clientHeight;
+
+      textStartScroll =
+        sectionTop - fixedViewportHeight;
+
+      // Cache zoom instead of reading it every scroll
+      textZoom = textInsideCity
+        ? (
+            parseFloat(
+              getComputedStyle(textCity).zoom
+            ) || 1
+          )
+        : 1;
+
+      updateHome2Text();
+    }
+
+    // ========================================================
+    // SCROLL LISTENERS
+    // ========================================================
+
+    window.addEventListener(
+      "scroll",
+      updateHome2Text,
+      { passive: true }
+    );
+
+    if (lenis && lenis.on) {
+      lenis.on("scroll", updateHome2Text);
+    }
+
+    // ========================================================
+    // RESIZE — IGNORE MOBILE URL BAR
+    // ========================================================
+
+    window.addEventListener("resize", function() {
+
+      var width =
+        document.documentElement.clientWidth;
+
+      var portrait =
+        document.documentElement.clientHeight > width;
+
+      var widthChanged =
+        Math.abs(width - previousTextWidth) > 20;
+
+      var orientationChanged =
+        portrait !== previousTextPortrait;
+
+      // Ignore height-only resize
+      if (!widthChanged && !orientationChanged) {
+        return;
+      }
+
+      previousTextWidth = width;
+      previousTextPortrait = portrait;
+
+      clearTimeout(textResizeTimer);
+
+      // Wait for responsive city scaling to finish
+      textResizeTimer = setTimeout(
+        measureHome2Text,
+        250
+      );
+
+    });
+
+    // Run after initial responsive layout
+    requestAnimationFrame(measureHome2Text);
+
   }
 
-  ScrollTrigger.create({
-
-    trigger: section,
-
-    start: "top bottom",
-    end: "bottom top",
-
-    invalidateOnRefresh: true,
-
-    onUpdate: updateHome2Text,
-    onRefresh: updateHome2Text
-
-  });
-
-}
 
 
   
