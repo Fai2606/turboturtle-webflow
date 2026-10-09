@@ -2181,7 +2181,7 @@ function initHomeSection2() {
 start: function () {
   return isMobile
     ? "top bottom+=" + Math.round(window.innerHeight * 0.2)
-    : "top bottom";
+    : "top bottom+=" + Math.round(window.innerHeight * 0.1) ;
 },
 
           // Same scroll distance as Home 1 = same speed
