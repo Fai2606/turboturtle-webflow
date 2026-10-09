@@ -2473,7 +2473,7 @@ if (statueShots.length) {
 
   ScrollTrigger.create({
     trigger: section,
-    start: isMobile ? "top 10%" : "top -30%",
+    start: isMobile ? "top -30%" : "top -50%",
 
     // FLY OUT — ORIGINAL MOVEMENT, NO LASER
     onEnter: function () {
