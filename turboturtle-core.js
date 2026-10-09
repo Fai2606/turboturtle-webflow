@@ -2223,42 +2223,42 @@ start: function () {
       targets:
         ".home2_building9",
 
-      travel: 15
+      travel: 12
     },
 
     {
       targets:
         ".home2_clocktower, .home2_dinosaur, .home2_5centcat",
 
-      travel: 30
+      travel: 24
     },
 
     {
       targets:
         ".home2_bridge, .home2_bridgebuilding, .home2_building2, .home2_statue",
 
-      travel: 45
+      travel: 36
     },
 
     {
       targets:
         ".home2_mount4, .home2_spacecat",
 
-      travel: 60
+      travel: 48
     },
 
     {
       targets:
         ".home2_building1, .home2_spark, .home2_crystal, .home2_pickle, .home2_riv",
 
-      travel: 75
+      travel: 60
     },
 
     {
       targets:
         ".home2_oceanball, .home2_whale, .home2_triangle, .home2_mushroom, .home2_pillar, .home2_jupiter, .home2_cat",
 
-      travel: 90
+      travel: 72
     }
 
   ];
