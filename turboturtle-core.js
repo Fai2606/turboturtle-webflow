@@ -2153,35 +2153,90 @@ function initHomeSection2() {
   
   
  
-  // ==========================================================
-  // HOME 2 — HEADING SLOW PARALLAX
-  // ==========================================================
+// ==========================================================
+// HOME 2 — TEXT GROUP TRUE SLOW PARALLAX
+// Direct scroll tracking — no scrub lag
+// ==========================================================
 
-  var home2Heading = q(".home2_text_group");
+var home2Heading = q(".home2_text_group");
 
-  if (home2Heading) {
+if (home2Heading) {
 
-    // SETTINGS
-    var HEADING_SLOWNESS = isMobile ? 90 : 120;
-    var HEADING_SCRUB = isMobile ? 1 : true;
+  // ========================================================
+  // SETTINGS
+  // ========================================================
 
-    gsap.to(home2Heading, {
-      y: HEADING_SLOWNESS * MASTER_VH,
-      ease: "none",
+  // 1.0 = normal page scroll speed
+  // 0.7 = slightly slower
+  // 0.5 = half scroll speed
+  // 0.3 = very slow
 
-      // Avoid 3D text rendering issues on mobile
-      force3D: !isMobile,
+  var TEXT_SCROLL_SPEED = isMobile ? 0.45 : 0.50;
 
-      scrollTrigger: {
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: HEADING_SCRUB,
-        invalidateOnRefresh: true
-      }
-    });
+  var home2CityForText = q(".home_section2_city");
 
+  var textInsideCity =
+    home2CityForText &&
+    home2CityForText.contains(home2Heading);
+
+  // Use 2D transforms for more stable mobile text rendering
+  gsap.set(home2Heading, {
+    y: 0,
+    force3D: false
+  });
+
+  var setTextY = gsap.quickSetter(
+    home2Heading,
+    "y",
+    "px"
+  );
+
+  function updateHome2Text(self) {
+
+    // Actual ScrollTrigger distance in screen pixels
+    var scrollDistance = self.end - self.start;
+
+    // Counteract normal page scrolling
+    var compensation =
+      scrollDistance * (1 - TEXT_SCROLL_SPEED);
+
+    // Account for CSS zoom if text is inside the city
+    var cityZoom = 1;
+
+    if (textInsideCity) {
+      cityZoom =
+        parseFloat(
+          getComputedStyle(home2CityForText).zoom
+        ) || 1;
+    }
+
+    // Direct scroll-linked position
+    var y =
+      self.progress *
+      compensation /
+      cityZoom;
+
+    // Pixel alignment to reduce text flickering
+    y = Math.round(y);
+
+    setTextY(y);
   }
+
+  ScrollTrigger.create({
+
+    trigger: section,
+
+    start: "top bottom",
+    end: "bottom top",
+
+    invalidateOnRefresh: true,
+
+    onUpdate: updateHome2Text,
+    onRefresh: updateHome2Text
+
+  });
+
+}
 
 
   
