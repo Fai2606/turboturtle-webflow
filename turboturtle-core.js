@@ -1889,51 +1889,40 @@ if (
     }
   
   
+
     // ==========================================================
-    // REAL MOON
-    //
-    // Keep relative behavior.
-    // This already measures actual section height.
+    // REAL MOON — SLOW PARALLAX
     // ==========================================================
-  
+
     if (realMoon) {
-  
+
+      // SETTINGS
+      // 0.5 = moves upward at approximately half scroll speed
+      // 0.3 = moves upward slower
+      // 0.7 = moves upward faster
+      var REAL_MOON_SPEED = 0.5;
+
       gsap.to(realMoon, {
-  
+
         y: function () {
-  
-          var scrollDistance =
-            Math.max(
-              0,
-              section.offsetHeight -
-              window.innerHeight
-            );
-  
-          return scrollDistance * 0.5;
-  
+          return section.offsetHeight * (1 - REAL_MOON_SPEED);
         },
-  
+
         ease: "none",
-  
         force3D: true,
-  
+
         scrollTrigger: {
-  
           trigger: section,
-  
           start: "top top",
-  
           end: "bottom top",
-  
           scrub: true,
-  
           invalidateOnRefresh: true
-  
         }
-  
+
       });
-  
+
     }
+
   
   
 // ==========================================================
