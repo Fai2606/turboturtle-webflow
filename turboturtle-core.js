@@ -3152,84 +3152,157 @@ if (enableGrowup) {
 
 
 
-  // -------------------------------------------------------------
-  // HOME 2 — TRAINS
-  // Two trains travelling in opposite directions
-  // -------------------------------------------------------------
-  
-  var train =
-    document.querySelector(".home2_train");
-  
-  var trainReverse =
-    document.querySelector(".home2_train_reverse");
-  
-  var trainMask =
-    document.querySelector(".home2_train_mask");
-  
-  
-  if (train && trainMask) {
-  
-    gsap.killTweensOf(train);
-  
+
+  // ==========================================================
+  // HOME 2 — RANDOM TRAINS
+  // 6 train designs / random speed / both directions
+  // ==========================================================
+
+  var train = q(".home2_train");
+  var trainReverse = q(".home2_train_reverse");
+  var trainMask = q(".home2_train_mask");
+
+  if (trainMask) {
+
+    // ========================================================
+    // SETTINGS
+    // ========================================================
+
     // RIGHT → LEFT
-    gsap.set(train, {
-      left: "100%",
-      x: 0
-    });
-  
-    gsap.to(train, {
-  
-      x:
-        -(trainMask.offsetWidth + train.offsetWidth),
-  
-      duration: 4,
-  
-      ease: "none",
-  
-      repeat: -1,
-  
-      force3D: true
-  
-    });
-  
-  }
-  
-  
-  if (trainReverse && trainMask) {
-  
-    gsap.killTweensOf(trainReverse);
-  
+    var TRAIN_DURATION_MIN = 3.2;
+    var TRAIN_DURATION_MAX = 5.8;
+    var TRAIN_GAP_MIN = 0;
+    var TRAIN_GAP_MAX = 1.2;
+
     // LEFT → RIGHT
-    // Slower + less frequent than the other train
-  
-    gsap.set(trainReverse, {
-      left: 0,
-      x: -trainReverse.offsetWidth
-    });
-  
-    gsap.to(trainReverse, {
-  
-      // Finish completely outside right side
-      x: trainMask.offsetWidth,
-  
-      // Slightly slower
-      duration: 5,
-  
-      ease: "none",
-  
-      repeat: -1,
-  
-      // Wait longer between each appearance
-      repeatDelay: 3,
-  
-      // First appearance happens after faster train
-      delay: 1.5,
-  
-      force3D: true
-  
-    });
-  
+    var REVERSE_DURATION_MIN = 4.0;
+    var REVERSE_DURATION_MAX = 7.0;
+    var REVERSE_GAP_MIN = 2.0;
+    var REVERSE_GAP_MAX = 4.5;
+    var REVERSE_FIRST_DELAY = 1.5;
+
+    // ========================================================
+    // RANDOM TRAIN ENGINE
+    // ========================================================
+
+    function createRandomTrain(wrapper, reverse) {
+
+      if (!wrapper) return;
+
+      var trains = Array.from(wrapper.children);
+
+      if (!trains.length) return;
+
+      var lastTrainIndex = -1;
+
+      gsap.killTweensOf(wrapper);
+
+      gsap.set(trains, {
+        display: "none"
+      });
+
+      function runTrain() {
+
+        // Random train, avoiding immediate repetition
+        var index = Math.floor(
+          Math.random() * trains.length
+        );
+
+        if (trains.length > 1) {
+          while (index === lastTrainIndex) {
+            index = Math.floor(
+              Math.random() * trains.length
+            );
+          }
+        }
+
+        lastTrainIndex = index;
+
+        // Show only the selected train
+        gsap.set(trains, {
+          display: "none"
+        });
+
+        gsap.set(trains[index], {
+          display: "block"
+        });
+
+        // Random speed for this appearance
+        var duration = reverse
+          ? gsap.utils.random(
+              REVERSE_DURATION_MIN,
+              REVERSE_DURATION_MAX
+            )
+          : gsap.utils.random(
+              TRAIN_DURATION_MIN,
+              TRAIN_DURATION_MAX
+            );
+
+        // Calculate travel distance
+        var maskWidth = trainMask.offsetWidth;
+        var trainWidth = wrapper.offsetWidth;
+
+        // Set starting position
+        gsap.set(wrapper, {
+          left: reverse ? 0 : "100%",
+          x: reverse ? -trainWidth : 0,
+          force3D: true
+        });
+
+        // Travel across the bridge
+        gsap.to(wrapper, {
+
+          x: reverse
+            ? maskWidth
+            : -(maskWidth + trainWidth),
+
+          duration: duration,
+          ease: "none",
+          force3D: true,
+
+          onComplete: function() {
+
+            // Random wait before next appearance
+            var gap = reverse
+              ? gsap.utils.random(
+                  REVERSE_GAP_MIN,
+                  REVERSE_GAP_MAX
+                )
+              : gsap.utils.random(
+                  TRAIN_GAP_MIN,
+                  TRAIN_GAP_MAX
+                );
+
+            gsap.delayedCall(gap, runTrain);
+
+          }
+
+        });
+
+      }
+
+      // Start
+      if (reverse) {
+        gsap.delayedCall(
+          REVERSE_FIRST_DELAY,
+          runTrain
+        );
+      } else {
+        runTrain();
+      }
+
+    }
+
+    // ========================================================
+    // START BOTH DIRECTIONS
+    // ========================================================
+
+    createRandomTrain(train, false);
+    createRandomTrain(trainReverse, true);
+
   }
+
+  
     
   
   } // End
