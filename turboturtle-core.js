@@ -2440,8 +2440,8 @@ function initHomeSection2() {
 
       function updateCloudTextMask() {
 
-        var cloudRect =
-          maskGraphic.getBoundingClientRect();
+      var cloudRect =
+        cloudMaskSource.getBoundingClientRect();
 
         var textRect =
           cloudMaskText.getBoundingClientRect();
