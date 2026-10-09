@@ -2366,6 +2366,149 @@ function initHomeSection2() {
 
   }
 
+  
+  // ==========================================================
+  // HOME 2 — CLOUD SVG MASKS TEXT GROUP
+  // Preserves independent cloud / text animations
+  // ==========================================================
+
+  var cloudMaskSource = q(".home2_cloud");
+  var cloudMaskText = q(".home2_text_group");
+
+  if (cloudMaskSource && cloudMaskText) {
+
+    // Find SVG, whether inline or an SVG image
+    var cloudSVG = cloudMaskSource.matches("svg")
+      ? cloudMaskSource
+      : cloudMaskSource.querySelector("svg");
+
+    var cloudIMG = cloudMaskSource.matches("img")
+      ? cloudMaskSource
+      : cloudMaskSource.querySelector("img");
+
+    var maskGraphic = cloudSVG || cloudIMG;
+
+    var cloudMaskURL = null;
+
+    if (cloudSVG) {
+
+      // Convert inline SVG to a reusable CSS mask
+      var svgCopy = cloudSVG.cloneNode(true);
+
+      svgCopy.setAttribute(
+        "xmlns",
+        "http://www.w3.org/2000/svg"
+      );
+
+      cloudMaskURL =
+        "data:image/svg+xml;charset=utf-8," +
+        encodeURIComponent(
+          new XMLSerializer().serializeToString(svgCopy)
+        );
+
+    } else if (cloudIMG) {
+
+      // Use existing SVG image URL
+      cloudMaskURL =
+        cloudIMG.currentSrc || cloudIMG.src;
+
+    }
+
+    if (cloudMaskURL && maskGraphic) {
+
+      // ======================================================
+      // APPLY MASK
+      // ======================================================
+
+      var maskStyle = cloudMaskText.style;
+
+      maskStyle.webkitMaskImage =
+        'url("' + cloudMaskURL + '")';
+
+      maskStyle.maskImage =
+        'url("' + cloudMaskURL + '")';
+
+      maskStyle.webkitMaskRepeat = "no-repeat";
+      maskStyle.maskRepeat = "no-repeat";
+
+      maskStyle.webkitMaskMode = "alpha";
+      maskStyle.maskMode = "alpha";
+
+      // ======================================================
+      // FOLLOW CLOUD POSITION
+      // ======================================================
+
+      function updateCloudTextMask() {
+
+        var cloudRect =
+          maskGraphic.getBoundingClientRect();
+
+        var textRect =
+          cloudMaskText.getBoundingClientRect();
+
+        // Compensate for Webflow CSS zoom / scaling
+        var scaleX =
+          textRect.width /
+          (cloudMaskText.offsetWidth || 1);
+
+        var scaleY =
+          textRect.height /
+          (cloudMaskText.offsetHeight || 1);
+
+        if (!scaleX || !scaleY) return;
+
+        var maskX =
+          (cloudRect.left - textRect.left) / scaleX;
+
+        var maskY =
+          (cloudRect.top - textRect.top) / scaleY;
+
+        var maskWidth = cloudRect.width / scaleX;
+        var maskHeight = cloudRect.height / scaleY;
+
+        var position =
+          maskX + "px " + maskY + "px";
+
+        var size =
+          maskWidth + "px " + maskHeight + "px";
+
+        maskStyle.webkitMaskPosition = position;
+        maskStyle.maskPosition = position;
+
+        maskStyle.webkitMaskSize = size;
+        maskStyle.maskSize = size;
+
+      }
+
+      // ======================================================
+      // ONLY UPDATE WHILE HOME 2 IS VISIBLE
+      // ======================================================
+
+      function startCloudMask() {
+        gsap.ticker.remove(updateCloudTextMask);
+        gsap.ticker.add(updateCloudTextMask);
+        updateCloudTextMask();
+      }
+
+      function stopCloudMask() {
+        gsap.ticker.remove(updateCloudTextMask);
+      }
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        onEnter: startCloudMask,
+        onEnterBack: startCloudMask,
+        onLeave: stopCloudMask,
+        onLeaveBack: stopCloudMask
+      });
+
+      updateCloudTextMask();
+
+    }
+
+  }
 
 
 
