@@ -1831,7 +1831,7 @@ if (
   
       gsap.to(cloud, {
   
-        y: -50 * MASTER_VH,
+        y: -30 * MASTER_VH,
   
         ease: "none",
   
