@@ -2063,34 +2063,6 @@ function initHomeSection2() {
   }
 
 
-  
-  // ==========================================================
-  // HOME 2 — CLOUD
-  // Same movement as HOME 1 cloud
-  // ==========================================================
-  
-  var home2Cloud = q(".home2_cloud");
-  
-  if (home2Cloud) {
-  
-    gsap.to(home2Cloud, {
-  
-      y: -30 * MASTER_VH,
-  
-      ease: "none",
-      force3D: true,
-  
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-        invalidateOnRefresh: true
-      }
-  
-    });
-  
-  }
 
 
 
@@ -2180,6 +2152,51 @@ function initHomeSection2() {
   // ==========================================================
 
   var MASTER_VH = 11;
+
+  
+  // ==========================================================
+  // HOME 2 — CLOUD UPWARD PARALLAX
+  // Match HOME 1 cloud movement speed
+  // ==========================================================
+
+  var home2Cloud = q(".home2_cloud");
+  var home1Section = q(".home_section1");
+
+  if (home2Cloud) {
+
+    gsap.fromTo(home2Cloud,
+      {
+        y: 0
+      },
+      {
+        y: -30 * MASTER_VH,
+
+        ease: "none",
+        force3D: true,
+        immediateRender: false,
+
+        scrollTrigger: {
+          trigger: section,
+
+          start: "top bottom",
+
+          // Same scroll distance as Home 1 = same speed
+          end: function () {
+            return "+=" + (
+              home1Section
+                ? home1Section.offsetHeight
+                : section.offsetHeight
+            );
+          },
+
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+
+  }
+
 
   
   
