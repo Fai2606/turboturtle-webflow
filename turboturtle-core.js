@@ -2460,8 +2460,18 @@ function initHomeSection2() {
         var maskX =
           (cloudRect.left - textRect.left) / scaleX;
 
-        var maskY =
-          (cloudRect.top - textRect.top) / scaleY;
+
+        
+// Negative = move mask upward, reveal more text below the edge
+// Positive = move mask downward, hide more text
+
+var CLOUD_MASK_Y_OFFSET = -200;
+
+var maskY =
+  (cloudRect.top - textRect.top + CLOUD_MASK_Y_OFFSET) / scaleY;
+
+
+        
 
         var maskWidth = cloudRect.width / scaleX;
         var maskHeight = cloudRect.height / scaleY;
