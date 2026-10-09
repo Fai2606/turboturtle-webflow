@@ -1872,7 +1872,7 @@ if (
   
       gsap.to(pyramid, {
   
-        y: -30 * MASTER_VH,
+        y: -10 * MASTER_VH,
   
         ease: "none",
   
