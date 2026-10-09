@@ -2172,7 +2172,7 @@ function initHomeSection2() {
     // 0.5 = half speed
     // 0.3 = very slow
 
-    var TEXT_SCROLL_SPEED = isMobile ? 0.75 : 0.5;
+    var TEXT_SCROLL_SPEED = isMobile ? 0.75 : 0.75;
 
     // ========================================================
     // SETUP
