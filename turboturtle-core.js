@@ -2163,11 +2163,11 @@ function initHomeSection2() {
 
     // SETTINGS
     var HEADING_SLOWNESS = isMobile ? 90 : 120;
-    var HEADING_SCRUB = isMobile ? 0.8 : true;
+    var HEADING_SCRUB = isMobile ? 1 : true;
 
     gsap.to(home2Heading, {
       y: HEADING_SLOWNESS * MASTER_VH,
-      ease: "none",
+      ease: = isMobile ? power2.out : none;
 
       // Avoid 3D text rendering issues on mobile
       force3D: !isMobile,
