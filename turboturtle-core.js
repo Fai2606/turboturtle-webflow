@@ -2154,7 +2154,7 @@ function initHomeSection2() {
   // HOME 2 — HEADING SLOW PARALLAX
   // ==========================================================
 
-  var home2Heading = q(".section_heading.home2");
+  var home2Heading = q(".home2_text_group");
 
   if (home2Heading) {
 
