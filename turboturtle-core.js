@@ -3517,8 +3517,8 @@ function initHomeSection5() {
     ".home5_planet .home5_planet2, .home5_planet .home5_planet3"
   );
   
-  gsap.set(planetRotateNegative, { rotation: -80 });
-  gsap.set(planetRotatePositive, { rotation: 80 });
+  gsap.set(planetRotateNegative, { rotation: 80 });
+  gsap.set(planetRotatePositive, { rotation: -80 });
   var jupiter = q(".home5_jupiter");
   var ball = q(".home5_ball");
   var satellite = q(".home5_satellite");
@@ -3552,20 +3552,20 @@ function initHomeSection5() {
     
       // Original planet movement — unchanged
       gsap.set(planet, {
-        xPercent: -85 * t,
+        xPercent: -75 * t,
         yPercent: (-55 * t) - (22 * arc),
         force3D: true
       });
     
       // Planet 4 & 5: -80° → 15°
-      gsap.set(planetRotateNegative, {
-        rotation: -80 + (95 * t),
+      gsap.set(planetRotateNegative, {        
+        rotation: 80 - (95 * t),
         force3D: true
       });
     
       // Planet 2 & 3: 80° → -15°
-      gsap.set(planetRotatePositive, {
-        rotation: 80 - (95 * t),
+      gsap.set(planetRotatePositive, {        
+        rotation: -80 + (95 * t),
         force3D: true
       });
     
