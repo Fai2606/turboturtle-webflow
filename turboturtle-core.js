@@ -2180,7 +2180,7 @@ function initHomeSection2() {
 
 start: function () {
   return isMobile
-    ? "top bottom+=" + Math.round(window.innerHeight * 0.4)
+    ? "top bottom+=" + Math.round(window.innerHeight * 0.2)
     : "top bottom";
 },
 
