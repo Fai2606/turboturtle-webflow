@@ -3564,15 +3564,15 @@ function initHomeSection5() {
         force3D: true
       });
     
-      // Planet 4 & 5: -80° → 15°
-      gsap.set(planetRotateNegative, {        
-        rotation: -80 + (65 * t),
+      // Planet 4 & 5 — double rotation
+      gsap.set(planetRotateNegative, {
+        rotation: -80 + (130 * t),
         force3D: true
       });
-    
-      // Planet 2 & 3: 80° → -15°
-      gsap.set(planetRotatePositive, {        
-        rotation: 80 - (65 * t),
+      
+      // Planet 2 & 3 — double rotation
+      gsap.set(planetRotatePositive, {
+        rotation: 80 - (130 * t),
         force3D: true
       });
     
