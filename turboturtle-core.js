@@ -2462,7 +2462,7 @@ if (statueShots.length) {
 
     ScrollTrigger.create({
       trigger: ".home2_statue",
-      start: "center 70%",
+      start: "center 80%",
 
     // FLY OUT — ORIGINAL MOVEMENT, NO LASER
     onEnter: function () {
