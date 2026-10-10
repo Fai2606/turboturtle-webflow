@@ -3085,6 +3085,13 @@ if (enableGrowup) {
   var trainReverse = q(".home2_train_reverse");
   var trainMask = q(".home2_train_mask");
 
+  // Flip reverse train artwork horizontally
+  if (trainReverse) {
+    gsap.set(Array.from(trainReverse.children), {
+      scaleX: -1
+    });
+  }
+
   if (trainMask) {
 
     // ========================================================
