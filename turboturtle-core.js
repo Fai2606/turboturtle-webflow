@@ -7544,8 +7544,161 @@ function initHomeResponsiveScale() {
   }
 
 
+  
 
 
+
+  // ==========================================================
+  // HOME SECTION 1.5 — STABLE SLOW PARALLAX
+  // iOS Safari viewport-height safe
+  // ==========================================================
+
+  (function () {
+
+    // Supports both possible class spellings
+    var section15 = document.querySelector(
+      '.home_section1-5, [class~="home_section1.5"]'
+    );
+
+    if (!section15) return;
+
+    // ========================================================
+    // SETTINGS
+    // ========================================================
+
+    // 1.0 = normal page scrolling
+    // 0.8 = slightly slower
+    // 0.6 = noticeably slower
+    // 0.4 = very slow
+
+    var SECTION15_SPEED = isMobile ? 0.65 : 0.65;
+
+    // ========================================================
+    // STABLE MEASUREMENTS
+    // ========================================================
+
+    var startScroll = 0;
+    var previousWidth = document.documentElement.clientWidth;
+    var resizeTimer;
+
+    var fixedViewportHeight =
+      document.documentElement.clientHeight;
+
+    function getScroll() {
+      return (
+        lenis && typeof lenis.scroll === "number"
+      )
+        ? lenis.scroll
+        : (window.scrollY || 0);
+    }
+
+    gsap.set(section15, {
+      y: 0,
+      force3D: false
+    });
+
+    var setY = gsap.quickSetter(
+      section15,
+      "y",
+      "px"
+    );
+
+    // ========================================================
+    // UPDATE — DIRECT SCROLL TRACKING
+    // ========================================================
+
+    function updateSection15() {
+
+      var scroll = getScroll();
+
+      var distance = Math.max(
+        0,
+        scroll - startScroll
+      );
+
+      var y =
+        distance * (1 - SECTION15_SPEED);
+
+      setY(y);
+    }
+
+    // ========================================================
+    // MEASURE
+    // ========================================================
+
+    function measureSection15() {
+
+      // Reset compensation before measuring layout position
+      setY(0);
+
+      var scroll = getScroll();
+
+      var sectionTop =
+        section15.getBoundingClientRect().top + scroll;
+
+      // Starts when the section enters the viewport
+      startScroll =
+        sectionTop - fixedViewportHeight;
+
+      updateSection15();
+    }
+
+    // ========================================================
+    // SCROLL LISTENERS
+    // ========================================================
+
+    if (lenis && lenis.on) {
+      lenis.on("scroll", updateSection15);
+    }
+
+    window.addEventListener(
+      "scroll",
+      updateSection15,
+      { passive: true }
+    );
+
+    // ========================================================
+    // RESIZE — IGNORE iOS BROWSER BAR CHANGES
+    // ========================================================
+
+    window.addEventListener("resize", function () {
+
+      var currentWidth =
+        document.documentElement.clientWidth;
+
+      // Ignore height-only changes from Safari address bar
+      if (Math.abs(currentWidth - previousWidth) < 20) {
+        return;
+      }
+
+      previousWidth = currentWidth;
+
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(function () {
+
+        // Genuine width/orientation change
+        fixedViewportHeight =
+          document.documentElement.clientHeight;
+
+        measureSection15();
+
+      }, 200);
+
+    }, { passive: true });
+
+    // Initial measurement after layout
+    requestAnimationFrame(function () {
+      requestAnimationFrame(measureSection15);
+    });
+
+  })();
+
+
+
+
+
+  
 
 // // ==========================================================
 // // UNIVERSAL TYPOGRAPHY COMPENSATION
