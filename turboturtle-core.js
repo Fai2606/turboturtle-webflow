@@ -7548,66 +7548,74 @@ function initHomeResponsiveScale() {
 
 
 
-  // ==========================================================
-  // HOME SECTION 1.5 — STABLE SLOW PARALLAX
-  // iOS Safari viewport-height safe
-  // ==========================================================
+// ==========================================================
+// REUSABLE SLOWER-SCROLL PARALLAX
+// Add class: .moveslower1
+// iOS Safari viewport-height safe
+// ==========================================================
 
-  (function () {
+(function () {
 
-    // Supports both possible class spellings
-    var section15 = document.querySelector(
-      '.home_section1-5, [class~="home_section1.5"]'
-    );
+  var elements = gsap.utils.toArray(".moveslower1");
 
-    if (!section15) return;
+  if (!elements.length) return;
 
-    // ========================================================
-    // SETTINGS
-    // ========================================================
+  // ========================================================
+  // EASY SETTINGS
+  // ========================================================
 
-    // 1.0 = normal page scrolling
-    // 0.8 = slightly slower
-    // 0.6 = noticeably slower
-    // 0.4 = very slow
+  var MOVESLOWER1_SPEED_DESKTOP = 0.65;
+  var MOVESLOWER1_SPEED_MOBILE  = 0.65;
 
-    var SECTION15_SPEED = isMobile ? 0.65 : 0.65;
+  // 1.0 = normal page scroll speed
+  // 0.8 = 20% slower
+  // 0.65 = 35% slower
+  // 0.5 = half speed
+  // 0.3 = very slow
 
-    // ========================================================
-    // STABLE MEASUREMENTS
-    // ========================================================
+  // ========================================================
+
+  var previousWidth =
+    document.documentElement.clientWidth;
+
+  var fixedViewportHeight =
+    document.documentElement.clientHeight;
+
+  var resizeTimer;
+
+  function getScroll() {
+    return (
+      lenis &&
+      typeof lenis.scroll === "number"
+    )
+      ? lenis.scroll
+      : (window.scrollY || 0);
+  }
+
+  function getSpeed() {
+    return isMobile
+      ? MOVESLOWER1_SPEED_MOBILE
+      : MOVESLOWER1_SPEED_DESKTOP;
+  }
+
+
+  elements.forEach(function (el) {
 
     var startScroll = 0;
-    var previousWidth = document.documentElement.clientWidth;
-    var resizeTimer;
 
-    var fixedViewportHeight =
-      document.documentElement.clientHeight;
-
-    function getScroll() {
-      return (
-        lenis && typeof lenis.scroll === "number"
-      )
-        ? lenis.scroll
-        : (window.scrollY || 0);
-    }
-
-    gsap.set(section15, {
+    gsap.set(el, {
       y: 0,
       force3D: false
     });
 
     var setY = gsap.quickSetter(
-      section15,
+      el,
       "y",
       "px"
     );
 
-    // ========================================================
-    // UPDATE — DIRECT SCROLL TRACKING
-    // ========================================================
 
-    function updateSection15() {
+    function update() {
 
       var scroll = getScroll();
 
@@ -7617,83 +7625,99 @@ function initHomeResponsiveScale() {
       );
 
       var y =
-        distance * (1 - SECTION15_SPEED);
+        distance *
+        (1 - getSpeed());
 
       setY(y);
     }
 
-    // ========================================================
-    // MEASURE
-    // ========================================================
 
-    function measureSection15() {
+    function measure() {
 
-      // Reset compensation before measuring layout position
+      // reset before measuring actual layout position
       setY(0);
 
       var scroll = getScroll();
 
-      var sectionTop =
-        section15.getBoundingClientRect().top + scroll;
+      var elementTop =
+        el.getBoundingClientRect().top +
+        scroll;
 
-      // Starts when the section enters the viewport
       startScroll =
-        sectionTop - fixedViewportHeight;
+        elementTop -
+        fixedViewportHeight;
 
-      updateSection15();
+      update();
     }
 
-    // ========================================================
-    // SCROLL LISTENERS
-    // ========================================================
 
+    // Lenis scroll
     if (lenis && lenis.on) {
-      lenis.on("scroll", updateSection15);
+      lenis.on("scroll", update);
     }
 
+    // Native scroll fallback
     window.addEventListener(
       "scroll",
-      updateSection15,
+      update,
       { passive: true }
     );
 
-    // ========================================================
-    // RESIZE — IGNORE iOS BROWSER BAR CHANGES
-    // ========================================================
 
-    window.addEventListener("resize", function () {
-
-      var currentWidth =
-        document.documentElement.clientWidth;
-
-      // Ignore height-only changes from Safari address bar
-      if (Math.abs(currentWidth - previousWidth) < 20) {
-        return;
-      }
-
-      previousWidth = currentWidth;
-
-      clearTimeout(resizeTimer);
-
-      resizeTimer = setTimeout(function () {
-
-        // Genuine width/orientation change
-        fixedViewportHeight =
-          document.documentElement.clientHeight;
-
-        measureSection15();
-
-      }, 200);
-
-    }, { passive: true });
-
-    // Initial measurement after layout
+    // Initial measure
     requestAnimationFrame(function () {
-      requestAnimationFrame(measureSection15);
+      requestAnimationFrame(measure);
     });
 
-  })();
 
+    // Store measure function on element
+    el._moveslower1Measure = measure;
+
+  });
+
+
+  // ========================================================
+  // RESIZE
+  // Ignore iOS Safari height-only changes
+  // ========================================================
+
+  window.addEventListener("resize", function () {
+
+    var currentWidth =
+      document.documentElement.clientWidth;
+
+    // Ignore Safari browser bar viewport-height changes
+    if (
+      Math.abs(
+        currentWidth - previousWidth
+      ) < 20
+    ) {
+      return;
+    }
+
+    previousWidth = currentWidth;
+
+    clearTimeout(resizeTimer);
+
+    resizeTimer = setTimeout(function () {
+
+      fixedViewportHeight =
+        document.documentElement.clientHeight;
+
+      elements.forEach(function (el) {
+
+        if (el._moveslower1Measure) {
+          el._moveslower1Measure();
+        }
+
+      });
+
+    }, 200);
+
+  }, { passive: true });
+
+
+})();
 
 
 
