@@ -3645,139 +3645,187 @@ function initHomeSection5() {
 
 
 
+
   // ============================================================
-  // ROCKET TIP — FALL / IMPACT / LIGHT ON
-  // ============================================================
+// HOME 5 — ROCKET TIP / LIGHT / BEAR
+// ============================================================
 
-  if (rocketTip) {
+if (rocketTip) {
 
-    function dropRocketTip() {
+  var rocketDropTimeline;
 
-      gsap.killTweensOf(rocketTip);
-
-      gsap.timeline()
-
-        // FALL — FIRST IMPACT
-        .to(rocketTip, {
-          y: 145,
-          duration: 0.7,
-          ease: "power2.in",
-          force3D: true
-        })
-
-        // SWITCH LIGHT ON AT IMPACT
-        .call(function() {
-          if (home5LightTimeline) {
-            home5LightTimeline.play();
-          }
-        })
-
-        // BOUNCE 1
-        .to(rocketTip, {
-          y: 105,
-          duration: 0.28,
-          ease: "power2.out"
-        })
-
-        .to(rocketTip, {
-          y: 145,
-          duration: 0.28,
-          ease: "power2.in"
-        })
-
-        // BOUNCE 2
-        .to(rocketTip, {
-          y: 128,
-          duration: 0.18,
-          ease: "power2.out"
-        })
-
-        .to(rocketTip, {
-          y: 145,
-          duration: 0.18,
-          ease: "power2.in"
-        })
-
-        // BOUNCE 3
-        .to(rocketTip, {
-          y: 139,
-          duration: 0.11,
-          ease: "power2.out"
-        })
-
-        .to(rocketTip, {
-          y: 145,
-          duration: 0.11,
-          ease: "power2.in"
-        });
-    }
-
-
-    function returnRocketTip() {
-    
-      gsap.killTweensOf(rocketTip);
-    
-      // Stop the existing light timeline immediately
-      if (home5LightTimeline) {
-        home5LightTimeline.pause(0);
-      }
-    
-      // DIM IMMEDIATELY AS ROCKET STARTS RISING
-      if (light && dim) {
-    
-        gsap.to(light, {
-          scaleX: 0,
-          opacity: 0,
-          duration: 0.13,
-          ease: "power3.out",
-          overwrite: true
-        });
-    
-        gsap.to(dim, {
-          opacity: 1,
-          duration: 0.1,
-          ease: "power3.out",
-          overwrite: true
-        });
-    
-      }
-    
-      // RETURN BEAR
-      if (bear) {
-        gsap.to(bear, {
-          x: 0,
-          duration: 0.6,
-          ease: "power3.out",
-          overwrite: true
-        });
-      }
-    
-      // ROCKET RISES
-      gsap.to(rocketTip, {
-        y: 0,
-        duration: 0.6,
-        ease: "power2.inOut",
-        force3D: true
-      });
-    
-    }
-
-    // ROCKET TIP — SCROLL CONTROL
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top 65%",
-  
-      onEnter: function () {
-        dropRocketTip();
-      },
-  
-      onLeaveBack: function () {
-        returnRocketTip();
-      }
+  // Initial state
+  if (light) {
+    gsap.set(light, {
+      scaleX: 0,
+      scaleY: 1,
+      opacity: 0,
+      transformOrigin: "top center"
     });
-  
-  } // END if (rocketTip)
+  }
 
+  if (dim) {
+    gsap.set(dim, { opacity: 1 });
+  }
+
+  if (bear) {
+    gsap.set(bear, { x: 0 });
+  }
+
+  function switchLightsOn() {
+
+    if (light) {
+      gsap.to(light, {
+        scaleX: 1.4,
+        opacity: 0.95,
+        duration: 0.13,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+
+    if (dim) {
+      gsap.to(dim, {
+        opacity: 0,
+        duration: 0.1,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+
+    if (bear) {
+      gsap.to(bear, {
+        x: 35,
+        duration: 1,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+  }
+
+  function switchLightsOff() {
+
+    if (light) {
+      gsap.to(light, {
+        scaleX: 0,
+        opacity: 0,
+        duration: 0.13,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+
+    if (dim) {
+      gsap.to(dim, {
+        opacity: 1,
+        duration: 0.1,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+
+    if (bear) {
+      gsap.to(bear, {
+        x: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        overwrite: true
+      });
+    }
+  }
+
+  function dropRocketTip() {
+
+    if (rocketDropTimeline) {
+      rocketDropTimeline.kill();
+    }
+
+    gsap.killTweensOf(rocketTip);
+
+    rocketDropTimeline = gsap.timeline()
+
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.7,
+        ease: "power2.in",
+        force3D: true
+      })
+
+      .call(switchLightsOn)
+
+      .to(rocketTip, {
+        y: 105,
+        duration: 0.28,
+        ease: "power2.out"
+      })
+
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.28,
+        ease: "power2.in"
+      })
+
+      .to(rocketTip, {
+        y: 128,
+        duration: 0.18,
+        ease: "power2.out"
+      })
+
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.18,
+        ease: "power2.in"
+      })
+
+      .to(rocketTip, {
+        y: 139,
+        duration: 0.11,
+        ease: "power2.out"
+      })
+
+      .to(rocketTip, {
+        y: 145,
+        duration: 0.11,
+        ease: "power2.in"
+      });
+  }
+
+  function returnRocketTip() {
+
+    if (rocketDropTimeline) {
+      rocketDropTimeline.kill();
+      rocketDropTimeline = null;
+    }
+
+    gsap.killTweensOf(rocketTip);
+
+    // Light and bear respond immediately
+    switchLightsOff();
+
+    gsap.to(rocketTip, {
+      y: 0,
+      duration: 0.6,
+      ease: "power2.inOut",
+      force3D: true
+    });
+  }
+
+  // ============================================================
+  // SCROLL TRIGGER — SAME POSITION BOTH DIRECTIONS
+  // ============================================================
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: "top 65%",
+
+    onEnter: dropRocketTip,
+    onLeaveBack: returnRocketTip
+  });
+
+}
+  
+
+  
 
 
 
@@ -3832,56 +3880,7 @@ function initHomeSection5() {
 
 
  
-  // ============================================================
-  // HOME 5 — BEAR + LIGHT ON + DIM OFF
-  // CONTROLLED BY ROCKET IMPACT
-  // ============================================================
 
-  var home5LightTimeline;
-
-  if (light && dim) {
-
-    gsap.set(light, {
-      scaleX: 0,
-      scaleY: 1,
-      opacity: 0,
-      transformOrigin: "top center"
-    });
-
-    gsap.set(dim, {
-      opacity: 1
-    });
-
-    home5LightTimeline = gsap.timeline({
-      paused: true
-    });
-
-    // LIGHT ON
-    home5LightTimeline.to(light, {
-      scaleX: 1.4,
-      opacity: 0.95,
-      duration: 0.13,
-      ease: "power3.out"
-    }, 0);
-
-    // DIM OFF
-    home5LightTimeline.to(dim, {
-      opacity: 0,
-      duration: 0.1,
-      ease: "power3.out"
-    }, 0);
-
-    // BEAR COMES OUT
-    if (bear) {
-      home5LightTimeline.to(bear, {
-        x: 35,
-        duration: 1,
-        ease: "power3.out",
-        force3D: true
-      }, 0);
-    }
-
-  }
 
 
 
