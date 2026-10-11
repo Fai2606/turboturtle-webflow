@@ -3829,7 +3829,7 @@ if (rocketTip) {
     // BEAR COMES OUT
     if (bear) {
       home5LightTimeline.to(bear, {
-        x: 30,
+        x: 35,
         duration: 1,
         ease: "power3.out",
         force3D: true
