@@ -3715,54 +3715,70 @@ function initHomeSection5() {
     }
 
 
-function returnRocketTip() {
+    function returnRocketTip() {
+    
+      gsap.killTweensOf(rocketTip);
+    
+      // Stop the existing light timeline immediately
+      if (home5LightTimeline) {
+        home5LightTimeline.pause(0);
+      }
+    
+      // DIM IMMEDIATELY AS ROCKET STARTS RISING
+      if (light && dim) {
+    
+        gsap.to(light, {
+          scaleX: 0,
+          opacity: 0,
+          duration: 0.13,
+          ease: "power3.out",
+          overwrite: true
+        });
+    
+        gsap.to(dim, {
+          opacity: 1,
+          duration: 0.1,
+          ease: "power3.out",
+          overwrite: true
+        });
+    
+      }
+    
+      // RETURN BEAR
+      if (bear) {
+        gsap.to(bear, {
+          x: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+    
+      // ROCKET RISES
+      gsap.to(rocketTip, {
+        y: 0,
+        duration: 0.6,
+        ease: "power2.inOut",
+        force3D: true
+      });
+    
+    }
 
-  gsap.killTweensOf(rocketTip);
-
-  // Stop the existing light timeline immediately
-  if (home5LightTimeline) {
-    home5LightTimeline.pause(0);
-  }
-
-  // DIM IMMEDIATELY AS ROCKET STARTS RISING
-  if (light && dim) {
-
-    gsap.to(light, {
-      scaleX: 0,
-      opacity: 0,
-      duration: 0.13,
-      ease: "power3.out",
-      overwrite: true
+    // ROCKET TIP — SCROLL CONTROL
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top 65%",
+  
+      onEnter: function () {
+        dropRocketTip();
+      },
+  
+      onLeaveBack: function () {
+        returnRocketTip();
+      }
     });
-
-    gsap.to(dim, {
-      opacity: 1,
-      duration: 0.1,
-      ease: "power3.out",
-      overwrite: true
-    });
-
-  }
-
-  // RETURN BEAR
-  if (bear) {
-    gsap.to(bear, {
-      x: 0,
-      duration: 0.6,
-      ease: "power3.out",
-      overwrite: true
-    });
-  }
-
-  // ROCKET RISES
-  gsap.to(rocketTip, {
-    y: 0,
-    duration: 0.6,
-    ease: "power2.inOut",
-    force3D: true
-  });
-
-}
+  
+  } // END if (rocketTip)
 
 
 
