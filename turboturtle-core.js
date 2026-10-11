@@ -3690,6 +3690,7 @@ function initHomeSection5() {
       if (bear) {
         gsap.to(bear, {
           x: 35,
+          scale: 1.2,
           duration: 1,
           ease: "power3.out",
           overwrite: true
@@ -3727,6 +3728,7 @@ function initHomeSection5() {
       if (bear) {
         gsap.to(bear, {
           x: 0,
+          scale: 1,
           delay: 0.25,
           duration: 0.6,
           ease: "power3.inout",
@@ -3808,7 +3810,7 @@ function initHomeSection5() {
       // Rocket immediately
       gsap.to(rocketTip, {
         y: 0,
-        duration: 0.4,
+        duration: 0.5,
         ease: "power2.inOut",
         force3D: true
       });
