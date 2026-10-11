@@ -4266,7 +4266,7 @@ function initHomeSection6() {
     { selector: ".home6_parallaxcloud2", speed: -0.4 },
     { selector: ".home6_parallaxcloud3", speed: -0.25 },
     { selector: ".home6_parallaxcloud4", speed: -0.12 },
-    { selector: ".home6_parallaxcloud5", speed: -0.08 }
+    { selector: ".home6_parallaxcloud5", speed: -0.5 }
   ];
 
   HOME6_CLOUD_SETTINGS.forEach(function(item) {
