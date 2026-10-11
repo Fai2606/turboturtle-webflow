@@ -4261,10 +4261,10 @@ function initHomeSection6() {
   // ==========================================================
 
   var HOME6_CLOUD_SETTINGS = [
-    { selector: ".home6_parallaxcloud1", speed: 4 },
-    { selector: ".home6_parallaxcloud2", speed: 3 },
-    { selector: ".home6_parallaxcloud3", speed: 2 },
-    { selector: ".home6_parallaxcloud4", speed: 1.8 }
+    { selector: ".home6_parallaxcloud1", speed: 1.5 },
+    { selector: ".home6_parallaxcloud2", speed: 1.4 },
+    { selector: ".home6_parallaxcloud3", speed: 1.3 },
+    { selector: ".home6_parallaxcloud4", speed: 1.2 }
   ];
 
   // Distance multiplier relative to viewport height
