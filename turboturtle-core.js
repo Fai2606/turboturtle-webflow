@@ -3650,8 +3650,6 @@ function initHomeSection5() {
 // Return = simple smooth rise
 // ============================================================
 
-
-
 if (rocketTip) {
 
   function dropRocketTip() {
@@ -3662,7 +3660,7 @@ if (rocketTip) {
 
       // FALL
       .to(rocketTip, {
-        y: 170,
+        y: 145,
         duration: 1.1,
         ease: "power2.in",
         force3D: true
@@ -3670,44 +3668,56 @@ if (rocketTip) {
 
       // BOUNCE 1
       .to(rocketTip, {
-        y: 130,
+        y: 105,
         duration: 0.28,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 170,
+        y: 145,
         duration: 0.28,
         ease: "power2.in"
       })
 
       // BOUNCE 2
       .to(rocketTip, {
-        y: 153,
+        y: 128,
         duration: 0.18,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 170,
+        y: 145,
         duration: 0.18,
         ease: "power2.in"
       })
 
       // BOUNCE 3
       .to(rocketTip, {
-        y: 164,
+        y: 139,
         duration: 0.11,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 170,
+        y: 145,
         duration: 0.11,
         ease: "power2.in"
       });
   }
 
+
+  function returnRocketTip() {
+
+    gsap.killTweensOf(rocketTip);
+
+    gsap.to(rocketTip, {
+      y: 0,
+      duration: 0.8,
+      ease: "power2.inOut",
+      force3D: true
+    });
+  }
 
 
   ScrollTrigger.create({
