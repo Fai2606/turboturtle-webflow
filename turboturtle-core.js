@@ -3836,15 +3836,15 @@ if (rocketTip) {
     });
 
     home5LightTimeline.to(light, {
-      scaleX: 1.6,
+      scaleX: 1.4,
       opacity: 0.95,
-      duration: 0.075,
+      duration: 0.12,
       ease: "power3.out"
     }, 0);
 
     home5LightTimeline.to(dim, {
       opacity: 0,
-      duration: 0.075,
+      duration: 0.12,
       ease: "power3.out"
     }, 0);
 
