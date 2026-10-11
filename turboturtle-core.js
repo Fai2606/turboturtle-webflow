@@ -3785,33 +3785,9 @@ if (rocketTip) {
   }
 
 
-  // ============================================================
-  // BEAR
-  // ============================================================
-
-  if (bear) {
-
-    gsap.to(bear, {
-      x: 25,
-      duration: 1,
-      ease: "power3.out",
-      force3D: true,
-
-      scrollTrigger: {
-        trigger: bear,
-        start: "top 40%",
-        toggleActions: "play reverse play reverse"
-      }
-    });
-  }
-
-  
-
-
-
 
   // ============================================================
-  // HOME 5 — LIGHT ON / DIM OFF
+  // HOME 5 — BEAR + LIGHT ON + DIM OFF
   // ============================================================
 
   if (light && dim) {
@@ -3835,6 +3811,7 @@ if (rocketTip) {
       }
     });
 
+    // LIGHT ON
     home5LightTimeline.to(light, {
       scaleX: 1.4,
       opacity: 0.95,
@@ -3842,13 +3819,25 @@ if (rocketTip) {
       ease: "power3.out"
     }, 0);
 
+    // DIM OFF
     home5LightTimeline.to(dim, {
       opacity: 0,
       duration: 0.12,
       ease: "power3.out"
     }, 0);
 
+    // BEAR COMES OUT
+    if (bear) {
+      home5LightTimeline.to(bear, {
+        x: 30,
+        duration: 1,
+        ease: "power3.out",
+        force3D: true
+      }, 0);
+    }
+
   }
+
 
 
 
