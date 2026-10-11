@@ -4253,6 +4253,58 @@ function initHomeSection6() {
   var section = q(".home_section6");
   var city = q(".home_section6_city");
 
+
+  
+  // ==========================================================
+  // HOME 6 — FAST RISING CLOUDS
+  // Independent speeds, scroll-linked like About Us bubbles
+  // ==========================================================
+
+  var HOME6_CLOUD_SETTINGS = [
+    { selector: ".home6_parallaxcloud1", speed: 4 },
+    { selector: ".home6_parallaxcloud2", speed: 3 },
+    { selector: ".home6_parallaxcloud3", speed: 2 },
+    { selector: ".home6_parallaxcloud4", speed: 1.8 }
+  ];
+
+  // Distance multiplier relative to viewport height
+  // 1 = 100vh upward, 5 = 500vh upward
+  var HOME6_CLOUD_DISTANCE = 5;
+
+  // Freeze viewport height to avoid iOS browser-bar jumps
+  var HOME6_CLOUD_VH = document.documentElement.clientHeight;
+
+  HOME6_CLOUD_SETTINGS.forEach(function(item) {
+
+    var cloud = q(item.selector);
+    if (!cloud) return;
+
+    gsap.fromTo(cloud,
+      { y: 0 },
+      {
+        y: function() {
+          return -HOME6_CLOUD_VH *
+            HOME6_CLOUD_DISTANCE *
+            item.speed;
+        },
+
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: ".home_section6",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: false
+        }
+      }
+    );
+
+  });
+
+  
+
   var weirdSunHorn = q(".home6_weirdsunhorn");
   var weirdSun = q(".home6_weirdsun");
   var weirdSunText = q(".weirdsun_text");
