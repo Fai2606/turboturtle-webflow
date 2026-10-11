@@ -4255,51 +4255,63 @@ function initHomeSection6() {
 
 
   
+
   // ==========================================================
   // HOME 6 — FAST RISING CLOUDS
-  // Independent speeds, scroll-linked like About Us bubbles
+  // Each cloud has its own viewport-based trigger
   // ==========================================================
 
   var HOME6_CLOUD_SETTINGS = [
-    { selector: ".home6_parallaxcloud1", speed: 0.2 },
-    { selector: ".home6_parallaxcloud2", speed: 0.3 },
-    { selector: ".home6_parallaxcloud3", speed: 0.4 },
-    { selector: ".home6_parallaxcloud4", speed: 0.5 }
+    { selector: ".home6_parallaxcloud1", speed: 2.5 },
+    { selector: ".home6_parallaxcloud2", speed: 3.5 },
+    { selector: ".home6_parallaxcloud3", speed: 4.5 },
+    { selector: ".home6_parallaxcloud4", speed: 6.0 }
   ];
-
-  // Distance multiplier relative to viewport height
-  // 1 = 100vh upward, 5 = 500vh upward
-  var HOME6_CLOUD_DISTANCE = 5;
-
-  // Freeze viewport height to avoid iOS browser-bar jumps
-  var HOME6_CLOUD_VH = document.documentElement.clientHeight;
 
   HOME6_CLOUD_SETTINGS.forEach(function(item) {
 
     var cloud = q(item.selector);
     if (!cloud) return;
 
-    gsap.fromTo(cloud,
-      { y: 0 },
-      {
-        y: function() {
-          return -HOME6_CLOUD_VH *
-            HOME6_CLOUD_DISTANCE *
-            item.speed;
-        },
+    // Use a fixed, non-animated trigger at the cloud's
+    // original Webflow position.
+    var trigger = document.createElement("div");
 
-        ease: "none",
-        force3D: true,
+    trigger.style.cssText =
+      "position:absolute;" +
+      "top:0;left:0;" +
+      "width:1px;height:100%;" +
+      "pointer-events:none;visibility:hidden;";
 
-        scrollTrigger: {
-          trigger: ".home_section6",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-          invalidateOnRefresh: false
-        }
+    cloud.parentElement.insertBefore(trigger, cloud);
+
+    // Cloud begins at its original position.
+    gsap.set(cloud, {
+      y: 0,
+      force3D: true
+    });
+
+    gsap.to(cloud, {
+
+      // Extra upward travel, relative to the scroll distance.
+      y: function() {
+        return -(
+          document.documentElement.clientHeight +
+          cloud.getBoundingClientRect().height
+        ) * item.speed;
+      },
+
+      ease: "none",
+      force3D: true,
+
+      scrollTrigger: {
+        trigger: trigger,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
       }
-    );
+    });
 
   });
 
