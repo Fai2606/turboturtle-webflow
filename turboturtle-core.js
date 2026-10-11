@@ -3509,6 +3509,7 @@ function initHomeSection4() {
 // =============================================================
 // HOMEPAGE SECTION 5
 // =============================================================
+
 function initHomeSection5() {
 
   var section = q(".home_section5");
@@ -3517,15 +3518,16 @@ function initHomeSection5() {
 
   var planet = q(".home5_planet");
   var planetRotateNegative = gsap.utils.toArray(
-  ".home5_planet .home5_planet4, .home5_planet .home5_planet5"
+    ".home5_planet .home5_planet4, .home5_planet .home5_planet5"
   );
-  
+
   var planetRotatePositive = gsap.utils.toArray(
     ".home5_planet .home5_planet2, .home5_planet .home5_planet3"
   );
-  
+
   gsap.set(planetRotateNegative, { rotation: -80 });
   gsap.set(planetRotatePositive, { rotation: 80 });
+
   var jupiter = q(".home5_jupiter");
   var ball = q(".home5_ball");
   var satellite = q(".home5_satellite");
@@ -3556,28 +3558,24 @@ function initHomeSection5() {
       var t = self.progress;
       var arc = Math.sin(Math.PI * t);
 
-    if (planet) {
-    
-      // Original planet movement — unchanged
-      gsap.set(planet, {
-        xPercent: -70 * t,
-        yPercent: (-55 * t) - (22 * arc),
-        force3D: true
-      });
-    
-      // Planet 4 & 5 — double rotation
-      gsap.set(planetRotateNegative, {
-        rotation: -80 + (156 * t),
-        force3D: true
-      });
-      
-      // Planet 2 & 3 — double rotation
-      gsap.set(planetRotatePositive, {
-        rotation: 80 - (156 * t),
-        force3D: true
-      });
-    
-    }
+      if (planet) {
+
+        gsap.set(planet, {
+          xPercent: -70 * t,
+          yPercent: (-55 * t) - (22 * arc),
+          force3D: true
+        });
+
+        gsap.set(planetRotateNegative, {
+          rotation: -80 + (156 * t),
+          force3D: true
+        });
+
+        gsap.set(planetRotatePositive, {
+          rotation: 80 - (156 * t),
+          force3D: true
+        });
+      }
 
       if (ball) {
         gsap.set(ball, {
@@ -3603,7 +3601,6 @@ function initHomeSection5() {
   // ============================================================
 
   if (galaxy) {
-
     gsap.to(galaxy, {
       yPercent: 35,
       ease: "none",
@@ -3625,7 +3622,6 @@ function initHomeSection5() {
   // ============================================================
 
   if (satellite) {
-
     gsap.to(satellite, {
       xPercent: 750,
       yPercent: -250,
@@ -3644,190 +3640,194 @@ function initHomeSection5() {
   }
 
 
+  // ============================================================
+  // ROCKET TIP / LIGHT / BEAR
+  // ============================================================
 
+  if (rocketTip) {
 
-// ============================================================
-// HOME 5 — ROCKET TIP / LIGHT / BEAR
-// ============================================================
-
-if (rocketTip) {
-
-  var rocketDropTimeline;
-
-  // Initial state
-  if (light) {
-    gsap.set(light, {
-      scaleX: 0,
-      scaleY: 1,
-      opacity: 0,
-      transformOrigin: "top center"
-    });
-  }
-
-  if (dim) {
-    gsap.set(dim, { opacity: 1 });
-  }
-
-  if (bear) {
-    gsap.set(bear, { x: 0 });
-  }
-
-  function switchLightsOn() {
+    var rocketDropTimeline;
 
     if (light) {
-      gsap.to(light, {
-        scaleX: 1.4,
-        opacity: 0.95,
-        duration: 0.13,
-        ease: "power3.out",
-        overwrite: true
-      });
-    }
-
-    if (dim) {
-      gsap.to(dim, {
-        opacity: 0,
-        duration: 0.1,
-        ease: "power3.out",
-        overwrite: true
-      });
-    }
-
-    if (bear) {
-      gsap.to(bear, {
-        x: 35,
-        duration: 1,
-        ease: "power3.out",
-        overwrite: true
-      });
-    }
-  }
-
-  function switchLightsOff() {
-
-    if (light) {
-      gsap.to(light, {
+      gsap.set(light, {
         scaleX: 0,
+        scaleY: 1,
         opacity: 0,
-        duration: 0.13,
-        ease: "power3.out",
-        overwrite: true
+        transformOrigin: "top center"
       });
     }
 
     if (dim) {
-      gsap.to(dim, {
-        opacity: 1,
-        duration: 0.1,
-        ease: "power3.out",
-        overwrite: true
-      });
+      gsap.set(dim, { opacity: 1 });
     }
 
     if (bear) {
-      gsap.to(bear, {
-        x: 0,
+      gsap.set(bear, { x: 0 });
+    }
+
+
+    function switchLightsOn() {
+
+      if (light) {
+        gsap.to(light, {
+          scaleX: 1.4,
+          opacity: 0.95,
+          duration: 0.13,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+
+      if (dim) {
+        gsap.to(dim, {
+          opacity: 0,
+          duration: 0.1,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+
+      if (bear) {
+        gsap.to(bear, {
+          x: 35,
+          duration: 1,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+    }
+
+
+    function switchLightsOff() {
+
+      // LIGHT — DELAY 0.2 SECONDS
+      if (light) {
+        gsap.to(light, {
+          scaleX: 0,
+          opacity: 0,
+          delay: 0.2,
+          duration: 0.13,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+
+      // DIM LAYER — DELAY 0.2 SECONDS
+      if (dim) {
+        gsap.to(dim, {
+          opacity: 1,
+          delay: 0.2,
+          duration: 0.1,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+
+      // BEAR — IMMEDIATE
+      if (bear) {
+        gsap.to(bear, {
+          x: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          overwrite: true
+        });
+      }
+    }
+
+
+    function dropRocketTip() {
+
+      if (rocketDropTimeline) {
+        rocketDropTimeline.kill();
+      }
+
+      gsap.killTweensOf(rocketTip);
+
+      rocketDropTimeline = gsap.timeline()
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.7,
+          ease: "power2.in",
+          force3D: true
+        })
+
+        .call(switchLightsOn)
+
+        .to(rocketTip, {
+          y: 105,
+          duration: 0.28,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.28,
+          ease: "power2.in"
+        })
+
+        .to(rocketTip, {
+          y: 128,
+          duration: 0.18,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.18,
+          ease: "power2.in"
+        })
+
+        .to(rocketTip, {
+          y: 139,
+          duration: 0.11,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.11,
+          ease: "power2.in"
+        });
+    }
+
+
+    function returnRocketTip() {
+
+      if (rocketDropTimeline) {
+        rocketDropTimeline.kill();
+        rocketDropTimeline = null;
+      }
+
+      gsap.killTweensOf(rocketTip);
+
+      // Bear immediately, lighting after 0.2s
+      switchLightsOff();
+
+      // Rocket immediately
+      gsap.to(rocketTip, {
+        y: 0,
         duration: 0.6,
-        ease: "power3.out",
-        overwrite: true
-      });
-    }
-  }
-
-  function dropRocketTip() {
-
-    if (rocketDropTimeline) {
-      rocketDropTimeline.kill();
-    }
-
-    gsap.killTweensOf(rocketTip);
-
-    rocketDropTimeline = gsap.timeline()
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.7,
-        ease: "power2.in",
+        ease: "power2.inOut",
         force3D: true
-      })
-
-      .call(switchLightsOn)
-
-      .to(rocketTip, {
-        y: 105,
-        duration: 0.28,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.28,
-        ease: "power2.in"
-      })
-
-      .to(rocketTip, {
-        y: 128,
-        duration: 0.18,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.18,
-        ease: "power2.in"
-      })
-
-      .to(rocketTip, {
-        y: 139,
-        duration: 0.11,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.11,
-        ease: "power2.in"
       });
-  }
-
-  function returnRocketTip() {
-
-    if (rocketDropTimeline) {
-      rocketDropTimeline.kill();
-      rocketDropTimeline = null;
     }
 
-    gsap.killTweensOf(rocketTip);
 
-    // Light and bear respond immediately
-    switchLightsOff();
+    // ============================================================
+    // SCROLL TRIGGER
+    // ============================================================
 
-    gsap.to(rocketTip, {
-      y: 0,
-      delay: 0.2,
-      duration: 0.6,
-      ease: "power2.inOut",
-      force3D: true
+    ScrollTrigger.create({
+      trigger: ".home5_lightpillar",
+      start: "top 45%",
+      markers: false,
+
+      onEnter: dropRocketTip,
+      onLeaveBack: returnRocketTip
     });
-  }
-
-  // ============================================================
-  // SCROLL TRIGGER — SAME POSITION BOTH DIRECTIONS
-  // ============================================================
-
-  ScrollTrigger.create({
-    trigger: ".home5_lightpillar",
-    start: "top 45%",
-    markers: false,
-  
-    onEnter: dropRocketTip,
-    onLeaveBack: returnRocketTip
-  });
 
   } // END if (rocketTip)
-
-  
-
 
 
   // ============================================================
@@ -3879,14 +3879,6 @@ if (rocketTip) {
   }
 
 
-
- 
-
-
-
-
-
-
   // ============================================================
   // JETMAN
   // ============================================================
@@ -3931,7 +3923,6 @@ if (rocketTip) {
         });
       },
 
-
       onLeaveBack: function() {
 
         gsap.killTweensOf(jetman);
@@ -3960,325 +3951,198 @@ if (rocketTip) {
   }
 
 
-// ============================================================
-// UMBRELLA CAT
-// ARC FLIGHT — CITY-ZOOM SAFE
-// ============================================================
+  // ============================================================
+  // UMBRELLA CAT
+  // ARC FLIGHT — CITY-ZOOM SAFE
+  // ============================================================
 
-if (umbrellaCat) {
+  if (umbrellaCat) {
 
-  var home5City =
-    q(".home_section5_city");
-
-
-  // ----------------------------------------------------------
-  // CITY SCALE
-  // ----------------------------------------------------------
-
-  function getUmbrellaScale() {
-
-    if (!home5City) return 1;
-
-    return (
-      parseFloat(
-        getComputedStyle(home5City).zoom
-      ) || 1
-    );
-  }
+    var home5City =
+      q(".home_section5_city");
 
 
-  // ----------------------------------------------------------
-  // POSITION INSIDE CITY
-  // Stable on iOS Safari + Chrome
-  // ----------------------------------------------------------
+    function getUmbrellaScale() {
 
-  function getUmbrellaOffsetInsideCity() {
+      if (!home5City) return 1;
 
-    var x = 0;
-    var y = 0;
-
-    var current =
-      umbrellaCat;
-
-    while (
-      current &&
-      current !== home5City
-    ) {
-
-      x +=
-        current.offsetLeft || 0;
-
-      y +=
-        current.offsetTop || 0;
-
-      current =
-        current.offsetParent;
+      return (
+        parseFloat(
+          getComputedStyle(home5City).zoom
+        ) || 1
+      );
     }
 
-    return {
-      x: x,
-      y: y
-    };
-  }
 
+    function getUmbrellaOffsetInsideCity() {
 
-  // ----------------------------------------------------------
-  // INITIAL STATE
-  // ----------------------------------------------------------
+      var x = 0;
+      var y = 0;
 
-  gsap.set(umbrellaCat, {
+      var current = umbrellaCat;
 
-    x: 0,
-    y: 0,
+      while (
+        current &&
+        current !== home5City
+      ) {
 
-    rotation: 0,
+        x += current.offsetLeft || 0;
+        y += current.offsetTop || 0;
 
-    opacity: 1,
-    visibility: "hidden",
+        current = current.offsetParent;
+      }
 
-    force3D: true
-
-  });
-
-
-  // ----------------------------------------------------------
-  // ARC FLIGHT
-  // ----------------------------------------------------------
-
-  ScrollTrigger.create({
-
-    trigger: section,
-
-    start: "top bottom",
-    end: "bottom top",
-
-    invalidateOnRefresh: true,
-
-
-    onUpdate: function(self) {
-
-      var viewportWidth =
-        document.documentElement.clientWidth;
-
-      var viewportHeight =
-        document.documentElement.clientHeight;
-
-
-      var scale =
-        getUmbrellaScale();
-
-
-      var offsets =
-        getUmbrellaOffsetInsideCity();
-
-
-      var visualWidth =
-        (
-          umbrellaCat.offsetWidth ||
-          120
-        ) *
-        scale;
-
-
-      var visualHeight =
-        (
-          umbrellaCat.offsetHeight ||
-          120
-        ) *
-        scale;
-
-
-      // ======================================================
-      // FLIGHT PROGRESS
-      // ======================================================
-
-      var triggerDistance =
-        Math.max(
-          1,
-          self.end - self.start
-        );
-
-
-      // Slightly longer / calmer flight
-      var flightSpan =
-        (
-          viewportHeight *
-          1.35
-        ) /
-        triggerDistance;
-
-
-      var p =
-        (
-          self.progress -
-          0.1
-        ) /
-        flightSpan;
-
-
-      p =
-        Math.max(
-          0,
-          Math.min(1, p)
-        );
-
-
-      // ======================================================
-      // NATURAL SCREEN POSITION
-      // ======================================================
-
-      var sectionRect =
-        section.getBoundingClientRect();
-
-
-      var naturalLeft =
-        sectionRect.left +
-        (
-          offsets.x *
-          scale
-        );
-
-
-      var naturalTop =
-        sectionRect.top +
-        (
-          offsets.y *
-          scale
-        );
-
-
-      // ======================================================
-      // ARC
-      //
-      // Start:
-      // above screen
-      //
-      // End:
-      // outside LEFT side
-      // around 65% down viewport
-      // ======================================================
-
-      var startLeft =
-        naturalLeft;
-
-
-      var startTop =
-        -visualHeight -
-        60;
-
-
-      var endLeft =
-        -visualWidth -
-        80;
-
-
-      var endTop =
-        viewportHeight *
-        0.6;
-
-
-    // Softer arc:
-    // starts bending left earlier,
-    // but still becomes a strong slide near the end.
-    
-    var curveX =
-      Math.pow(p, 2.5);
-    
-    var curveY =
-      1 - Math.pow(1 - p, 2.8);
-
-      
-
-      var desiredLeft =
-        startLeft +
-        (
-          endLeft -
-          startLeft
-        ) *
-        curveX;
-
-
-      var desiredTop =
-        startTop +
-        (
-          endTop -
-          startTop
-        ) *
-        curveY;
-
-
-      // ======================================================
-      // SCREEN → CITY LOCAL COORDINATES
-      // ======================================================
-
-      var localX =
-        (
-          desiredLeft -
-          naturalLeft
-        ) /
-        scale;
-
-
-      var localY =
-        (
-          desiredTop -
-          naturalTop
-        ) /
-        scale;
-
-
-      // ======================================================
-      // APPLY
-      // ======================================================
-
-      gsap.set(umbrellaCat, {
-
-        x: localX,
-
-        y: localY,
-
-        rotation:
-          60 * curveX,
-
-        visibility:
-          p > 0.001
-            ? "visible"
-            : "hidden",
-
-        force3D: true
-
-      });
-
-    },
-
-
-    onLeave: function() {
-
-      gsap.set(
-        umbrellaCat,
-        {
-          visibility: "hidden"
-        }
-      );
-
-    },
-
-
-    onLeaveBack: function() {
-
-      gsap.set(
-        umbrellaCat,
-        {
-          visibility: "hidden"
-        }
-      );
-
+      return {
+        x: x,
+        y: y
+      };
     }
 
-  });
 
-}
+    // INITIAL STATE
 
+    gsap.set(umbrellaCat, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      opacity: 1,
+      visibility: "hidden",
+      force3D: true
+    });
+
+
+    // ARC FLIGHT
+
+    ScrollTrigger.create({
+
+      trigger: section,
+      start: "top bottom",
+      end: "bottom top",
+      invalidateOnRefresh: true,
+
+      onUpdate: function(self) {
+
+        var viewportWidth =
+          document.documentElement.clientWidth;
+
+        var viewportHeight =
+          document.documentElement.clientHeight;
+
+        var scale =
+          getUmbrellaScale();
+
+        var offsets =
+          getUmbrellaOffsetInsideCity();
+
+        var visualWidth =
+          (umbrellaCat.offsetWidth || 120) * scale;
+
+        var visualHeight =
+          (umbrellaCat.offsetHeight || 120) * scale;
+
+
+        // FLIGHT PROGRESS
+
+        var triggerDistance =
+          Math.max(1, self.end - self.start);
+
+        var flightSpan =
+          (viewportHeight * 1.35) / triggerDistance;
+
+        var p =
+          (self.progress - 0.1) / flightSpan;
+
+        p = Math.max(0, Math.min(1, p));
+
+
+        // NATURAL SCREEN POSITION
+
+        var sectionRect =
+          section.getBoundingClientRect();
+
+        var naturalLeft =
+          sectionRect.left + (offsets.x * scale);
+
+        var naturalTop =
+          sectionRect.top + (offsets.y * scale);
+
+
+        // ARC START / END
+
+        var startLeft = naturalLeft;
+
+        var startTop =
+          -visualHeight - 60;
+
+        var endLeft =
+          -visualWidth - 80;
+
+        var endTop =
+          viewportHeight * 0.6;
+
+
+        // SOFT ARC
+
+        var curveX =
+          Math.pow(p, 2.5);
+
+        var curveY =
+          1 - Math.pow(1 - p, 2.8);
+
+
+        var desiredLeft =
+          startLeft +
+          (endLeft - startLeft) * curveX;
+
+        var desiredTop =
+          startTop +
+          (endTop - startTop) * curveY;
+
+
+        // SCREEN TO CITY COORDINATES
+
+        var localX =
+          (desiredLeft - naturalLeft) / scale;
+
+        var localY =
+          (desiredTop - naturalTop) / scale;
+
+
+        // APPLY
+
+        gsap.set(umbrellaCat, {
+
+          x: localX,
+          y: localY,
+
+          rotation: 60 * curveX,
+
+          visibility:
+            p > 0.001 ? "visible" : "hidden",
+
+          force3D: true
+        });
+      },
+
+
+      onLeave: function() {
+
+        gsap.set(umbrellaCat, {
+          visibility: "hidden"
+        });
+      },
+
+
+      onLeaveBack: function() {
+
+        gsap.set(umbrellaCat, {
+          visibility: "hidden"
+        });
+      }
+
+    });
+
+  } // END if (umbrellaCat)
 
 } // END initHomeSection5
 
