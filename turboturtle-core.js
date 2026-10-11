@@ -3712,6 +3712,7 @@ function initHomeSection5() {
         });
     }
 
+    }
 
 
 function returnRocketTip() {
