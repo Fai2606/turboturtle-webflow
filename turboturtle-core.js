@@ -3650,6 +3650,7 @@ function initHomeSection5() {
 // Return = simple smooth rise
 // ============================================================
 
+
 if (rocketTip) {
 
   function dropRocketTip() {
@@ -3660,7 +3661,7 @@ if (rocketTip) {
 
       // FALL
       .to(rocketTip, {
-        y: 145,
+        y: 120,
         duration: 1.1,
         ease: "power2.in",
         force3D: true
@@ -3668,39 +3669,39 @@ if (rocketTip) {
 
       // BOUNCE 1
       .to(rocketTip, {
-        y: 105,
+        y: 80,
         duration: 0.28,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 145,
+        y: 120,
         duration: 0.28,
         ease: "power2.in"
       })
 
       // BOUNCE 2
       .to(rocketTip, {
-        y: 128,
+        y: 103,
         duration: 0.18,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 145,
+        y: 120,
         duration: 0.18,
         ease: "power2.in"
       })
 
       // BOUNCE 3
       .to(rocketTip, {
-        y: 139,
+        y: 114,
         duration: 0.11,
         ease: "power2.out"
       })
 
       .to(rocketTip, {
-        y: 145,
+        y: 120,
         duration: 0.11,
         ease: "power2.in"
       });
