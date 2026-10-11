@@ -3537,6 +3537,7 @@ function initHomeSection5() {
   var umbrellaCat = q(".home5_umbrellacat");
   var galaxy = q(".home5_galaxy");
   var light = q(".home5_light");
+  var dim = q(".home5_dim");
 
 
   // ============================================================
@@ -3805,41 +3806,57 @@ if (rocketTip) {
   }
 
   
+
   // ============================================================
-  // LIGHT
-  // Scale X: 0 → 100%
-  // Triggers slightly before bear
+  // LIGHT + DIM — SYNCHRONIZED
+  //
+  // Light: scale 0 → 1 (original animation)
+  // Dim:   opacity 1 → 0
+  //
+  // Reverse together when scrolling back up
   // ============================================================
-  
+
   if (light) {
-  
-    gsap.fromTo(
-      light,
-  
-      {
-        scaleX: 0,
-        scaleY: 0,
-        transformOrigin: "top center"
-      },
-  
-      {
-        scaleX: 1,
-        scaleY: 1,
-  
-        duration: 0.15,
-  
-        ease: "power3.out",
-  
-        force3D: true,
-  
-        scrollTrigger: {
-          trigger: light,
-          start: "top 65%",
-          toggleActions: "play reverse play reverse"
-        }
+
+    // Initial states
+    gsap.set(light, {
+      scaleX: 0,
+      scaleY: 0,
+      transformOrigin: "top center"
+    });
+
+    if (dim) {
+      gsap.set(dim, {
+        opacity: 1
+      });
+    }
+
+    var home5LightTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: light,
+        start: "top 65%",
+        toggleActions: "play reverse play reverse"
       }
-    );
-  
+    });
+
+    // Original light animation
+    home5LightTimeline.to(light, {
+      scaleX: 1,
+      scaleY: 1,
+      duration: 0.15,
+      ease: "power3.out",
+      force3D: true
+    }, 0);
+
+    // Dim fades out simultaneously
+    if (dim) {
+      home5LightTimeline.to(dim, {
+        opacity: 0,
+        duration: 0.15,
+        ease: "power3.out"
+      }, 0);
+    }
+
   }
 
 
