@@ -3660,7 +3660,7 @@ function initHomeSection5() {
         // FALL — FIRST IMPACT
         .to(rocketTip, {
           y: 145,
-          duration: 0.8,
+          duration: 0.7,
           ease: "power2.in",
           force3D: true
         })
@@ -3724,7 +3724,7 @@ function initHomeSection5() {
 
       gsap.to(rocketTip, {
         y: 0,
-        duration: 0.8,
+        duration: 0.6,
         ease: "power2.inOut",
         force3D: true
       });
