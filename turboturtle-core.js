@@ -3808,6 +3808,8 @@ if (rocketTip) {
   
 
 
+
+
   // ============================================================
   // HOME 5 — LIGHT ON / DIM OFF
   // ============================================================
@@ -3816,7 +3818,8 @@ if (rocketTip) {
 
     gsap.set(light, {
       scaleX: 0,
-      scaleY: 0,
+      scaleY: 1,
+      opacity: 0,
       transformOrigin: "top center"
     });
 
@@ -3828,25 +3831,25 @@ if (rocketTip) {
       scrollTrigger: {
         trigger: light,
         start: "top 65%",
-        toggleActions: "play none none reverse",
-        markers: true // TEMPORARY DEBUG
+        toggleActions: "play none none reverse"
       }
     });
 
     home5LightTimeline.to(light, {
-      scaleX: 1,
-      scaleY: 1,
-      duration: 0.15,
+      scaleX: 1.6,
+      opacity: 0.95,
+      duration: 0.075,
       ease: "power3.out"
     }, 0);
 
     home5LightTimeline.to(dim, {
       opacity: 0,
-      duration: 0.15,
+      duration: 0.075,
       ease: "power3.out"
     }, 0);
 
   }
+
 
 
 
