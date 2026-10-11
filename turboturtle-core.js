@@ -3804,6 +3804,7 @@ if (rocketTip) {
 
     gsap.to(rocketTip, {
       y: 0,
+      delay: 0.2,
       duration: 0.6,
       ease: "power2.inOut",
       force3D: true
@@ -3816,7 +3817,7 @@ if (rocketTip) {
 
   ScrollTrigger.create({
     trigger: ".home5_lightpillar",
-    start: "top 30%",
+    start: "top 45%",
     markers: false,
   
     onEnter: dropRocketTip,
