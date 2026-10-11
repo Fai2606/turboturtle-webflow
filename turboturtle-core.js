@@ -3727,8 +3727,9 @@ function initHomeSection5() {
       if (bear) {
         gsap.to(bear, {
           x: 0,
+          delay: 0.2,
           duration: 0.6,
-          ease: "power3.out",
+          ease: "power3.in",
           overwrite: true
         });
       }
