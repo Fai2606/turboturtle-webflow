@@ -3713,32 +3713,56 @@ function initHomeSection5() {
     }
 
 
-    function returnRocketTip() {
 
-      gsap.killTweensOf(rocketTip);
+function returnRocketTip() {
 
-      // SWITCH LIGHT OFF AS ROCKET RISES
-      if (home5LightTimeline) {
-        home5LightTimeline.reverse();
-      }
+  gsap.killTweensOf(rocketTip);
 
-      gsap.to(rocketTip, {
-        y: 0,
-        duration: 0.6,
-        ease: "power2.inOut",
-        force3D: true
-      });
-    }
+  // Stop the existing light timeline immediately
+  if (home5LightTimeline) {
+    home5LightTimeline.pause(0);
+  }
 
+  // DIM IMMEDIATELY AS ROCKET STARTS RISING
+  if (light && dim) {
 
-    ScrollTrigger.create({
-      trigger: rocketTip,
-      start: "top 30%",
-      onEnter: dropRocketTip,
-      onLeaveBack: returnRocketTip
+    gsap.to(light, {
+      scaleX: 0,
+      opacity: 0,
+      duration: 0.13,
+      ease: "power3.out",
+      overwrite: true
+    });
+
+    gsap.to(dim, {
+      opacity: 1,
+      duration: 0.1,
+      ease: "power3.out",
+      overwrite: true
     });
 
   }
+
+  // RETURN BEAR
+  if (bear) {
+    gsap.to(bear, {
+      x: 0,
+      duration: 0.6,
+      ease: "power3.out",
+      overwrite: true
+    });
+  }
+
+  // ROCKET RISES
+  gsap.to(rocketTip, {
+    y: 0,
+    duration: 0.6,
+    ease: "power2.inOut",
+    force3D: true
+  });
+
+}
+
 
 
 
