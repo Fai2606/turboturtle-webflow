@@ -3747,7 +3747,7 @@ function initHomeSection5() {
 
         .to(rocketTip, {
           y: 145,
-          duration: 0.7,
+          duration: 0.4,
           ease: "power2.in",
           force3D: true
         })
@@ -3807,7 +3807,7 @@ function initHomeSection5() {
       // Rocket immediately
       gsap.to(rocketTip, {
         y: 0,
-        duration: 0.6,
+        duration: 0.4,
         ease: "power2.inOut",
         force3D: true
       });
