@@ -3823,6 +3823,8 @@ if (rocketTip) {
     onLeaveBack: returnRocketTip
   });
 
+  } // END if (rocketTip)
+
   
 
 
