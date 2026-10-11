@@ -4571,100 +4571,104 @@ function initHomeSection6() {
   }
 
 
+
   // ==========================================================
-  // WEIRD SUN + TEXT PARALLAX
+  // WEIRD SUN + TEXT — CONSTANT SLOW PARALLAX
   //
-  // Trigger/detection = Weird Sun
-  // Text follows the exact same scroll progress.
+  // Starts: Sun top enters viewport bottom
+  // Ends:   Moving sun bottom exits viewport top
   // ==========================================================
-  
+
   if (weirdSun) {
-  
-    var weirdSunScrollTrigger;
-  
-  
-    // ----------------------------------------------------------
-    // TRIGGER ALWAYS BASED ON WEIRD SUN
-    // ----------------------------------------------------------
-  
-    if (isSafari && section && city) {
-  
-      weirdSunScrollTrigger = {
-  
+
+    // ========================================================
+    // SETTINGS
+    // ========================================================
+
+    var WEIRD_SUN_TRAVEL = 360;
+
+    // Freeze viewport height against mobile browser bars
+    var WEIRD_SUN_VH =
+      document.documentElement.clientHeight;
+
+    // ========================================================
+    // SCROLL DISTANCE
+    // ========================================================
+
+    // Actual visual downward movement of the sun
+    function getWeirdSunExtraTravel() {
+      return WEIRD_SUN_TRAVEL * getCityScale();
+    }
+
+    // Original visual height of the sun
+    function getWeirdSunHeight() {
+      return getSafariVisualHeight(weirdSun);
+    }
+
+    // Original document position, unaffected by GSAP y
+    function getWeirdSunTop() {
+      return getSafariVisualTop(weirdSun);
+    }
+
+    // ========================================================
+    // ONE TIMELINE — SUN + TEXT
+    // ========================================================
+
+    var weirdSunTimeline = gsap.timeline({
+
+      scrollTrigger: {
+
         trigger: section,
-  
+
         start: function() {
-          return (
-            getSafariVisualTop(weirdSun) -
-            document.documentElement.clientHeight
-          );
+          return getWeirdSunTop() - WEIRD_SUN_VH;
         },
-  
+
+        // Extend the scroll range by the amount that
+        // the sun moves downward.
         end: function() {
           return (
-            getSafariVisualTop(weirdSun) +
-            getSafariVisualHeight(weirdSun)
+            getWeirdSunTop() +
+            getWeirdSunHeight() +
+            getWeirdSunExtraTravel()
           );
         },
-  
+
         scrub: true,
         invalidateOnRefresh: true
-      };
-  
-    } else {
-  
-      weirdSunScrollTrigger = {
-        trigger: weirdSun,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-        invalidateOnRefresh: true
-      };
-  
-    }
-  
-  
-    // ----------------------------------------------------------
-    // ONE TIMELINE = SUN + TEXT ALWAYS MOVE TOGETHER
-    // ----------------------------------------------------------
-  
-    var weirdSunTimeline =
-      gsap.timeline({
-        scrollTrigger: weirdSunScrollTrigger
-      });
-  
-  
-    // Weird Sun is INSIDE scaled CITY
+      }
+    });
+
+    // Sun inside zoomed city
     weirdSunTimeline.to(
       weirdSun,
       {
-        y: 360,
+        y: WEIRD_SUN_TRAVEL,
         ease: "none",
         force3D: true
       },
       0
     );
-  
-  
-    // Text is OUTSIDE CITY.
-    // Match the Sun's actual VISUAL movement.
+
+    // Text outside city — matches visual movement
     if (weirdSunText) {
-  
+
       weirdSunTimeline.to(
         weirdSunText,
         {
           y: function() {
-            return 360 * getCityScale();
+            return getWeirdSunExtraTravel();
           },
           ease: "none",
           force3D: true
         },
         0
       );
-  
+
     }
-  
+
   }
+
 
   // ==========================================================
   // HOME 6 — SCROLL-LINKED CASTLE BUILD
