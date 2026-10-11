@@ -4262,10 +4262,10 @@ function initHomeSection6() {
   // ==========================================================
 
   var HOME6_CLOUD_SETTINGS = [
-    { selector: ".home6_parallaxcloud1", speed: 0.8 },
-    { selector: ".home6_parallaxcloud2", speed: 0.6 },
-    { selector: ".home6_parallaxcloud3", speed: 0.5 },
-    { selector: ".home6_parallaxcloud4", speed: 0.4 }
+    { selector: ".home6_parallaxcloud1", speed: -0.8 },
+    { selector: ".home6_parallaxcloud2", speed: -0.6 },
+    { selector: ".home6_parallaxcloud3", speed: -0.5 },
+    { selector: ".home6_parallaxcloud4", speed: -0.4 }
   ];
 
   HOME6_CLOUD_SETTINGS.forEach(function(item) {
