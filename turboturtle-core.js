@@ -3646,7 +3646,7 @@ function initHomeSection5() {
 
 
 
-  // ============================================================
+// ============================================================
 // HOME 5 — ROCKET TIP / LIGHT / BEAR
 // ============================================================
 
@@ -3816,7 +3816,7 @@ if (rocketTip) {
 
   ScrollTrigger.create({
     trigger: section,
-    start: "top 65%",
+    start: "top 50%",
 
     onEnter: dropRocketTip,
     onLeaveBack: returnRocketTip
