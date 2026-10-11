@@ -3644,96 +3644,102 @@ function initHomeSection5() {
   }
 
 
-// ============================================================
-// ROCKET TIP
-// Drop = gravity + bounce
-// Return = simple smooth rise
-// ============================================================
 
-if (rocketTip) {
+  // ============================================================
+  // ROCKET TIP — FALL / IMPACT / LIGHT ON
+  // ============================================================
 
-  function dropRocketTip() {
+  if (rocketTip) {
 
-    gsap.killTweensOf(rocketTip);
+    function dropRocketTip() {
 
-    gsap.timeline()
+      gsap.killTweensOf(rocketTip);
 
-      // FALL
-      .to(rocketTip, {
-        y: 145,
-        duration: 1.1,
-        ease: "power2.in",
+      gsap.timeline()
+
+        // FALL — FIRST IMPACT
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.8,
+          ease: "power2.in",
+          force3D: true
+        })
+
+        // SWITCH LIGHT ON AT IMPACT
+        .call(function() {
+          if (home5LightTimeline) {
+            home5LightTimeline.play();
+          }
+        })
+
+        // BOUNCE 1
+        .to(rocketTip, {
+          y: 105,
+          duration: 0.28,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.28,
+          ease: "power2.in"
+        })
+
+        // BOUNCE 2
+        .to(rocketTip, {
+          y: 128,
+          duration: 0.18,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.18,
+          ease: "power2.in"
+        })
+
+        // BOUNCE 3
+        .to(rocketTip, {
+          y: 139,
+          duration: 0.11,
+          ease: "power2.out"
+        })
+
+        .to(rocketTip, {
+          y: 145,
+          duration: 0.11,
+          ease: "power2.in"
+        });
+    }
+
+
+    function returnRocketTip() {
+
+      gsap.killTweensOf(rocketTip);
+
+      // SWITCH LIGHT OFF AS ROCKET RISES
+      if (home5LightTimeline) {
+        home5LightTimeline.reverse();
+      }
+
+      gsap.to(rocketTip, {
+        y: 0,
+        duration: 0.8,
+        ease: "power2.inOut",
         force3D: true
-      })
-
-      // BOUNCE 1
-      .to(rocketTip, {
-        y: 105,
-        duration: 0.28,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.28,
-        ease: "power2.in"
-      })
-
-      // BOUNCE 2
-      .to(rocketTip, {
-        y: 128,
-        duration: 0.18,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.18,
-        ease: "power2.in"
-      })
-
-      // BOUNCE 3
-      .to(rocketTip, {
-        y: 139,
-        duration: 0.11,
-        ease: "power2.out"
-      })
-
-      .to(rocketTip, {
-        y: 145,
-        duration: 0.11,
-        ease: "power2.in"
       });
-  }
+    }
 
 
-  function returnRocketTip() {
-
-    gsap.killTweensOf(rocketTip);
-
-    gsap.to(rocketTip, {
-      y: 0,
-      duration: 0.8,
-      ease: "power2.inOut",
-      force3D: true
+    ScrollTrigger.create({
+      trigger: rocketTip,
+      start: "top 30%",
+      onEnter: dropRocketTip,
+      onLeaveBack: returnRocketTip
     });
+
   }
 
-
-  ScrollTrigger.create({
-
-    trigger: rocketTip,
-    start: "top 30%",
-
-    // scrolling DOWN
-    onEnter: dropRocketTip,
-
-    // scrolling BACK UP
-    onLeaveBack: returnRocketTip
-
-  });
-
-}
 
 
   // ============================================================
@@ -3786,9 +3792,13 @@ if (rocketTip) {
 
 
 
+ 
   // ============================================================
   // HOME 5 — BEAR + LIGHT ON + DIM OFF
+  // CONTROLLED BY ROCKET IMPACT
   // ============================================================
+
+  var home5LightTimeline;
 
   if (light && dim) {
 
@@ -3803,12 +3813,8 @@ if (rocketTip) {
       opacity: 1
     });
 
-    var home5LightTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: light,
-        start: "top 65%",
-        toggleActions: "play none none reverse"
-      }
+    home5LightTimeline = gsap.timeline({
+      paused: true
     });
 
     // LIGHT ON
@@ -3822,7 +3828,7 @@ if (rocketTip) {
     // DIM OFF
     home5LightTimeline.to(dim, {
       opacity: 0,
-      duration: 0.13,
+      duration: 0.1,
       ease: "power3.out"
     }, 0);
 
