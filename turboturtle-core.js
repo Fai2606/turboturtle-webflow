@@ -3723,7 +3723,7 @@ if (rocketTip) {
   ScrollTrigger.create({
 
     trigger: rocketTip,
-    start: "top 50%",
+    start: "top 30%",
 
     // scrolling DOWN
     onEnter: dropRocketTip,
