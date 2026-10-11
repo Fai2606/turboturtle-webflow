@@ -3815,15 +3815,13 @@ if (rocketTip) {
   // ============================================================
 
   ScrollTrigger.create({
-    trigger: section,
-    start: "top 50%",
-
+    trigger: ".home5_lightpillar",
+    start: "top 30%",
+    markers: false,
+  
     onEnter: dropRocketTip,
     onLeaveBack: returnRocketTip
   });
-
-}
-  
 
   
 
