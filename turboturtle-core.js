@@ -6463,8 +6463,8 @@ function initHomeSection9() {
     var LIFE_MIN = 1;
     var LIFE_MAX = 20;
 
-    var SPAWN_FADE_DURATION = 0.7;
-    var DEATH_FADE = 0.7;
+    var SPAWN_FADE_DURATION = 0.4;
+    var DEATH_FADE = 0.4;
 
     var RESPAWN_MIN = 1;
     var RESPAWN_MAX = 3;
@@ -6475,7 +6475,7 @@ function initHomeSection9() {
 
     var MOUSE_RADIUS = 85;
     var FLEE_DISTANCE = 55;
-    var FLEE_DURATION = 1.6;
+    var FLEE_DURATION = 1;
 
     // --------------------------------------------------------
     // SPAWN DISTRIBUTION
