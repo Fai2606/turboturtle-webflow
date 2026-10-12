@@ -3300,7 +3300,7 @@ movers.forEach(function(item) {
     y: () => item.y * vh,
     rotation: item.r,
 
-    ease: "none",
+    ease: "power1.out",
     force3D: true,
 
     scrollTrigger: {
