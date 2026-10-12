@@ -3251,8 +3251,9 @@ if (enableGrowup) {
     if (!section || !gsap || !ScrollTrigger) return;
   
     var movers = [
-      { sel: ".home3_fish2",   x: 70, y:  -4, r:  0 },
       { sel: ".home3_fish1",   x: 80, y:   3, r:  0 },
+      { sel: ".home3_fish2",   x: 70, y:  -4, r:  0 },
+      { sel: ".home3_fish3",   x: 60, y:   -2, r:  0 },
       { sel: ".home3_dolphin", x: 16, y:  -6, r:  0 },
       { sel: ".home3_shark",   x: 12, y:   4, r:  0 },
       { sel: ".home3_cat",     x: 40, y: -12, r:  0 },
