@@ -7553,8 +7553,8 @@ function initHomeResponsiveScale() {
   // EASY SETTINGS
   // ========================================================
 
-  var MOVESLOWER1_SPEED_DESKTOP = 0.8;
-  var MOVESLOWER1_SPEED_MOBILE  = 0.8;
+  var MOVESLOWER1_SPEED_DESKTOP = 0.75;
+  var MOVESLOWER1_SPEED_MOBILE  = 0.75;
 
   // 1.0 = normal page scroll speed
   // 0.8 = 20% slower
