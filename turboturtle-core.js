@@ -3689,9 +3689,9 @@ function initHomeSection5() {
 
       if (bear) {
         gsap.to(bear, {
-          x: 35,
-          scale: 1.05,
-          duration: 0.8,
+          x: 32,
+          scale: 1.04,
+          duration: 0.7,
           ease: "power2.out",
           overwrite: true
         });
