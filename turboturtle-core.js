@@ -3250,39 +3250,42 @@ if (enableGrowup) {
     var section = q(".home_section3");
     if (!section || !gsap || !ScrollTrigger) return;
   
-    var movers = [
-      { sel: ".home3_fish1",   x: 50, y:   3, r:  0 },
-      { sel: ".home3_fish2",   x: 40, y:  -4, r:  0 },
-      { sel: ".home3_fish3",   x: 20, y:  0, r:  0 },
-      { sel: ".home3_dolphin", x: 16, y:  -6, r:  0 },
-      { sel: ".home3_shark",   x: 12, y:   4, r:  0 },
-      { sel: ".home3_cat",     x: 10, y:  -6, r:  0 },
-      { sel: ".home3_moon",    x:  0, y:  30, r:  0 },
-      { sel: ".home3_jet",     x: 90, y:  -5, r:  0 },
-      { sel: ".home3_turtle",  x: 20, y:  12, r: -5 },
-      { sel: ".home3_lion",    x: 12, y:   8, r: -30 },
-      { sel: ".home3_bear",    x: 5, y:  30, r:  0 },
-      { sel: ".home3_fishbunch1", x: 10, y: 30, r: 0 },
-      { sel: ".home3_fishbunch2", x: 10, y: 30, r: 0 },
-      
-    ];
+  var moversDesktop = [
+    { sel: ".home3_fish1",      x: 50, y:   3, r:   0 },
+    { sel: ".home3_fish2",      x: 40, y:  -4, r:   0 },
+    { sel: ".home3_fish3",      x: 20, y:   0, r:   0 },
+    { sel: ".home3_dolphin",    x: 16, y:  -6, r:   0 },
+    { sel: ".home3_shark",      x: 12, y:   4, r:   0 },
+    { sel: ".home3_cat",        x: 10, y:  -6, r:   0 },
+    { sel: ".home3_moon",       x:  0, y:  30, r:   0 },
+    { sel: ".home3_jet",        x: 90, y:  -5, r:   0 },
+    { sel: ".home3_turtle",     x: 20, y:  12, r:  -5 },
+    { sel: ".home3_lion",       x: 12, y:   8, r: -30 },
+    { sel: ".home3_bear",       x:  5, y:  30, r:   0 },
+    { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
+    { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
+  ];
   
-    movers.forEach(function (item) {
-      tweenIf(item.sel, {
-        x: () => item.x * vw,
-        y: () => item.y * vh,
-        rotation: item.r,
-        ease: "none",
-        force3D: true,
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-          invalidateOnRefresh: true
-        }
-      });
-    });
+  var moversMobile = [
+    { sel: ".home3_fish1",      x: 100,y:   3, r:   0 },
+    { sel: ".home3_fish2",      x: 80, y:  -4, r:   0 },
+    { sel: ".home3_fish3",      x: 20, y:   0, r:   0 },
+    { sel: ".home3_dolphin",    x: 16, y:  -6, r:   0 },
+    { sel: ".home3_shark",      x: 12, y:   4, r:   0 },
+    { sel: ".home3_cat",        x: 10, y:  -6, r:   0 },
+    { sel: ".home3_moon",       x:  0, y:  30, r:   0 },
+    { sel: ".home3_jet",        x: 90, y:  -5, r:   0 },
+    { sel: ".home3_turtle",     x: 20, y:  12, r:  -5 },
+    { sel: ".home3_lion",       x: 12, y:   8, r: -30 },
+    { sel: ".home3_bear",       x:  5, y:  30, r:   0 },
+    { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
+    { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
+  ];
+  
+  // Select by viewport width
+  var movers = window.matchMedia("(max-width: 767px)").matches
+    ? moversMobile
+    : moversDesktop;
   
     var galaxy = q(".home3_galaxy");
   
