@@ -3691,8 +3691,8 @@ function initHomeSection5() {
         gsap.to(bear, {
           x: 38,
           scale: 1.1,
-          duration: 0.08,
-          ease: "power3.out",
+          duration: 0.8,
+          ease: "power2.out",
           overwrite: true
         });
       }
