@@ -5301,6 +5301,7 @@ onLeaveBack: function() {
 
 var home6UFO = q(".home6_ufo");
 var home6Light = q(".home6_light");
+var ufoLightBottom = q(".ufo_lightbottom");
 
 var home7LightBlur = q(".home7_lightblur");
 var home7WhiteCover = q(".home7_whitecover");
@@ -5355,6 +5356,9 @@ function getHome6UFOHiddenY() {
 // INITIAL STATES
 // ==========================================================
 
+
+
+  
 if (home6UFO) {
 
   gsap.set(
@@ -5423,6 +5427,13 @@ if (home7WhiteCover) {
 }
 
 
+if (ufoLightBottom) {
+  gsap.set(ufoLightBottom, {
+    opacity: 0
+  });
+}
+
+
 // ==========================================================
 // LIGHT ON
 // ==========================================================
@@ -5449,6 +5460,22 @@ function turnHome6LightsOn() {
 
   var lightTL =
     gsap.timeline();
+
+  if (ufoLightBottom) {
+
+  gsap.killTweensOf(ufoLightBottom);
+
+  lightTL.to(
+    ufoLightBottom,
+    {
+      opacity: 1,
+      duration: 0.3,
+      ease: "power2.out"
+    },
+    0
+  );
+
+}
 
 
   if (home6Light) {
@@ -5541,6 +5568,18 @@ function turnHome6LightsOff() {
   if (!lightsAreOn) return;
 
   lightsAreOn = false;
+
+  if (ufoLightBottom) {
+
+    gsap.killTweensOf(ufoLightBottom);
+  
+    gsap.to(ufoLightBottom, {
+      opacity: 0,
+      duration: 0.16,
+      ease: "power2.in"
+    });
+  
+  }
 
 
   if (home6Light) {
