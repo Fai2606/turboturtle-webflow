@@ -413,7 +413,7 @@ getBoundingClientRect: function () {
 // DIRECT SCROLL-LINKED — NO SCRUB LAG
 // -------------------------------------------------------------
 
-tweenIf(".general_cloud", stable({ targetEl: ".general_cloud", y: () => -60 * vh, ease: "none", scrollTrigger: { trigger: ".general_cloud", start: "top bottom", end: "bottom top", scrub: true } }));
+tweenIf(".general_cloud", stable({ targetEl: ".general_cloud", y: () => -80 * vh, ease: "none", scrollTrigger: { trigger: ".general_cloud", start: "top bottom", end: "bottom top", scrub: true } }));
       
 tweenIf(".about_planet", stable({ targetEl: ".about_planet", y: () => 20 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
 tweenIf(".spacecats", stable({ targetEl: ".spacecats", x: () => -3 * vw, y: () => 40 * vh, rotation: 20, scale: 1.1, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
