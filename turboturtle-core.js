@@ -3689,8 +3689,8 @@ function initHomeSection5() {
 
       if (bear) {
         gsap.to(bear, {
-          x: 35,
-          scale: 1.2,
+          x: 38,
+          scale: 1.1,
           duration: 1,
           ease: "power3.out",
           overwrite: true
