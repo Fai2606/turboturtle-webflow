@@ -94,6 +94,7 @@ root.addEventListener("resize", function () {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       MorphSVGPlugin = root.MorphSVGPlugin;
+      gsap.set(".home2_cloud, .general_cloud", { opacity: 1 });
   
       var SplitText = root.SplitText;
   
