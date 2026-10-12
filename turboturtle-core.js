@@ -3691,7 +3691,7 @@ function initHomeSection5() {
         gsap.to(bear, {
           x: 38,
           scale: 1.1,
-          duration: 1,
+          duration: 0.08,
           ease: "power3.out",
           overwrite: true
         });
