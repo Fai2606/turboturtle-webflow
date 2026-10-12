@@ -3282,12 +3282,45 @@ if (enableGrowup) {
     { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
   ];
   
-  // Select by viewport width
-  var movers = window.matchMedia("(max-width: 767px)").matches
-    ? moversMobile
-    : moversDesktop;
-  
-    var galaxy = q(".home3_galaxy");
+// Select by viewport width
+var movers = window.matchMedia("(max-width: 767px)").matches
+  ? moversMobile
+  : moversDesktop;
+
+
+// ==========================================================
+// HOME 3 — FISH / DOLPHIN / CHARACTER MOVEMENT
+// ==========================================================
+
+movers.forEach(function(item) {
+
+  tweenIf(item.sel, {
+
+    x: () => item.x * vw,
+    y: () => item.y * vh,
+    rotation: item.r,
+
+    ease: "none",
+    force3D: true,
+
+    scrollTrigger: {
+      trigger: section,
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1,
+      invalidateOnRefresh: true
+    }
+
+  });
+
+});
+
+
+// ==========================================================
+// HOME 3 — GALAXY
+// ==========================================================
+
+var galaxy = q(".home3_galaxy");
   
     if (galaxy) {
       gsap.to(galaxy, {
