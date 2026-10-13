@@ -1945,7 +1945,7 @@ if (pyramid) {
       // 0.5 = moves upward at approximately half scroll speed
       // 0.3 = moves upward slower
       // 0.7 = moves upward faster
-      var REAL_MOON2_SPEED = 0.3;
+      var REAL_MOON2_SPEED = 0.45;
 
       gsap.to(realMoon2, {
 
