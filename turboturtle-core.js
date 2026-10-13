@@ -1681,14 +1681,15 @@ if (
 
 
   
+
   // ============================================================
-  // GLOBAL — SELF ROTATE (SCROLL MOMENTUM)
+  // GLOBAL — SELF ROTATE (BIDIRECTIONAL SCROLL MOMENTUM)
   // Apply .selfrotate to any Webflow element
   // ============================================================
 
-  var SELFROTATE_SPEED = 2.5;    // Rotation sensitivity
-  var SELFROTATE_FRICTION = 3.5; // Higher = stops faster
-  var SELFROTATE_MAX_SPEED = 360; // Maximum degrees per second
+  var SELFROTATE_SPEED = 2.5;      // Rotation sensitivity
+  var SELFROTATE_FRICTION = 3.5;   // Higher = stops faster
+  var SELFROTATE_MAX_SPEED = 360;  // Maximum degrees per second
 
   var selfRotateElements =
     gsap.utils.toArray(".selfrotate");
@@ -1703,7 +1704,7 @@ if (
         ? lenis.scroll
         : window.scrollY;
 
-    // Detect actual scroll movement
+    // Detect scroll direction and add momentum
     lenis.on("scroll", function(event) {
 
       var currentScroll =
@@ -1711,18 +1712,24 @@ if (
           ? event.scroll
           : window.scrollY;
 
-      var delta = Math.abs(
-        currentScroll - selfRotateLastScroll
-      );
+      // Positive = scrolling down
+      // Negative = scrolling up
+      var delta =
+        currentScroll - selfRotateLastScroll;
 
       selfRotateLastScroll = currentScroll;
 
-      // Add rotation momentum
-      selfRotateVelocity += delta * SELFROTATE_SPEED;
+      // Add signed momentum
+      selfRotateVelocity +=
+        delta * SELFROTATE_SPEED;
 
-      selfRotateVelocity = Math.min(
-        selfRotateVelocity,
-        SELFROTATE_MAX_SPEED
+      // Limit speed in BOTH directions
+      selfRotateVelocity = Math.max(
+        -SELFROTATE_MAX_SPEED,
+        Math.min(
+          SELFROTATE_MAX_SPEED,
+          selfRotateVelocity
+        )
       );
 
     });
@@ -1732,23 +1739,21 @@ if (
 
       var dt = Math.min(deltaTime / 1000, 0.05);
 
-      // Apply rotation
+      // Rotate in current direction
       selfRotateAngle += selfRotateVelocity * dt;
 
-      // Gradual friction slowdown
+      // Gradually reduce momentum
       selfRotateVelocity *= Math.exp(
         -SELFROTATE_FRICTION * dt
       );
 
       // Stop tiny residual movement
-      if (selfRotateVelocity < 0.01) {
+      if (Math.abs(selfRotateVelocity) < 0.01) {
         selfRotateVelocity = 0;
       }
 
-      // Keep angle from growing indefinitely
-      if (selfRotateAngle >= 360) {
-        selfRotateAngle %= 360;
-      }
+      // Keep angle within -360 to 360
+      selfRotateAngle %= 360;
 
       gsap.set(selfRotateElements, {
         rotation: selfRotateAngle
@@ -1757,6 +1762,7 @@ if (
     });
 
   }
+
 
 
       
