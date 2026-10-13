@@ -1679,7 +1679,87 @@ if (
   initHomeSection9();
   initHomeResponsiveScale();
 
+
   
+  // ============================================================
+  // GLOBAL — SELF ROTATE (SCROLL MOMENTUM)
+  // Apply .selfrotate to any Webflow element
+  // ============================================================
+
+  var SELFROTATE_SPEED = 2.5;    // Rotation sensitivity
+  var SELFROTATE_FRICTION = 3.5; // Higher = stops faster
+  var SELFROTATE_MAX_SPEED = 360; // Maximum degrees per second
+
+  var selfRotateElements =
+    gsap.utils.toArray(".selfrotate");
+
+  if (selfRotateElements.length) {
+
+    var selfRotateAngle = 0;
+    var selfRotateVelocity = 0;
+
+    var selfRotateLastScroll =
+      typeof lenis.scroll === "number"
+        ? lenis.scroll
+        : window.scrollY;
+
+    // Detect actual scroll movement
+    lenis.on("scroll", function(event) {
+
+      var currentScroll =
+        typeof event.scroll === "number"
+          ? event.scroll
+          : window.scrollY;
+
+      var delta = Math.abs(
+        currentScroll - selfRotateLastScroll
+      );
+
+      selfRotateLastScroll = currentScroll;
+
+      // Add rotation momentum
+      selfRotateVelocity += delta * SELFROTATE_SPEED;
+
+      selfRotateVelocity = Math.min(
+        selfRotateVelocity,
+        SELFROTATE_MAX_SPEED
+      );
+
+    });
+
+    // Animate rotation and gradual slowdown
+    gsap.ticker.add(function(time, deltaTime) {
+
+      var dt = Math.min(deltaTime / 1000, 0.05);
+
+      // Apply rotation
+      selfRotateAngle += selfRotateVelocity * dt;
+
+      // Gradual friction slowdown
+      selfRotateVelocity *= Math.exp(
+        -SELFROTATE_FRICTION * dt
+      );
+
+      // Stop tiny residual movement
+      if (selfRotateVelocity < 0.01) {
+        selfRotateVelocity = 0;
+      }
+
+      // Keep angle from growing indefinitely
+      if (selfRotateAngle >= 360) {
+        selfRotateAngle %= 360;
+      }
+
+      gsap.set(selfRotateElements, {
+        rotation: selfRotateAngle
+      });
+
+    });
+
+  }
+
+
+      
   // ============================================================
   // REUSABLE — ROTATE FLOAT
   // Add .rotate_float to any element
