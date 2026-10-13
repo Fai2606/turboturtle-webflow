@@ -1768,9 +1768,22 @@ if (
 
 
  
+  
   // ============================================================
   // GLOBAL — SELF ROTATE + YELLOW CIRCLE
-  // Continuous momentum with seamless return to 0 degrees
+  //
+  // .selfrotate
+  //   Original scroll momentum behavior
+  //
+  // .selfrotate_yellowcircle
+  //   Absolute scroll position -> target rotation
+  //   Smoothly chases target
+  //   Always returns to 0 at page top
+  // ============================================================
+
+
+  // ============================================================
+  // SETTINGS
   // ============================================================
 
   var SELFROTATE_SETTINGS = {
@@ -1782,14 +1795,13 @@ if (
     },
 
     selfrotate_yellowcircle: {
-      speed: 1,
-      friction: 5,
-      maxSpeed: 180,
 
-      // Seamless return settings
-      topThreshold: 2,
-      returnFriction: 2.5,
-      returnMinSpeed: 55
+      // 10 scroll pixels = 360 degrees
+      pixelsPerRotation: 10,
+
+      // Higher = faster chasing
+      chaseSpeed: 3.5
+
     }
 
   };
@@ -1799,40 +1811,31 @@ if (
   // INITIALIZATION
   // ============================================================
 
-  var selfRotateGroups = [];
+  var normalRotateElements =
+    gsap.utils.toArray(".selfrotate");
 
-  Object.keys(SELFROTATE_SETTINGS).forEach(function(className) {
-
-    var elements =
-      gsap.utils.toArray("." + className);
-
-    if (!elements.length) return;
-
-    selfRotateGroups.push({
-      className: className,
-      elements: elements,
-      settings: SELFROTATE_SETTINGS[className],
-      angle: 0,
-      velocity: 0,
-      returning: false,
-      returnTarget: 0,
-      returnDirection: -1
-    });
-
-  });
+  var yellowCircleElements =
+    gsap.utils.toArray(".selfrotate_yellowcircle");
 
 
-  if (selfRotateGroups.length) {
+  // ============================================================
+  // ORIGINAL SELFROTATE
+  // UNCHANGED MOMENTUM BEHAVIOR
+  // ============================================================
 
-    var selfRotateLastScroll =
+  if (normalRotateElements.length) {
+
+    var normalAngle = 0;
+    var normalVelocity = 0;
+
+    var normalSettings =
+      SELFROTATE_SETTINGS.selfrotate;
+
+    var normalLastScroll =
       typeof lenis.scroll === "number"
         ? lenis.scroll
         : window.scrollY;
 
-
-    // ============================================================
-    // SCROLL INPUT
-    // ============================================================
 
     lenis.on("scroll", function(event) {
 
@@ -1842,201 +1845,138 @@ if (
           : window.scrollY;
 
       var delta =
-        currentScroll - selfRotateLastScroll;
+        currentScroll - normalLastScroll;
 
-      selfRotateLastScroll = currentScroll;
+      normalLastScroll = currentScroll;
 
+      normalVelocity +=
+        delta * normalSettings.speed;
 
-      selfRotateGroups.forEach(function(group) {
-
-        var settings = group.settings;
-
-        var isYellow =
-          group.className === "selfrotate_yellowcircle";
-
-
-        // Cancel return if user scrolls away from top
-        if (
-          isYellow &&
-          currentScroll > settings.topThreshold
-        ) {
-          group.returning = false;
-        }
-
-
-        // While returning, keep the same continuous motion
-        if (isYellow && group.returning) {
-          return;
-        }
-
-
-        // Original scroll-driven momentum
-        group.velocity += delta * settings.speed;
-
-        group.velocity = Math.max(
-          -settings.maxSpeed,
-          Math.min(
-            settings.maxSpeed,
-            group.velocity
-          )
-        );
-
-      });
+      normalVelocity = Math.max(
+        -normalSettings.maxSpeed,
+        Math.min(
+          normalSettings.maxSpeed,
+          normalVelocity
+        )
+      );
 
     });
 
 
-    // ============================================================
-    // ROTATION + MOMENTUM
-    // ============================================================
+    gsap.ticker.add(function(time, deltaTime) {
+
+      var dt =
+        Math.min(deltaTime / 1000, 0.05);
+
+      normalAngle += normalVelocity * dt;
+
+      normalVelocity *= Math.exp(
+        -normalSettings.friction * dt
+      );
+
+      if (Math.abs(normalVelocity) < 0.01) {
+        normalVelocity = 0;
+      }
+
+      normalAngle %= 360;
+
+      gsap.set(normalRotateElements, {
+        rotation: normalAngle
+      });
+
+    });
+
+  }
+
+
+  // ============================================================
+  // YELLOW CIRCLE
+  // ABSOLUTE SCROLL POSITION + SMOOTH CHASE
+  // ============================================================
+
+  if (yellowCircleElements.length) {
+
+    var yellowSettings =
+      SELFROTATE_SETTINGS.selfrotate_yellowcircle;
+
+    var yellowAngle = 0;
+
+    gsap.set(yellowCircleElements, {
+      rotation: 0
+    });
+
 
     gsap.ticker.add(function(time, deltaTime) {
 
-      var dt = Math.min(deltaTime / 1000, 0.05);
+      var dt =
+        Math.min(deltaTime / 1000, 0.05);
 
-      var currentScroll =
+
+      // ========================================================
+      // READ ABSOLUTE SCROLL POSITION
+      // ========================================================
+
+      var scrollPosition =
         typeof lenis.scroll === "number"
           ? lenis.scroll
           : window.scrollY;
 
-
-      selfRotateGroups.forEach(function(group) {
-
-        var settings = group.settings;
-
-        var isYellow =
-          group.className === "selfrotate_yellowcircle";
+      scrollPosition =
+        Math.max(0, scrollPosition);
 
 
-        // ========================================================
-        // YELLOW CIRCLE — ENTER RETURN MODE
-        // ========================================================
+      // ========================================================
+      // CALCULATE TARGET ROTATION
+      //
+      // 0px  -> 0deg
+      // 10px -> 360deg
+      // 20px -> 720deg
+      // 30px -> 1080deg
+      // ========================================================
 
-        if (
-          isYellow &&
-          currentScroll <= settings.topThreshold &&
-          !group.returning &&
-          Math.abs(group.velocity) > 0.01
-        ) {
-
-          group.returning = true;
-
-          group.returnDirection =
-            group.velocity >= 0 ? 1 : -1;
-
-          // Next exact 360-degree alignment
-          if (group.returnDirection > 0) {
-
-            group.returnTarget =
-              Math.ceil(group.angle / 360) * 360;
-
-            if (
-              group.returnTarget - group.angle < 5
-            ) {
-              group.returnTarget += 360;
-            }
-
-          } else {
-
-            group.returnTarget =
-              Math.floor(group.angle / 360) * 360;
-
-            if (
-              group.angle - group.returnTarget < 5
-            ) {
-              group.returnTarget -= 360;
-            }
-
-          }
-
-        }
+      var targetAngle =
+        scrollPosition /
+        yellowSettings.pixelsPerRotation *
+        360;
 
 
-        // ========================================================
-        // YELLOW CIRCLE — CONTINUOUS RETURN
-        // ========================================================
+      // ========================================================
+      // SMOOTH CHASE
+      //
+      // Frame-rate independent exponential smoothing
+      // ========================================================
 
-        if (isYellow && group.returning) {
+      var smoothing =
+        1 - Math.exp(
+          -yellowSettings.chaseSpeed * dt
+        );
 
-          var remaining =
-            Math.abs(group.returnTarget - group.angle);
-
-          var direction = group.returnDirection;
-
-          // Natural momentum decay
-          var naturalSpeed =
-            Math.abs(group.velocity) *
-            Math.exp(-settings.returnFriction * dt);
-
-          // Ensure it continues rotating toward alignment
-          var desiredSpeed =
-            Math.max(
-              naturalSpeed,
-              Math.min(
-                settings.returnMinSpeed,
-                Math.sqrt(remaining) * 12
-              )
-            );
-
-          // Ease speed down near the destination
-          var brakingSpeed =
-            Math.sqrt(2 * 180 * remaining);
-
-          var speed =
-            Math.min(
-              desiredSpeed,
-              brakingSpeed
-            );
-
-          group.velocity = direction * speed;
-
-          var movement =
-            group.velocity * dt;
-
-          if (
-            Math.abs(movement) >= remaining ||
-            remaining < 0.05
-          ) {
-
-            group.angle = 0;
-            group.velocity = 0;
-            group.returning = false;
-
-          } else {
-
-            group.angle += movement;
-
-          }
-
-        } else {
-
-          // ======================================================
-          // ORIGINAL MOMENTUM
-          // ======================================================
-
-          group.angle += group.velocity * dt;
-
-          group.velocity *= Math.exp(
-            -settings.friction * dt
-          );
-
-          if (Math.abs(group.velocity) < 0.01) {
-            group.velocity = 0;
-          }
-
-          group.angle %= 360;
-
-        }
+      yellowAngle +=
+        (targetAngle - yellowAngle) *
+        smoothing;
 
 
-        // ========================================================
-        // APPLY ROTATION
-        // ========================================================
+      // ========================================================
+      // EXACT ZERO AT TOP
+      //
+      // No snapping during normal movement
+      // ========================================================
 
-        gsap.set(group.elements, {
-          rotation: group.angle
-        });
+      if (
+        scrollPosition <= 0.01 &&
+        Math.abs(yellowAngle) < 0.01
+      ) {
+        yellowAngle = 0;
+      }
 
+
+      // ========================================================
+      // APPLY ROTATION
+      // ========================================================
+
+      gsap.set(yellowCircleElements, {
+        rotation: yellowAngle,
+        force3D: true
       });
 
     });
