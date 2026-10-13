@@ -97,24 +97,10 @@ root.addEventListener("resize", function () {
       gsap.set(".home2_cloud, .general_cloud", { opacity: 1 });
   
 
-      var SplitText = root.SplitText;
-
-      // ============================================================
-      // GSAP PLUGIN REGISTRATION
-      // ============================================================
-
-      gsap.registerPlugin(ScrollTrigger);
-
-      if (MorphSVGPlugin) {
-        gsap.registerPlugin(MorphSVGPlugin);
-      }
-
-      if (SplitText) {
-        gsap.registerPlugin(SplitText);
-      }
 
       // ============================================================
       // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
+      // Unified from top 70% to top 30%
       // ============================================================
 
       var SPLITTEXT_SETTINGS = {
@@ -137,12 +123,22 @@ root.addEventListener("resize", function () {
 
           var scatterData = chars.map(function() {
             return {
-              x: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterX, SPLITTEXT_SETTINGS.scatterX),
-              y: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterY, SPLITTEXT_SETTINGS.scatterY),
-              rotation: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterRotation, SPLITTEXT_SETTINGS.scatterRotation)
+              x: gsap.utils.random(
+                -SPLITTEXT_SETTINGS.scatterX,
+                SPLITTEXT_SETTINGS.scatterX
+              ),
+              y: gsap.utils.random(
+                -SPLITTEXT_SETTINGS.scatterY,
+                SPLITTEXT_SETTINGS.scatterY
+              ),
+              rotation: gsap.utils.random(
+                -SPLITTEXT_SETTINGS.scatterRotation,
+                SPLITTEXT_SETTINGS.scatterRotation
+              )
             };
           });
 
+          // Initial scattered state
           chars.forEach(function(char, i) {
             gsap.set(char, {
               display: "inline-block",
@@ -162,24 +158,38 @@ root.addEventListener("resize", function () {
             }
           });
 
-          // SCATTER → UNIFIED
+          // ========================================================
+          // TOP 100% → 70%: UNIFY (EASE OUT)
+          // ========================================================
+
           tl.to(chars, {
             x: 0,
             y: 0,
             rotation: 0,
-            duration: 0.6,
-            ease: "none"
+            duration: 0.3,
+            ease: "power2.out"
           }, 0);
 
-          // UNIFIED → SCATTER
+          // ========================================================
+          // TOP 70% → 30%: HOLD UNIFIED
+          // ========================================================
+
+          tl.to({}, {
+            duration: 0.4
+          }, 0.3);
+
+          // ========================================================
+          // TOP 30% → 0%: SPLIT (EASE IN)
+          // ========================================================
+
           chars.forEach(function(char, i) {
             tl.to(char, {
               x: scatterData[i].x,
               y: scatterData[i].y,
               rotation: scatterData[i].rotation,
-              duration: 0.4,
-              ease: "none"
-            }, 0.6);
+              duration: 0.3,
+              ease: "power2.in"
+            }, 0.7);
           });
 
         });
@@ -187,6 +197,7 @@ root.addEventListener("resize", function () {
       } else {
         console.warn("[TT] SplitText plugin not loaded.");
       }
+
 
 
 
