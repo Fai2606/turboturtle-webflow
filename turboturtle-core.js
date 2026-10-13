@@ -98,15 +98,16 @@ root.addEventListener("resize", function () {
   
 
 
+
       // ============================================================
       // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
-      // Unified from top 70% to top 30%
+      // Unified from top 60% to top 40%
       // ============================================================
 
       var SPLITTEXT_SETTINGS = {
-        scatterX: 35,
-        scatterY: 25,
-        scatterRotation: 25,
+        scatterX: 50,
+        scatterY: 35,
+        scatterRotation: 30,
         scrub: 1
       };
 
@@ -159,27 +160,27 @@ root.addEventListener("resize", function () {
           });
 
           // ========================================================
-          // TOP 100% → 70%: UNIFY (EASE OUT)
+          // TOP 100% → 60%: UNIFY (EASE OUT)
           // ========================================================
 
           tl.to(chars, {
             x: 0,
             y: 0,
             rotation: 0,
-            duration: 0.3,
+            duration: 0.4,
             ease: "power2.out"
           }, 0);
 
           // ========================================================
-          // TOP 70% → 30%: HOLD UNIFIED
+          // TOP 60% → 40%: HOLD UNIFIED
           // ========================================================
 
           tl.to({}, {
-            duration: 0.4
-          }, 0.3);
+            duration: 0.2
+          }, 0.4);
 
           // ========================================================
-          // TOP 30% → 0%: SPLIT (EASE IN)
+          // TOP 40% → 0%: SPLIT (EASE IN)
           // ========================================================
 
           chars.forEach(function(char, i) {
@@ -187,9 +188,9 @@ root.addEventListener("resize", function () {
               x: scatterData[i].x,
               y: scatterData[i].y,
               rotation: scatterData[i].rotation,
-              duration: 0.3,
+              duration: 0.4,
               ease: "power2.in"
-            }, 0.7);
+            }, 0.6);
           });
 
         });
@@ -197,6 +198,7 @@ root.addEventListener("resize", function () {
       } else {
         console.warn("[TT] SplitText plugin not loaded.");
       }
+
 
 
 
