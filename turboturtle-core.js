@@ -1797,7 +1797,7 @@ if (
     selfrotate_yellowcircle: {
 
       // 10 scroll pixels = 360 degrees
-      pixelsPerRotation: 10,
+      pixelsPerRotation: 600,
 
       // Higher = faster chasing
       chaseSpeed: 3.5
