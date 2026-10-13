@@ -1767,9 +1767,10 @@ if (
 
 
 
+ 
   // ============================================================
   // GLOBAL — SELF ROTATE + YELLOW CIRCLE
-  // Scroll momentum + return to zero at page top
+  // Continuous momentum with seamless return to 0 degrees
   // ============================================================
 
   var SELFROTATE_SETTINGS = {
@@ -1785,10 +1786,10 @@ if (
       friction: 5,
       maxSpeed: 180,
 
-      // Return-to-zero settings
-      returnSpeed: 180,
-      returnEase: "power2.out",
-      topThreshold: 2
+      // Seamless return settings
+      topThreshold: 2,
+      returnFriction: 2.5,
+      returnMinSpeed: 55
     }
 
   };
@@ -1813,9 +1814,9 @@ if (
       settings: SELFROTATE_SETTINGS[className],
       angle: 0,
       velocity: 0,
-      returnTween: null,
       returning: false,
-      lastDirection: 1
+      returnTarget: 0,
+      returnDirection: -1
     });
 
   });
@@ -1850,32 +1851,26 @@ if (
 
         var settings = group.settings;
 
-        // Only yellow circle has return-to-zero behavior
         var isYellow =
           group.className === "selfrotate_yellowcircle";
 
-        // Stop automatic return if user scrolls away from top
+
+        // Cancel return if user scrolls away from top
         if (
           isYellow &&
-          group.returning &&
           currentScroll > settings.topThreshold
         ) {
-
-          if (group.returnTween) {
-            group.returnTween.kill();
-            group.returnTween = null;
-          }
-
           group.returning = false;
-          group.velocity = 0;
-
         }
 
-        // Do not add scroll momentum while returning
+
+        // While returning, keep the same continuous motion
         if (isYellow && group.returning) {
           return;
         }
 
+
+        // Original scroll-driven momentum
         group.velocity += delta * settings.speed;
 
         group.velocity = Math.max(
@@ -1885,10 +1880,6 @@ if (
             group.velocity
           )
         );
-
-        if (Math.abs(delta) > 0.01) {
-          group.lastDirection = delta > 0 ? 1 : -1;
-        }
 
       });
 
@@ -1918,75 +1909,43 @@ if (
 
 
         // ========================================================
-        // YELLOW CIRCLE — RETURN TO ZERO
+        // YELLOW CIRCLE — ENTER RETURN MODE
         // ========================================================
 
-        if (isYellow) {
+        if (
+          isYellow &&
+          currentScroll <= settings.topThreshold &&
+          !group.returning &&
+          Math.abs(group.velocity) > 0.01
+        ) {
 
-          var atTop =
-            currentScroll <= settings.topThreshold;
+          group.returning = true;
 
-          if (atTop && !group.returning) {
+          group.returnDirection =
+            group.velocity >= 0 ? 1 : -1;
 
-            group.returning = true;
-            group.velocity = 0;
+          // Next exact 360-degree alignment
+          if (group.returnDirection > 0) {
 
-            var currentAngle = group.angle;
+            group.returnTarget =
+              Math.ceil(group.angle / 360) * 360;
 
-            // Keep rotating in the previous direction
-            var direction = group.lastDirection;
-
-            // Calculate next complete 360-degree position
-            var targetAngle;
-
-            if (direction >= 0) {
-
-              targetAngle =
-                Math.ceil(currentAngle / 360) * 360;
-
-              if (targetAngle - currentAngle < 15) {
-                targetAngle += 360;
-              }
-
-            } else {
-
-              targetAngle =
-                Math.floor(currentAngle / 360) * 360;
-
-              if (currentAngle - targetAngle < 15) {
-                targetAngle -= 360;
-              }
-
+            if (
+              group.returnTarget - group.angle < 5
+            ) {
+              group.returnTarget += 360;
             }
 
-            var distance =
-              Math.abs(targetAngle - currentAngle);
+          } else {
 
-            var duration =
-              Math.max(
-                0.5,
-                distance / settings.returnSpeed
-              );
+            group.returnTarget =
+              Math.floor(group.angle / 360) * 360;
 
-            group.returnTween = gsap.to(group, {
-
-              angle: targetAngle,
-
-              duration: duration,
-
-              ease: settings.returnEase,
-
-              overwrite: true,
-
-              onComplete: function() {
-
-                group.angle = 0;
-                group.velocity = 0;
-                group.returnTween = null;
-
-              }
-
-            });
+            if (
+              group.angle - group.returnTarget < 5
+            ) {
+              group.returnTarget -= 360;
+            }
 
           }
 
@@ -1994,10 +1953,66 @@ if (
 
 
         // ========================================================
-        // NORMAL MOMENTUM
+        // YELLOW CIRCLE — CONTINUOUS RETURN
         // ========================================================
 
-        if (!group.returning) {
+        if (isYellow && group.returning) {
+
+          var remaining =
+            Math.abs(group.returnTarget - group.angle);
+
+          var direction = group.returnDirection;
+
+          // Natural momentum decay
+          var naturalSpeed =
+            Math.abs(group.velocity) *
+            Math.exp(-settings.returnFriction * dt);
+
+          // Ensure it continues rotating toward alignment
+          var desiredSpeed =
+            Math.max(
+              naturalSpeed,
+              Math.min(
+                settings.returnMinSpeed,
+                Math.sqrt(remaining) * 12
+              )
+            );
+
+          // Ease speed down near the destination
+          var brakingSpeed =
+            Math.sqrt(2 * 180 * remaining);
+
+          var speed =
+            Math.min(
+              desiredSpeed,
+              brakingSpeed
+            );
+
+          group.velocity = direction * speed;
+
+          var movement =
+            group.velocity * dt;
+
+          if (
+            Math.abs(movement) >= remaining ||
+            remaining < 0.05
+          ) {
+
+            group.angle = 0;
+            group.velocity = 0;
+            group.returning = false;
+
+          } else {
+
+            group.angle += movement;
+
+          }
+
+        } else {
+
+          // ======================================================
+          // ORIGINAL MOMENTUM
+          // ======================================================
 
           group.angle += group.velocity * dt;
 
