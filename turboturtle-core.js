@@ -3801,7 +3801,7 @@ function initHomeSection5() {
         gsap.set(jupiter, {
           xPercent: 35 * t,
           yPercent: (-30 * t) + (10 * arc),
-          rotation: 30 * t,
+          rotation: 180 * t,
           force3D: true
         });
       }
