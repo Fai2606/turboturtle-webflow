@@ -6504,7 +6504,7 @@ function initHomeSection8() {
   var movers = [
 
     { sel: ".home8_crystal",  y: 120 },
-    { sel: ".home8_bear",     y: 130, x: 30, r: 15 },
+    { sel: ".home8_bear",     y: 130, x: 30, r: 11 },
 
     { sel: ".home8_mount3",   y: 130 },
 
