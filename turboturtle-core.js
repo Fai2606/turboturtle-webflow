@@ -3512,7 +3512,7 @@ if (enableGrowup) {
     { sel: ".home3_jet",        x: 90, y:  -5, r:   0 },
     { sel: ".home3_turtle",     x: 20, y:  12, r:  -5 },
     { sel: ".home3_lion",       x: 12, y:   8, r: -30 },
-    { sel: ".home3_bear",       x:  9, y:  30, r:  -1 },
+    { sel: ".home3_bear",       x:  5, y:  30, r:  -1 },
     { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
     { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
   ];
