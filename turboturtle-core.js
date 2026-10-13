@@ -1766,13 +1766,10 @@ if (
   
 
 
-  // ============================================================
-  // GLOBAL — SELF ROTATE 1 & 2
-  // Bidirectional scroll momentum with gradual slowdown
-  // ============================================================
 
   // ============================================================
-  // SETTINGS
+  // GLOBAL — SELF ROTATE + YELLOW CIRCLE
+  // Scroll momentum + return to zero at page top
   // ============================================================
 
   var SELFROTATE_SETTINGS = {
@@ -1783,13 +1780,19 @@ if (
       maxSpeed: 360
     },
 
-    selfrotate2: {
+    selfrotate_yellowcircle: {
       speed: 1,
       friction: 5,
-      maxSpeed: 180
+      maxSpeed: 180,
+
+      // Return-to-zero settings
+      returnSpeed: 180,
+      returnEase: "power2.out",
+      topThreshold: 2
     }
 
   };
+
 
   // ============================================================
   // INITIALIZATION
@@ -1805,13 +1808,18 @@ if (
     if (!elements.length) return;
 
     selfRotateGroups.push({
+      className: className,
       elements: elements,
       settings: SELFROTATE_SETTINGS[className],
       angle: 0,
-      velocity: 0
+      velocity: 0,
+      returnTween: null,
+      returning: false,
+      lastDirection: 1
     });
 
   });
+
 
   if (selfRotateGroups.length) {
 
@@ -1819,6 +1827,7 @@ if (
       typeof lenis.scroll === "number"
         ? lenis.scroll
         : window.scrollY;
+
 
     // ============================================================
     // SCROLL INPUT
@@ -1831,16 +1840,41 @@ if (
           ? event.scroll
           : window.scrollY;
 
-      // Positive = scroll down
-      // Negative = scroll up
       var delta =
         currentScroll - selfRotateLastScroll;
 
       selfRotateLastScroll = currentScroll;
 
+
       selfRotateGroups.forEach(function(group) {
 
         var settings = group.settings;
+
+        // Only yellow circle has return-to-zero behavior
+        var isYellow =
+          group.className === "selfrotate_yellowcircle";
+
+        // Stop automatic return if user scrolls away from top
+        if (
+          isYellow &&
+          group.returning &&
+          currentScroll > settings.topThreshold
+        ) {
+
+          if (group.returnTween) {
+            group.returnTween.kill();
+            group.returnTween = null;
+          }
+
+          group.returning = false;
+          group.velocity = 0;
+
+        }
+
+        // Do not add scroll momentum while returning
+        if (isYellow && group.returning) {
+          return;
+        }
 
         group.velocity += delta * settings.speed;
 
@@ -1852,9 +1886,14 @@ if (
           )
         );
 
+        if (Math.abs(delta) > 0.01) {
+          group.lastDirection = delta > 0 ? 1 : -1;
+        }
+
       });
 
     });
+
 
     // ============================================================
     // ROTATION + MOMENTUM
@@ -1864,25 +1903,120 @@ if (
 
       var dt = Math.min(deltaTime / 1000, 0.05);
 
+      var currentScroll =
+        typeof lenis.scroll === "number"
+          ? lenis.scroll
+          : window.scrollY;
+
+
       selfRotateGroups.forEach(function(group) {
 
         var settings = group.settings;
 
-        // Rotate
-        group.angle += group.velocity * dt;
+        var isYellow =
+          group.className === "selfrotate_yellowcircle";
 
-        // Gradual slowdown
-        group.velocity *= Math.exp(
-          -settings.friction * dt
-        );
 
-        // Stop tiny residual movement
-        if (Math.abs(group.velocity) < 0.01) {
-          group.velocity = 0;
+        // ========================================================
+        // YELLOW CIRCLE — RETURN TO ZERO
+        // ========================================================
+
+        if (isYellow) {
+
+          var atTop =
+            currentScroll <= settings.topThreshold;
+
+          if (atTop && !group.returning) {
+
+            group.returning = true;
+            group.velocity = 0;
+
+            var currentAngle = group.angle;
+
+            // Keep rotating in the previous direction
+            var direction = group.lastDirection;
+
+            // Calculate next complete 360-degree position
+            var targetAngle;
+
+            if (direction >= 0) {
+
+              targetAngle =
+                Math.ceil(currentAngle / 360) * 360;
+
+              if (targetAngle - currentAngle < 15) {
+                targetAngle += 360;
+              }
+
+            } else {
+
+              targetAngle =
+                Math.floor(currentAngle / 360) * 360;
+
+              if (currentAngle - targetAngle < 15) {
+                targetAngle -= 360;
+              }
+
+            }
+
+            var distance =
+              Math.abs(targetAngle - currentAngle);
+
+            var duration =
+              Math.max(
+                0.5,
+                distance / settings.returnSpeed
+              );
+
+            group.returnTween = gsap.to(group, {
+
+              angle: targetAngle,
+
+              duration: duration,
+
+              ease: settings.returnEase,
+
+              overwrite: true,
+
+              onComplete: function() {
+
+                group.angle = 0;
+                group.velocity = 0;
+                group.returnTween = null;
+
+              }
+
+            });
+
+          }
+
         }
 
-        // Keep angle manageable
-        group.angle %= 360;
+
+        // ========================================================
+        // NORMAL MOMENTUM
+        // ========================================================
+
+        if (!group.returning) {
+
+          group.angle += group.velocity * dt;
+
+          group.velocity *= Math.exp(
+            -settings.friction * dt
+          );
+
+          if (Math.abs(group.velocity) < 0.01) {
+            group.velocity = 0;
+          }
+
+          group.angle %= 360;
+
+        }
+
+
+        // ========================================================
+        // APPLY ROTATION
+        // ========================================================
 
         gsap.set(group.elements, {
           rotation: group.angle
