@@ -2972,7 +2972,7 @@ if (cityLight) {
     cityLight,
 
     {
-      rotation: -55,
+      rotation: -75,
       transformOrigin: "50% 100%"
     },
 
@@ -3003,7 +3003,7 @@ if (cityLight2) {
     cityLight2,
 
     {
-      rotation: 10,
+      rotation: 30,
       transformOrigin: "50% 100%"
     },
 
@@ -3033,7 +3033,7 @@ if (cityLight3) {
     cityLight3,
 
     {
-      rotation: -20,
+      rotation: -50,
       transformOrigin: "50% 100%"
     },
 
@@ -3063,7 +3063,7 @@ if (cityLight4) {
     cityLight4,
 
     {
-      rotation: 12,
+      rotation: 42,
       transformOrigin: "50% 100%"
     },
 
