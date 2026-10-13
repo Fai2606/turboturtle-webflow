@@ -118,6 +118,103 @@ root.addEventListener("resize", function () {
         gsap.registerPlugin(
           ScrollTrigger
         );
+      
+  // ============================================================
+  // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
+  // Apply .splittext to any Webflow text element
+  // ============================================================
+
+  var SPLITTEXT_SETTINGS = {
+    scatterX: 35,        // Maximum horizontal scatter (px)
+    scatterY: 25,        // Maximum vertical scatter (px)
+    scatterRotation: 25, // Maximum rotation (degrees)
+    scrub: 1,            // Scroll smoothing
+    seed: 1234           // Stable random pattern
+  };
+
+  if (SplitText) {
+
+    gsap.utils.toArray(".splittext").forEach(function(el, index) {
+
+      var split = SplitText.create(el, {
+        type: "chars",
+        charsClass: "splittext_char"
+      });
+
+      var chars = split.chars;
+
+      // Deterministic random offsets
+      var random = gsap.utils.random;
+
+      var scatterData = chars.map(function(char) {
+
+        return {
+          x: random(
+            -SPLITTEXT_SETTINGS.scatterX,
+            SPLITTEXT_SETTINGS.scatterX
+          ),
+          y: random(
+            -SPLITTEXT_SETTINGS.scatterY,
+            SPLITTEXT_SETTINGS.scatterY
+          ),
+          rotation: random(
+            -SPLITTEXT_SETTINGS.scatterRotation,
+            SPLITTEXT_SETTINGS.scatterRotation
+          )
+        };
+
+      });
+
+      // Set initial scattered state
+      chars.forEach(function(char, i) {
+
+        gsap.set(char, {
+          display: "inline-block",
+          x: scatterData[i].x,
+          y: scatterData[i].y,
+          rotation: scatterData[i].rotation,
+          force3D: true
+        });
+
+      });
+
+      // Scroll-driven timeline
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start: "top 100%",
+          end: "top 0%",
+          scrub: SPLITTEXT_SETTINGS.scrub,
+          invalidateOnRefresh: true
+        }
+      });
+
+      // 100% → 40%: Scatter to unified
+      tl.to(chars, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        ease: "none",
+        duration: 0.6
+      }, 0);
+
+      // 40% → 0%: Unified to scattered
+      chars.forEach(function(char, i) {
+
+        tl.to(char, {
+          x: scatterData[i].x,
+          y: scatterData[i].y,
+          rotation: scatterData[i].rotation,
+          ease: "none",
+          duration: 0.4
+        }, 0.6);
+
+      });
+
+    });
+
+  }
+
     }
 
       ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
