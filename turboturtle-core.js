@@ -96,126 +96,99 @@ root.addEventListener("resize", function () {
       MorphSVGPlugin = root.MorphSVGPlugin;
       gsap.set(".home2_cloud, .general_cloud", { opacity: 1 });
   
+
       var SplitText = root.SplitText;
-  
-      if (MorphSVGPlugin && SplitText) {
-        gsap.registerPlugin(
-          ScrollTrigger,
-          MorphSVGPlugin,
-          SplitText
-        );
-      } else if (MorphSVGPlugin) {
-        gsap.registerPlugin(
-          ScrollTrigger,
-          MorphSVGPlugin
-        );
-      } else if (SplitText) {
-        gsap.registerPlugin(
-          ScrollTrigger,
-          SplitText
-        );
-      } else {
-        gsap.registerPlugin(
-          ScrollTrigger
-        );
-      
-  // ============================================================
-  // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
-  // Apply .splittext to any Webflow text element
-  // ============================================================
 
-  var SPLITTEXT_SETTINGS = {
-    scatterX: 35,        // Maximum horizontal scatter (px)
-    scatterY: 25,        // Maximum vertical scatter (px)
-    scatterRotation: 25, // Maximum rotation (degrees)
-    scrub: 1,            // Scroll smoothing
-    seed: 1234           // Stable random pattern
-  };
+      // ============================================================
+      // GSAP PLUGIN REGISTRATION
+      // ============================================================
 
-  if (SplitText) {
+      gsap.registerPlugin(ScrollTrigger);
 
-    gsap.utils.toArray(".splittext").forEach(function(el, index) {
+      if (MorphSVGPlugin) {
+        gsap.registerPlugin(MorphSVGPlugin);
+      }
 
-      var split = SplitText.create(el, {
-        type: "chars",
-        charsClass: "splittext_char"
-      });
+      if (SplitText) {
+        gsap.registerPlugin(SplitText);
+      }
 
-      var chars = split.chars;
+      // ============================================================
+      // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
+      // ============================================================
 
-      // Deterministic random offsets
-      var random = gsap.utils.random;
+      var SPLITTEXT_SETTINGS = {
+        scatterX: 35,
+        scatterY: 25,
+        scatterRotation: 25,
+        scrub: 1
+      };
 
-      var scatterData = chars.map(function(char) {
+      if (SplitText) {
 
-        return {
-          x: random(
-            -SPLITTEXT_SETTINGS.scatterX,
-            SPLITTEXT_SETTINGS.scatterX
-          ),
-          y: random(
-            -SPLITTEXT_SETTINGS.scatterY,
-            SPLITTEXT_SETTINGS.scatterY
-          ),
-          rotation: random(
-            -SPLITTEXT_SETTINGS.scatterRotation,
-            SPLITTEXT_SETTINGS.scatterRotation
-          )
-        };
+        gsap.utils.toArray(".splittext").forEach(function(el) {
 
-      });
+          var split = SplitText.create(el, {
+            type: "chars",
+            charsClass: "splittext_char"
+          });
 
-      // Set initial scattered state
-      chars.forEach(function(char, i) {
+          var chars = split.chars;
 
-        gsap.set(char, {
-          display: "inline-block",
-          x: scatterData[i].x,
-          y: scatterData[i].y,
-          rotation: scatterData[i].rotation,
-          force3D: true
+          var scatterData = chars.map(function() {
+            return {
+              x: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterX, SPLITTEXT_SETTINGS.scatterX),
+              y: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterY, SPLITTEXT_SETTINGS.scatterY),
+              rotation: gsap.utils.random(-SPLITTEXT_SETTINGS.scatterRotation, SPLITTEXT_SETTINGS.scatterRotation)
+            };
+          });
+
+          chars.forEach(function(char, i) {
+            gsap.set(char, {
+              display: "inline-block",
+              x: scatterData[i].x,
+              y: scatterData[i].y,
+              rotation: scatterData[i].rotation
+            });
+          });
+
+          var tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: el,
+              start: "top 100%",
+              end: "top 0%",
+              scrub: SPLITTEXT_SETTINGS.scrub,
+              invalidateOnRefresh: true
+            }
+          });
+
+          // SCATTER → UNIFIED
+          tl.to(chars, {
+            x: 0,
+            y: 0,
+            rotation: 0,
+            duration: 0.6,
+            ease: "none"
+          }, 0);
+
+          // UNIFIED → SCATTER
+          chars.forEach(function(char, i) {
+            tl.to(char, {
+              x: scatterData[i].x,
+              y: scatterData[i].y,
+              rotation: scatterData[i].rotation,
+              duration: 0.4,
+              ease: "none"
+            }, 0.6);
+          });
+
         });
 
-      });
+      } else {
+        console.warn("[TT] SplitText plugin not loaded.");
+      }
 
-      // Scroll-driven timeline
-      var tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: el,
-          start: "top 100%",
-          end: "top 0%",
-          scrub: SPLITTEXT_SETTINGS.scrub,
-          invalidateOnRefresh: true
-        }
-      });
 
-      // 100% → 40%: Scatter to unified
-      tl.to(chars, {
-        x: 0,
-        y: 0,
-        rotation: 0,
-        ease: "none",
-        duration: 0.6
-      }, 0);
-
-      // 40% → 0%: Unified to scattered
-      chars.forEach(function(char, i) {
-
-        tl.to(char, {
-          x: scatterData[i].x,
-          y: scatterData[i].y,
-          rotation: scatterData[i].rotation,
-          ease: "none",
-          duration: 0.4
-        }, 0.6);
-
-      });
-
-    });
-
-  }
-
-    }
 
       ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
 
