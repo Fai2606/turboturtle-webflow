@@ -1744,6 +1744,7 @@ if (
     var section = q(".home_section1");
     var moon = q(".home1_moon");
     var realMoon = q(".home1_realmoon");
+    var realMoon2 = q(".home1_realmoon2");
     var cloud = q(".home1_cloud");
     var pyramid = q(".home1_pyramid");
     var text = q(".home_kv");
@@ -1921,6 +1922,35 @@ if (pyramid) {
 
         y: function () {
           return section.offsetHeight * (1 - REAL_MOON_SPEED);
+        },
+
+        ease: "none",
+        force3D: true,
+
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+
+      });
+
+    }
+
+    if (realMoon2) {
+
+      // SETTINGS
+      // 0.5 = moves upward at approximately half scroll speed
+      // 0.3 = moves upward slower
+      // 0.7 = moves upward faster
+      var REAL_MOON2_SPEED = 0.3;
+
+      gsap.to(realMoon2, {
+
+        y: function () {
+          return section.offsetHeight * (1 - REAL_MOON2_SPEED);
         },
 
         ease: "none",
