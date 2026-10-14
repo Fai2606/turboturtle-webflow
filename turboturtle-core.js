@@ -1880,8 +1880,9 @@ if (
 
       normalAngle %= 360;
 
-      gsap.set(normalRotateElements, {
-        rotation: normalAngle
+      normalRotateElements.forEach(function(el) {
+        if (el.dataset.ttPhysicsActive === "1") return;
+        gsap.set(el, { rotation: normalAngle });
       });
 
     });
@@ -1974,9 +1975,9 @@ if (
       // APPLY ROTATION
       // ========================================================
 
-      gsap.set(yellowCircleElements, {
-        rotation: yellowAngle,
-        force3D: true
+      yellowCircleElements.forEach(function(el) {
+        if (el.dataset.ttPhysicsActive === "1") return;
+        gsap.set(el, { rotation: yellowAngle, force3D: true });
       });
 
     });
@@ -1990,6 +1991,182 @@ if (
 
 
       
+  // ============================================================
+  // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
+  // Only this image enters physics mode; other rotations remain.
+  // ============================================================
+  (function initCircleTextPhysics() {
+    var el = document.querySelector(".Circle_text");
+    if (!el || el.dataset.ttBallReady === "1") return;
+    var bounds = el.getBoundingClientRect();
+    if (bounds.width < 1 || bounds.height < 1) return;
+    el.dataset.ttBallReady = "1";
+
+    var css = document.createElement("style");
+    css.textContent = [
+      '.tt-ball-wrap{position:fixed!important;left:0!important;top:0!important;margin:0!important;padding:0!important;z-index:10000;touch-action:none;cursor:grab;user-select:none;will-change:transform}',
+      '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
+      '.tt-ball-dock{position:fixed;box-sizing:border-box;border:2px dotted rgba(0,0,0,.5);border-radius:50%;pointer-events:none;z-index:9999;transition:border-color .15s,background .15s}',
+      '.tt-ball-dock.tt-near{border-color:#91a200;background:rgba(238,255,80,.18)}',
+      '.tt-ball-wrap>.Circle_text{position:absolute!important;top:0!important;left:0!important;right:auto!important;bottom:auto!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;object-fit:contain;pointer-events:none}'
+    ].join('\n');
+    document.head.appendChild(css);
+
+    var wrap = document.createElement('div');
+    var dock = document.createElement('div');
+    wrap.className = 'tt-ball-wrap';
+    dock.className = 'tt-ball-dock';
+    var w = bounds.width, h = bounds.height;
+    wrap.style.width = w + 'px';
+    wrap.style.height = h + 'px';
+    dock.style.width = w + 'px';
+    dock.style.height = h + 'px';
+    var rightGap = document.documentElement.clientWidth - bounds.right;
+    var bottomGap = document.documentElement.clientHeight - bounds.bottom;
+    document.body.appendChild(dock);
+    document.body.appendChild(wrap);
+    wrap.appendChild(el);
+
+    var C = { gravity:1550, bounce:.68, wallBounce:.78,
+              snapRadius:85, jumpCooldown:.38, scrollThreshold:1.5 };
+    var x=bounds.left, y=bounds.top, hx=x, hy=y;
+    var vx=0, vy=0, angle=0, spin=0, cooldown=0;
+    var mode='docked', pointer=null, lastPoint=null, history=[];
+    var sx=0, sy=0, sa=0, moved=false;
+    var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
+    var lastJumpAt=0;
+    function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+    function width(){return document.documentElement.clientWidth;}
+    function height(){return document.documentElement.clientHeight;}
+    function maxX(){return Math.max(0,width()-w);}
+    function maxY(){return Math.max(0,height()-h);}
+    function distance(){return Math.hypot(x-hx,y-hy);}
+    function render(){gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});}
+    function layout(){
+      hx=clamp(width()-rightGap-w,0,maxX());
+      hy=clamp(height()-bottomGap-h,0,maxY());
+      dock.style.left=hx+'px';dock.style.top=hy+'px';
+      if(mode==='docked'){x=hx;y=hy;}
+      else{x=clamp(x,0,maxX());y=clamp(y,0,maxY());}
+      render();
+    }
+    function startPhysics(){
+      el.dataset.ttPhysicsActive='1';
+      gsap.set(el,{rotation:0});
+    }
+    function dockPhysics(){
+      el.dataset.ttPhysicsActive='0';
+      // On the next core ticker, original scroll rotation resumes.
+      gsap.set(el,{rotation:0});
+    }
+    function snap(){
+      mode='snap';vx=vy=spin=sx=sy=sa=0;
+      dock.classList.add('tt-near');
+    }
+    function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
+    wrap.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      e.preventDefault();
+      pointer=e.pointerId;
+      wrap.setPointerCapture(pointer);
+      // Transfer the currently visible rotation to the physics wrapper.
+      if(mode==='docked') angle=Number(gsap.getProperty(el,'rotation'))||0;
+      startPhysics();mode='drag';moved=false;
+      vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
+      wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
+      render();
+    });
+    wrap.addEventListener('pointermove',function(e){
+      if(mode!=='drag'||pointer!==e.pointerId)return;
+      var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
+      if(Math.abs(dx)+Math.abs(dy)>1)moved=true;
+      x=clamp(x+dx,0,maxX());y=clamp(y+dy,0,maxY());
+      lastPoint=p;history.push(p);
+      history=history.filter(function(v){return p.t-v.t<110;});
+      dock.classList.toggle('tt-near',distance()<C.snapRadius);
+      render();
+    });
+    function release(e){
+      if(mode!=='drag'||pointer!==e.pointerId)return;
+      pointer=null;wrap.classList.remove('tt-dragging');
+      if(!moved){
+        // A tap on the docked CTA is not a throw.
+        if(distance()<C.snapRadius){snap();return;}
+      }
+      if(distance()<C.snapRadius){snap();return;}
+      mode='physics';
+      var a=history[0],b=history[history.length-1];
+      if(a&&b&&b.t-a.t>8&&performance.now()-b.t<110){
+        var dt=(b.t-a.t)/1000;
+        vx=clamp((b.x-a.x)/dt,-1800,1800);
+        vy=clamp((b.y-a.y)/dt,-1800,1800);
+        spin=vx*.23;
+      }
+    }
+    wrap.addEventListener('pointerup',release);
+    wrap.addEventListener('pointercancel',release);
+    wrap.addEventListener('lostpointercapture',function(){
+      if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');}
+    });
+    function jump(power){
+      if(mode!=='physics'||cooldown>0||y<maxY()-8)return;
+      var dir=Math.random()<.5?-1:1;
+      vy=-Math.min(1100,400+400*power);
+      spin=dir*(90+Math.random()*180);
+      vx+=dir*(25+Math.random()*55);
+      cooldown=C.jumpCooldown;
+    }
+    function onScroll(value){
+      var delta=value-lastScroll;lastScroll=value;
+      if(Math.abs(delta)<C.scrollThreshold||mode!=='physics')return;
+      var now=performance.now();
+      if(now-lastJumpAt<100)return;
+      jump(Math.min(1.7,Math.abs(delta)/16));
+      lastJumpAt=now;
+    }
+    // Lenis is already initialized in startCore; do not attach duplicate native scroll input.
+    if(lenis&&typeof lenis.on==='function'){
+      lenis.on('scroll',function(e){onScroll(typeof e.scroll==='number'?e.scroll:window.scrollY);});
+    }else{
+      window.addEventListener('scroll',function(){onScroll(window.scrollY);},{passive:true});
+    }
+    gsap.ticker.add(function(time,deltaMs){
+      var dt=Math.min(deltaMs/1000,.032);
+      cooldown=Math.max(0,cooldown-dt);
+      if(mode==='snap'){
+        var k=160,decay=Math.exp(-16*dt);
+        sx=(sx+(hx-x)*k*dt)*decay;
+        sy=(sy+(hy-y)*k*dt)*decay;
+        x+=sx*dt;y+=sy*dt;
+        var targetAngle=Math.round(angle/360)*360;
+        sa=(sa+(targetAngle-angle)*k*dt)*decay;
+        angle+=sa*dt;
+        if(distance()<.4&&Math.hypot(sx,sy)<2&&Math.abs(angle-targetAngle)<.5){
+          x=hx;y=hy;angle=0;mode='docked';dockPhysics();dock.classList.remove('tt-near');
+        }
+        render();
+      }else if(mode==='physics'){
+        var steps=Math.max(1,Math.ceil(dt/.008)),hdt=dt/steps;
+        for(var i=0;i<steps;i++){
+          vy+=C.gravity*hdt;x+=vx*hdt;y+=vy*hdt;angle+=spin*hdt;
+          if(x<0){x=0;vx=Math.abs(vx)*C.wallBounce;}
+          if(x>maxX()){x=maxX();vx=-Math.abs(vx)*C.wallBounce;}
+          if(y<0){y=0;vy=Math.abs(vy)*.72;}
+          if(y>maxY()){
+            y=maxY();vy=-Math.abs(vy)*C.bounce;vx*=.91;spin*=.85;
+            if(Math.abs(vy)<60)vy=0;
+          }
+          vx*=Math.exp(-.4*hdt);spin*=Math.exp(-.7*hdt);
+          if(y>=maxY()-.1&&vy===0){vx*=Math.exp(-4*hdt);spin*=Math.exp(-4*hdt);}
+        }
+        render();
+      }
+    });
+    window.addEventListener('resize',layout,{passive:true});
+    layout();
+    console.log('[TT] Circle_text physics ready');
+  })();
+
   // ============================================================
   // REUSABLE — ROTATE FLOAT
   // Add .rotate_float to any element
