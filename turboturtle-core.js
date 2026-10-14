@@ -2033,6 +2033,7 @@ if (
     css.textContent = [
       '.tt-ball-wrap{position:fixed!important;left:0!important;top:0!important;margin:0!important;padding:0!important;z-index:10000;touch-action:none;cursor:grab;user-select:none;will-change:transform}',
       '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
+      '.tt-ball-wrap.tt-ball-docked{position:absolute!important;left:50%!important;top:50%!important;will-change:auto}',
     
       // Invisible docking target — magnetic snap still works
       '.tt-ball-dock{position:fixed;box-sizing:border-box;border:none;background:transparent;border-radius:50%;pointer-events:none;z-index:9999}',
@@ -2183,27 +2184,55 @@ if (
     function maxX(){return Math.max(0,width()-w);}
     function maxY(){return Math.max(0,height()-h);}
     function distance(){return Math.hypot(x-hx,y-hy);}
-    function render(){gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});}
+    var base = document.querySelector('.circle_text_base');
+    var physicallyDocked = false;
+    function render(){
+      // When attached, CSS positioning is inherited from the base itself.
+      // Never apply viewport pixel coordinates to a docked ball.
+      if (physicallyDocked) return;
+      gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});
+    }
+    function dockToBase(){
+      if (!base || physicallyDocked) return;
+      base.appendChild(wrap);
+      wrap.classList.add('tt-ball-docked');
+      gsap.set(wrap,{clearProps:'x,y,xPercent,yPercent,rotation',xPercent:-50,yPercent:-50,rotation:0});
+      physicallyDocked = true;
+    }
+    function undockFromBase(){
+      if (!physicallyDocked) return;
+      // Read the base, not the rotated image's bounding rectangle.
+      var br = base.getBoundingClientRect();
+      x = br.left + (br.width - w)/2;
+      y = br.top + (br.height - h)/2;
+      hx=x;hy=y;
+      physicallyDocked = false;
+      wrap.classList.remove('tt-ball-docked');
+      document.body.appendChild(wrap);
+      gsap.set(wrap,{clearProps:'xPercent,yPercent',xPercent:0,yPercent:0});
+      render();
+    }
     function layout(){
-      // offsetWidth/Height ignore the physics rotation transform.
       w=wrap.offsetWidth;
       h=wrap.offsetHeight;
-      var base=document.querySelector('.circle_text_base');
       if(base){
-        // Track the actual Webflow base on every resize.
         var br=base.getBoundingClientRect();
         hx=br.left+(br.width-w)/2;
         hy=br.top+(br.height-h)/2;
       }else{
-        // Fallback if the Webflow base is not present.
         hx=width()-rightGap-w;
         hy=height()-bottomGap-h;
       }
       dock.style.width=w+'px';dock.style.height=h+'px';
       dock.style.left=hx+'px';dock.style.top=hy+'px';
-      if(mode==='docked'){x=hx;y=hy;}
-      else{x=clamp(x,0,maxX());y=clamp(y,0,maxY());}
-      render();
+      if(mode==='docked'){
+        x=hx;y=hy;
+        if(base) dockToBase();
+        else render();
+      }else{
+        x=clamp(x,0,maxX());y=clamp(y,0,maxY());
+        render();
+      }
     }
     function startPhysics(){
       el.dataset.ttPhysicsActive='1';
@@ -2227,7 +2256,10 @@ if (
       pointer=e.pointerId;
       wrap.setPointerCapture(pointer);
       // Transfer the currently visible rotation to the physics wrapper.
-      if(mode==='docked') angle=Number(gsap.getProperty(el,'rotation'))||0;
+      if(mode==='docked') {
+        angle=Number(gsap.getProperty(el,'rotation'))||0;
+        undockFromBase();
+      }
       startPhysics();mode='drag';moved=false;
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
@@ -2306,10 +2338,9 @@ if (
             dock.style.left = hx + 'px';
             dock.style.top = hy + 'px';
           }
-          if (mode === 'docked' && (Math.abs(x - hx) > 0.1 || Math.abs(y - hy) > 0.1)) {
-            x = hx;
-            y = hy;
-            render();
+          if (mode === 'docked') {
+            x = hx; y = hy;
+            if (!physicallyDocked) dockToBase();
           }
         }
       }
@@ -2325,6 +2356,7 @@ if (
         angle+=sa*dt;
         if(distance()<.4&&Math.hypot(sx,sy)<2&&Math.abs(angle-targetAngle)<.5){
           x=hx;y=hy;angle=0;mode='docked';cancelPendingHoleman();holemanArmed=true;dockPhysics();dock.classList.remove('tt-near');
+          dockToBase();
         }
         render();
 
