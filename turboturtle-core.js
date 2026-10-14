@@ -2289,6 +2289,28 @@ if (
       window.addEventListener('scroll',function(){onScroll(window.scrollY);},{passive:true});
     }
     gsap.ticker.add(function(time,deltaMs){
+      // Mobile browser chrome can shift the actual fixed base without a
+      // reliable window resize event. Follow its measured screen rectangle.
+      // Do not force the free-moving ball to follow while being dragged.
+      if (mode !== 'drag') {
+        var liveBase = document.querySelector('.circle_text_base');
+        if (liveBase) {
+          var liveRect = liveBase.getBoundingClientRect();
+          var nextHX = clamp(liveRect.left + (liveRect.width - w) / 2, 0, maxX());
+          var nextHY = clamp(liveRect.top + (liveRect.height - h) / 2, 0, maxY());
+          if (Math.abs(nextHX - hx) > 0.1 || Math.abs(nextHY - hy) > 0.1) {
+            hx = nextHX;
+            hy = nextHY;
+            dock.style.left = hx + 'px';
+            dock.style.top = hy + 'px';
+          }
+          if (mode === 'docked' && (Math.abs(x - hx) > 0.1 || Math.abs(y - hy) > 0.1)) {
+            x = hx;
+            y = hy;
+            render();
+          }
+        }
+      }
       var dt=Math.min(deltaMs/1000,.032);
       cooldown=Math.max(0,cooldown-dt);
       if(mode==='snap'){
@@ -2395,6 +2417,11 @@ if (
 
     });
     window.addEventListener('resize',layout,{passive:true});
+    // Visual viewport events also occur as mobile URL bars expand/collapse.
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', layout, {passive:true});
+      window.visualViewport.addEventListener('scroll', layout, {passive:true});
+    }
     layout();
     console.log('[TT] circle_text physics ready');
   })();
