@@ -1802,6 +1802,12 @@ if (
       // Higher = faster chasing
       chaseSpeed: 3.5
 
+    },
+
+    // Constant rotation, independent of scrolling
+    selfrotate_yellowcircle2: {
+      duration: 12,  // seconds per full rotation
+      direction: 1   // 1 = clockwise, -1 = anticlockwise
     }
 
   };
@@ -1991,6 +1997,26 @@ if (
 
 
       
+  // ============================================================
+  // SELFROTATE YELLOWCIRCLE 2 — CONSTANT ROTATION
+  // Independent of scroll position and ball physics.
+  // ============================================================
+  (function initConstantYellowCircleRotation() {
+    var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle2;
+    gsap.utils.toArray(".selfrotate_yellowcircle2").forEach(function(el) {
+      if (el.dataset.ttConstantRotateReady === "1") return;
+      el.dataset.ttConstantRotateReady = "1";
+      gsap.to(el, {
+        rotation: "+=" + (360 * settings.direction),
+        duration: settings.duration,
+        ease: "none",
+        repeat: -1,
+        force3D: true
+      });
+    });
+  })();
+
+
   // ============================================================
   // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
   // Only this image enters physics mode; other rotations remain.
