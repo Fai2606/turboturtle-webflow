@@ -2037,7 +2037,7 @@ if (
     var css = document.createElement("style");
     css.textContent = [
       '.tt-ball-wrap{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;z-index:10000;touch-action:none;cursor:grab;user-select:none}',
-      '.tt-ball-wrap.tt-free{position:fixed!important;left:0!important;top:0!important;width:var(--tt-ball-size)!important;height:var(--tt-ball-size)!important;will-change:transform}',
+      '.tt-ball-wrap.tt-free{will-change:transform}',
       '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
     
       // Invisible docking target — magnetic snap still works
@@ -2053,13 +2053,9 @@ if (
     var dock = document.createElement('div');
     wrap.className = 'tt-ball-wrap';
     dock.className = 'tt-ball-dock';
-    // The base owns the docked layout; the wrapper is absolute inside it.
-    // Only undock into a fixed-position physics layer when interaction begins.
+    // The wrapper stays inside the base even during physics.
+    // CSS owns sizing; JS only animates translation and rotation.
     var w = bounds.width, h = bounds.height;
-    var rightGap = document.documentElement.clientWidth - bounds.right;
-    var bottomGap = document.documentElement.clientHeight - bounds.bottom;
-    var ballResponsiveSize = 'calc(4vw + 4vh + 40px)';
-    wrap.style.setProperty('--tt-ball-size', ballResponsiveSize);
     base.appendChild(wrap);
     wrap.appendChild(el);
     document.body.appendChild(dock);
@@ -2183,8 +2179,13 @@ if (
     function maxY(){return Math.max(0,height()-h);}
     function distance(){return Math.hypot(x-hx,y-hy);}
     function render(){
-      if(mode==='docked') return; // CSS alone positions the docked ball.
-      gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});
+      if(mode==='docked') return; // Webflow positions and sizes the docked ball.
+      // Keep the wrapper in its Webflow parent even while flying.
+      // Translate viewport physics coordinates into base-local coordinates.
+      var br = base.getBoundingClientRect();
+      var homeLeft = br.left + (br.width - w) / 2;
+      var homeTop = br.top + (br.height - h) / 2;
+      gsap.set(wrap, {x:x-homeLeft, y:y-homeTop, rotation:angle, force3D:true});
     }
     function home(){
       // The base is the single source of truth. No viewport-height clamping.
@@ -2196,34 +2197,28 @@ if (
     }
     function undock(){
       if(wrap.classList.contains('tt-free')) return;
-      var r=wrap.getBoundingClientRect();
-      w=r.width;h=r.height;
-      x=r.left;y=r.top;
-      // Detach without changing the apparent position.
-      document.body.appendChild(wrap);
+      var r = wrap.getBoundingClientRect();
+      w = wrap.offsetWidth; h = wrap.offsetHeight;
+      x = r.left; y = r.top;
+      // No DOM reparenting or pixel sizes. The wrapper stays 100% of the
+      // Webflow base in every state, so Webflow alone determines its size.
       wrap.classList.add('tt-free');
-      wrap.style.width=w+'px';wrap.style.height=h+'px';
-      gsap.set(wrap,{clearProps:'transform'});
       home();
-      render();
     }
     function redock(){
-      // Rejoin the CSS layout; never chase a mobile viewport shift.
       wrap.classList.remove('tt-free','tt-dragging');
-      wrap.style.removeProperty('width');wrap.style.removeProperty('height');
       gsap.set(wrap,{clearProps:'transform'});
-      base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
     function layout(){
+      // Always read the size determined by Webflow, never write it.
+      w=wrap.offsetWidth;h=wrap.offsetHeight;
+      home();
       if(mode==='docked'){
-        w=wrap.offsetWidth;h=wrap.offsetHeight;
-        home();x=hx;y=hy;
+        x=hx;y=hy;
       }else{
-        // Keep physical size stable during flight, update home target.
-        home();
         x=clamp(x,0,maxX());y=clamp(y,0,maxY());
         render();
       }
@@ -2253,7 +2248,7 @@ if (
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
       }
-      // Reparenting can cancel pointer capture on Safari. Capture only AFTER undocking.
+      // Capture the pointer; no DOM reparenting occurs.
       startPhysics();mode='drag';moved=false;
       try { wrap.setPointerCapture(pointer); } catch(err) {}
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
@@ -2271,8 +2266,7 @@ if (
       dock.classList.toggle('tt-near',distance()<C.snapRadius);
       render();
     }
-    // Window listeners are essential when a fast swipe leaves the ball,
-    // or mobile Safari drops capture during DOM reparenting.
+    // Window listeners are essential when a fast swipe leaves the ball.
     window.addEventListener('pointermove',moveBallPointer,{passive:false});
     function release(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
@@ -2294,7 +2288,6 @@ if (
     window.addEventListener('pointerup',release);
     window.addEventListener('pointercancel',release);
     wrap.addEventListener('lostpointercapture',function(){
-      // Do not abandon a live drag merely because Safari loses capture.
       // Window-level pointermove/up continue to handle the gesture.
     });
     window.addEventListener('blur',function(){
@@ -2325,7 +2318,14 @@ if (
     gsap.ticker.add(function(time,deltaMs){
       var dt=Math.min(deltaMs/1000,.032);
       cooldown=Math.max(0,cooldown-dt);
-      if(mode==='snap'||mode==='physics') home();
+      // A changing mobile viewport can resize the CSS-based ball without
+      // firing a window resize. Read its live size and home position.
+      if(mode!=='docked') {
+        var newW=wrap.offsetWidth, newH=wrap.offsetHeight;
+        if(newW!==w || newH!==h) { w=newW; h=newH; }
+        home();
+      }
+      if(mode==='drag') render();
       if(mode==='snap'){
         var k=160,decay=Math.exp(-16*dt);
         sx=(sx+(hx-x)*k*dt)*decay;
