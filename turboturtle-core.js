@@ -2248,18 +2248,19 @@ if (
       if(e.pointerType==='mouse'&&e.button!==0)return;
       e.preventDefault();
       pointer=e.pointerId;
-      try { wrap.setPointerCapture(pointer); } catch(e) {}
       // Transfer the currently visible rotation to the physics wrapper.
       if(mode==='docked'){
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
       }
+      // Reparenting can cancel pointer capture on Safari. Capture only AFTER undocking.
       startPhysics();mode='drag';moved=false;
+      try { wrap.setPointerCapture(pointer); } catch(err) {}
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
       render();
     });
-    wrap.addEventListener('pointermove',function(e){
+    function moveBallPointer(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
       var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
       if(Math.abs(dx)+Math.abs(dy)>1)moved=true;
@@ -2269,7 +2270,10 @@ if (
       history=history.filter(function(v){return p.t-v.t<110;});
       dock.classList.toggle('tt-near',distance()<C.snapRadius);
       render();
-    });
+    }
+    // Window listeners are essential when a fast swipe leaves the ball,
+    // or mobile Safari drops capture during DOM reparenting.
+    window.addEventListener('pointermove',moveBallPointer,{passive:false});
     function release(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
       pointer=null;wrap.classList.remove('tt-dragging');
@@ -2287,9 +2291,13 @@ if (
         spin=vx*.23;
       }
     }
-    wrap.addEventListener('pointerup',release);
-    wrap.addEventListener('pointercancel',release);
+    window.addEventListener('pointerup',release);
+    window.addEventListener('pointercancel',release);
     wrap.addEventListener('lostpointercapture',function(){
+      // Do not abandon a live drag merely because Safari loses capture.
+      // Window-level pointermove/up continue to handle the gesture.
+    });
+    window.addEventListener('blur',function(){
       if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');}
     });
     function jump(power){
