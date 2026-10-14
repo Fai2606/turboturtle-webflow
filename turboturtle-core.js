@@ -1996,7 +1996,7 @@ if (
   // Only this image enters physics mode; other rotations remain.
   // ============================================================
   (function initCircleTextPhysics() {
-    var el = document.querySelector(".Circle_text");
+    var el = document.querySelector(".circle_text");
     if (!el || el.dataset.ttBallReady === "1") return;
     var bounds = el.getBoundingClientRect();
     if (bounds.width < 1 || bounds.height < 1) return;
@@ -2008,7 +2008,7 @@ if (
       '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
       '.tt-ball-dock{position:fixed;box-sizing:border-box;border:2px dotted rgba(0,0,0,.5);border-radius:50%;pointer-events:none;z-index:9999;transition:border-color .15s,background .15s}',
       '.tt-ball-dock.tt-near{border-color:#91a200;background:rgba(238,255,80,.18)}',
-      '.tt-ball-wrap>.Circle_text{position:absolute!important;top:0!important;left:0!important;right:auto!important;bottom:auto!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;object-fit:contain;pointer-events:none}'
+      '.tt-ball-wrap>.circle_text{position:absolute!important;top:0!important;left:0!important;right:auto!important;bottom:auto!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;object-fit:contain;pointer-events:none}'
     ].join('\n');
     document.head.appendChild(css);
 
@@ -2164,7 +2164,7 @@ if (
     });
     window.addEventListener('resize',layout,{passive:true});
     layout();
-    console.log('[TT] Circle_text physics ready');
+    console.log('[TT] circle_text physics ready');
   })();
 
   // ============================================================
