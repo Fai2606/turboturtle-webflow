@@ -2150,22 +2150,95 @@ if (
           x=hx;y=hy;angle=0;mode='docked';dockPhysics();dock.classList.remove('tt-near');
         }
         render();
-      }else if(mode==='physics'){
-        var steps=Math.max(1,Math.ceil(dt/.008)),hdt=dt/steps;
-        for(var i=0;i<steps;i++){
-          vy+=C.gravity*hdt;x+=vx*hdt;y+=vy*hdt;angle+=spin*hdt;
-          if(x<0){x=0;vx=Math.abs(vx)*C.wallBounce;}
-          if(x>maxX()){x=maxX();vx=-Math.abs(vx)*C.wallBounce;}
-          if(y<0){y=0;vy=Math.abs(vy)*.72;}
-          if(y>maxY()){
-            y=maxY();vy=-Math.abs(vy)*C.bounce;vx*=.91;spin*=.85;
-            if(Math.abs(vy)<60)vy=0;
-          }
-          vx*=Math.exp(-.4*hdt);spin*=Math.exp(-.7*hdt);
-          if(y>=maxY()-.1&&vy===0){vx*=Math.exp(-4*hdt);spin*=Math.exp(-4*hdt);}
-        }
-        render();
-      }
+
+}else if(mode==='physics'){
+
+  var steps=Math.max(1,Math.ceil(dt/.008));
+  var hdt=dt/steps;
+
+  // ==================================================
+  // BLACK HOLE MAGNETIC DOCK
+  // ==================================================
+
+  // Adjustable settings (pixels)
+  var attractionRadius=165;
+  var captureRadius=48;
+  var magneticForce=2600;
+
+  for(var i=0;i<steps;i++){
+
+    // Distance to original home position
+    var dx=hx-x;
+    var dy=hy-y;
+    var dist=Math.hypot(dx,dy);
+
+    // Automatically capture the ball near home
+    if(dist<captureRadius){
+      snap();
+      break;
+    }
+
+    // Gently pull a flying ball towards home
+    if(dist<attractionRadius && dist>0.001){
+
+      var strength=1-dist/attractionRadius;
+
+      var acceleration=
+        magneticForce*strength*strength;
+
+      vx+=(dx/dist)*acceleration*hdt;
+      vy+=(dy/dist)*acceleration*hdt;
+    }
+
+    // Existing gravity and movement
+    vy+=C.gravity*hdt;
+    x+=vx*hdt;
+    y+=vy*hdt;
+    angle+=spin*hdt;
+
+    // Existing wall collisions
+    if(x<0){
+      x=0;
+      vx=Math.abs(vx)*C.wallBounce;
+    }
+
+    if(x>maxX()){
+      x=maxX();
+      vx=-Math.abs(vx)*C.wallBounce;
+    }
+
+    if(y<0){
+      y=0;
+      vy=Math.abs(vy)*.72;
+    }
+
+    // Existing floor bounce
+    if(y>maxY()){
+      y=maxY();
+      vy=-Math.abs(vy)*C.bounce;
+      vx*=.91;
+      spin*=.85;
+
+      if(Math.abs(vy)<60)vy=0;
+    }
+
+    // Existing friction
+    vx*=Math.exp(-.4*hdt);
+    spin*=Math.exp(-.7*hdt);
+
+    if(y>=maxY()-.1 && vy===0){
+      vx*=Math.exp(-4*hdt);
+      spin*=Math.exp(-4*hdt);
+    }
+  }
+
+  // Only render physics while still in physics mode.
+  // The existing snap branch handles the return.
+  if(mode==='physics'){
+    render();
+  }
+}
+
     });
     window.addEventListener('resize',layout,{passive:true});
     layout();
