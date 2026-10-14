@@ -2002,14 +2002,19 @@ if (
     if (bounds.width < 1 || bounds.height < 1) return;
     el.dataset.ttBallReady = "1";
 
+
     var css = document.createElement("style");
     css.textContent = [
       '.tt-ball-wrap{position:fixed!important;left:0!important;top:0!important;margin:0!important;padding:0!important;z-index:10000;touch-action:none;cursor:grab;user-select:none;will-change:transform}',
       '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
-      '.tt-ball-dock{position:fixed;box-sizing:border-box;border:2px dotted rgba(0,0,0,.5);border-radius:50%;pointer-events:none;z-index:9999;transition:border-color .15s,background .15s}',
-      '.tt-ball-dock.tt-near{border-color:#91a200;background:rgba(238,255,80,.18)}',
+    
+      // Invisible docking target — magnetic snap still works
+      '.tt-ball-dock{position:fixed;box-sizing:border-box;border:none;background:transparent;border-radius:50%;pointer-events:none;z-index:9999}',
+      '.tt-ball-dock.tt-near{border:none;background:transparent}',
+    
       '.tt-ball-wrap>.circle_text{position:absolute!important;top:0!important;left:0!important;right:auto!important;bottom:auto!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;object-fit:contain;pointer-events:none}'
     ].join('\n');
+
     document.head.appendChild(css);
 
     var wrap = document.createElement('div');
