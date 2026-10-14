@@ -2024,6 +2024,11 @@ if (
   (function initCircleTextPhysics() {
     var el = document.querySelector(".circle_text");
     if (!el || el.dataset.ttBallReady === "1") return;
+    var base = document.querySelector('.circle_text_base');
+    if (!base || !base.contains(el)) {
+      console.warn('[TT] Move .circle_text inside .circle_text_base in Webflow before using this version.');
+      return;
+    }
     var bounds = el.getBoundingClientRect();
     if (bounds.width < 1 || bounds.height < 1) return;
     el.dataset.ttBallReady = "1";
@@ -2031,9 +2036,9 @@ if (
 
     var css = document.createElement("style");
     css.textContent = [
-      '.tt-ball-wrap{position:fixed!important;left:0!important;top:0!important;margin:0!important;padding:0!important;z-index:10000;touch-action:none;cursor:grab;user-select:none;will-change:transform}',
+      '.tt-ball-wrap{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;z-index:10000;touch-action:none;cursor:grab;user-select:none}',
+      '.tt-ball-wrap.tt-free{position:fixed!important;left:0!important;top:0!important;width:var(--tt-ball-size)!important;height:var(--tt-ball-size)!important;will-change:transform}',
       '.tt-ball-wrap.tt-dragging{cursor:grabbing}',
-      '.tt-ball-wrap.tt-ball-docked{position:absolute!important;left:50%!important;top:50%!important;will-change:auto}',
     
       // Invisible docking target — magnetic snap still works
       '.tt-ball-dock{position:fixed;box-sizing:border-box;border:none;background:transparent;border-radius:50%;pointer-events:none;z-index:9999}',
@@ -2048,23 +2053,16 @@ if (
     var dock = document.createElement('div');
     wrap.className = 'tt-ball-wrap';
     dock.className = 'tt-ball-dock';
+    // The base owns the docked layout; the wrapper is absolute inside it.
+    // Only undock into a fixed-position physics layer when interaction begins.
     var w = bounds.width, h = bounds.height;
-    wrap.style.width = w + 'px';
-    wrap.style.height = h + 'px';
-    dock.style.width = w + 'px';
-    dock.style.height = h + 'px';
     var rightGap = document.documentElement.clientWidth - bounds.right;
     var bottomGap = document.documentElement.clientHeight - bounds.bottom;
-    // Keep the draggable ball responsive, matching the Webflow base.
-    // The physics wrapper must resize too, not just the original image.
     var ballResponsiveSize = 'calc(4vw + 4vh + 40px)';
-    wrap.style.width = ballResponsiveSize;
-    wrap.style.height = ballResponsiveSize;
-    dock.style.width = ballResponsiveSize;
-    dock.style.height = ballResponsiveSize;
-    document.body.appendChild(dock);
-    document.body.appendChild(wrap);
+    wrap.style.setProperty('--tt-ball-size', ballResponsiveSize);
+    base.appendChild(wrap);
     wrap.appendChild(el);
+    document.body.appendChild(dock);
 
     // ============================================================
     // HOLEMAN — RANDOM CHARACTER, BOTTOM-RIGHT POP, 1s HOLD
@@ -2184,52 +2182,48 @@ if (
     function maxX(){return Math.max(0,width()-w);}
     function maxY(){return Math.max(0,height()-h);}
     function distance(){return Math.hypot(x-hx,y-hy);}
-    var base = document.querySelector('.circle_text_base');
-    var physicallyDocked = false;
     function render(){
-      // When attached, CSS positioning is inherited from the base itself.
-      // Never apply viewport pixel coordinates to a docked ball.
-      if (physicallyDocked) return;
+      if(mode==='docked') return; // CSS alone positions the docked ball.
       gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});
     }
-    function dockToBase(){
-      if (!base || physicallyDocked) return;
-      base.appendChild(wrap);
-      wrap.classList.add('tt-ball-docked');
-      gsap.set(wrap,{clearProps:'x,y,xPercent,yPercent,rotation',xPercent:-50,yPercent:-50,rotation:0});
-      physicallyDocked = true;
-    }
-    function undockFromBase(){
-      if (!physicallyDocked) return;
-      // Read the base, not the rotated image's bounding rectangle.
-      var br = base.getBoundingClientRect();
-      x = br.left + (br.width - w)/2;
-      y = br.top + (br.height - h)/2;
-      hx=x;hy=y;
-      physicallyDocked = false;
-      wrap.classList.remove('tt-ball-docked');
-      document.body.appendChild(wrap);
-      gsap.set(wrap,{clearProps:'xPercent,yPercent',xPercent:0,yPercent:0});
-      render();
-    }
-    function layout(){
-      w=wrap.offsetWidth;
-      h=wrap.offsetHeight;
-      if(base){
-        var br=base.getBoundingClientRect();
-        hx=br.left+(br.width-w)/2;
-        hy=br.top+(br.height-h)/2;
-      }else{
-        hx=width()-rightGap-w;
-        hy=height()-bottomGap-h;
-      }
+    function home(){
+      // The base is the single source of truth. No viewport-height clamping.
+      var br=base.getBoundingClientRect();
+      hx=br.left+(br.width-w)/2;
+      hy=br.top+(br.height-h)/2;
       dock.style.width=w+'px';dock.style.height=h+'px';
       dock.style.left=hx+'px';dock.style.top=hy+'px';
+    }
+    function undock(){
+      if(wrap.classList.contains('tt-free')) return;
+      var r=wrap.getBoundingClientRect();
+      w=r.width;h=r.height;
+      x=r.left;y=r.top;
+      // Detach without changing the apparent position.
+      document.body.appendChild(wrap);
+      wrap.classList.add('tt-free');
+      wrap.style.width=w+'px';wrap.style.height=h+'px';
+      gsap.set(wrap,{clearProps:'transform'});
+      home();
+      render();
+    }
+    function redock(){
+      // Rejoin the CSS layout; never chase a mobile viewport shift.
+      wrap.classList.remove('tt-free','tt-dragging');
+      wrap.style.removeProperty('width');wrap.style.removeProperty('height');
+      gsap.set(wrap,{clearProps:'transform'});
+      base.appendChild(wrap);
+      mode='docked';angle=0;vx=vy=spin=0;
+      w=wrap.offsetWidth;h=wrap.offsetHeight;
+      home();x=hx;y=hy;
+    }
+    function layout(){
       if(mode==='docked'){
-        x=hx;y=hy;
-        if(base) dockToBase();
-        else render();
+        w=wrap.offsetWidth;h=wrap.offsetHeight;
+        home();x=hx;y=hy;
       }else{
+        // Keep physical size stable during flight, update home target.
+        home();
         x=clamp(x,0,maxX());y=clamp(y,0,maxY());
         render();
       }
@@ -2254,11 +2248,11 @@ if (
       if(e.pointerType==='mouse'&&e.button!==0)return;
       e.preventDefault();
       pointer=e.pointerId;
-      wrap.setPointerCapture(pointer);
+      try { wrap.setPointerCapture(pointer); } catch(e) {}
       // Transfer the currently visible rotation to the physics wrapper.
-      if(mode==='docked') {
+      if(mode==='docked'){
         angle=Number(gsap.getProperty(el,'rotation'))||0;
-        undockFromBase();
+        undock();
       }
       startPhysics();mode='drag';moved=false;
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
@@ -2321,31 +2315,9 @@ if (
       window.addEventListener('scroll',function(){onScroll(window.scrollY);},{passive:true});
     }
     gsap.ticker.add(function(time,deltaMs){
-      // Mobile browser chrome can shift the actual fixed base without a
-      // reliable window resize event. Follow its measured screen rectangle.
-      // Do not force the free-moving ball to follow while being dragged.
-      // Fixed CSS bottom coordinates can extend beyond clientHeight while
-      // Safari changes its browser chrome. Never clamp the home position.
-      if (mode !== 'drag') {
-        var liveBase = document.querySelector('.circle_text_base');
-        if (liveBase) {
-          var liveRect = liveBase.getBoundingClientRect();
-          var nextHX = liveRect.left + (liveRect.width - w) / 2;
-          var nextHY = liveRect.top + (liveRect.height - h) / 2;
-          if (Math.abs(nextHX - hx) > 0.1 || Math.abs(nextHY - hy) > 0.1) {
-            hx = nextHX;
-            hy = nextHY;
-            dock.style.left = hx + 'px';
-            dock.style.top = hy + 'px';
-          }
-          if (mode === 'docked') {
-            x = hx; y = hy;
-            if (!physicallyDocked) dockToBase();
-          }
-        }
-      }
       var dt=Math.min(deltaMs/1000,.032);
       cooldown=Math.max(0,cooldown-dt);
+      if(mode==='snap'||mode==='physics') home();
       if(mode==='snap'){
         var k=160,decay=Math.exp(-16*dt);
         sx=(sx+(hx-x)*k*dt)*decay;
@@ -2355,8 +2327,8 @@ if (
         sa=(sa+(targetAngle-angle)*k*dt)*decay;
         angle+=sa*dt;
         if(distance()<.4&&Math.hypot(sx,sy)<2&&Math.abs(angle-targetAngle)<.5){
-          x=hx;y=hy;angle=0;mode='docked';cancelPendingHoleman();holemanArmed=true;dockPhysics();dock.classList.remove('tt-near');
-          dockToBase();
+          x=hx;y=hy;angle=0;cancelPendingHoleman();holemanArmed=true;dockPhysics();dock.classList.remove('tt-near');
+          redock();
         }
         render();
 
@@ -2451,9 +2423,9 @@ if (
 
     });
     window.addEventListener('resize',layout,{passive:true});
-    // Do not run layout() on visualViewport events: Safari's address-bar
-    // animation changes visualViewport without changing the CSS fixed
-    // coordinate space. The ticker follows the base's actual rectangle.
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',function(){ if(mode!=='docked') home(); },{passive:true});
+    }
     layout();
     console.log('[TT] circle_text physics ready');
   })();
