@@ -2032,6 +2032,42 @@ if (
     document.body.appendChild(wrap);
     wrap.appendChild(el);
 
+    // ============================================================
+    // HOLEMAN — POP OUT WHEN YELLOW BALL LEAVES ITS BASE
+    // Webflow retains control of the character's layout and position.
+    // Only runtime transforms/visibility are animated.
+    // ============================================================
+    var holeman = document.querySelector('.holeman_wrapper');
+    var holemanVisible = false;
+
+    if (holeman) {
+      gsap.set(holeman, { yPercent: 110, autoAlpha: 0, force3D: true });
+    }
+
+    function showHoleman() {
+      if (!holeman || holemanVisible) return;
+      holemanVisible = true;
+      gsap.to(holeman, {
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 0.85,
+        ease: 'back.out(2.4)',
+        overwrite: true
+      });
+    }
+
+    function hideHoleman() {
+      if (!holeman || !holemanVisible) return;
+      holemanVisible = false;
+      gsap.to(holeman, {
+        yPercent: 110,
+        autoAlpha: 0,
+        duration: 0.35,
+        ease: 'power2.in',
+        overwrite: true
+      });
+    }
+
     var C = { gravity:1550, bounce:.68, wallBounce:.78,
               snapRadius:85, jumpCooldown:.38, scrollThreshold:1.5 };
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
@@ -2067,6 +2103,7 @@ if (
     function snap(){
       mode='snap';vx=vy=spin=sx=sy=sa=0;
       dock.classList.add('tt-near');
+      hideHoleman();
     }
     function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
     wrap.addEventListener('pointerdown',function(e){
@@ -2086,6 +2123,7 @@ if (
       var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
       if(Math.abs(dx)+Math.abs(dy)>1)moved=true;
       x=clamp(x+dx,0,maxX());y=clamp(y+dy,0,maxY());
+      if(distance()>35) showHoleman();
       lastPoint=p;history.push(p);
       history=history.filter(function(v){return p.t-v.t<110;});
       dock.classList.toggle('tt-near',distance()<C.snapRadius);
@@ -2235,6 +2273,7 @@ if (
   // Only render physics while still in physics mode.
   // The existing snap branch handles the return.
   if(mode==='physics'){
+    if(distance()>35) showHoleman();
     render();
   }
 }
