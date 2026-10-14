@@ -2054,6 +2054,13 @@ if (
     dock.style.height = h + 'px';
     var rightGap = document.documentElement.clientWidth - bounds.right;
     var bottomGap = document.documentElement.clientHeight - bounds.bottom;
+    // Keep the draggable ball responsive, matching the Webflow base.
+    // The physics wrapper must resize too, not just the original image.
+    var ballResponsiveSize = 'calc(4vw + 4vh + 40px)';
+    wrap.style.width = ballResponsiveSize;
+    wrap.style.height = ballResponsiveSize;
+    dock.style.width = ballResponsiveSize;
+    dock.style.height = ballResponsiveSize;
     document.body.appendChild(dock);
     document.body.appendChild(wrap);
     wrap.appendChild(el);
@@ -2158,8 +2165,21 @@ if (
     function distance(){return Math.hypot(x-hx,y-hy);}
     function render(){gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});}
     function layout(){
-      hx=clamp(width()-rightGap-w,0,maxX());
-      hy=clamp(height()-bottomGap-h,0,maxY());
+      // offsetWidth/Height ignore the physics rotation transform.
+      w=wrap.offsetWidth;
+      h=wrap.offsetHeight;
+      var base=document.querySelector('.circle_text_base');
+      if(base){
+        // Track the actual Webflow base on every resize.
+        var br=base.getBoundingClientRect();
+        hx=clamp(br.left+(br.width-w)/2,0,maxX());
+        hy=clamp(br.top+(br.height-h)/2,0,maxY());
+      }else{
+        // Fallback if the Webflow base is not present.
+        hx=clamp(width()-rightGap-w,0,maxX());
+        hy=clamp(height()-bottomGap-h,0,maxY());
+      }
+      dock.style.width=w+'px';dock.style.height=h+'px';
       dock.style.left=hx+'px';dock.style.top=hy+'px';
       if(mode==='docked'){x=hx;y=hy;}
       else{x=clamp(x,0,maxX());y=clamp(y,0,maxY());}
