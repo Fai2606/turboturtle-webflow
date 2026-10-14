@@ -2107,7 +2107,7 @@ if (
         yPercent: 0,
         autoAlpha: 1,
         duration: 0.43,
-        ease: 'back.out(2.2)',
+        ease: 'back.out(1.2)',
         overwrite: true,
         onComplete: function () {
           // Hold for 1 second after popping out, then retreat.
