@@ -2033,38 +2033,60 @@ if (
     wrap.appendChild(el);
 
     // ============================================================
-    // HOLEMAN — POP OUT WHEN YELLOW BALL LEAVES ITS BASE
-    // Webflow retains control of the character's layout and position.
-    // Only runtime transforms/visibility are animated.
+    // HOLEMAN — FAST POP FROM BOTTOM-RIGHT, HOLD 2s, RETREAT
+    // Webflow controls the final position and size.
+    // Transform offsets are relative to that Webflow position.
     // ============================================================
     var holeman = document.querySelector('.holeman_wrapper');
     var holemanVisible = false;
+    var holemanArmed = true;
+    var holemanReturnTimer = null;
 
     if (holeman) {
-      gsap.set(holeman, { yPercent: 110, autoAlpha: 0, force3D: true });
-    }
-
-    function showHoleman() {
-      if (!holeman || holemanVisible) return;
-      holemanVisible = true;
-      gsap.to(holeman, {
-        yPercent: 0,
-        autoAlpha: 1,
-        duration: 0.85,
-        ease: 'back.out(2.4)',
-        overwrite: true
+      gsap.set(holeman, {
+        xPercent: 90,
+        yPercent: 115,
+        autoAlpha: 0,
+        force3D: true
       });
     }
 
     function hideHoleman() {
-      if (!holeman || !holemanVisible) return;
+      if (!holeman) return;
+      if (holemanReturnTimer) {
+        holemanReturnTimer.kill();
+        holemanReturnTimer = null;
+      }
       holemanVisible = false;
       gsap.to(holeman, {
-        yPercent: 110,
+        xPercent: 90,
+        yPercent: 115,
         autoAlpha: 0,
-        duration: 0.35,
+        duration: 0.32,
         ease: 'power2.in',
         overwrite: true
+      });
+    }
+
+    function showHoleman() {
+      if (!holeman || !holemanArmed || holemanVisible) return;
+      holemanArmed = false; // One appearance per ball departure.
+      holemanVisible = true;
+      if (holemanReturnTimer) {
+        holemanReturnTimer.kill();
+        holemanReturnTimer = null;
+      }
+      gsap.to(holeman, {
+        xPercent: 0,
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 0.43,
+        ease: 'back.out(2.2)',
+        overwrite: true,
+        onComplete: function () {
+          // Hold the visible character for 2 seconds, then retreat.
+          holemanReturnTimer = gsap.delayedCall(2, hideHoleman);
+        }
       });
     }
 
@@ -2103,7 +2125,6 @@ if (
     function snap(){
       mode='snap';vx=vy=spin=sx=sy=sa=0;
       dock.classList.add('tt-near');
-      hideHoleman();
     }
     function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
     wrap.addEventListener('pointerdown',function(e){
@@ -2185,7 +2206,7 @@ if (
         sa=(sa+(targetAngle-angle)*k*dt)*decay;
         angle+=sa*dt;
         if(distance()<.4&&Math.hypot(sx,sy)<2&&Math.abs(angle-targetAngle)<.5){
-          x=hx;y=hy;angle=0;mode='docked';dockPhysics();dock.classList.remove('tt-near');
+          x=hx;y=hy;angle=0;mode='docked';holemanArmed=true;dockPhysics();dock.classList.remove('tt-near');
         }
         render();
 
