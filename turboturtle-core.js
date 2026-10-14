@@ -2033,14 +2033,22 @@ if (
     wrap.appendChild(el);
 
     // ============================================================
-    // HOLEMAN — FAST POP FROM BOTTOM-RIGHT, HOLD 2s, RETREAT
-    // Webflow controls the final position and size.
-    // Transform offsets are relative to that Webflow position.
+    // HOLEMAN — RANDOM CHARACTER, BOTTOM-RIGHT POP, 1s HOLD
+    // Webflow owns all positioning, sizing and child artwork.
+    // Each ball departure chooses one character (avoids immediate repeat).
     // ============================================================
     var holeman = document.querySelector('.holeman_wrapper');
-    var holemanVisible = false;
+    var holemanCharacters = holeman
+      ? Array.prototype.filter.call(holeman.children, function(child) {
+          return Array.prototype.some.call(child.classList, function(name) {
+            return /^holeman\d+$/i.test(name);
+          });
+        })
+      : [];
     var holemanArmed = true;
+    var holemanVisible = false;
     var holemanReturnTimer = null;
+    var lastHolemanIndex = -1;
 
     if (holeman) {
       gsap.set(holeman, {
@@ -2049,6 +2057,10 @@ if (
         autoAlpha: 0,
         force3D: true
       });
+      // Runtime only: all characters remain visible/editable in Webflow Designer.
+      if (holemanCharacters.length) {
+        gsap.set(holemanCharacters, { autoAlpha: 0 });
+      }
     }
 
     function hideHoleman() {
@@ -2070,12 +2082,26 @@ if (
 
     function showHoleman() {
       if (!holeman || !holemanArmed || holemanVisible) return;
-      holemanArmed = false; // One appearance per ball departure.
+      holemanArmed = false;
       holemanVisible = true;
       if (holemanReturnTimer) {
         holemanReturnTimer.kill();
         holemanReturnTimer = null;
       }
+
+      // Choose exactly one Webflow child: holeman1, holeman2, holeman3 ...
+      if (holemanCharacters.length) {
+        var choice = Math.floor(Math.random() * holemanCharacters.length);
+        if (holemanCharacters.length > 1 && choice === lastHolemanIndex) {
+          choice = (choice + 1 + Math.floor(
+            Math.random() * (holemanCharacters.length - 1)
+          )) % holemanCharacters.length;
+        }
+        lastHolemanIndex = choice;
+        gsap.set(holemanCharacters, { autoAlpha: 0 });
+        gsap.set(holemanCharacters[choice], { autoAlpha: 1 });
+      }
+
       gsap.to(holeman, {
         xPercent: 0,
         yPercent: 0,
@@ -2084,8 +2110,8 @@ if (
         ease: 'back.out(2.2)',
         overwrite: true,
         onComplete: function () {
-          // Hold the visible character for 2 seconds, then retreat.
-          holemanReturnTimer = gsap.delayedCall(2, hideHoleman);
+          // Hold for 1 second after popping out, then retreat.
+          holemanReturnTimer = gsap.delayedCall(1, hideHoleman);
         }
       });
     }
@@ -2124,6 +2150,7 @@ if (
     }
     function snap(){
       mode='snap';vx=vy=spin=sx=sy=sa=0;
+      holemanArmed=true; // Re-arm as soon as ball returns to its base.
       dock.classList.add('tt-near');
     }
     function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
