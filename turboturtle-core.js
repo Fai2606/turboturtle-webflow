@@ -1798,6 +1798,7 @@ if (
 
       // 10 scroll pixels = 360 degrees
       pixelsPerRotation: 1800,
+      mobileSpeedMultiplier: 2, // double rotation speed at mobile widths
 
       // Higher = faster chasing
       chaseSpeed: 3.5
@@ -1946,7 +1947,7 @@ if (
 
       var targetAngle =
         scrollPosition /
-        yellowSettings.pixelsPerRotation *
+        (yellowSettings.pixelsPerRotation / (window.matchMedia("(max-width: 767px)").matches ? yellowSettings.mobileSpeedMultiplier : 1)) *
         360;
 
 
@@ -2120,7 +2121,7 @@ if (
     var holemanDelayTimer = null;
     var holemanReturnTimer = null;
     var lastHolemanIndex = -1;
-    var HOLEMAN_DELAY = 0.2; // Seconds after ball leaves home
+    var HOLEMAN_DELAY = 0.1; // Seconds after ball leaves home
 
     if (holeman) {
       gsap.set(holeman, {
