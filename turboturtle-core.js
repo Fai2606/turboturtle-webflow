@@ -2388,14 +2388,8 @@ if (
       vx+=dir*(25+Math.random()*55);
       cooldown=C.jumpCooldown;
     }
-    // iOS Chrome only: disable scroll-triggered impulses. Its collapsing
-    // toolbar can produce unstable scroll/viewport event sequences, which
-    // previously launched the free ball upward. Safari uses V13 unchanged.
-    var ttIOSChrome = /CriOS\//.test(navigator.userAgent) &&
-      /iPhone|iPad|iPod/.test(navigator.userAgent);
     function onScroll(value){
       var delta=value-lastScroll;lastScroll=value;
-      if(ttIOSChrome) return; // diagnostic/stability isolation: no scroll hops on iOS Chrome
       if(Math.abs(delta)<C.scrollThreshold||mode!=='physics')return;
       var now=performance.now();
       if(now-lastJumpAt<100)return;
@@ -9072,5 +9066,85 @@ if (width < 1920) {
   
 })(window);
 
+/* ==========================================================
+   V17 TEMPORARY iOS CHROME DIAGNOSTIC OVERLAY
+   V13 PHYSICS UNCHANGED. Remove after debugging.
+   ========================================================== */
+(function () {
+  'use strict';
+  var ua = navigator.userAgent;
+  var iosChrome = /CriOS/i.test(ua) && /iPhone|iPad|iPod/i.test(ua);
+  if (!iosChrome) return; // Safari and desktop are completely untouched.
 
-  
+  var style = document.createElement('style');
+  style.textContent = '#tt-debug-panel{position:fixed!important;top:env(safe-area-inset-top,0px)!important;left:4px!important;width:min(94vw,370px)!important;z-index:2147483647!important;background:rgba(0,0,0,.88)!important;color:#aaffb3!important;padding:8px!important;border:1px solid #6f9!important;border-radius:7px!important;font:11px/1.35 monospace!important;pointer-events:auto!important;white-space:pre-wrap!important;user-select:text!important;box-sizing:border-box!important}#tt-debug-panel button{font:12px sans-serif!important;margin:4px 5px 0 0!important;padding:5px!important;color:#000!important;background:#baffca!important;border:0!important;border-radius:3px!important}#tt-debug-readout{max-height:34vh!important;overflow:hidden!important}';
+  document.head.appendChild(style);
+  var panel = document.createElement('div');
+  panel.id = 'tt-debug-panel';
+  panel.innerHTML = '<div><b>TT iOS CHROME DEBUG</b> <span id="tt-debug-count"></span></div><div id="tt-debug-readout">Waiting for ball…</div><button type="button" id="tt-debug-copy">Copy log</button><button type="button" id="tt-debug-mark">MARK GLITCH</button><button type="button" id="tt-debug-hide">Hide</button>';
+  document.body.appendChild(panel);
+  var readout = document.getElementById('tt-debug-readout');
+  var counter = document.getElementById('tt-debug-count');
+  var records = [];
+  var maxRecords = 2500;
+  var last = null;
+  var lastCapture = 0;
+  var start = performance.now();
+  var freeze = false;
+  var lastMark = '';
+  function n(v) { return typeof v === 'number' && isFinite(v) ? Math.round(v * 10) / 10 : null; }
+  function r(el) { if (!el) return null; var x = el.getBoundingClientRect(); return {x:n(x.left),y:n(x.top),w:n(x.width),h:n(x.height),bottom:n(x.bottom)}; }
+  function findBall() { return document.querySelector('.circle_text'); }
+  function findBase() { return document.querySelector('.circle_text_base'); }
+  function getState() {
+    var vv = window.visualViewport;
+    var ball = findBall(), base = findBase();
+    var b = r(ball), d = r(base);
+    var css = ball ? getComputedStyle(ball) : null;
+    return {
+      t:n(performance.now()-start),scrollY:n(window.scrollY),innerH:n(innerHeight),docH:n(document.documentElement.clientHeight),
+      vvTop:vv?n(vv.offsetTop):null,vvPageTop:vv?n(vv.pageTop):null,vvH:vv?n(vv.height):null,vvScale:vv?n(vv.scale):null,
+      ball:b,base:d,dy:b&&d?n(b.bottom-d.bottom):null,
+      ballParent:ball&&ball.parentElement?(ball.parentElement.className||ball.parentElement.tagName).toString().slice(0,65):null,
+      ballPosition:css?css.position:null,ballTransform:css?css.transform:null,
+      wrap:r(document.querySelector('.tt-ball-wrap')),
+      dock:r(document.querySelector('.tt-ball-dock'))
+    };
+  }
+  function record(event, s) {
+    records.push({event:event,state:s||getState()});
+    if(records.length>maxRecords) records.shift();
+    counter.textContent='('+records.length+')';
+  }
+  function frame(now) {
+    if (freeze) return;
+    var s=getState();
+    if(now-lastCapture>65){record('sample',s);lastCapture=now;}
+    var jump=last&&s.ball&&last.ball?Math.abs(s.ball.y-last.ball.y):0;
+    var floorShift=last&&s.ball&&last.ball?Math.abs(s.ball.bottom-last.ball.bottom):0;
+    if(jump>24||floorShift>24)record('BALL_JUMP_'+n(jump),s);
+    readout.textContent =
+      'scrollY '+s.scrollY+'  innerH '+s.innerH+'  docH '+s.docH+'\n'+
+      'vvTop '+s.vvTop+'  vvPageTop '+s.vvPageTop+'  vvH '+s.vvH+'\n'+
+      'ball top '+(s.ball?s.ball.y:'?')+' bottom '+(s.ball?s.ball.bottom:'?')+'\n'+
+      'base top '+(s.base?s.base.y:'?')+' bottom '+(s.base?s.base.bottom:'?')+'\n'+
+      'ball-base bottom diff '+s.dy+'  jump '+n(jump)+'\n'+
+      'parent '+s.ballParent+'\n'+
+      'position '+s.ballPosition+'\n'+
+      'transform '+s.ballTransform+'\n'+
+      (lastMark?'LAST MARK '+lastMark:'Swipe down to reproduce, then tap MARK GLITCH');
+    last=s;
+    requestAnimationFrame(frame);
+  }
+  ['scroll','resize'].forEach(function(evt){window.addEventListener(evt,function(){record('window_'+evt);},{passive:true});});
+  if(window.visualViewport){['scroll','resize'].forEach(function(evt){window.visualViewport.addEventListener(evt,function(){record('visualViewport_'+evt);},{passive:true});});}
+  document.getElementById('tt-debug-mark').addEventListener('click',function(){lastMark=String(n(performance.now()-start))+'ms';record('USER_MARK_GLITCH');});
+  document.getElementById('tt-debug-copy').addEventListener('click',function(){
+    record('COPY');
+    var out=JSON.stringify({userAgent:navigator.userAgent,recordedAt:new Date().toISOString(),records:records},null,0);
+    function fallback(){var a=document.createElement('textarea');a.value=out;a.style.cssText='position:fixed;z-index:2147483647;left:5%;top:15%;width:90%;height:60%';document.body.appendChild(a);a.focus();a.select();alert('Select All / Copy the log, then remove the text box.');}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(function(){alert('Debug log copied. Paste it into a .txt file and send it here.');},fallback);}else fallback();
+  });
+  document.getElementById('tt-debug-hide').addEventListener('click',function(){panel.style.display='none';});
+  requestAnimationFrame(frame);
+})();
