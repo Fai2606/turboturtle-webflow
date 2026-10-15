@@ -2213,9 +2213,6 @@ if (
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
-    var lastViewportChangeAt=-Infinity;
-    var stableFloorY=null;
-    var lastFloorSampleAt=0;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
     // Keep ALL ball positions (pointer, home, render and collision) in the
     // same CSS fixed-position coordinate system. visualViewport.offsetTop
@@ -2224,24 +2221,15 @@ if (
     function minY(){return 0;}
     function maxX(){return Math.max(0,document.documentElement.clientWidth-w);}
     function maxY(){
-      // The floor uses the *height* of the visible viewport, not its offset.
-      // visualViewport.offsetTop can vary during iOS rubber-band overscroll.
-      var layoutHeight=document.documentElement.clientHeight;
-      var vv=isMobile?window.visualViewport:null;
-      var visibleHeight=vv?vv.height:layoutHeight;
-      var candidate=Math.max(0,Math.min(layoutHeight,visibleHeight)-h);
-      // Freeze the floor briefly through toolbar resize/overscroll bursts;
-      // allow a legitimate new viewport height once it has settled.
-      if(stableFloorY===null){stableFloorY=candidate;return stableFloorY;}
-      var now=performance.now();
-      if(Math.abs(candidate-stableFloorY)>1){
-        if(maxY.pending===undefined || Math.abs(candidate-maxY.pending)>1){
-          maxY.pending=candidate;lastFloorSampleAt=now;
-        }else if(now-lastFloorSampleAt>180){
-          stableFloorY=candidate;maxY.pending=undefined;
-        }
-      }else{maxY.pending=undefined;}
-      return stableFloorY;
+      // Browser chrome changes the usable height without necessarily changing
+      // the layout viewport. Only use the visible HEIGHT for the floor, not
+      // visualViewport.offsetTop (which caused the vertical drag/snap shift).
+      var vv=window.visualViewport;
+      // visualViewport.height alone is not a bottom coordinate when the
+      // visible viewport has a nonzero offset. Both values are in viewport
+      // CSS pixels; no page scroll value is added.
+      var visibleBottom=(isMobile && vv) ? vv.offsetTop+vv.height : document.documentElement.clientHeight;
+      return Math.max(0,visibleBottom-h);
     }
     function distance(){return Math.hypot(x-hx,y-hy);}
     // iOS Chrome can shift the CSS origin of position:fixed elements when
@@ -2394,20 +2382,21 @@ if (
     });
     function jump(power){
       if(mode!=='physics'||cooldown>0||y<maxY()-8)return;
-      if(isMobile && performance.now()-lastViewportChangeAt<500)return;
-      if(Math.abs(vy)>90)return; // never add a second jump while airborne
       var dir=Math.random()<.5?-1:1;
       vy=-Math.min(1100,400+400*power);
       spin=dir*(90+Math.random()*180);
       vx+=dir*(25+Math.random()*55);
       cooldown=C.jumpCooldown;
     }
+    // iOS Chrome only: disable scroll-triggered impulses. Its collapsing
+    // toolbar can produce unstable scroll/viewport event sequences, which
+    // previously launched the free ball upward. Safari uses V13 unchanged.
+    var ttIOSChrome = /CriOS\//.test(navigator.userAgent) &&
+      /iPhone|iPad|iPod/.test(navigator.userAgent);
     function onScroll(value){
       var delta=value-lastScroll;lastScroll=value;
+      if(ttIOSChrome) return; // diagnostic/stability isolation: no scroll hops on iOS Chrome
       if(Math.abs(delta)<C.scrollThreshold||mode!=='physics')return;
-      // iOS overscroll/Lenis catch-up is not intentional in-page scrolling.
-      var maxScroll=Math.max(0,document.documentElement.scrollHeight-document.documentElement.clientHeight);
-      if(isMobile && (value<0 || value>maxScroll+2 || Math.abs(delta)>65))return;
       var now=performance.now();
       if(now-lastJumpAt<100)return;
       jump(Math.min(1.7,Math.abs(delta)/16));
@@ -2529,13 +2518,22 @@ if (
     });
     window.addEventListener('resize',layout,{passive:true});
     if(window.visualViewport){
-      // Do not reposition the ball on visualViewport scroll: iOS rubber-band
-      // and Chrome toolbar animation can fire this repeatedly and fight GSAP.
-      // The physics ticker handles collisions against the settled floor.
+      // Update only the physical floor on toolbar changes. Never move a
+      // finger-held ball or apply viewport offsets to its dock target.
       var syncVisualViewport=function(){
-        lastViewportChangeAt=performance.now();
+        if(mode==='physics'){
+          x=clamp(x,minX(),maxX());
+          if(y>maxY()){
+            y=maxY();
+            if(vy>0) vy=0;
+          }
+          home();render();
+        }else if(mode==='snap'){
+          home();
+        }
       };
       window.visualViewport.addEventListener('resize',syncVisualViewport,{passive:true});
+      window.visualViewport.addEventListener('scroll',syncVisualViewport,{passive:true});
     }
     layout();
     console.log('[TT] circle_text physics ready');
