@@ -2213,22 +2213,20 @@ if (
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-    // The detached ball uses position:fixed. On mobile, the browser UI can
-    // change the *visual* viewport without changing documentElement.clientHeight.
-    // Keep collision bounds in the same viewport coordinate system as the ball.
-    function visibleBounds(){
+    // Keep ALL ball positions (pointer, home, render and collision) in the
+    // same CSS fixed-position coordinate system. visualViewport.offsetTop
+    // is NOT an additional offset to apply to the ball on iOS Chrome.
+    function minX(){return 0;}
+    function minY(){return 0;}
+    function maxX(){return Math.max(0,document.documentElement.clientWidth-w);}
+    function maxY(){
+      // Browser chrome changes the usable height without necessarily changing
+      // the layout viewport. Only use the visible HEIGHT for the floor, not
+      // visualViewport.offsetTop (which caused the vertical drag/snap shift).
       var vv=window.visualViewport;
-      if(vv && isMobile){
-        return {left:vv.offsetLeft,top:vv.offsetTop,
-                right:vv.offsetLeft+vv.width,bottom:vv.offsetTop+vv.height};
-      }
-      return {left:0,top:0,right:document.documentElement.clientWidth,
-              bottom:document.documentElement.clientHeight};
+      var visibleHeight=(isMobile && vv) ? vv.height : document.documentElement.clientHeight;
+      return Math.max(0,visibleHeight-h);
     }
-    function minX(){return visibleBounds().left;}
-    function minY(){return visibleBounds().top;}
-    function maxX(){return Math.max(minX(),visibleBounds().right-w);}
-    function maxY(){return Math.max(minY(),visibleBounds().bottom-h);}
     function distance(){return Math.hypot(x-hx,y-hy);}
     function render(){
       if(mode==='docked') return; // CSS alone positions the docked ball.
@@ -2494,13 +2492,15 @@ if (
     });
     window.addEventListener('resize',layout,{passive:true});
     if(window.visualViewport){
-      // Safari's address bar can move the visual viewport without a window resize.
-      // Update collision limits immediately; keep the docked CSS layout untouched.
+      // Update only the physical floor on toolbar changes. Never move a
+      // finger-held ball or apply viewport offsets to its dock target.
       var syncVisualViewport=function(){
-        if(mode==='physics' || mode==='drag'){
-          var bounds=visibleBounds();
-          x=clamp(x,bounds.left,Math.max(bounds.left,bounds.right-w));
-          y=clamp(y,bounds.top,Math.max(bounds.top,bounds.bottom-h));
+        if(mode==='physics'){
+          x=clamp(x,minX(),maxX());
+          if(y>maxY()){
+            y=maxY();
+            if(vy>0) vy=0;
+          }
           home();render();
         }else if(mode==='snap'){
           home();
