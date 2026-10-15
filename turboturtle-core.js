@@ -2213,9 +2213,9 @@ if (
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
-    var floorStableTime=0;
-    var viewportChangeAt=-Infinity;
-    var scrollJumpArmed=false;
+    var lastViewportChangeAt=-Infinity;
+    var stableFloorY=null;
+    var lastFloorSampleAt=0;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
     // Keep ALL ball positions (pointer, home, render and collision) in the
     // same CSS fixed-position coordinate system. visualViewport.offsetTop
@@ -2224,15 +2224,24 @@ if (
     function minY(){return 0;}
     function maxX(){return Math.max(0,document.documentElement.clientWidth-w);}
     function maxY(){
-      // Browser chrome changes the usable height without necessarily changing
-      // the layout viewport. Only use the visible HEIGHT for the floor, not
-      // visualViewport.offsetTop (which caused the vertical drag/snap shift).
-      var vv=window.visualViewport;
-      // visualViewport.height alone is not a bottom coordinate when the
-      // visible viewport has a nonzero offset. Both values are in viewport
-      // CSS pixels; no page scroll value is added.
-      var visibleBottom=(isMobile && vv) ? vv.offsetTop+vv.height : document.documentElement.clientHeight;
-      return Math.max(0,visibleBottom-h);
+      // The floor uses the *height* of the visible viewport, not its offset.
+      // visualViewport.offsetTop can vary during iOS rubber-band overscroll.
+      var layoutHeight=document.documentElement.clientHeight;
+      var vv=isMobile?window.visualViewport:null;
+      var visibleHeight=vv?vv.height:layoutHeight;
+      var candidate=Math.max(0,Math.min(layoutHeight,visibleHeight)-h);
+      // Freeze the floor briefly through toolbar resize/overscroll bursts;
+      // allow a legitimate new viewport height once it has settled.
+      if(stableFloorY===null){stableFloorY=candidate;return stableFloorY;}
+      var now=performance.now();
+      if(Math.abs(candidate-stableFloorY)>1){
+        if(maxY.pending===undefined || Math.abs(candidate-maxY.pending)>1){
+          maxY.pending=candidate;lastFloorSampleAt=now;
+        }else if(now-lastFloorSampleAt>180){
+          stableFloorY=candidate;maxY.pending=undefined;
+        }
+      }else{maxY.pending=undefined;}
+      return stableFloorY;
     }
     function distance(){return Math.hypot(x-hx,y-hy);}
     // iOS Chrome can shift the CSS origin of position:fixed elements when
@@ -2366,7 +2375,6 @@ if (
       }
       if(distance()<C.snapRadius){snap();return;}
       mode='physics';
-      floorStableTime=0;scrollJumpArmed=false;
       var a=history[0],b=history[history.length-1];
       if(a&&b&&b.t-a.t>8&&performance.now()-b.t<110){
         var dt=(b.t-a.t)/1000;
@@ -2384,30 +2392,24 @@ if (
     window.addEventListener('blur',function(){
       if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');}
     });
-    // Scroll-to-bounce: on mobile, toolbar resizing and Lenis catch-up can
-    // report large scroll deltas. Only jump after stable floor contact.
     function jump(power){
-      if(mode!=='physics'||cooldown>0||!scrollJumpArmed)return;
-      if(y<maxY()-8||Math.abs(vy)>65)return;
-      if(isMobile && performance.now()-viewportChangeAt<450)return;
+      if(mode!=='physics'||cooldown>0||y<maxY()-8)return;
+      if(isMobile && performance.now()-lastViewportChangeAt<500)return;
+      if(Math.abs(vy)>90)return; // never add a second jump while airborne
       var dir=Math.random()<.5?-1:1;
-      // Mobile gets a small playful hop, not a full-height launch.
-      vy=-(isMobile ? Math.min(440,260+105*power) : Math.min(1100,400+400*power));
+      vy=-Math.min(1100,400+400*power);
       spin=dir*(90+Math.random()*180);
       vx+=dir*(25+Math.random()*55);
       cooldown=C.jumpCooldown;
-      floorStableTime=0;
-      scrollJumpArmed=false;
     }
     function onScroll(value){
       var delta=value-lastScroll;lastScroll=value;
       if(Math.abs(delta)<C.scrollThreshold||mode!=='physics')return;
+      // iOS overscroll/Lenis catch-up is not intentional in-page scrolling.
+      var maxScroll=Math.max(0,document.documentElement.scrollHeight-document.documentElement.clientHeight);
+      if(isMobile && (value<0 || value>maxScroll+2 || Math.abs(delta)>65))return;
       var now=performance.now();
-      if(isMobile){
-        // Large single-frame deltas often reflect browser UI/Lenis resync.
-        if(Math.abs(delta)>48||now-viewportChangeAt<450)return;
-        if(now-lastJumpAt<380)return;
-      }else if(now-lastJumpAt<100)return;
+      if(now-lastJumpAt<100)return;
       jump(Math.min(1.7,Math.abs(delta)/16));
       lastJumpAt=now;
     }
@@ -2420,13 +2422,6 @@ if (
     gsap.ticker.add(function(time,deltaMs){
       var dt=Math.min(deltaMs/1000,.032);
       cooldown=Math.max(0,cooldown-dt);
-      if(mode==='physics' && y>=maxY()-2 && Math.abs(vy)<65 &&
-         performance.now()-viewportChangeAt>450){
-        floorStableTime+=dt;
-        if(floorStableTime>=0.12)scrollJumpArmed=true;
-      }else{
-        floorStableTime=0;
-      }
       if(mode==='snap'||mode==='physics') home();
       if(mode==='snap'){
         var k=160,decay=Math.exp(-16*dt);
@@ -2534,25 +2529,13 @@ if (
     });
     window.addEventListener('resize',layout,{passive:true});
     if(window.visualViewport){
-      // Update only the physical floor on toolbar changes. Never move a
-      // finger-held ball or apply viewport offsets to its dock target.
+      // Do not reposition the ball on visualViewport scroll: iOS rubber-band
+      // and Chrome toolbar animation can fire this repeatedly and fight GSAP.
+      // The physics ticker handles collisions against the settled floor.
       var syncVisualViewport=function(){
-        viewportChangeAt=performance.now();
-        floorStableTime=0;
-        scrollJumpArmed=false;
-        if(mode==='physics'){
-          x=clamp(x,minX(),maxX());
-          if(y>maxY()){
-            y=maxY();
-            if(vy>0) vy=0;
-          }
-          home();render();
-        }else if(mode==='snap'){
-          home();
-        }
+        lastViewportChangeAt=performance.now();
       };
       window.visualViewport.addEventListener('resize',syncVisualViewport,{passive:true});
-      window.visualViewport.addEventListener('scroll',syncVisualViewport,{passive:true});
     }
     layout();
     console.log('[TT] circle_text physics ready');
