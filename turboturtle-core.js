@@ -2213,10 +2213,22 @@ if (
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-    function width(){return document.documentElement.clientWidth;}
-    function height(){return document.documentElement.clientHeight;}
-    function maxX(){return Math.max(0,width()-w);}
-    function maxY(){return Math.max(0,height()-h);}
+    // The detached ball uses position:fixed. On mobile, the browser UI can
+    // change the *visual* viewport without changing documentElement.clientHeight.
+    // Keep collision bounds in the same viewport coordinate system as the ball.
+    function visibleBounds(){
+      var vv=window.visualViewport;
+      if(vv && isMobile){
+        return {left:vv.offsetLeft,top:vv.offsetTop,
+                right:vv.offsetLeft+vv.width,bottom:vv.offsetTop+vv.height};
+      }
+      return {left:0,top:0,right:document.documentElement.clientWidth,
+              bottom:document.documentElement.clientHeight};
+    }
+    function minX(){return visibleBounds().left;}
+    function minY(){return visibleBounds().top;}
+    function maxX(){return Math.max(minX(),visibleBounds().right-w);}
+    function maxY(){return Math.max(minY(),visibleBounds().bottom-h);}
     function distance(){return Math.hypot(x-hx,y-hy);}
     function render(){
       if(mode==='docked') return; // CSS alone positions the docked ball.
@@ -2274,7 +2286,7 @@ if (
           wrap.style.setProperty('--tt-ball-height',h+'px');
         }
         home();
-        x=clamp(x,0,maxX());y=clamp(y,0,maxY());
+        x=clamp(x,minX(),maxX());y=clamp(y,minY(),maxY());
         render();
       }
     }
@@ -2314,7 +2326,7 @@ if (
       if(mode!=='drag'||pointer!==e.pointerId)return;
       var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
       if(Math.abs(dx)+Math.abs(dy)>1)moved=true;
-      x=clamp(x+dx,0,maxX());y=clamp(y+dy,0,maxY());
+      x=clamp(x+dx,minX(),maxX());y=clamp(y+dy,minY(),maxY());
       if(distance()>35) showHoleman();
       lastPoint=p;history.push(p);
       history=history.filter(function(v){return p.t-v.t<110;});
@@ -2436,8 +2448,8 @@ if (
     angle+=spin*hdt;
 
     // Existing wall collisions
-    if(x<0){
-      x=0;
+    if(x<minX()){
+      x=minX();
       vx=Math.abs(vx)*C.wallBounce;
     }
 
@@ -2446,8 +2458,8 @@ if (
       vx=-Math.abs(vx)*C.wallBounce;
     }
 
-    if(y<0){
-      y=0;
+    if(y<minY()){
+      y=minY();
       vy=Math.abs(vy)*.72;
     }
 
@@ -2482,7 +2494,20 @@ if (
     });
     window.addEventListener('resize',layout,{passive:true});
     if(window.visualViewport){
-      window.visualViewport.addEventListener('resize',function(){ if(mode!=='docked') home(); },{passive:true});
+      // Safari's address bar can move the visual viewport without a window resize.
+      // Update collision limits immediately; keep the docked CSS layout untouched.
+      var syncVisualViewport=function(){
+        if(mode==='physics' || mode==='drag'){
+          var bounds=visibleBounds();
+          x=clamp(x,bounds.left,Math.max(bounds.left,bounds.right-w));
+          y=clamp(y,bounds.top,Math.max(bounds.top,bounds.bottom-h));
+          home();render();
+        }else if(mode==='snap'){
+          home();
+        }
+      };
+      window.visualViewport.addEventListener('resize',syncVisualViewport,{passive:true});
+      window.visualViewport.addEventListener('scroll',syncVisualViewport,{passive:true});
     }
     layout();
     console.log('[TT] circle_text physics ready');
