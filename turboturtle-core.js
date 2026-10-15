@@ -2213,6 +2213,9 @@ if (
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
+    var floorStableTime=0;
+    var viewportChangeAt=-Infinity;
+    var scrollJumpArmed=false;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
     // Keep ALL ball positions (pointer, home, render and collision) in the
     // same CSS fixed-position coordinate system. visualViewport.offsetTop
@@ -2363,6 +2366,7 @@ if (
       }
       if(distance()<C.snapRadius){snap();return;}
       mode='physics';
+      floorStableTime=0;scrollJumpArmed=false;
       var a=history[0],b=history[history.length-1];
       if(a&&b&&b.t-a.t>8&&performance.now()-b.t<110){
         var dt=(b.t-a.t)/1000;
@@ -2380,19 +2384,30 @@ if (
     window.addEventListener('blur',function(){
       if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');}
     });
+    // Scroll-to-bounce: on mobile, toolbar resizing and Lenis catch-up can
+    // report large scroll deltas. Only jump after stable floor contact.
     function jump(power){
-      if(mode!=='physics'||cooldown>0||y<maxY()-8)return;
+      if(mode!=='physics'||cooldown>0||!scrollJumpArmed)return;
+      if(y<maxY()-8||Math.abs(vy)>65)return;
+      if(isMobile && performance.now()-viewportChangeAt<450)return;
       var dir=Math.random()<.5?-1:1;
-      vy=-Math.min(1100,400+400*power);
+      // Mobile gets a small playful hop, not a full-height launch.
+      vy=-(isMobile ? Math.min(440,260+105*power) : Math.min(1100,400+400*power));
       spin=dir*(90+Math.random()*180);
       vx+=dir*(25+Math.random()*55);
       cooldown=C.jumpCooldown;
+      floorStableTime=0;
+      scrollJumpArmed=false;
     }
     function onScroll(value){
       var delta=value-lastScroll;lastScroll=value;
       if(Math.abs(delta)<C.scrollThreshold||mode!=='physics')return;
       var now=performance.now();
-      if(now-lastJumpAt<100)return;
+      if(isMobile){
+        // Large single-frame deltas often reflect browser UI/Lenis resync.
+        if(Math.abs(delta)>48||now-viewportChangeAt<450)return;
+        if(now-lastJumpAt<380)return;
+      }else if(now-lastJumpAt<100)return;
       jump(Math.min(1.7,Math.abs(delta)/16));
       lastJumpAt=now;
     }
@@ -2405,6 +2420,13 @@ if (
     gsap.ticker.add(function(time,deltaMs){
       var dt=Math.min(deltaMs/1000,.032);
       cooldown=Math.max(0,cooldown-dt);
+      if(mode==='physics' && y>=maxY()-2 && Math.abs(vy)<65 &&
+         performance.now()-viewportChangeAt>450){
+        floorStableTime+=dt;
+        if(floorStableTime>=0.12)scrollJumpArmed=true;
+      }else{
+        floorStableTime=0;
+      }
       if(mode==='snap'||mode==='physics') home();
       if(mode==='snap'){
         var k=160,decay=Math.exp(-16*dt);
@@ -2515,6 +2537,9 @@ if (
       // Update only the physical floor on toolbar changes. Never move a
       // finger-held ball or apply viewport offsets to its dock target.
       var syncVisualViewport=function(){
+        viewportChangeAt=performance.now();
+        floorStableTime=0;
+        scrollJumpArmed=false;
         if(mode==='physics'){
           x=clamp(x,minX(),maxX());
           if(y>maxY()){
