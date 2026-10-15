@@ -2224,13 +2224,32 @@ if (
       // the layout viewport. Only use the visible HEIGHT for the floor, not
       // visualViewport.offsetTop (which caused the vertical drag/snap shift).
       var vv=window.visualViewport;
-      var visibleHeight=(isMobile && vv) ? vv.height : document.documentElement.clientHeight;
-      return Math.max(0,visibleHeight-h);
+      // visualViewport.height alone is not a bottom coordinate when the
+      // visible viewport has a nonzero offset. Both values are in viewport
+      // CSS pixels; no page scroll value is added.
+      var visibleBottom=(isMobile && vv) ? vv.offsetTop+vv.height : document.documentElement.clientHeight;
+      return Math.max(0,visibleBottom-h);
     }
     function distance(){return Math.hypot(x-hx,y-hy);}
+    // iOS Chrome can shift the CSS origin of position:fixed elements when
+    // scrolling, even though pointer.clientY and getBoundingClientRect()
+    // remain in viewport coordinates. Measure the actual fixed origin using
+    // a zero-sized sibling in the SAME positioning context as the free ball.
+    // Never infer it from scrollY, pageY or visualViewport.offsetTop.
+    var fixedOriginProbe = document.createElement('div');
+    fixedOriginProbe.setAttribute('aria-hidden', 'true');
+    fixedOriginProbe.style.cssText = 'position:fixed!important;left:0!important;top:0!important;width:0!important;height:0!important;padding:0!important;margin:0!important;border:0!important;pointer-events:none!important;visibility:hidden!important;transform:none!important;';
+    document.body.appendChild(fixedOriginProbe);
+    function fixedOrigin(){
+      var r=fixedOriginProbe.getBoundingClientRect();
+      return {x:r.left,y:r.top};
+    }
     function render(){
       if(mode==='docked') return; // CSS alone positions the docked ball.
-      gsap.set(wrap,{x:x,y:y,rotation:angle,force3D:true});
+      // x/y are viewport coordinates. Convert to the actual CSS fixed origin
+      // at render time, so mobile browser chrome and scroll never add an offset.
+      var origin=fixedOrigin();
+      gsap.set(wrap,{x:x-origin.x,y:y-origin.y,rotation:angle,force3D:true});
     }
     function home(){
       // The base is the single source of truth. No viewport-height clamping.
