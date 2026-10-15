@@ -1804,10 +1804,13 @@ if (
 
     },
 
-    // Constant rotation, independent of scrolling
+    // Slow clockwise idle + scroll momentum in either direction
     selfrotate_yellowcircle2: {
-      duration: 12,  // seconds per full rotation
-      direction: 1   // 1 = clockwise, -1 = anticlockwise
+      duration: 24,      // seconds per idle revolution (half the old speed)
+      direction: 1,     // clockwise idle; scroll momentum can reverse it
+      speed: 2.5,       // scroll impulse, same as .selfrotate
+      friction: 3.5,    // how quickly scroll momentum fades
+      maxSpeed: 360     // maximum added scroll rotation (degrees/second)
     }
 
   };
@@ -1998,25 +2001,48 @@ if (
 
       
   // ============================================================
-  // SELFROTATE YELLOWCIRCLE 2 — CONSTANT ROTATION
-  // Independent of scroll position and ball physics.
+  // SELFROTATE YELLOWCIRCLE 2 — IDLE CLOCKWISE + SCROLL MOMENTUM
+  // Single ticker owns rotation: no competing infinite GSAP tween.
   // ============================================================
-  (function initConstantYellowCircleRotation() {
+  (function initMomentumYellowCircle2() {
+    var elements = gsap.utils.toArray(".selfrotate_yellowcircle2");
+    if (!elements.length) return;
+
     var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle2;
-    gsap.utils.toArray(".selfrotate_yellowcircle2").forEach(function(el) {
-      if (el.dataset.ttConstantRotateReady === "1") return;
-      el.dataset.ttConstantRotateReady = "1";
-      gsap.to(el, {
-        rotation: "+=" + (360 * settings.direction),
-        duration: settings.duration,
-        ease: "none",
-        repeat: -1,
-        force3D: true
+    var idleVelocity = (360 / settings.duration) * settings.direction;
+    var momentumVelocity = 0;
+    var angle = 0;
+    var lastScroll = typeof lenis.scroll === "number" ? lenis.scroll : window.scrollY;
+
+    // Same scroll-delta impulse as .selfrotate; upward scrolling
+    // gives negative momentum, which can overcome clockwise idle.
+    lenis.on("scroll", function(event) {
+      var currentScroll = typeof event.scroll === "number"
+        ? event.scroll : window.scrollY;
+      var delta = currentScroll - lastScroll;
+      lastScroll = currentScroll;
+
+      momentumVelocity += delta * settings.speed;
+      momentumVelocity = Math.max(-settings.maxSpeed,
+        Math.min(settings.maxSpeed, momentumVelocity));
+    });
+
+    gsap.ticker.add(function(time, deltaTime) {
+      var dt = Math.min(deltaTime / 1000, 0.05);
+      angle += (idleVelocity + momentumVelocity) * dt;
+      momentumVelocity *= Math.exp(-settings.friction * dt);
+      if (Math.abs(momentumVelocity) < 0.01) momentumVelocity = 0;
+      angle %= 360;
+
+      elements.forEach(function(el) {
+        if (el.dataset.ttPhysicsActive === "1") return;
+        gsap.set(el, { rotation: angle, force3D: true });
       });
     });
   })();
 
 
+  // ============================================================
   // ============================================================
   // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
   // Only this image enters physics mode; other rotations remain.
@@ -2058,9 +2084,12 @@ if (
     var w = bounds.width, h = bounds.height;
     var rightGap = document.documentElement.clientWidth - bounds.right;
     var bottomGap = document.documentElement.clientHeight - bounds.bottom;
-    // Size is read from Webflow's base; no hardcoded viewport formula.
+    // Webflow controls the docked dimensions. When the ball is detached,
+    // preserve the ACTUAL rendered ball dimensions in its temporary wrapper.
+    // Never impose a viewport-based sizing formula on the ball.
     function syncWebflowBallSize() {
-      var r = base.getBoundingClientRect();
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) r = base.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
         wrap.style.setProperty('--tt-ball-width', r.width + 'px');
         wrap.style.setProperty('--tt-ball-height', r.height + 'px');
@@ -2203,14 +2232,17 @@ if (
     }
     function undock(){
       if(wrap.classList.contains('tt-free')) return;
-      var r=wrap.getBoundingClientRect();
-      w=r.width;h=r.height;
-      x=r.left;y=r.top;
-      // Detach into a top-level layer to escape the base's stacking context.
-      syncWebflowBallSize();
+      // Snapshot while still inside Webflow's CSS layout. This prevents
+      // 100% from suddenly referring to the body after reparenting.
+      var r=el.getBoundingClientRect();
+      var wrapperRect=wrap.getBoundingClientRect();
+      w=r.width || wrapperRect.width;
+      h=r.height || wrapperRect.height;
+      x=wrapperRect.left;y=wrapperRect.top;
+      wrap.style.setProperty('--tt-ball-width',w+'px');
+      wrap.style.setProperty('--tt-ball-height',h+'px');
       document.body.appendChild(wrap);
       wrap.classList.add('tt-free');
-      // The CSS variables above mirror Webflow's dimensions during flight.
       gsap.set(wrap,{clearProps:'transform'});
       home();
       render();
@@ -2218,6 +2250,7 @@ if (
     function redock(){
       // Rejoin the CSS layout; never chase a mobile viewport shift.
       wrap.classList.remove('tt-free','tt-dragging');
+      wrap.style.removeProperty('--tt-ball-width');wrap.style.removeProperty('--tt-ball-height');
       wrap.style.removeProperty('width');wrap.style.removeProperty('height');
       gsap.set(wrap,{clearProps:'transform'});
       base.appendChild(wrap);
@@ -2227,11 +2260,19 @@ if (
     }
     function layout(){
       if(mode==='docked'){
-        syncWebflowBallSize();
         w=wrap.offsetWidth;h=wrap.offsetHeight;
         home();x=hx;y=hy;
       }else{
-        // Keep physical size stable during flight, update home target.
+        // Webflow remains the size source on resize, even while detached.
+        // Read the base's live CSS dimensions, preserving the ball center.
+        var newRect=base.getBoundingClientRect();
+        if(newRect.width>0 && newRect.height>0 &&
+           (Math.abs(newRect.width-w)>0.5 || Math.abs(newRect.height-h)>0.5)){
+          x+=(w-newRect.width)/2;y+=(h-newRect.height)/2;
+          w=newRect.width;h=newRect.height;
+          wrap.style.setProperty('--tt-ball-width',w+'px');
+          wrap.style.setProperty('--tt-ball-height',h+'px');
+        }
         home();
         x=clamp(x,0,maxX());y=clamp(y,0,maxY());
         render();
