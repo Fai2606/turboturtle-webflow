@@ -4157,7 +4157,7 @@ if (enableGrowup) {
     { sel: ".home3_jet",        x: 90, y:  -5, r:   0 },
     { sel: ".home3_turtle",     x: 20, y:  12, r:  -5 },
     { sel: ".home3_lion",       x: 12, y:   8, r: -30 },
-    { sel: ".home3_bear",       x:  5, y:  30, r: -20 },
+    { sel: ".home3_bear",       x:  5, y:  30, r:  -1 },
     { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
     { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
   ];
@@ -4261,7 +4261,7 @@ movers.forEach(function(item) {
 // Same scroll range and scrub as .home3_lion.
 // Preserve the initial Webflow rotation for every part.
 // Limbs 1/2: anticlockwise; limbs 3/4: clockwise.
-// Tail: clockwise 40 degrees.
+// Tail: clockwise 50 degrees.
 // ==========================================================
 
 (function initHome3LionParts() {
@@ -4269,11 +4269,11 @@ movers.forEach(function(item) {
   if (!lion) return;
 
   [
-    { selector: ".home3_lion_limb1", offset: -45 },
-    { selector: ".home3_lion_limb2", offset: -60 },
-    { selector: ".home3_lion_limb3", offset:  45 },
-    { selector: ".home3_lion_limb4", offset:  60 },
-    { selector: ".home3_lion_tail",  offset:  40 }
+    { selector: ".home3_lion_limb1", offset: -55 },
+    { selector: ".home3_lion_limb2", offset: -70 },
+    { selector: ".home3_lion_limb3", offset:  55 },
+    { selector: ".home3_lion_limb4", offset:  70 },
+    { selector: ".home3_lion_tail",  offset:  50 }
   ].forEach(function(item) {
     var part = lion.querySelector(item.selector);
     if (!part) return;
