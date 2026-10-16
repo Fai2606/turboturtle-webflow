@@ -6376,8 +6376,8 @@ onLeaveBack: function() {
       onEnter: function() {
         gsap.to(pyramid, {
           bottom: "281px",
-          duration: 0.8,
-          ease: "power2.out",
+          duration: 0.6,
+          ease: "power3.out",
           overwrite: "auto"
         });
       },
