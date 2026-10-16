@@ -6248,22 +6248,11 @@ emperorFloatTween =
         emperorRocket
       );
 
-      // Rise the pyramid exactly 38px when the cat comes out.
-      // Use pixel y (not yPercent) so the existing build-layer
-      // scroll animation remains independent.
-      if (pyramid) {
-        gsap.to(pyramid, {
-          y: -38,
-          duration: 0.6,
-          ease: "power2.inOut",
-          overwrite: "auto"
-        });
-      }
-
       // Start the cat movement together with the Emperor's rise.
+      // Animate bottom (not right), matching the Webflow pixel positions.
       if (cat) {
         gsap.to(cat, {
-          right: "48.6%",
+          bottom: "281px",
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
@@ -6307,20 +6296,10 @@ emperorFloatTween =
 
 onLeaveBack: function() {
 
-  // Return the pyramid to its original vertical offset on reverse scroll.
-  if (pyramid) {
-    gsap.to(pyramid, {
-      y: 0,
-      duration: 0.6,
-      ease: "power2.inOut",
-      overwrite: "auto"
-    });
-  }
-
-  // Restore the cat's original horizontal position on reverse scroll.
+  // Restore the cat's original bottom position on reverse scroll.
   if (cat) {
     gsap.to(cat, {
-      right: "47.6%",
+      bottom: "244px",
       duration: 0.6,
       ease: "power2.inOut",
       overwrite: "auto"
@@ -6384,6 +6363,35 @@ onLeaveBack: function() {
   ScrollTrigger.create(
     emperorLaunchTrigger
   );
+
+  // Pyramid rises at a slightly later SCROLL POSITION than the cat.
+  // Cat / Emperor: top 40%; pyramid: top 35% (5vh farther down-scroll).
+  // Its independent trigger also reverses at its own threshold.
+  if (pyramid) {
+    ScrollTrigger.create({
+      trigger: emperorLaunchTrigger.trigger,
+      start: (isSafari && section && city)
+        ? safariStart(home6TallPillar, 0.35)
+        : "top 35%",
+      invalidateOnRefresh: true,
+      onEnter: function() {
+        gsap.to(pyramid, {
+          y: -38,
+          duration: 0.6,
+          ease: "power2.inOut",
+          overwrite: "auto"
+        });
+      },
+      onLeaveBack: function() {
+        gsap.to(pyramid, {
+          y: 0,
+          duration: 0.6,
+          ease: "power2.inOut",
+          overwrite: "auto"
+        });
+      }
+    });
+  }
 
 }
 // CLOSE: if (home6TallPillar)
