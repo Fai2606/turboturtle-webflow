@@ -4261,7 +4261,7 @@ movers.forEach(function(item) {
 // Same scroll range and scrub as .home3_lion.
 // Preserve the initial Webflow rotation for every part.
 // Limbs 1/2: anticlockwise; limbs 3/4: clockwise.
-// Tail: anticlockwise 20 degrees.
+// Tail: clockwise 30 degrees.
 // ==========================================================
 
 (function initHome3LionParts() {
@@ -4273,7 +4273,7 @@ movers.forEach(function(item) {
     { selector: ".home3_lion_limb2", offset: -50 },
     { selector: ".home3_lion_limb3", offset:  35 },
     { selector: ".home3_lion_limb4", offset:  50 },
-    { selector: ".home3_lion_tail",  offset: -20 }
+    { selector: ".home3_lion_tail",  offset:  30 }
   ].forEach(function(item) {
     var part = lion.querySelector(item.selector);
     if (!part) return;
