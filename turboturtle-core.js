@@ -2194,11 +2194,11 @@ if (
         holemanState = 'appearing';
         // Select only when the appearance starts, never mid-animation.
         if (holemanCharacters.length) {
-          // Initially all characters have weight 1. Every appearance halves
-          // that character's weight again: 1, 1/2, 1/4, 1/8, ...
+          // Initially all characters have weight 1. Each appearance reduces
+          // that character's weight to one third: 1, 1/3, 1/9, 1/27, ...
           var totalWeight = 0;
           var weights = holemanDrawCounts.map(function (count) {
-            var weight = Math.pow(0.5, count);
+            var weight = Math.pow(1 / 3, count);
             totalWeight += weight;
             return weight;
           });
@@ -5722,6 +5722,9 @@ function initHomeSection6() {
     var cat =
       q(".home6_cat");
 
+    var pyramid =
+      q(".home6_pyramid");
+
     var giraffe = 
       q(".home6_giraffe");
 
@@ -6259,6 +6262,18 @@ emperorFloatTween =
         emperorRocket
       );
 
+      // Rise the pyramid exactly 46px when the cat comes out.
+      // Use pixel y (not yPercent) so the existing build-layer
+      // scroll animation remains independent.
+      if (pyramid) {
+        gsap.to(pyramid, {
+          y: -46,
+          duration: 0.6,
+          ease: "power2.inOut",
+          overwrite: "auto"
+        });
+      }
+
       // Start the cat movement together with the Emperor's rise.
       if (cat) {
         gsap.to(cat, {
@@ -6305,6 +6320,16 @@ emperorFloatTween =
     // ====================================================
 
 onLeaveBack: function() {
+
+  // Return the pyramid to its original vertical offset on reverse scroll.
+  if (pyramid) {
+    gsap.to(pyramid, {
+      y: 0,
+      duration: 0.6,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+  }
 
   // Restore the cat's original horizontal position on reverse scroll.
   if (cat) {
