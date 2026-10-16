@@ -2117,7 +2117,7 @@ if (
     // ============================================================
     // HOLEMAN — RANDOM CHARACTER, BOTTOM-RIGHT POP, 1s HOLD
     // Webflow owns all positioning, sizing and child artwork.
-    // Each ball departure chooses a character using diminishing weights until all have appeared.
+    // Each ball departure randomly chooses an unseen character until all have appeared.
     // ============================================================
     var holeman = document.querySelector('.holeman_wrapper');
     var holemanCharacters = holeman
@@ -2133,8 +2133,8 @@ if (
     var holemanState = 'idle';
     var holemanDelayTimer = null;
     var holemanReturnTimer = null;
-    var holemanDrawCounts = holemanCharacters.map(function () { return 0; });
-    var holemanSeenCount = 0;
+    // No-repeat random pool: each character is selected once per cycle.
+    var holemanRemaining = holemanCharacters.map(function (_, i) { return i; });
     var HOLEMAN_DELAY = 0.1; // Seconds after ball leaves home
 
     if (holeman) {
@@ -2194,27 +2194,13 @@ if (
         holemanState = 'appearing';
         // Select only when the appearance starts, never mid-animation.
         if (holemanCharacters.length) {
-          // Initially all characters have weight 1. Each appearance reduces
-          // that character's weight to one third: 1, 1/3, 1/9, 1/27, ...
-          var totalWeight = 0;
-          var weights = holemanDrawCounts.map(function (count) {
-            var weight = Math.pow(1 / 3, count);
-            totalWeight += weight;
-            return weight;
-          });
-          var draw = Math.random() * totalWeight;
-          var choice = weights.length - 1;
-          for (var i = 0; i < weights.length; i++) {
-            draw -= weights[i];
-            if (draw < 0) { choice = i; break; }
+          // Uniformly draw from characters not yet shown this cycle.
+          // Refill only after all characters have appeared once.
+          if (!holemanRemaining.length) {
+            holemanRemaining = holemanCharacters.map(function (_, i) { return i; });
           }
-          if (holemanDrawCounts[choice] === 0) holemanSeenCount++;
-          holemanDrawCounts[choice]++;
-          // Once everyone has appeared at least once, start a fresh cycle.
-          if (holemanSeenCount === holemanCharacters.length) {
-            holemanDrawCounts.fill(0);
-            holemanSeenCount = 0;
-          }
+          var poolIndex = Math.floor(Math.random() * holemanRemaining.length);
+          var choice = holemanRemaining.splice(poolIndex, 1)[0];
           gsap.set(holemanCharacters, { autoAlpha: 0 });
           gsap.set(holemanCharacters[choice], { autoAlpha: 1 });
         }
@@ -6262,12 +6248,12 @@ emperorFloatTween =
         emperorRocket
       );
 
-      // Rise the pyramid exactly 46px when the cat comes out.
+      // Rise the pyramid exactly 38px when the cat comes out.
       // Use pixel y (not yPercent) so the existing build-layer
       // scroll animation remains independent.
       if (pyramid) {
         gsap.to(pyramid, {
-          y: -46,
+          y: -38,
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
