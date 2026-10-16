@@ -4220,7 +4220,7 @@ movers.forEach(function(item) {
 // ==========================================================
 
 (function initHome3CatLimbs() {
-  var cat = q(".home3_laycat");
+  var cat = q(".home3_cat");
   if (!cat) return;
 
   var limbSelectors = [
