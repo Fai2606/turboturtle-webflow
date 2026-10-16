@@ -2117,7 +2117,7 @@ if (
     // ============================================================
     // HOLEMAN — RANDOM CHARACTER, BOTTOM-RIGHT POP, 1s HOLD
     // Webflow owns all positioning, sizing and child artwork.
-    // Each ball departure chooses one character (avoids immediate repeat).
+    // Each ball departure chooses a character using diminishing weights until all have appeared.
     // ============================================================
     var holeman = document.querySelector('.holeman_wrapper');
     var holemanCharacters = holeman
@@ -2133,7 +2133,8 @@ if (
     var holemanState = 'idle';
     var holemanDelayTimer = null;
     var holemanReturnTimer = null;
-    var lastHolemanIndex = -1;
+    var holemanDrawCounts = holemanCharacters.map(function () { return 0; });
+    var holemanSeenCount = 0;
     var HOLEMAN_DELAY = 0.1; // Seconds after ball leaves home
 
     if (holeman) {
@@ -2193,13 +2194,27 @@ if (
         holemanState = 'appearing';
         // Select only when the appearance starts, never mid-animation.
         if (holemanCharacters.length) {
-          var choice = Math.floor(Math.random() * holemanCharacters.length);
-          if (holemanCharacters.length > 1 && choice === lastHolemanIndex) {
-            choice = (choice + 1 + Math.floor(
-              Math.random() * (holemanCharacters.length - 1)
-            )) % holemanCharacters.length;
+          // Initially all characters have weight 1. Every appearance halves
+          // that character's weight again: 1, 1/2, 1/4, 1/8, ...
+          var totalWeight = 0;
+          var weights = holemanDrawCounts.map(function (count) {
+            var weight = Math.pow(0.5, count);
+            totalWeight += weight;
+            return weight;
+          });
+          var draw = Math.random() * totalWeight;
+          var choice = weights.length - 1;
+          for (var i = 0; i < weights.length; i++) {
+            draw -= weights[i];
+            if (draw < 0) { choice = i; break; }
           }
-          lastHolemanIndex = choice;
+          if (holemanDrawCounts[choice] === 0) holemanSeenCount++;
+          holemanDrawCounts[choice]++;
+          // Once everyone has appeared at least once, start a fresh cycle.
+          if (holemanSeenCount === holemanCharacters.length) {
+            holemanDrawCounts.fill(0);
+            holemanSeenCount = 0;
+          }
           gsap.set(holemanCharacters, { autoAlpha: 0 });
           gsap.set(holemanCharacters[choice], { autoAlpha: 1 });
         }
@@ -6264,6 +6279,16 @@ emperorFloatTween =
 
             startEmperorFloat();
 
+            // Cat shifts left only after Emperor has finished rising.
+            if (cat) {
+              gsap.to(cat, {
+                right: "48.6%",
+                duration: 0.6,
+                ease: "power2.inOut",
+                overwrite: "auto"
+              });
+            }
+
           }
 
         }
@@ -6280,6 +6305,16 @@ emperorFloatTween =
     // ====================================================
 
 onLeaveBack: function() {
+
+  // Restore the cat's original horizontal position on reverse scroll.
+  if (cat) {
+    gsap.to(cat, {
+      right: "47.6%",
+      duration: 0.6,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+  }
 
   // Stop floating WITHOUT snapping float wrapper to y:0
   stopEmperorFloat(false);
