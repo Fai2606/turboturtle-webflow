@@ -6249,10 +6249,9 @@ emperorFloatTween =
       );
 
       // Start the cat movement together with the Emperor's rise.
-      // Animate bottom (not right), matching the Webflow pixel positions.
       if (cat) {
         gsap.to(cat, {
-          bottom: "281px",
+          right: "48.6%",
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
@@ -6296,10 +6295,10 @@ emperorFloatTween =
 
 onLeaveBack: function() {
 
-  // Restore the cat's original bottom position on reverse scroll.
+  // Restore the cat's original horizontal position on reverse scroll.
   if (cat) {
     gsap.to(cat, {
-      bottom: "244px",
+      right: "47.6%",
       duration: 0.6,
       ease: "power2.inOut",
       overwrite: "auto"
@@ -6376,7 +6375,7 @@ onLeaveBack: function() {
       invalidateOnRefresh: true,
       onEnter: function() {
         gsap.to(pyramid, {
-          y: -38,
+          bottom: "281px",
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
@@ -6384,7 +6383,7 @@ onLeaveBack: function() {
       },
       onLeaveBack: function() {
         gsap.to(pyramid, {
-          y: 0,
+          bottom: "244px",
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
