@@ -4213,64 +4213,50 @@ movers.forEach(function(item) {
 
 
 // ==========================================================
-// HOME 3 — CAT LIMBS (relative to Webflow initial rotation)
-// Each limb swings 60 degrees anticlockwise and returns.
-// Alternate phases give the cat a walking / swimming motion.
-// The existing cat movement remains untouched.
+// HOME 3 — CAT LIMBS: SCRUBBED WITH THE CAT'S SCROLL MOVEMENT
+// Limbs 1 & 2: -60 degrees from their Webflow initial rotation.
+// Limbs 3 & 4: +60 degrees from their Webflow initial rotation.
+// Uses the exact same scroll range and scrub as .home3_cat.
+// No looping or time-based movement.
 // ==========================================================
 
 (function initHome3CatLimbs() {
   var cat = q(".home3_cat");
   if (!cat) return;
 
-  var limbSelectors = [
-    ".home3_cat_limb1",
-    ".home3_cat_limb2",
-    ".home3_cat_limb3",
-    ".home3_cat_limb4"
-  ];
-
-  var limbTweens = [];
-
-  limbSelectors.forEach(function(selector, index) {
-    var limb = cat.querySelector(selector);
+  [
+    { selector: ".home3_cat_limb1", offset: -60 },
+    { selector: ".home3_cat_limb2", offset: -60 },
+    { selector: ".home3_cat_limb3", offset:  60 },
+    { selector: ".home3_cat_limb4", offset:  60 }
+  ].forEach(function(item) {
+    var limb = cat.querySelector(item.selector);
     if (!limb) return;
 
-    // Preserve the rotation set in Webflow, including responsive styles.
-    var initialRotation = Number(gsap.getProperty(limb, "rotation")) || 0;
+    // Read the existing Webflow rotation once; don't reset the limb to zero.
+    var webflowRotation = Number(gsap.getProperty(limb, "rotation")) || 0;
 
-    var tween = gsap.fromTo(limb,
-      { rotation: initialRotation },
+    gsap.fromTo(limb,
+      { rotation: webflowRotation },
       {
-        rotation: initialRotation - 60,
-        duration: 0.48,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        paused: true,
-        force3D: true
+        rotation: webflowRotation + item.offset,
+        ease: "power1.out",
+        force3D: true,
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
       }
     );
-
-    // 1 + 3 together, 2 + 4 opposite; each still swings anticlockwise.
-    if (index === 1 || index === 3) tween.progress(1);
-    limbTweens.push(tween);
-  });
-
-  if (!limbTweens.length) return;
-
-  ScrollTrigger.create({
-    trigger: section,
-    start: "top bottom",
-    end: "bottom top",
-    onEnter: function() { limbTweens.forEach(function(t) { t.play(); }); },
-    onEnterBack: function() { limbTweens.forEach(function(t) { t.play(); }); },
-    onLeave: function() { limbTweens.forEach(function(t) { t.pause(); }); },
-    onLeaveBack: function() { limbTweens.forEach(function(t) { t.pause(); }); }
   });
 })();
 
 
+// ==========================================================
 // ==========================================================
 // HOME 3 — GALAXY
 // ==========================================================
