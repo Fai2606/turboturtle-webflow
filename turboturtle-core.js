@@ -4225,10 +4225,10 @@ movers.forEach(function(item) {
   if (!cat) return;
 
   [
-    { selector: ".home3_cat_limb1", offset: -50 },
-    { selector: ".home3_cat_limb2", offset: -35 },
-    { selector: ".home3_cat_limb3", offset:  50 },
-    { selector: ".home3_cat_limb4", offset:  35 }
+    { selector: ".home3_cat_limb1", offset: -45 },
+    { selector: ".home3_cat_limb2", offset: -25 },
+    { selector: ".home3_cat_limb3", offset:  45 },
+    { selector: ".home3_cat_limb4", offset:  25 }
   ].forEach(function(item) {
     var limb = cat.querySelector(item.selector);
     if (!limb) return;
