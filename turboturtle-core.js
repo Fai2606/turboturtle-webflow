@@ -4302,6 +4302,47 @@ movers.forEach(function(item) {
 
 // ==========================================================
 // ==========================================================
+// ==========================================================
+// HOME 3 — TURTLE LIMBS: SCROLL-LINKED
+// Limbs 1 & 2: +30 degrees clockwise from Webflow rotation.
+// Limbs 3 & 4: +20 degrees clockwise from Webflow rotation.
+// Match the existing Home 3 scroll range and scrub.
+// ==========================================================
+(function initHome3TurtleLimbs() {
+  var turtle = q(".home3_turtle");
+  if (!turtle) return;
+
+  [
+    { selector: ".home3_turtle_limb1", offset: 30 },
+    { selector: ".home3_turtle_limb2", offset: 30 },
+    { selector: ".home3_turtle_limb3", offset: 20 },
+    { selector: ".home3_turtle_limb4", offset: 20 }
+  ].forEach(function(item) {
+    var limb = turtle.querySelector(item.selector);
+    if (!limb) return;
+
+    var webflowRotation = Number(gsap.getProperty(limb, "rotation")) || 0;
+    gsap.fromTo(limb,
+      { rotation: webflowRotation },
+      {
+        rotation: webflowRotation + item.offset,
+        ease: "power1.out",
+        force3D: true,
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  });
+})();
+
+
+// ==========================================================
 // HOME 3 — GALAXY
 // ==========================================================
 
