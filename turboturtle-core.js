@@ -5932,6 +5932,27 @@ function makeBuildTrigger() {
 
 
     // ========================================================
+    // HOME 6 MONSTER — BOTTOM POSITION THROUGH SECTION SCROLL
+    // Independent of the existing castle-build yPercent reveal.
+    // ========================================================
+    if (monster && section) {
+      gsap.fromTo(monster,
+        { bottom: "56px" },
+        {
+          bottom: "104px",
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        }
+      );
+    }
+
+    // ========================================================
     // ROCKET
     // ========================================================
 
