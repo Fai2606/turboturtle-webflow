@@ -4304,8 +4304,8 @@ movers.forEach(function(item) {
 // ==========================================================
 // ==========================================================
 // HOME 3 — TURTLE LIMBS: SCROLL-LINKED
-// Limbs 1 & 2: +40 degrees clockwise from Webflow rotation.
-// Limbs 3 & 4: +30 degrees clockwise from Webflow rotation.
+// Limb 1: +45 degrees; limb 2: +50 degrees clockwise from Webflow rotation.
+// Limb 3: +55 degrees; limb 4: +60 degrees clockwise from Webflow rotation.
 // Match the existing Home 3 scroll range and scrub.
 // ==========================================================
 (function initHome3TurtleLimbs() {
@@ -4313,10 +4313,10 @@ movers.forEach(function(item) {
   if (!turtle) return;
 
   [
-    { selector: ".home3_turtle_limb1", offset: 40 },
-    { selector: ".home3_turtle_limb2", offset: 40 },
-    { selector: ".home3_turtle_limb3", offset: 30 },
-    { selector: ".home3_turtle_limb4", offset: 30 }
+    { selector: ".home3_turtle_limb1", offset: 45 },
+    { selector: ".home3_turtle_limb2", offset: 50 },
+    { selector: ".home3_turtle_limb3", offset: 55 },
+    { selector: ".home3_turtle_limb4", offset: 60 }
   ].forEach(function(item) {
     var limb = turtle.querySelector(item.selector);
     if (!limb) return;
@@ -4332,7 +4332,7 @@ movers.forEach(function(item) {
         scrollTrigger: {
           trigger: section,
           start: "top bottom",
-          end: "bottom+=300 top",
+          end: "bottom top",
           scrub: 1,
           invalidateOnRefresh: true
         }
