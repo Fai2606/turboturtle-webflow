@@ -4269,10 +4269,10 @@ movers.forEach(function(item) {
   if (!lion) return;
 
   [
-    { selector: ".home3_lion_limb1", offset: -40 },
-    { selector: ".home3_lion_limb2", offset: -55 },
-    { selector: ".home3_lion_limb3", offset:  40 },
-    { selector: ".home3_lion_limb4", offset:  55 },
+    { selector: ".home3_lion_limb1", offset: -45 },
+    { selector: ".home3_lion_limb2", offset: -60 },
+    { selector: ".home3_lion_limb3", offset:  45 },
+    { selector: ".home3_lion_limb4", offset:  60 },
     { selector: ".home3_lion_tail",  offset:  40 }
   ].forEach(function(item) {
     var part = lion.querySelector(item.selector);
