@@ -4257,6 +4257,50 @@ movers.forEach(function(item) {
 
 
 // ==========================================================
+// HOME 3 — LION LIMBS + TAIL: SCROLL-LINKED
+// Same scroll range and scrub as .home3_lion.
+// Preserve the initial Webflow rotation for every part.
+// Limbs 1/2: anticlockwise; limbs 3/4: clockwise.
+// Tail: anticlockwise 20 degrees.
+// ==========================================================
+
+(function initHome3LionParts() {
+  var lion = q(".home3_lion");
+  if (!lion) return;
+
+  [
+    { selector: ".home3_lion_limb1", offset: -45 },
+    { selector: ".home3_lion_limb2", offset: -25 },
+    { selector: ".home3_lion_limb3", offset:  45 },
+    { selector: ".home3_lion_limb4", offset:  25 },
+    { selector: ".home3_lion_tail",  offset: -20 }
+  ].forEach(function(item) {
+    var part = lion.querySelector(item.selector);
+    if (!part) return;
+
+    var webflowRotation = Number(gsap.getProperty(part, "rotation")) || 0;
+
+    gsap.fromTo(part,
+      { rotation: webflowRotation },
+      {
+        rotation: webflowRotation + item.offset,
+        ease: "power1.out",
+        force3D: true,
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  });
+})();
+
+
+// ==========================================================
 // ==========================================================
 // HOME 3 — GALAXY
 // ==========================================================
