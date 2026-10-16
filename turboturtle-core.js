@@ -3,6 +3,8 @@
   if (!root) return;
 
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // V19 diagnostic: bypass Lenis smooth-scroll integration ONLY on iOS Chrome.
+  var isIOSChromeNativeScroll = /CriOS\//.test(navigator.userAgent) && /iPhone|iPad|iPod/.test(navigator.userAgent);
   var gsap, ScrollTrigger, lenis, MorphSVGPlugin;
 
 // ==========================================================
@@ -206,37 +208,48 @@ root.addEventListener("resize", function () {
       ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
 
       lenis = new root.Lenis({
-        lerp: isMobile ? 0.12 : 0.08,
-        smoothWheel: true,
+        lerp: isIOSChromeNativeScroll ? 1 : (isMobile ? 0.12 : 0.08),
+        smoothWheel: !isIOSChromeNativeScroll,
         smoothTouch: false,
+        syncTouch: false,
         touchMultiplier: 1.5,
         infinite: false
       });
 
       root.lenis = lenis;
 
-      gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
+      if (isIOSChromeNativeScroll) {
+        // Diagnostic isolation: native scrolling + native ScrollTrigger positions.
+        // Do not install Lenis' RAF driver or its ScrollTrigger scrollerProxy.
+        // Keep the Lenis object available for other site modules and footer controls.
+        // On iOS Chrome, touch scrolling was already native; this test specifically
+        // removes the Lenis RAF/proxy coupling that may contribute to the glitch.
+        root.addEventListener("scroll", ScrollTrigger.update, { passive: true });
+        console.info("[TT V19] iOS Chrome: native ScrollTrigger scroll path; Lenis RAF/proxy bypassed.");
+      } else {
+        // V13 original integration, preserved unchanged for Safari/other browsers.
+        gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
 
-      ScrollTrigger.scrollerProxy(window, {
-        scrollTop: function (value) {
-          if (arguments.length) return lenis.scrollTo(value);
-          return (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
-        },
-getBoundingClientRect: function () {
-  return {
-    top: 0,
-    left: 0,
-    width: document.documentElement.clientWidth,
-    height: document.documentElement.clientHeight
-  };
-},
-        pinType: "transform"
-      });
+        ScrollTrigger.scrollerProxy(window, {
+          scrollTop: function (value) {
+            if (arguments.length) return lenis.scrollTo(value);
+            return (typeof lenis.scroll === "number") ? lenis.scroll : (root.pageYOffset || 0);
+          },
+          getBoundingClientRect: function () {
+            return {
+              top: 0,
+              left: 0,
+              width: document.documentElement.clientWidth,
+              height: document.documentElement.clientHeight
+            };
+          },
+          pinType: "transform"
+        });
 
-      lenis.on("scroll", ScrollTrigger.update);
-      
-      
+        lenis.on("scroll", ScrollTrigger.update);
+      }
+
       // ============================================================
       // GLOBAL — REUSABLE PENDULUM ACTION
       // Apply .pendulum_action to any Webflow element
@@ -2056,9 +2069,6 @@ if (
       console.warn('[TT] Move .circle_text inside .circle_text_base in Webflow before using this version.');
       return;
     }
-    // V18: iOS Chrome only. Safari and every other browser take the V13 path.
-    var ttIOSChrome = /CriOS\//.test(navigator.userAgent) &&
-      /iP(?:hone|ad|od)/.test(navigator.userAgent);
     var bounds = el.getBoundingClientRect();
     if (bounds.width < 1 || bounds.height < 1) return;
     el.dataset.ttBallReady = "1";
@@ -2103,68 +2113,6 @@ if (
     base.appendChild(wrap);
     wrap.appendChild(el);
     document.body.appendChild(dock);
-
-    // V18 CHROME-ONLY DOCK STABILIZER
-    // iOS Chrome sometimes renders a fixed Webflow base hundreds of pixels
-    // away from its intended viewport anchor while scrolling upward. This
-    // happens even with the yellow ball docked (no physics active).
-    // Use the CSS layout's intended right/bottom gaps, measured at rest,
-    // and compensate *only* the unexpected displacement of the whole base.
-    // CSS `translate` is separate from Webflow's `transform` animations.
-    var chromeDockCorrectionX = 0, chromeDockCorrectionY = 0;
-    var chromeDockGapRight = 0, chromeDockGapBottom = 0;
-    var chromeDockScheduled = false;
-    function chromeVisibleBounds() {
-      var vv = window.visualViewport;
-      return {
-        left: vv ? vv.offsetLeft : 0,
-        top: vv ? vv.offsetTop : 0,
-        right: vv ? vv.offsetLeft + vv.width : document.documentElement.clientWidth,
-        bottom: vv ? vv.offsetTop + vv.height : document.documentElement.clientHeight
-      };
-    }
-    function chromeDockMeasureGaps() {
-      if (!ttIOSChrome) return;
-      // Remove our previous correction mathematically before measuring.
-      var r = base.getBoundingClientRect(), v = chromeVisibleBounds();
-      chromeDockGapRight = v.right - (r.right - chromeDockCorrectionX);
-      chromeDockGapBottom = v.bottom - (r.bottom - chromeDockCorrectionY);
-    }
-    function chromeDockStabilize() {
-      chromeDockScheduled = false;
-      if (!ttIOSChrome) return;
-      var r = base.getBoundingClientRect(), v = chromeVisibleBounds();
-      var rawRight = r.right - chromeDockCorrectionX;
-      var rawBottom = r.bottom - chromeDockCorrectionY;
-      var wantX = v.right - chromeDockGapRight - rawRight;
-      var wantY = v.bottom - chromeDockGapBottom - rawBottom;
-      // Ignore transient absurd values and prevent visual feedback loops.
-      if (!Number.isFinite(wantX) || !Number.isFinite(wantY)) return;
-      if (Math.abs(wantX) > 450 || Math.abs(wantY) > 450) return;
-      if (Math.abs(wantX-chromeDockCorrectionX)<0.5 &&
-          Math.abs(wantY-chromeDockCorrectionY)<0.5) return;
-      chromeDockCorrectionX = wantX;
-      chromeDockCorrectionY = wantY;
-      base.style.translate = wantX.toFixed(2)+'px '+wantY.toFixed(2)+'px';
-    }
-    function chromeDockSchedule() {
-      if (!ttIOSChrome || chromeDockScheduled) return;
-      chromeDockScheduled = true;
-      requestAnimationFrame(chromeDockStabilize);
-    }
-    if (ttIOSChrome) {
-      chromeDockMeasureGaps();
-      window.addEventListener('scroll', chromeDockSchedule, {passive:true});
-      window.addEventListener('resize', chromeDockSchedule, {passive:true});
-      window.addEventListener('orientationchange', function(){
-        base.style.translate=''; chromeDockCorrectionX=chromeDockCorrectionY=0;
-        setTimeout(function(){chromeDockMeasureGaps();chromeDockSchedule();},250);
-      }, {passive:true});
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('scroll', chromeDockSchedule, {passive:true});
-        window.visualViewport.addEventListener('resize', chromeDockSchedule, {passive:true});
-      }
-    }
 
     // ============================================================
     // HOLEMAN — RANDOM CHARACTER, BOTTOM-RIGHT POP, 1s HOLD
