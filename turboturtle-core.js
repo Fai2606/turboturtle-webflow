@@ -6259,6 +6259,15 @@ emperorFloatTween =
         emperorRocket
       );
 
+      // Start the cat movement together with the Emperor's rise.
+      if (cat) {
+        gsap.to(cat, {
+          right: "48.6%",
+          duration: 0.6,
+          ease: "power2.inOut",
+          overwrite: "auto"
+        });
+      }
 
       gsap.to(
         emperorRocket,
@@ -6279,15 +6288,6 @@ emperorFloatTween =
 
             startEmperorFloat();
 
-            // Cat shifts left only after Emperor has finished rising.
-            if (cat) {
-              gsap.to(cat, {
-                right: "48.6%",
-                duration: 0.6,
-                ease: "power2.inOut",
-                overwrite: "auto"
-              });
-            }
 
           }
 
