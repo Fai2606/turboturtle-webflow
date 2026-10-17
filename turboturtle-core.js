@@ -2073,7 +2073,7 @@ if (
       "#ff696c", "#71b7dc", "#ddebf2", "#68e568",
       "#f9a958", "#60b4f0"
     ];
-    var secondsPerTransition = 2;
+    var secondsPerTransition = 4;
 
     gsap.set(ball, { backgroundColor: colors[0] });
     var paletteTimeline = gsap.timeline({ repeat: -1 });
