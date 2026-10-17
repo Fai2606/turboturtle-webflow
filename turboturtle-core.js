@@ -2059,8 +2059,8 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — CONTINUOUS CURATED COLOR PALETTE
-  // Smooth linear transitions through the 14 chosen colors.
-  // The final color blends back to the first for a seamless loop.
+  // Instant color changes through the 14 chosen colors every 3 seconds.
+  // The final color jumps back to the first after 3 seconds.
   // Only backgroundColor is animated; physics and transforms untouched.
   // ============================================================
   (function initCircleTextPalette() {
@@ -2073,16 +2073,14 @@ if (
       "#ffbdbf", "#b2f1f4", "#ddebf2", "#ffdada",
       "#d6fbaf", "#dbd7ff"
     ];
-    var secondsPerTransition = 3;
+    var secondsPerColor = 3;
 
     gsap.set(ball, { backgroundColor: colors[0] });
     var paletteTimeline = gsap.timeline({ repeat: -1 });
     for (var i = 1; i <= colors.length; i++) {
-      paletteTimeline.to(ball, {
-        backgroundColor: colors[i % colors.length],
-        duration: secondsPerTransition,
-        ease: "none"
-      });
+      // Hold the current color, then switch instantly — no blending.
+      paletteTimeline.to({}, { duration: secondsPerColor });
+      paletteTimeline.set(ball, { backgroundColor: colors[i % colors.length] });
     }
   })();
 
