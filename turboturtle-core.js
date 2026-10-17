@@ -2059,7 +2059,7 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
-  // Random initial hue from the selected palette; continuous 28-second loop.
+  // Start from the Webflow background hue; continuous 20-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2072,17 +2072,12 @@ if (
     var alpha = match[4] === undefined ? 1 : Number(match[4]);
     var brightness = Math.max(r, g, b);
     var saturation = brightness ? (brightness - Math.min(r, g, b)) / brightness : 0;
-    var palette = ['#fce9dc','#f9bff1','#bafbf4','#d5bdff','#d2ffbd','#fff0c0','#ffd5bd',
-                   '#bdd4ff','#ffbdbf','#b2f1f4','#ddebf2','#ffdada','#d6fbaf','#dbd7ff'];
-    var hues = palette.map(function(hex) {
-      var cr = parseInt(hex.slice(1,3),16), cg = parseInt(hex.slice(3,5),16), cb = parseInt(hex.slice(5,7),16);
-      var hi = Math.max(cr,cg,cb), lo = Math.min(cr,cg,cb), d = hi-lo;
-      if (!d) return 0;
-      var h = hi === cr ? ((cg-cb)/d)%6 : hi === cg ? (cb-cr)/d+2 : (cr-cg)/d+4;
-      return (h*60+360)%360;
-    });
+    // Compute the Webflow color's own HSV hue (no random palette start).
+    var hi = Math.max(r,g,b), lo = Math.min(r,g,b), delta = hi-lo;
+    var webflowHue = delta === 0 ? 0 :
+      ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
     var active = false, startTime = 0, startHue = 0, frame = 0;
-    var CYCLE_MS = 28000; // Full 360-degree hue rotation in 28 seconds (3x faster).
+    var CYCLE_MS = 20000; // Full 360-degree hue rotation in 20 seconds.
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
@@ -2095,7 +2090,7 @@ if (
     ball.ttColorStart = function() {
       if (active) return;
       gsap.killTweensOf(ball, 'backgroundColor');
-      startHue = hues[Math.floor(Math.random()*hues.length)];
+      startHue = webflowHue;
       startTime = performance.now();
       active = true;
       paint(startTime);
@@ -2275,13 +2270,13 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Two quick impacts up-left, then recoil; approximately every 4 seconds while docked.
-    // Fast accelerating strike creates the bump; slower rebound releases it.
-    var knockTween = gsap.timeline({repeat:-1, repeatDelay:3.48, paused:true});
-    knockTween.to(wrap,{x:-5,y:-5,duration:0.065,ease:'power3.in'})
-              .to(wrap,{x:0,y:0,duration:0.12,ease:'power2.out'})
-              .to(wrap,{x:-5,y:-5,duration:0.065,ease:'power3.in'},'+=0.08')
-              .to(wrap,{x:0,y:0,duration:0.12,ease:'power2.out'});
+    // Two upward-only knocks, 4px each; second strike immediately after recoil.
+    // 0.065s accelerating impact, 0.12s recoil, no pause between strikes.
+    var knockTween = gsap.timeline({repeat:-1, repeatDelay:3.63, paused:true});
+    knockTween.to(wrap,{y:-4,duration:0.065,ease:'power3.in'})
+              .to(wrap,{y:0,duration:0.12,ease:'power2.out'})
+              .to(wrap,{y:-4,duration:0.065,ease:'power3.in'})
+              .to(wrap,{y:0,duration:0.12,ease:'power2.out'});
     // Wait 4 seconds before the first knock too.
     gsap.delayedCall(4,function(){if(mode==='docked')knockTween.play(0);});
 
