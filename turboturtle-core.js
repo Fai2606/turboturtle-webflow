@@ -2058,61 +2058,60 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — SCROLL-CONTROLLED HUE (LIGHTWEIGHT)
-  // Read Webflow background once; retain HSV saturation/value/alpha.
-  // No extra ScrollTrigger; only one paint per animation frame.
+  // CIRCLE_TEXT — HUE ONLY WHEN RELEASED; WEBFLOW COLOR AT HOME
+  // 360 degrees / 8400px, with a random starting hue from the
+  // 14-color palette. Saturation, value and opacity come from Webflow.
   // ============================================================
   (function initCircleTextScrollHue() {
-    var ball = document.querySelector(".circle_text");
+    var ball = document.querySelector('.circle_text');
     if (!ball) return;
-
     var original = getComputedStyle(ball).backgroundColor;
     var match = original.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s\/]+([\d.]+))?/i);
     if (!match) return;
-    var r = Number(match[1]) / 255;
-    var g = Number(match[2]) / 255;
-    var b = Number(match[3]) / 255;
+    var r = Number(match[1]) / 255, g = Number(match[2]) / 255, b = Number(match[3]) / 255;
     var alpha = match[4] === undefined ? 1 : Number(match[4]);
-    var max = Math.max(r, g, b);
-    var min = Math.min(r, g, b);
-    var delta = max - min;
-    var saturation = max ? delta / max : 0;
-    var brightness = max;
-    var baseHue = 0;
-    if (delta) {
-      if (max === r) baseHue = ((g - b) / delta) % 6;
-      else if (max === g) baseHue = (b - r) / delta + 2;
-      else baseHue = (r - g) / delta + 4;
-      baseHue = (baseHue * 60 + 360) % 360;
-    }
-
-    var scrollPerCycle = 8400;
-    var queued = false;
-    var lastY = -1;
+    var brightness = Math.max(r, g, b);
+    var saturation = brightness ? (brightness - Math.min(r, g, b)) / brightness : 0;
+    var palette = ['#fce9dc','#f9bff1','#bafbf4','#d5bdff','#d2ffbd','#fff0c0','#ffd5bd',
+                   '#bdd4ff','#ffbdbf','#b2f1f4','#ddebf2','#ffdada','#d6fbaf','#dbd7ff'];
+    var hues = palette.map(function(hex) {
+      var cr = parseInt(hex.slice(1,3),16), cg = parseInt(hex.slice(3,5),16), cb = parseInt(hex.slice(5,7),16);
+      var hi = Math.max(cr,cg,cb), lo = Math.min(cr,cg,cb), d = hi-lo;
+      if (!d) return 0;
+      var h = hi === cr ? ((cg-cb)/d)%6 : hi === cg ? (cb-cr)/d+2 : (cr-cg)/d+4;
+      return (h*60+360)%360;
+    });
+    var active = false, startY = 0, startHue = 0, queued = false;
+    function scrollY() { return window.scrollY || window.pageYOffset || 0; }
     function paint() {
       queued = false;
-      var y = window.scrollY || window.pageYOffset || 0;
-      if (Math.abs(y - lastY) < 0.1) return;
-      lastY = y;
-      var h = (baseHue + y * 360 / scrollPerCycle) % 360;
-      var c = brightness * saturation;
-      var x = c * (1 - Math.abs((h / 60) % 2 - 1));
-      var m = brightness - c;
-      var rgb = h < 60 ? [c,x,0] : h < 120 ? [x,c,0] :
-                h < 180 ? [0,c,x] : h < 240 ? [0,x,c] :
-                h < 300 ? [x,0,c] : [c,0,x];
-      ball.style.backgroundColor = "rgba(" + rgb.map(function(v) {
-        return Math.round((v + m) * 255);
-      }).join(",") + "," + alpha + ")";
+      if (!active) return;
+      var h = ((startHue + (scrollY()-startY)*360/8400)%360+360)%360;
+      var c = brightness*saturation, x = c*(1-Math.abs((h/60)%2-1)), m = brightness-c;
+      var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+                h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      ball.style.backgroundColor = 'rgba('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+','+alpha+')';
     }
-    function onScroll() {
-      if (!queued) {
-        queued = true;
-        requestAnimationFrame(paint);
-      }
+    function queuePaint() {
+      if (active && !queued) { queued = true; requestAnimationFrame(paint); }
     }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+    ball.ttColorStart = function() {
+      gsap.killTweensOf(ball, 'backgroundColor');
+      startHue = hues[Math.floor(Math.random()*hues.length)];
+      startY = scrollY();
+      active = true;
+      paint();
+    };
+    ball.ttColorStop = function() {
+      if (!active) return;
+      active = false;
+      gsap.to(ball, {backgroundColor: original, duration: 0.1, ease: 'power1.out', overwrite: 'auto'});
+    };
+    window.addEventListener('scroll', queuePaint, {passive:true});
+    // Lenis may drive smooth scrolling independently of native scroll events.
+    if (typeof lenis !== 'undefined' && lenis && typeof lenis.on === 'function') {
+      lenis.on('scroll', queuePaint);
+    }
   })();
 
   // ============================================================
@@ -2283,6 +2282,17 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
+    // Two subtle knocks every 10 seconds while the ball is docked.
+    // Animate the wrapper only; never interfere with the ball's scroll rotation.
+    var knockTween = gsap.timeline({repeat:-1, repeatDelay:9.62, paused:true});
+    knockTween.to(wrap,{x:-3,duration:0.055,ease:'power1.inOut'})
+              .to(wrap,{x:3,duration:0.065,ease:'power1.inOut'})
+              .to(wrap,{x:0,duration:0.06,ease:'power1.out'})
+              .to(wrap,{x:-3,duration:0.055,ease:'power1.inOut'},'+=0.09')
+              .to(wrap,{x:3,duration:0.065,ease:'power1.inOut'})
+              .to(wrap,{x:0,duration:0.06,ease:'power1.out'});
+    knockTween.play();
+
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
@@ -2358,6 +2368,7 @@ if (
       gsap.set(wrap,{clearProps:'transform'});
       base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
+      knockTween.restart(true);
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
@@ -2391,6 +2402,7 @@ if (
       gsap.set(el,{rotation:0});
     }
     function snap(){
+      if (typeof el.ttColorStop === 'function') el.ttColorStop();
       mode='snap';vx=vy=spin=sx=sy=sa=0;
       cancelPendingHoleman();
       holemanArmed=true; // Next departure can trigger only after current Holeman finishes.
@@ -2403,6 +2415,8 @@ if (
       pointer=e.pointerId;
       // Transfer the currently visible rotation to the physics wrapper.
       if(mode==='docked'){
+        knockTween.pause(0);
+        gsap.set(wrap,{x:0});
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
       }
@@ -2436,6 +2450,7 @@ if (
       }
       if(distance()<C.snapRadius){snap();return;}
       mode='physics';
+      if (typeof el.ttColorStart === 'function') el.ttColorStart();
       var a=history[0],b=history[history.length-1];
       if(a&&b&&b.t-a.t>8&&performance.now()-b.t<110){
         var dt=(b.t-a.t)/1000;
