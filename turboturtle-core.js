@@ -2058,9 +2058,9 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — HUE ONLY WHEN RELEASED; WEBFLOW COLOR AT HOME
-  // 360 degrees / 8400px, with a random starting hue from the
-  // 14-color palette. Saturation, value and opacity come from Webflow.
+  // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
+  // Random initial hue from the selected palette; continuous 84-second loop.
+  // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
     var ball = document.querySelector('.circle_text');
@@ -2081,37 +2081,30 @@ if (
       var h = hi === cr ? ((cg-cb)/d)%6 : hi === cg ? (cb-cr)/d+2 : (cr-cg)/d+4;
       return (h*60+360)%360;
     });
-    var active = false, startY = 0, startHue = 0, queued = false;
-    function scrollY() { return window.scrollY || window.pageYOffset || 0; }
-    function paint() {
-      queued = false;
+    var active = false, startTime = 0, startHue = 0, frame = 0;
+    var CYCLE_MS = 84000; // Full 360-degree hue rotation in 84 seconds.
+    function paint(now) {
       if (!active) return;
-      var h = ((startHue + (scrollY()-startY)*360/8400)%360+360)%360;
+      var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
       var c = brightness*saturation, x = c*(1-Math.abs((h/60)%2-1)), m = brightness-c;
       var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
                 h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
       ball.style.backgroundColor = 'rgba('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+','+alpha+')';
-    }
-    function queuePaint() {
-      if (active && !queued) { queued = true; requestAnimationFrame(paint); }
+      frame = requestAnimationFrame(paint);
     }
     ball.ttColorStart = function() {
+      if (active) return;
       gsap.killTweensOf(ball, 'backgroundColor');
       startHue = hues[Math.floor(Math.random()*hues.length)];
-      startY = scrollY();
+      startTime = performance.now();
       active = true;
-      paint();
+      paint(startTime);
     };
     ball.ttColorStop = function() {
-      if (!active) return;
       active = false;
+      cancelAnimationFrame(frame);
       gsap.to(ball, {backgroundColor: original, duration: 0.1, ease: 'power1.out', overwrite: 'auto'});
     };
-    window.addEventListener('scroll', queuePaint, {passive:true});
-    // Lenis may drive smooth scrolling independently of native scroll events.
-    if (typeof lenis !== 'undefined' && lenis && typeof lenis.on === 'function') {
-      lenis.on('scroll', queuePaint);
-    }
   })();
 
   // ============================================================
@@ -2282,16 +2275,15 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Two subtle knocks every 10 seconds while the ball is docked.
-    // Animate the wrapper only; never interfere with the ball's scroll rotation.
-    var knockTween = gsap.timeline({repeat:-1, repeatDelay:9.62, paused:true});
-    knockTween.to(wrap,{x:-3,duration:0.055,ease:'power1.inOut'})
-              .to(wrap,{x:3,duration:0.065,ease:'power1.inOut'})
-              .to(wrap,{x:0,duration:0.06,ease:'power1.out'})
-              .to(wrap,{x:-3,duration:0.055,ease:'power1.inOut'},'+=0.09')
-              .to(wrap,{x:3,duration:0.065,ease:'power1.inOut'})
-              .to(wrap,{x:0,duration:0.06,ease:'power1.out'});
-    knockTween.play();
+    // Two clean diagonal lid bumps every ~10 seconds while docked.
+    // Move up-left 5px and return, twice; no sideways oscillation.
+    var knockTween = gsap.timeline({repeat:-1, repeatDelay:9.4, paused:true});
+    knockTween.to(wrap,{x:-5,y:-5,duration:0.14,ease:'power2.out'})
+              .to(wrap,{x:0,y:0,duration:0.16,ease:'power2.inOut'})
+              .to(wrap,{x:-5,y:-5,duration:0.14,ease:'power2.out'})
+              .to(wrap,{x:0,y:0,duration:0.16,ease:'power2.inOut'});
+    // Wait before the first knock too, rather than knocking on page load.
+    gsap.delayedCall(10,function(){if(mode==='docked')knockTween.play(0);});
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
@@ -2368,7 +2360,8 @@ if (
       gsap.set(wrap,{clearProps:'transform'});
       base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
-      knockTween.restart(true);
+      knockTween.pause(0);
+      gsap.delayedCall(10,function(){if(mode==='docked')knockTween.play(0);});
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
@@ -2416,7 +2409,7 @@ if (
       // Transfer the currently visible rotation to the physics wrapper.
       if(mode==='docked'){
         knockTween.pause(0);
-        gsap.set(wrap,{x:0});
+        gsap.set(wrap,{x:0,y:0});
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
       }
@@ -2466,7 +2459,7 @@ if (
       // Window-level pointermove/up continue to handle the gesture.
     });
     window.addEventListener('blur',function(){
-      if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');}
+      if(mode==='drag'){pointer=null;mode='physics';wrap.classList.remove('tt-dragging');if(typeof el.ttColorStart==='function')el.ttColorStart();}
     });
     function jump(power){
       if(mode!=='physics'||cooldown>0||y<maxY()-8)return;
