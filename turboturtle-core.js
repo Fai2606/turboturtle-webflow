@@ -2068,12 +2068,12 @@ if (
     if (!ball) return;
 
     var colors = [
-      "#efff5b", "#ffacf4", "#bafbf4", "#d5bdff",
-      "#d2ffbd", "#ffefbd", "#ffd5bd", "#bdd4ff",
-      "#ff696c", "#71b7dc", "#ddebf2", "#68e568",
-      "#f9a958", "#60b4f0"
+      "#efff5b", "#f9bff1", "#bafbf4", "#d5bdff",
+      "#d2ffbd", "#fff0c0", "#ffd5bd", "#bdd4ff",
+      "#ffa0a2", "#b2f1f4", "#ddebf2", "#ffdada",
+      "#d6fbaf", "#dbd7ff"
     ];
-    var secondsPerTransition = 4;
+    var secondsPerTransition = 6;
 
     gsap.set(ball, { backgroundColor: colors[0] });
     var paletteTimeline = gsap.timeline({ repeat: -1 });
