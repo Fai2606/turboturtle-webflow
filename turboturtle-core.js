@@ -5233,6 +5233,39 @@ function initHomeSection6() {
   var section = q(".home_section6");
   var city = q(".home_section6_city");
 
+  // ==========================================================
+  // HOME 6 — MONSTER HEAD IDLE MOVEMENT
+  // Webflow owns transform-origin; this only adds subtle motion.
+  // ==========================================================
+  (function initHome6MonsterHeadIdle() {
+    var head = q(".home6_monster_group");
+    if (!head) return;
+
+    var initialRotation = Number(gsap.getProperty(head, "rotation")) || 0;
+    var initialY = Number(gsap.getProperty(head, "y")) || 0;
+
+    // A gentle nod and vertical breathing motion, continuously looping.
+    // Separate durations avoid a mechanical, perfectly synchronized cycle.
+    gsap.to(head, {
+      rotation: initialRotation + 3,
+      duration: 2.2,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      overwrite: false
+    });
+
+    gsap.to(head, {
+      y: initialY - 7,
+      duration: 2.8,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      overwrite: false
+    });
+  })();
+
+
 
   
 
