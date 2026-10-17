@@ -2058,25 +2058,32 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — CONTINUOUS BACKGROUND HUE SHIFT
-  // Webflow reference: #ff9e9e (HSV saturation 38%, brightness 100%).
-  // HSL equivalent: saturation 100%, lightness ~81%.
-  // Color only: does not touch the existing ball physics/transforms.
+  // CIRCLE_TEXT — CONTINUOUS CURATED COLOR PALETTE
+  // Smooth linear transitions through the 14 chosen colors.
+  // The final color blends back to the first for a seamless loop.
+  // Only backgroundColor is animated; physics and transforms untouched.
   // ============================================================
-  (function initCircleTextHue() {
+  (function initCircleTextPalette() {
     var ball = document.querySelector(".circle_text");
     if (!ball) return;
-    var color = { hue: 0 };
-    gsap.to(color, {
-      hue: 360,
-      duration: 20,
-      ease: "none",
-      repeat: -1,
-      onUpdate: function () {
-        ball.style.backgroundColor =
-          "hsl(" + color.hue + " 100% 81%)";
-      }
-    });
+
+    var colors = [
+      "#efff5b", "#ffacf4", "#bafbf4", "#d5bdff",
+      "#d2ffbd", "#ffefbd", "#ffd5bd", "#bdd4ff",
+      "#ff696c", "#71b7dc", "#ddebf2", "#68e568",
+      "#f9a958", "#60b4f0"
+    ];
+    var secondsPerTransition = 2;
+
+    gsap.set(ball, { backgroundColor: colors[0] });
+    var paletteTimeline = gsap.timeline({ repeat: -1 });
+    for (var i = 1; i <= colors.length; i++) {
+      paletteTimeline.to(ball, {
+        backgroundColor: colors[i % colors.length],
+        duration: secondsPerTransition,
+        ease: "none"
+      });
+    }
   })();
 
   // ============================================================
