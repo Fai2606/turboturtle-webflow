@@ -2058,6 +2058,28 @@ if (
 
   // ============================================================
   // ============================================================
+  // CIRCLE_TEXT — CONTINUOUS BACKGROUND HUE SHIFT
+  // Webflow reference: #ff9e9e (HSV saturation 38%, brightness 100%).
+  // HSL equivalent: saturation 100%, lightness ~81%.
+  // Color only: does not touch the existing ball physics/transforms.
+  // ============================================================
+  (function initCircleTextHue() {
+    var ball = document.querySelector(".circle_text");
+    if (!ball) return;
+    var color = { hue: 0 };
+    gsap.to(color, {
+      hue: 360,
+      duration: 20,
+      ease: "none",
+      repeat: -1,
+      onUpdate: function () {
+        ball.style.backgroundColor =
+          "hsl(" + color.hue + " 100% 81%)";
+      }
+    });
+  })();
+
+  // ============================================================
   // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
   // Only this image enters physics mode; other rotations remain.
   // ============================================================
