@@ -2059,7 +2059,7 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
-  // Random initial hue from the selected palette; continuous 84-second loop.
+  // Random initial hue from the selected palette; continuous 28-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2082,7 +2082,7 @@ if (
       return (h*60+360)%360;
     });
     var active = false, startTime = 0, startHue = 0, frame = 0;
-    var CYCLE_MS = 84000; // Full 360-degree hue rotation in 84 seconds.
+    var CYCLE_MS = 28000; // Full 360-degree hue rotation in 28 seconds (3x faster).
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
@@ -2275,15 +2275,15 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Two clean diagonal lid bumps every ~10 seconds while docked.
-    // Move up-left 5px and return, twice; no sideways oscillation.
-    var knockTween = gsap.timeline({repeat:-1, repeatDelay:9.4, paused:true});
-    knockTween.to(wrap,{x:-5,y:-5,duration:0.14,ease:'power2.out'})
-              .to(wrap,{x:0,y:0,duration:0.16,ease:'power2.inOut'})
-              .to(wrap,{x:-5,y:-5,duration:0.14,ease:'power2.out'})
-              .to(wrap,{x:0,y:0,duration:0.16,ease:'power2.inOut'});
-    // Wait before the first knock too, rather than knocking on page load.
-    gsap.delayedCall(10,function(){if(mode==='docked')knockTween.play(0);});
+    // Two quick impacts up-left, then recoil; approximately every 4 seconds while docked.
+    // Fast accelerating strike creates the bump; slower rebound releases it.
+    var knockTween = gsap.timeline({repeat:-1, repeatDelay:3.48, paused:true});
+    knockTween.to(wrap,{x:-5,y:-5,duration:0.065,ease:'power3.in'})
+              .to(wrap,{x:0,y:0,duration:0.12,ease:'power2.out'})
+              .to(wrap,{x:-5,y:-5,duration:0.065,ease:'power3.in'},'+=0.08')
+              .to(wrap,{x:0,y:0,duration:0.12,ease:'power2.out'});
+    // Wait 4 seconds before the first knock too.
+    gsap.delayedCall(4,function(){if(mode==='docked')knockTween.play(0);});
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
@@ -2361,7 +2361,7 @@ if (
       base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
       knockTween.pause(0);
-      gsap.delayedCall(10,function(){if(mode==='docked')knockTween.play(0);});
+      gsap.delayedCall(4,function(){if(mode==='docked')knockTween.play(0);});
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
