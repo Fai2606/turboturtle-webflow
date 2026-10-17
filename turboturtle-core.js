@@ -6404,7 +6404,7 @@ onLeaveBack: function() {
       },
       onLeaveBack: function() {
         gsap.to(pyramid, {
-          bottom: "244px",
+          bottom: "250px",
           duration: 0.6,
           ease: "power2.inOut",
           overwrite: "auto"
