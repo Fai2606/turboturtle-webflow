@@ -2068,9 +2068,9 @@ if (
     if (!ball) return;
 
     var colors = [
-      "#efff5b", "#f9bff1", "#bafbf4", "#d5bdff",
+      "#eefc6c", "#f9bff1", "#bafbf4", "#d5bdff",
       "#d2ffbd", "#fff0c0", "#ffd5bd", "#bdd4ff",
-      "#ffa0a2", "#b2f1f4", "#ddebf2", "#ffdada",
+      "#ffbdbf", "#b2f1f4", "#ddebf2", "#ffdada",
       "#d6fbaf", "#dbd7ff"
     ];
     var secondsPerTransition = 6;
