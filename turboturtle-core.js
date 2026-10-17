@@ -2086,7 +2086,7 @@ if (
       baseHue = (baseHue * 60 + 360) % 360;
     }
 
-    var scrollPerCycle = 2400;
+    var scrollPerCycle = 7200;
     var queued = false;
     var lastY = -1;
     function paint() {
