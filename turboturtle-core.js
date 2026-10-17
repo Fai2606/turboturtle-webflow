@@ -2059,7 +2059,7 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
-  // Start from the Webflow background hue; continuous 20-second loop.
+  // Start from the Webflow background hue; continuous 12-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2077,7 +2077,7 @@ if (
     var webflowHue = delta === 0 ? 0 :
       ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
     var active = false, startTime = 0, startHue = 0, frame = 0;
-    var CYCLE_MS = 20000; // Full 360-degree hue rotation in 20 seconds.
+    var CYCLE_MS = 12000; // Full 360-degree hue rotation in 12 seconds.
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
@@ -2270,15 +2270,41 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Two upward-only knocks, 4px each; second strike immediately after recoil.
-    // 0.065s accelerating impact, 0.12s recoil, no pause between strikes.
-    var knockTween = gsap.timeline({repeat:-1, repeatDelay:3.63, paused:true});
-    knockTween.to(wrap,{y:-4,duration:0.065,ease:'power3.in'})
-              .to(wrap,{y:0,duration:0.12,ease:'power2.out'})
-              .to(wrap,{y:-4,duration:0.065,ease:'power3.in'})
-              .to(wrap,{y:0,duration:0.12,ease:'power2.out'});
-    // Wait 4 seconds before the first knock too.
-    gsap.delayedCall(4,function(){if(mode==='docked')knockTween.play(0);});
+    // Docked lid: opens toward upper-left, holds, then snaps shut.
+    // The physics wrapper is the lid while docked; no extra Webflow element required.
+    var lidOpen = gsap.timeline({paused:true, onComplete:function(){
+      if (mode==='docked' && !lidScrolling) scheduleLid(5);
+    }});
+    lidOpen.to(wrap,{x:-5,y:-5,rotation:-20,duration:0.28,ease:'power2.out'})
+           .to({}, {duration:1})
+           .to(wrap,{x:0,y:0,rotation:0,duration:0.24,ease:'bounce.in'});
+    var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
+    function stopLid(){
+      if(lidTimer){lidTimer.kill();lidTimer=null;}
+      lidOpen.pause(0);
+      gsap.set(wrap,{x:0,y:0,rotation:0});
+    }
+    function scheduleLid(delay){
+      if(lidTimer)lidTimer.kill();
+      if(mode!=='docked'||lidScrolling)return;
+      lidTimer=gsap.delayedCall(delay,function(){
+        lidTimer=null;
+        if(mode==='docked'&&!lidScrolling)lidOpen.restart();
+      });
+    }
+    function onLidScroll(){
+      lidScrolling=true;
+      if(mode==='docked')stopLid();
+      if(lidScrollTimer)lidScrollTimer.kill();
+      lidScrollTimer=gsap.delayedCall(0.3,function(){
+        lidScrolling=false;
+        if(mode==='docked')scheduleLid(5);
+      });
+    }
+    // Pause lid activity during native or Lenis scrolling.
+    window.addEventListener('scroll',onLidScroll,{passive:true});
+    if(lenis&&typeof lenis.on==='function')lenis.on('scroll',onLidScroll);
+    scheduleLid(5);
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
@@ -2355,8 +2381,8 @@ if (
       gsap.set(wrap,{clearProps:'transform'});
       base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
-      knockTween.pause(0);
-      gsap.delayedCall(4,function(){if(mode==='docked')knockTween.play(0);});
+      stopLid();
+      scheduleLid(5);
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
@@ -2403,7 +2429,7 @@ if (
       pointer=e.pointerId;
       // Transfer the currently visible rotation to the physics wrapper.
       if(mode==='docked'){
-        knockTween.pause(0);
+        stopLid();
         gsap.set(wrap,{x:0,y:0});
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
