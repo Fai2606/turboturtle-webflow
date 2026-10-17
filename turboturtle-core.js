@@ -5270,6 +5270,38 @@ function initHomeSection6() {
   
 
   // ==========================================================
+  // HOME 6 — CAMEL GROUP IDLE MOVEMENT
+  // Larger vertical sway, very subtle rotation.
+  // Preserve the transform origin defined in Webflow.
+  // ==========================================================
+  (function initHome6CamelIdle() {
+    var camelGroup = q(".home6_camel_group");
+    if (!camelGroup) return;
+
+    var initialRotation = Number(gsap.getProperty(camelGroup, "rotation")) || 0;
+    var initialY = Number(gsap.getProperty(camelGroup, "y")) || 0;
+
+    gsap.to(camelGroup, {
+      rotation: initialRotation + 1,
+      duration: 3.4,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      overwrite: false
+    });
+
+    gsap.to(camelGroup, {
+      y: initialY - 14,
+      duration: 3.0,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      overwrite: false
+    });
+  })();
+
+
+  // ==========================================================
   // HOME 6 — FAST RISING CLOUDS
   // Each cloud has its own viewport-based trigger
   // ==========================================================
