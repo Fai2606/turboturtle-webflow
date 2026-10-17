@@ -2059,8 +2059,8 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — CONTINUOUS CURATED COLOR PALETTE
-  // Instant color changes through the 14 chosen colors every 3 seconds.
-  // The final color jumps back to the first after 3 seconds.
+  // Instant color changes through the 14 chosen colors every 1.5 seconds.
+  // The final color jumps back to the first after 1.5 seconds.
   // Only backgroundColor is animated; physics and transforms untouched.
   // ============================================================
   (function initCircleTextPalette() {
@@ -2073,7 +2073,7 @@ if (
       "#ffbdbf", "#b2f1f4", "#ddebf2", "#ffdada",
       "#d6fbaf", "#dbd7ff"
     ];
-    var secondsPerColor = 3;
+    var secondsPerColor = 1.5;
 
     gsap.set(ball, { backgroundColor: colors[0] });
     var paletteTimeline = gsap.timeline({ repeat: -1 });
