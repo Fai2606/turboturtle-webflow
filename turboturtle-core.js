@@ -2058,32 +2058,47 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — CONTINUOUS CURATED COLOR PALETTE
-  // Instant color changes through the 14 chosen colors every 1.5 seconds.
-  // The final color jumps back to the first after 1.5 seconds.
-  // Only backgroundColor is animated; physics and transforms untouched.
+  // CIRCLE_TEXT — SCROLL-TRIGGERED CURATED COLOR CHANGES
+  // Initial background stays as set in Webflow. Every 450px of
+  // page scroll selects the next palette color (reverse on scroll up).
+  // Each change blends to its exact target; no timed color cycling.
   // ============================================================
-  (function initCircleTextPalette() {
+  (function initCircleTextScrollPalette() {
     var ball = document.querySelector(".circle_text");
-    if (!ball) return;
+    if (!ball || !ScrollTrigger) return;
 
     var colors = [
-      "#eefc6c", "#f9bff1", "#bafbf4", "#d5bdff",
+      "#fce9dc", "#f9bff1", "#bafbf4", "#d5bdff",
       "#d2ffbd", "#fff0c0", "#ffd5bd", "#bdd4ff",
       "#ffbdbf", "#b2f1f4", "#ddebf2", "#ffdada",
       "#d6fbaf", "#dbd7ff"
     ];
-    var secondsPerColor = 1.5;
+    var initialColor = getComputedStyle(ball).backgroundColor;
+    var scrollPerColor = 450; // px; lower = more frequent changes
+    var transitionSeconds = 0.7;
+    var lastStep = 0;
 
-    gsap.set(ball, { backgroundColor: colors[0] });
-    var paletteTimeline = gsap.timeline({ repeat: -1 });
-    for (var i = 1; i <= colors.length; i++) {
-      // Hold the current color, then switch instantly — no blending.
-      paletteTimeline.to({}, { duration: secondsPerColor });
-      paletteTimeline.set(ball, { backgroundColor: colors[i % colors.length] });
-    }
+    ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: function (self) {
+        var step = Math.max(0, Math.floor(self.scroll() / scrollPerColor));
+        if (step === lastStep) return;
+        lastStep = step;
+        var target = step === 0
+          ? initialColor
+          : colors[(step - 1) % colors.length];
+        gsap.to(ball, {
+          backgroundColor: target,
+          duration: transitionSeconds,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      }
+    });
   })();
 
+  // ============================================================
   // ============================================================
   // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
   // Only this image enters physics mode; other rotations remain.
