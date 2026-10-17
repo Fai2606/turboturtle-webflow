@@ -23,7 +23,7 @@ function getRealViewportHeight() {
 
 var vw = getRealViewportWidth() / 100;
 var vh = getRealViewportHeight() / 100;
-a
+
 var lastWidth =
   getRealViewportWidth();
 
@@ -2058,59 +2058,61 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — SCROLL-CONTROLLED HUE ONLY
-  // Reads the background set in Webflow (e.g. #ffe5ce), keeps its
-  // original HSV saturation, brightness and alpha, and changes
-  // ONLY hue according to scroll position. No timed animation.
+  // CIRCLE_TEXT — SCROLL-CONTROLLED HUE (LIGHTWEIGHT)
+  // Read Webflow background once; retain HSV saturation/value/alpha.
+  // No extra ScrollTrigger; only one paint per animation frame.
   // ============================================================
   (function initCircleTextScrollHue() {
     var ball = document.querySelector(".circle_text");
-    if (!ball || !ScrollTrigger) return;
+    if (!ball) return;
 
     var original = getComputedStyle(ball).backgroundColor;
-    var parts = original.match(/[\d.]+/g);
-    if (!parts || parts.length < 3) return;
-    var r = Number(parts[0]) / 255;
-    var g = Number(parts[1]) / 255;
-    var b = Number(parts[2]) / 255;
-    var alpha = parts.length > 3 ? Number(parts[3]) : 1;
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var match = original.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s\/]+([\d.]+))?/i);
+    if (!match) return;
+    var r = Number(match[1]) / 255;
+    var g = Number(match[2]) / 255;
+    var b = Number(match[3]) / 255;
+    var alpha = match[4] === undefined ? 1 : Number(match[4]);
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
     var delta = max - min;
-    var saturation = max === 0 ? 0 : delta / max;
+    var saturation = max ? delta / max : 0;
     var brightness = max;
-    var hue = 0;
-    if (delta !== 0) {
-      if (max === r) hue = ((g - b) / delta) % 6;
-      else if (max === g) hue = (b - r) / delta + 2;
-      else hue = (r - g) / delta + 4;
-      hue = (hue * 60 + 360) % 360;
+    var baseHue = 0;
+    if (delta) {
+      if (max === r) baseHue = ((g - b) / delta) % 6;
+      else if (max === g) baseHue = (b - r) / delta + 2;
+      else baseHue = (r - g) / delta + 4;
+      baseHue = (baseHue * 60 + 360) % 360;
     }
 
-    var scrollPerCycle = 2400; // pixels scrolled per complete 360° hue rotation
-
-    function updateHue(scrollY) {
-      var h = ((hue + scrollY / scrollPerCycle * 360) % 360 + 360) % 360;
-      var chroma = brightness * saturation;
-      var x = chroma * (1 - Math.abs((h / 60) % 2 - 1));
-      var m = brightness - chroma;
-      var rgb;
-      if (h < 60) rgb = [chroma, x, 0];
-      else if (h < 120) rgb = [x, chroma, 0];
-      else if (h < 180) rgb = [0, chroma, x];
-      else if (h < 240) rgb = [0, x, chroma];
-      else if (h < 300) rgb = [x, 0, chroma];
-      else rgb = [chroma, 0, x];
-      ball.style.backgroundColor = "rgba(" + rgb.map(function (v) {
+    var scrollPerCycle = 2400;
+    var queued = false;
+    var lastY = -1;
+    function paint() {
+      queued = false;
+      var y = window.scrollY || window.pageYOffset || 0;
+      if (Math.abs(y - lastY) < 0.1) return;
+      lastY = y;
+      var h = (baseHue + y * 360 / scrollPerCycle) % 360;
+      var c = brightness * saturation;
+      var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      var m = brightness - c;
+      var rgb = h < 60 ? [c,x,0] : h < 120 ? [x,c,0] :
+                h < 180 ? [0,c,x] : h < 240 ? [0,x,c] :
+                h < 300 ? [x,0,c] : [c,0,x];
+      ball.style.backgroundColor = "rgba(" + rgb.map(function(v) {
         return Math.round((v + m) * 255);
       }).join(",") + "," + alpha + ")";
     }
-
-    ScrollTrigger.create({
-      start: 0,
-      end: "max",
-      onUpdate: function (self) { updateHue(self.scroll()); }
-    });
-    updateHue(ScrollTrigger.scroll());
+    function onScroll() {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(paint);
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
   })();
 
   // ============================================================
