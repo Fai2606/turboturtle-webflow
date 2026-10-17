@@ -2273,11 +2273,11 @@ if (
     // Docked lid: opens toward upper-left, holds, then snaps shut.
     // The physics wrapper is the lid while docked; no extra Webflow element required.
     var lidOpen = gsap.timeline({paused:true, onComplete:function(){
-      if (mode==='docked' && !lidScrolling) scheduleLid(5);
+      if (mode==='docked' && !lidScrolling) scheduleLid(4);
     }});
-    lidOpen.to(wrap,{x:-5,y:-5,rotation:-20,duration:0.28,ease:'power2.out'})
-           .to({}, {duration:1})
-           .to(wrap,{x:0,y:0,rotation:0,duration:0.24,ease:'bounce.in'});
+    lidOpen.to(wrap,{x:-6,y:-6,rotation:-20,duration:0.3,ease:'power3.out'})
+           .to({}, {duration:1.2})
+           .to(wrap,{x:0,y:0,rotation:0,duration:0.3,ease:'power2.in'});
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     function stopLid(){
       if(lidTimer){lidTimer.kill();lidTimer=null;}
@@ -2304,7 +2304,7 @@ if (
     // Pause lid activity during native or Lenis scrolling.
     window.addEventListener('scroll',onLidScroll,{passive:true});
     if(lenis&&typeof lenis.on==='function')lenis.on('scroll',onLidScroll);
-    scheduleLid(5);
+    scheduleLid(4);
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
