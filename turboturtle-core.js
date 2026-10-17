@@ -23,7 +23,7 @@ function getRealViewportHeight() {
 
 var vw = getRealViewportWidth() / 100;
 var vh = getRealViewportHeight() / 100;
-
+a
 var lastWidth =
   getRealViewportWidth();
 
@@ -2058,44 +2058,59 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — SCROLL-TRIGGERED CURATED COLOR CHANGES
-  // Initial background stays as set in Webflow. Every 450px of
-  // page scroll selects the next palette color (reverse on scroll up).
-  // Each change blends to its exact target; no timed color cycling.
+  // CIRCLE_TEXT — SCROLL-CONTROLLED HUE ONLY
+  // Reads the background set in Webflow (e.g. #ffe5ce), keeps its
+  // original HSV saturation, brightness and alpha, and changes
+  // ONLY hue according to scroll position. No timed animation.
   // ============================================================
-  (function initCircleTextScrollPalette() {
+  (function initCircleTextScrollHue() {
     var ball = document.querySelector(".circle_text");
     if (!ball || !ScrollTrigger) return;
 
-    var colors = [
-      "#fce9dc", "#f9bff1", "#bafbf4", "#d5bdff",
-      "#d2ffbd", "#fff0c0", "#ffd5bd", "#bdd4ff",
-      "#ffbdbf", "#b2f1f4", "#ddebf2", "#ffdada",
-      "#d6fbaf", "#dbd7ff"
-    ];
-    var initialColor = getComputedStyle(ball).backgroundColor;
-    var scrollPerColor = 450; // px; lower = more frequent changes
-    var transitionSeconds = 0.7;
-    var lastStep = 0;
+    var original = getComputedStyle(ball).backgroundColor;
+    var parts = original.match(/[\d.]+/g);
+    if (!parts || parts.length < 3) return;
+    var r = Number(parts[0]) / 255;
+    var g = Number(parts[1]) / 255;
+    var b = Number(parts[2]) / 255;
+    var alpha = parts.length > 3 ? Number(parts[3]) : 1;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var delta = max - min;
+    var saturation = max === 0 ? 0 : delta / max;
+    var brightness = max;
+    var hue = 0;
+    if (delta !== 0) {
+      if (max === r) hue = ((g - b) / delta) % 6;
+      else if (max === g) hue = (b - r) / delta + 2;
+      else hue = (r - g) / delta + 4;
+      hue = (hue * 60 + 360) % 360;
+    }
+
+    var scrollPerCycle = 2400; // pixels scrolled per complete 360° hue rotation
+
+    function updateHue(scrollY) {
+      var h = ((hue + scrollY / scrollPerCycle * 360) % 360 + 360) % 360;
+      var chroma = brightness * saturation;
+      var x = chroma * (1 - Math.abs((h / 60) % 2 - 1));
+      var m = brightness - chroma;
+      var rgb;
+      if (h < 60) rgb = [chroma, x, 0];
+      else if (h < 120) rgb = [x, chroma, 0];
+      else if (h < 180) rgb = [0, chroma, x];
+      else if (h < 240) rgb = [0, x, chroma];
+      else if (h < 300) rgb = [x, 0, chroma];
+      else rgb = [chroma, 0, x];
+      ball.style.backgroundColor = "rgba(" + rgb.map(function (v) {
+        return Math.round((v + m) * 255);
+      }).join(",") + "," + alpha + ")";
+    }
 
     ScrollTrigger.create({
       start: 0,
       end: "max",
-      onUpdate: function (self) {
-        var step = Math.max(0, Math.floor(self.scroll() / scrollPerColor));
-        if (step === lastStep) return;
-        lastStep = step;
-        var target = step === 0
-          ? initialColor
-          : colors[(step - 1) % colors.length];
-        gsap.to(ball, {
-          backgroundColor: target,
-          duration: transitionSeconds,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-      }
+      onUpdate: function (self) { updateHue(self.scroll()); }
     });
+    updateHue(ScrollTrigger.scroll());
   })();
 
   // ============================================================
