@@ -2058,9 +2058,9 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; RETAIN COLOR AT HOME
-  // Start from the Webflow background hue; continuous 8-second loop.
-  // Hue changes automatically even when scrolling stops.
+  // CIRCLE_TEXT — RANDOM INITIAL HUE; SLOW AT HOME, FAST RELEASED
+  // Docked: 32 seconds / revolution. Released: 8 seconds / revolution.
+  // Hue remains continuous when changing between states.
   // ============================================================
   (function initCircleTextScrollHue() {
     var ball = document.querySelector('.circle_text');
@@ -2072,35 +2072,45 @@ if (
     var alpha = match[4] === undefined ? 1 : Number(match[4]);
     var brightness = Math.max(r, g, b);
     var saturation = brightness ? (brightness - Math.min(r, g, b)) / brightness : 0;
-    // Compute the Webflow color's own HSV hue (no random palette start).
-    var hi = Math.max(r,g,b), lo = Math.min(r,g,b), delta = hi-lo;
+    var hi = Math.max(r, g, b), lo = Math.min(r, g, b), delta = hi - lo;
     var webflowHue = delta === 0 ? 0 :
-      ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
-    var active = false, startTime = 0, startHue = webflowHue, currentHue = webflowHue, frame = 0;
-    var CYCLE_MS = 8000; // Full 360-degree hue rotation in 8 seconds.
-    function paint(now) {
-      if (!active) return;
-      var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
-      currentHue = h;
-      var c = brightness*saturation, x = c*(1-Math.abs((h/60)%2-1)), m = brightness-c;
-      var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
-                h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
-      ball.style.backgroundColor = 'rgba('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+','+alpha+')';
-      frame = requestAnimationFrame(paint);
+      ((hi === r ? ((g - b) / delta) % 6 : hi === g ? (b - r) / delta + 2 : (r - g) / delta + 4) * 60 + 360) % 360;
+
+    // Pick a new hue immediately on initialization, retaining Webflow saturation/value.
+    var currentHue = (webflowHue + Math.random() * 360) % 360;
+    var released = false;
+    var lastTime = performance.now();
+    var DOCKED_CYCLE_MS = 32000;
+    var RELEASED_CYCLE_MS = 8000;
+
+    function renderHue() {
+      var h = currentHue;
+      var c = brightness * saturation, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = brightness - c;
+      var rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] :
+                h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+      ball.style.backgroundColor = 'rgba(' + rgb.map(function(v) { return Math.round((v + m) * 255); }).join(',') + ',' + alpha + ')';
     }
+
+    function tick(now) {
+      // Cap long inactive-tab gaps to avoid sudden large color jumps.
+      var dt = Math.min(Math.max(now - lastTime, 0), 100);
+      lastTime = now;
+      currentHue = (currentHue + dt * 360 / (released ? RELEASED_CYCLE_MS : DOCKED_CYCLE_MS)) % 360;
+      renderHue();
+      requestAnimationFrame(tick);
+    }
+
     ball.ttColorStart = function() {
-      if (active) return;
       gsap.killTweensOf(ball, 'backgroundColor');
-      startHue = currentHue;
-      startTime = performance.now();
-      active = true;
-      paint(startTime);
+      released = true;
     };
     ball.ttColorStop = function() {
-      active = false;
-      cancelAnimationFrame(frame);
-      // Keep the current color exactly as it is when the ball docks.
+      released = false;
     };
+
+    gsap.killTweensOf(ball, 'backgroundColor');
+    renderHue(); // Immediate random starting color, before the first frame.
+    requestAnimationFrame(tick);
   })();
 
   // ============================================================
