@@ -2406,13 +2406,13 @@ if (
           triangle.setAttribute('fill', color);
           triangleLayer.appendChild(triangle);
           var move = travel * (0.7 + Math.random() * 0.6);
-          gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*move,y:-uy*move,duration:0.2,ease:'power2.out'});
+          gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*move,y:-uy*move,duration:lidHovered ? 0.12 : 0.2,ease:'power2.out'});
         });
       }
       drawTriangleSet(centers, '#2c2c2c');
       drawTriangleSet(whiteCenters, '#ffffff');
       triangleLayer.style.visibility = 'visible';
-      triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
+      triangleTimer = gsap.delayedCall(lidHovered ? 0.14 : 0.2, clearKnockTriangles);
     }
     function stopLid() {
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
@@ -2430,18 +2430,24 @@ if (
       var strength2 = (0.65 + Math.random() * 0.95) * power;
       // Triangle size grows from 70% to 110% over the eight knock stages.
       var triangleScale = lidHovered ? 1.1 : Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
+      // A complete two-direction hover knock fits inside the 0.15s repeat.
+      // Normal idle knocks keep their original, slower timings.
+      var knockOut1 = lidHovered ? 0.025 : 0.045;
+      var knockBack1 = lidHovered ? 0.045 : 0.085;
+      var knockOut2 = lidHovered ? 0.025 : 0.05;
+      var knockBack2 = lidHovered ? 0.045 : 0.10;
       lidOpen = gsap.timeline({onComplete:function() {
         lidOpen = null;
         if (mode === 'docked' && !lidScrolling && !lidHovered) scheduleNextLid();
       }});
       lidOpen.call(function(){ showKnockTriangles(triangleScale); })
-        .to(wrap,{x:-1.7*strength,y:-2.6*strength,rotation:-1.15*strength,duration:0.045,ease:'power3.in'})
-        .to(wrap,{x:0,y:0,rotation:0,duration:0.085,ease:'power2.out'})
+        .to(wrap,{x:-1.7*strength,y:-2.6*strength,rotation:-1.15*strength,duration:knockOut1,ease:'power3.in'})
+        .to(wrap,{x:0,y:0,rotation:0,duration:knockBack1,ease:'power2.out'})
         .call(function(){ showKnockTriangles(triangleScale); })
-        .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:0.05,ease:'power3.in'})
-        .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
+        .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:knockOut2,ease:'power3.in'})
+        .to(wrap,{x:0,y:0,rotation:0,duration:knockBack2,ease:'power2.out'});
       // Hover cadence is measured from knock START, not completion.
-      // The 0.15s restart allows more of each double-knock to play before restarting.
+      // Hover knock finishes in 0.14s, before the next knock starts at 0.15s.
       if (lidHovered) scheduleLid(0.15);
     }
     function scheduleLid(delay) {
