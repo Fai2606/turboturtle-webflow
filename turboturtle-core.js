@@ -2315,26 +2315,6 @@ if (
     var lidIntervalIndex = 0;
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     var lidHovered = false;
-    // 10% chance per knock to flash the alternate lid text for 0.15s.
-    var holemanLidText1 = document.querySelector('.holeman_lid_text1');
-    var holemanLidText2 = document.querySelector('.holeman_lid_text2');
-    var holemanTextFlashTimer = null;
-    function resetHolemanLidText() {
-      if (holemanTextFlashTimer) { holemanTextFlashTimer.kill(); holemanTextFlashTimer = null; }
-      if (holemanLidText1) holemanLidText1.style.display = 'block';
-      if (holemanLidText2) holemanLidText2.style.display = 'none';
-    }
-    function maybeFlashHolemanLidText() {
-      if (!holemanLidText1 || !holemanLidText2 || Math.random() >= 0.10) return;
-      // Restart the 0.15s flash if a second qualifying knock happens during it.
-      if (holemanTextFlashTimer) holemanTextFlashTimer.kill();
-      holemanLidText1.style.display = 'none';
-      holemanLidText2.style.display = 'block';
-      holemanTextFlashTimer = gsap.delayedCall(0.15, function() {
-        holemanTextFlashTimer = null;
-        resetHolemanLidText();
-      });
-    }
     var lidOpen = null;
     var triangleTimer = null;
     // Use a viewport-level overlay, not an SVG inside the ball wrapper.
@@ -2431,6 +2411,27 @@ if (
       }
       drawTriangleSet(centers, '#2c2c2c');
       drawTriangleSet(whiteCenters, '#ffffff');
+      // One tiny KNOCK label alongside the six triangles on each impact.
+      // Use the same overlay so Webflow containers cannot clip the label.
+      var knockAngle = Math.PI * (1.13 + Math.random() * 0.70);
+      var knockRadius = radius + tipClearance + maxExtraGap * (0.65 + Math.random() * 0.35) + 14;
+      var labelX = cx + knockRadius * Math.cos(knockAngle);
+      var labelY = cy + knockRadius * Math.sin(knockAngle);
+      var knockLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      knockLabel.setAttribute('x', labelX);
+      knockLabel.setAttribute('y', labelY);
+      knockLabel.setAttribute('fill', '#2c2c2c');
+      knockLabel.setAttribute('font-size', '6px');
+      knockLabel.setAttribute('font-weight', '700');
+      knockLabel.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
+      knockLabel.setAttribute('text-anchor', 'middle');
+      knockLabel.setAttribute('dominant-baseline', 'middle');
+      knockLabel.textContent = 'KNOCK';
+      triangleLayer.appendChild(knockLabel);
+      gsap.fromTo(knockLabel, {x:0,y:0}, {
+        x:Math.cos(knockAngle)*travel, y:Math.sin(knockAngle)*travel,
+        duration:lidHovered ? 0.12 : 0.2, ease:'power2.out'
+      });
       triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(lidHovered ? 0.14 : 0.2, clearKnockTriangles);
     }
@@ -2438,13 +2439,10 @@ if (
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       clearKnockTriangles();
-      resetHolemanLidText();
       gsap.set(wrap, {x:0,y:0,rotation:0});
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
-      // Each vibration has a 10% chance of briefly swapping the two lid texts.
-      maybeFlashHolemanLidText();
       // Hover jumps immediately to the strongest stage.
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       var progress = lidHovered ? 1 : Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
