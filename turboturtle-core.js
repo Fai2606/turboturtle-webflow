@@ -2363,10 +2363,14 @@ if (
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || lidScrolling) return;
-      var strength = 0.65 + Math.random() * 0.95;
-      var strength2 = 0.65 + Math.random() * 0.95;
+      // Preserve the gentle first impact, but build more displacement as the
+      // idle rhythm accelerates (including the final 0.15s stage).
+      var progress = Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
+      var power = 1 + 0.42 * progress;
+      var strength = (0.65 + Math.random() * 0.95) * power;
+      var strength2 = (0.65 + Math.random() * 0.95) * power;
       // Triangles start at 40% on the first double-knock, grow 10% per double-knock, cap at 100%.
-      var triangleScale = Math.min(1, 0.4 + Math.max(0, lidIntervalIndex - 1) * 0.1);
+      var triangleScale = Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
       lidOpen = gsap.timeline({onComplete:function() {
         lidOpen = null;
         if (mode === 'docked' && !lidScrolling) scheduleNextLid();
@@ -2406,6 +2410,12 @@ if (
     scheduleNextLid();
 
     var sx=0, sy=0, sa=0, moved=false;
+    // Elastic extraction: initial pointer movement stretches against the dock;
+    // passing the threshold releases the ball without waiting for pointerup.
+    var dragOrigin=null, dragBallOrigin=null;
+    var ELASTIC_BREAK_DISTANCE=76;
+    var ELASTIC_RESISTANCE=0.34;
+    var AUTO_LAUNCH_SPEED=820;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
     var lastJumpAt=0;
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
@@ -2536,20 +2546,53 @@ if (
       }
       // Reparenting can cancel pointer capture on Safari. Capture only AFTER undocking.
       startPhysics();mode='drag';moved=false;
+      dragOrigin=point(e);
+      dragBallOrigin={x:x,y:y};
       try { wrap.setPointerCapture(pointer); } catch(err) {}
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
       render();
     });
+    function autoLaunchFromElastic(dx,dy,historyVelocityX,historyVelocityY) {
+      // This also prevents a later pointerup from releasing the same ball twice.
+      var heldPointer=pointer;
+      pointer=null;
+      mode='physics';
+      wrap.classList.remove('tt-dragging');
+      try { if (heldPointer !== null && wrap.hasPointerCapture(heldPointer)) wrap.releasePointerCapture(heldPointer); } catch(err) {}
+      if (typeof el.ttColorStart === 'function') el.ttColorStart();
+      var length=Math.max(1,Math.hypot(dx,dy));
+      var directionX=dx/length, directionY=dy/length;
+      // A deliberate pull supplies a launch even if the finger is moving slowly.
+      vx=clamp(directionX*AUTO_LAUNCH_SPEED+historyVelocityX*0.32,-1700,1700);
+      vy=clamp(directionY*AUTO_LAUNCH_SPEED+historyVelocityY*0.32,-1700,1700);
+      spin=clamp(vx*0.18,-260,260);
+      dock.classList.remove('tt-near');
+    }
     function moveBallPointer(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
-      var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
-      if(Math.abs(dx)+Math.abs(dy)>1)moved=true;
-      x=clamp(x+dx,minX(),maxX());y=clamp(y+dy,minY(),maxY());
-      if(distance()>35) showHoleman();
+      var p=point(e);
+      var dx=p.x-dragOrigin.x, dy=p.y-dragOrigin.y;
+      var pull=Math.hypot(dx,dy);
+      if(pull>1)moved=true;
+      // The ball initially lags behind the finger, like an elastic tether.
+      // Keep this independent of frame rate and pointermove event frequency.
+      var resistance=ELASTIC_RESISTANCE + 0.15*Math.min(1,pull/ELASTIC_BREAK_DISTANCE);
+      x=clamp(dragBallOrigin.x+dx*resistance,minX(),maxX());
+      y=clamp(dragBallOrigin.y+dy*resistance,minY(),maxY());
       lastPoint=p;history.push(p);
       history=history.filter(function(v){return p.t-v.t<110;});
-      dock.classList.toggle('tt-near',distance()<C.snapRadius);
+      if(pull>=ELASTIC_BREAK_DISTANCE){
+        // The existing release-on-pointerup still works for shorter drags.
+        var first=history[0];
+        var dt=first?Math.max(0.008,(p.t-first.t)/1000):0.008;
+        var speedX=first?(p.x-first.x)/dt:0;
+        var speedY=first?(p.y-first.y)/dt:0;
+        autoLaunchFromElastic(dx,dy,speedX,speedY);
+        showHoleman();
+      }else{
+        dock.classList.toggle('tt-near',distance()<C.snapRadius);
+      }
       render();
     }
     // Window listeners are essential when a fast swipe leaves the ball,
@@ -2609,7 +2652,7 @@ if (
       cooldown=Math.max(0,cooldown-dt);
       if(mode==='snap'||mode==='physics') home();
       if(mode==='snap'){
-        var k=160,decay=Math.exp(-16*dt);
+        var k=205,decay=Math.exp(-19*dt);
         sx=(sx+(hx-x)*k*dt)*decay;
         sy=(sy+(hy-y)*k*dt)*decay;
         x+=sx*dt;y+=sy*dt;
