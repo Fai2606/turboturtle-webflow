@@ -2467,15 +2467,16 @@ if (
         if (mode === 'docked') scheduleNextLid();
       });
     }
-    // Mouse hover: maximum knock strength / triangle size at 0.1s intervals.
+    // Mouse hover is attached to the interactive wrapper because .circle_text has pointer-events:none.
+    // Maximum knock strength / triangle size at 0.1s intervals.
     // Leaving restores the original idle progression from its first stage.
-    el.addEventListener('mouseenter', function() {
+    wrap.addEventListener('mouseenter', function() {
       lidHovered = true;
       if (mode !== 'docked' || lidScrolling) return;
       stopLid();
       runDoubleKnock();
     });
-    el.addEventListener('mouseleave', function() {
+    wrap.addEventListener('mouseleave', function() {
       if (!lidHovered) return;
       lidHovered = false;
       if (mode !== 'docked') return;
