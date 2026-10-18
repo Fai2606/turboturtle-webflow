@@ -2430,7 +2430,7 @@ if (
       var strength2 = (0.65 + Math.random() * 0.95) * power;
       // Triangle size grows from 70% to 110% over the eight knock stages.
       var triangleScale = lidHovered ? 1.1 : Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
-      // A complete two-direction hover knock fits inside the 0.15s repeat.
+      // A complete two-direction hover knock fits inside the 0.18s repeat.
       // Normal idle knocks keep their original, slower timings.
       var knockOut1 = lidHovered ? 0.025 : 0.045;
       var knockBack1 = lidHovered ? 0.045 : 0.085;
@@ -2447,8 +2447,8 @@ if (
         .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:knockOut2,ease:'power3.in'})
         .to(wrap,{x:0,y:0,rotation:0,duration:knockBack2,ease:'power2.out'});
       // Hover cadence is measured from knock START, not completion.
-      // Hover knock finishes in 0.14s, before the next knock starts at 0.15s.
-      if (lidHovered) scheduleLid(0.15);
+      // Hover knock finishes in 0.14s, before the next knock starts at 0.18s.
+      if (lidHovered) scheduleLid(0.18);
     }
     function scheduleLid(delay) {
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
@@ -2459,7 +2459,7 @@ if (
       });
     }
     function scheduleNextLid() {
-      var delay = lidHovered ? 0.15 : lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
+      var delay = lidHovered ? 0.18 : lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
       if (!lidHovered && lidIntervalIndex < lidIntervals.length-1) lidIntervalIndex++;
       scheduleLid(delay);
     }
@@ -2475,7 +2475,7 @@ if (
       });
     }
     // Mouse hover is attached to the interactive wrapper because .circle_text has pointer-events:none.
-    // Maximum knock strength / triangle size at 0.15s intervals.
+    // Maximum knock strength / triangle size at 0.18s intervals.
     // Leaving restores the original idle progression from its first stage.
     wrap.addEventListener('mouseenter', function() {
       lidHovered = true;
