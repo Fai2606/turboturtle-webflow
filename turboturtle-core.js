@@ -2271,9 +2271,9 @@ if (
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
     // Docked lid: small, irregular double impact with accelerating idle frequency.
-    // Intervals: 4s, 3s, 2s, 1s, then 0.5s repeatedly.
-    // Any scrolling cancels the knock and resets the sequence to 4s.
-    var lidIntervals = [4, 3, 2, 1, 0.5];
+    // Intervals: 5s, 4s, 3s, 2s, 1s, 0.5s, then 0.25s repeatedly.
+    // Any scrolling cancels the knock and resets the sequence to 5s.
+    var lidIntervals = [5, 4, 3, 2, 1, 0.5, 0.25];
     var lidIntervalIndex = 0;
     var lidOpen = gsap.timeline({paused:true, onComplete:function(){
       if (mode==='docked' && !lidScrolling) scheduleNextLid();
