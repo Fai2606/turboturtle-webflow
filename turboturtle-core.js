@@ -2058,7 +2058,7 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
+  // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; RETAIN COLOR AT HOME
   // Start from the Webflow background hue; continuous 8-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
@@ -2076,11 +2076,12 @@ if (
     var hi = Math.max(r,g,b), lo = Math.min(r,g,b), delta = hi-lo;
     var webflowHue = delta === 0 ? 0 :
       ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
-    var active = false, startTime = 0, startHue = 0, frame = 0;
+    var active = false, startTime = 0, startHue = webflowHue, currentHue = webflowHue, frame = 0;
     var CYCLE_MS = 8000; // Full 360-degree hue rotation in 8 seconds.
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
+      currentHue = h;
       var c = brightness*saturation, x = c*(1-Math.abs((h/60)%2-1)), m = brightness-c;
       var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
                 h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
@@ -2090,7 +2091,7 @@ if (
     ball.ttColorStart = function() {
       if (active) return;
       gsap.killTweensOf(ball, 'backgroundColor');
-      startHue = webflowHue;
+      startHue = currentHue;
       startTime = performance.now();
       active = true;
       paint(startTime);
@@ -2098,7 +2099,7 @@ if (
     ball.ttColorStop = function() {
       active = false;
       cancelAnimationFrame(frame);
-      gsap.to(ball, {backgroundColor: original, duration: 0.1, ease: 'power1.out', overwrite: 'auto'});
+      // Keep the current color exactly as it is when the ball docks.
     };
   })();
 
