@@ -2315,6 +2315,26 @@ if (
     var lidIntervalIndex = 0;
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     var lidHovered = false;
+    // 10% chance per knock to flash the alternate lid text for 0.15s.
+    var holemanLidText1 = document.querySelector('.holeman_lid_text1');
+    var holemanLidText2 = document.querySelector('.holeman_lid_text2');
+    var holemanTextFlashTimer = null;
+    function resetHolemanLidText() {
+      if (holemanTextFlashTimer) { holemanTextFlashTimer.kill(); holemanTextFlashTimer = null; }
+      if (holemanLidText1) holemanLidText1.style.display = 'block';
+      if (holemanLidText2) holemanLidText2.style.display = 'none';
+    }
+    function maybeFlashHolemanLidText() {
+      if (!holemanLidText1 || !holemanLidText2 || Math.random() >= 0.10) return;
+      // Restart the 0.15s flash if a second qualifying knock happens during it.
+      if (holemanTextFlashTimer) holemanTextFlashTimer.kill();
+      holemanLidText1.style.display = 'none';
+      holemanLidText2.style.display = 'block';
+      holemanTextFlashTimer = gsap.delayedCall(0.15, function() {
+        holemanTextFlashTimer = null;
+        resetHolemanLidText();
+      });
+    }
     var lidOpen = null;
     var triangleTimer = null;
     // Use a viewport-level overlay, not an SVG inside the ball wrapper.
@@ -2418,10 +2438,13 @@ if (
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       clearKnockTriangles();
+      resetHolemanLidText();
       gsap.set(wrap, {x:0,y:0,rotation:0});
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
+      // Each vibration has a 10% chance of briefly swapping the two lid texts.
+      maybeFlashHolemanLidText();
       // Hover jumps immediately to the strongest stage.
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       var progress = lidHovered ? 1 : Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
