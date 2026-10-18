@@ -2314,6 +2314,7 @@ if (
     var lidIntervals = [2, 4, 3.5, 3, 2.5, 2, 1.5, 1];
     var lidIntervalIndex = 0;
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
+    var lidHovered = false;
     var lidOpen = null;
     var triangleTimer = null;
     // Use a viewport-level overlay, not an SVG inside the ball wrapper.
@@ -2421,16 +2422,17 @@ if (
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || lidScrolling) return;
-      // Gentle first knock; increase displacement across all eight idle stages.
-      var progress = Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
+      // Hover jumps immediately to the strongest stage.
+      if (lidOpen) { lidOpen.kill(); lidOpen = null; }
+      var progress = lidHovered ? 1 : Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
       var power = 1 + 0.42 * progress;
       var strength = (0.65 + Math.random() * 0.95) * power;
       var strength2 = (0.65 + Math.random() * 0.95) * power;
       // Triangle size grows from 70% to 110% over the eight knock stages.
-      var triangleScale = Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
+      var triangleScale = lidHovered ? 1.1 : Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
       lidOpen = gsap.timeline({onComplete:function() {
         lidOpen = null;
-        if (mode === 'docked' && !lidScrolling) scheduleNextLid();
+        if (mode === 'docked' && !lidScrolling && !lidHovered) scheduleNextLid();
       }});
       lidOpen.call(function(){ showKnockTriangles(triangleScale); })
         .to(wrap,{x:-1.7*strength,y:-2.6*strength,rotation:-1.15*strength,duration:0.045,ease:'power3.in'})
@@ -2438,6 +2440,9 @@ if (
         .call(function(){ showKnockTriangles(triangleScale); })
         .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:0.05,ease:'power3.in'})
         .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
+      // Hover cadence is measured from knock START, not completion.
+      // The 0.1s restart intentionally interrupts the previous double-knock.
+      if (lidHovered) scheduleLid(0.1);
     }
     function scheduleLid(delay) {
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
@@ -2448,8 +2453,8 @@ if (
       });
     }
     function scheduleNextLid() {
-      var delay = lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
-      if (lidIntervalIndex < lidIntervals.length-1) lidIntervalIndex++;
+      var delay = lidHovered ? 0.1 : lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
+      if (!lidHovered && lidIntervalIndex < lidIntervals.length-1) lidIntervalIndex++;
       scheduleLid(delay);
     }
     function onLidScroll() {
@@ -2462,6 +2467,22 @@ if (
         if (mode === 'docked') scheduleNextLid();
       });
     }
+    // Mouse hover: maximum knock strength / triangle size at 0.1s intervals.
+    // Leaving restores the original idle progression from its first stage.
+    el.addEventListener('mouseenter', function() {
+      lidHovered = true;
+      if (mode !== 'docked' || lidScrolling) return;
+      stopLid();
+      runDoubleKnock();
+    });
+    el.addEventListener('mouseleave', function() {
+      if (!lidHovered) return;
+      lidHovered = false;
+      if (mode !== 'docked') return;
+      stopLid();
+      lidIntervalIndex = 0;
+      if (!lidScrolling) scheduleNextLid();
+    });
     window.addEventListener('scroll',onLidScroll,{passive:true});
     if (lenis && typeof lenis.on === 'function') lenis.on('scroll',onLidScroll);
     // Start the very first 2-second countdown only after the preloader ends.
