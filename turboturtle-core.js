@@ -2334,7 +2334,7 @@ if (
     }
     function showKnockTriangles(scale) {
       clearKnockTriangles();
-      if (mode !== 'docked' || lidScrolling) return;
+      if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
       // Measure the real Webflow circle, not a fixed desktop radius. The base
       // can be smaller at mobile breakpoints, and the wrapper may transform.
       var ballRect = el.getBoundingClientRect();
@@ -2421,7 +2421,7 @@ if (
       gsap.set(wrap, {x:0,y:0,rotation:0});
     }
     function runDoubleKnock() {
-      if (mode !== 'docked' || lidScrolling) return;
+      if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
       // Hover jumps immediately to the strongest stage.
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       var progress = lidHovered ? 1 : Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
@@ -2446,7 +2446,7 @@ if (
     }
     function scheduleLid(delay) {
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
-      if (mode !== 'docked' || lidScrolling) return;
+      if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
       lidTimer = gsap.delayedCall(delay,function(){
         lidTimer = null;
         runDoubleKnock();
@@ -2460,11 +2460,12 @@ if (
     function onLidScroll() {
       lidScrolling = true;
       lidIntervalIndex = 0;
-      if (mode === 'docked') stopLid();
+      // Scroll resets idle knocks, but must never interrupt hover knocks.
+      if (mode === 'docked' && !lidHovered) stopLid();
       if (lidScrollTimer) lidScrollTimer.kill();
       lidScrollTimer = gsap.delayedCall(0.3,function(){
         lidScrolling = false;
-        if (mode === 'docked') scheduleNextLid();
+        if (mode === 'docked' && !lidHovered) scheduleNextLid();
       });
     }
     // Mouse hover is attached to the interactive wrapper because .circle_text has pointer-events:none.
@@ -2472,7 +2473,7 @@ if (
     // Leaving restores the original idle progression from its first stage.
     wrap.addEventListener('mouseenter', function() {
       lidHovered = true;
-      if (mode !== 'docked' || lidScrolling) return;
+      if (mode !== 'docked' || (lidScrolling && !lidHovered)) return;
       stopLid();
       runDoubleKnock();
     });
