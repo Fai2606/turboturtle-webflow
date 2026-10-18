@@ -2059,7 +2059,7 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
-  // Start from the Webflow background hue; continuous 6-second loop.
+  // Start from the Webflow background hue; continuous 8-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2077,7 +2077,7 @@ if (
     var webflowHue = delta === 0 ? 0 :
       ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
     var active = false, startTime = 0, startHue = 0, frame = 0;
-    var CYCLE_MS = 6000; // Full 360-degree hue rotation in 6 seconds.
+    var CYCLE_MS = 8000; // Full 360-degree hue rotation in 8 seconds.
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
@@ -2270,14 +2270,17 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Docked lid: tiny irregular double impact, not an oscillating shake.
-    // Each impact is a short directional nudge followed by a crisp return.
+    // Docked lid: small, irregular double impact with accelerating idle frequency.
+    // Intervals: 4s, 3s, 2s, 1s, then 0.5s repeatedly.
+    // Any scrolling cancels the knock and resets the sequence to 4s.
+    var lidIntervals = [4, 3, 2, 1, 0.5];
+    var lidIntervalIndex = 0;
     var lidOpen = gsap.timeline({paused:true, onComplete:function(){
-      if (mode==='docked' && !lidScrolling) scheduleLid(5);
+      if (mode==='docked' && !lidScrolling) scheduleNextLid();
     }});
-    lidOpen.to(wrap,{x:-1.3,y:-2.0,rotation:-0.9,duration:0.045,ease:'power3.in'})
+    lidOpen.to(wrap,{x:-1.7,y:-2.6,rotation:-1.15,duration:0.045,ease:'power3.in'})
            .to(wrap,{x:0,y:0,rotation:0,duration:0.085,ease:'power2.out'})
-           .to(wrap,{x:1.0,y:-1.7,rotation:0.7,duration:0.05,ease:'power3.in'})
+           .to(wrap,{x:1.3,y:-2.2,rotation:0.9,duration:0.05,ease:'power3.in'})
            .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     function stopLid(){
@@ -2286,26 +2289,32 @@ if (
       gsap.set(wrap,{x:0,y:0,rotation:0});
     }
     function scheduleLid(delay){
-      if(lidTimer)lidTimer.kill();
+      if(lidTimer){lidTimer.kill();lidTimer=null;}
       if(mode!=='docked'||lidScrolling)return;
       lidTimer=gsap.delayedCall(delay,function(){
         lidTimer=null;
         if(mode==='docked'&&!lidScrolling)lidOpen.restart();
       });
     }
+    function scheduleNextLid(){
+      var delay=lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
+      if(lidIntervalIndex<lidIntervals.length-1)lidIntervalIndex++;
+      scheduleLid(delay);
+    }
     function onLidScroll(){
       lidScrolling=true;
+      lidIntervalIndex=0;
       if(mode==='docked')stopLid();
       if(lidScrollTimer)lidScrollTimer.kill();
       lidScrollTimer=gsap.delayedCall(0.3,function(){
         lidScrolling=false;
-        if(mode==='docked')scheduleLid(5);
+        if(mode==='docked')scheduleNextLid();
       });
     }
     // Pause lid activity during native or Lenis scrolling.
     window.addEventListener('scroll',onLidScroll,{passive:true});
     if(lenis&&typeof lenis.on==='function')lenis.on('scroll',onLidScroll);
-    scheduleLid(5);
+    scheduleNextLid();
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
@@ -2383,7 +2392,8 @@ if (
       base.appendChild(wrap);
       mode='docked';angle=0;vx=vy=spin=0;
       stopLid();
-      scheduleLid(5);
+      lidIntervalIndex=0;
+      scheduleNextLid();
       w=wrap.offsetWidth;h=wrap.offsetHeight;
       home();x=hx;y=hy;
     }
