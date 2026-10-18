@@ -1814,7 +1814,7 @@ if (
       mobileSpeedMultiplier: 2, // double rotation speed at mobile widths
 
       // Higher = faster chasing
-      chaseSpeed: 3.5
+      chaseSpeed: 7
 
     },
 
