@@ -2271,9 +2271,9 @@ if (
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
     // Docked lid: irregular micro double-knocks, accelerating during idle.
-    // Intervals: 5, 4, 3, 2, 1 seconds; 1 second repeats.
+    // Intervals after preloader: 2, 4, 3.5, 3, 2.5, 2, 1.5, 1 seconds; 1 second repeats.
     // Scrolling cancels the current knock and resets the sequence.
-    var lidIntervals = [5, 4, 3, 2, 1];
+    var lidIntervals = [2, 4, 3.5, 3, 2.5, 2, 1.5, 1];
     var lidIntervalIndex = 0;
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     var lidOpen = null;
@@ -2335,23 +2335,43 @@ if (
         var r = radius + tipClearance + maxSize * 0.5 + Math.random() * maxExtraGap;
         centers.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
       }
-      centers.forEach(function(p) {
-        var dist = Math.hypot(cx-p[0], cy-p[1]);
-        var ux = (cx-p[0]) / dist, uy = (cy-p[1]) / dist;
-        var px = -uy, py = ux;
-        var halfLength = 6.4 * scale * Math.max(0.65, Math.min(1.3, unit));
-        var halfWidth = 2.08 * scale * Math.max(0.65, Math.min(1.3, unit));
-        var tipX = p[0] + ux * halfLength, tipY = p[1] + uy * halfLength;
-        var backX = p[0] - ux * halfLength, backY = p[1] - uy * halfLength;
-        var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        triangle.setAttribute('points',
-          tipX+','+tipY+' '+(backX+px*halfWidth)+','+(backY+py*halfWidth)+' '+
-          (backX-px*halfWidth)+','+(backY-py*halfWidth));
-        triangle.setAttribute('fill', '#000');
-        triangleLayer.appendChild(triangle);
-        var move = travel * (0.7 + Math.random() * 0.6);
-        gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*move,y:-uy*move,duration:0.2,ease:'power2.out'});
-      });
+      // Preserve the original three black triangle positions and geometry.
+      // Generate three additional white triangles with the same distribution.
+      var whiteCenters = [], whiteTries = 0;
+      while (whiteCenters.length < count && whiteTries++ < 240) {
+        var wa = Math.PI * (1.06 + Math.random() * 0.88);
+        var wgap = tipClearance + Math.random() * maxExtraGap;
+        var wr = radius + wgap + maxSize * 0.5;
+        var wx = cx + wr * Math.cos(wa), wy = cy + wr * Math.sin(wa);
+        if (whiteCenters.every(function(q) { return Math.hypot(wx-q[0], wy-q[1]) >= minGap; })) whiteCenters.push([wx,wy]);
+      }
+      while (whiteCenters.length < count) {
+        var wi = whiteCenters.length;
+        var wa2 = Math.PI * (1.08 + wi * 0.84 / Math.max(1,count-1));
+        var wr2 = radius + tipClearance + maxSize * 0.5 + Math.random() * maxExtraGap;
+        whiteCenters.push([cx + wr2*Math.cos(wa2), cy + wr2*Math.sin(wa2)]);
+      }
+      function drawTriangleSet(points, color) {
+        points.forEach(function(p) {
+          var dist = Math.hypot(cx-p[0], cy-p[1]);
+          var ux = (cx-p[0]) / dist, uy = (cy-p[1]) / dist;
+          var px = -uy, py = ux;
+          var halfLength = 6.4 * scale * Math.max(0.65, Math.min(1.3, unit));
+          var halfWidth = 2.08 * scale * Math.max(0.65, Math.min(1.3, unit));
+          var tipX = p[0] + ux * halfLength, tipY = p[1] + uy * halfLength;
+          var backX = p[0] - ux * halfLength, backY = p[1] - uy * halfLength;
+          var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          triangle.setAttribute('points',
+            tipX+','+tipY+' '+(backX+px*halfWidth)+','+(backY+py*halfWidth)+' '+
+            (backX-px*halfWidth)+','+(backY-py*halfWidth));
+          triangle.setAttribute('fill', color);
+          triangleLayer.appendChild(triangle);
+          var move = travel * (0.7 + Math.random() * 0.6);
+          gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*move,y:-uy*move,duration:0.2,ease:'power2.out'});
+        });
+      }
+      drawTriangleSet(centers, '#2c2c2c');
+      drawTriangleSet(whiteCenters, '#ffffff');
       triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
     }
@@ -2363,13 +2383,13 @@ if (
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || lidScrolling) return;
-      // Gentle first knock; increase displacement as the idle sequence accelerates.
-      var progress = Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 4));
+      // Gentle first knock; increase displacement across all eight idle stages.
+      var progress = Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
       var power = 1 + 0.42 * progress;
       var strength = (0.65 + Math.random() * 0.95) * power;
       var strength2 = (0.65 + Math.random() * 0.95) * power;
-      // Triangle size grows from 70% to 110% over the five knock stages.
-      var triangleScale = Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * 0.1);
+      // Triangle size grows from 70% to 110% over the eight knock stages.
+      var triangleScale = Math.min(1.1, 0.7 + Math.max(0, lidIntervalIndex - 1) * (0.4 / 7));
       lidOpen = gsap.timeline({onComplete:function() {
         lidOpen = null;
         if (mode === 'docked' && !lidScrolling) scheduleNextLid();
@@ -2406,7 +2426,16 @@ if (
     }
     window.addEventListener('scroll',onLidScroll,{passive:true});
     if (lenis && typeof lenis.on === 'function') lenis.on('scroll',onLidScroll);
-    scheduleNextLid();
+    // Start the very first 2-second countdown only after the preloader ends.
+    // Match the existing moon-intro convention: html.tt-loading indicates loading.
+    function waitForLidPreloader() {
+      if (document.documentElement.classList.contains('tt-loading')) {
+        requestAnimationFrame(waitForLidPreloader);
+        return;
+      }
+      scheduleNextLid();
+    }
+    waitForLidPreloader();
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
