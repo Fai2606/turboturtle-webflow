@@ -2296,51 +2296,61 @@ if (
     function showKnockTriangles(scale) {
       clearKnockTriangles();
       if (mode !== 'docked' || lidScrolling) return;
-      var rect = wrap.getBoundingClientRect();
-      var bw = rect.width, bh = rect.height;
-      if (!bw || !bh) return;
-      // 60px padding all around gives triangles their own visible SVG area.
-      var pad = 60, vw = bw + pad * 2, vh = bh + pad * 2;
+      // Measure the real Webflow circle, not a fixed desktop radius. The base
+      // can be smaller at mobile breakpoints, and the wrapper may transform.
+      var ballRect = el.getBoundingClientRect();
+      var baseRect = base.getBoundingClientRect();
+      var rect = ballRect.width > 0 && ballRect.height > 0 ? ballRect : baseRect;
+      if (!rect.width || !rect.height) return;
+      var diameter = Math.min(rect.width, rect.height);
+      var radius = diameter * 0.5;
+      // Scale the *gap beyond the circle edge*, never the center-to-tip radius.
+      // This prevents the earlier 0.7 multiplier from embedding triangles in it.
+      var unit = diameter / 300;
+      var tipClearance = Math.max(7, Math.min(14, 10 * unit));
+      var maxExtraGap = Math.max(15, Math.min(37, 28 * unit));
+      var travel = Math.max(3, Math.min(8, 6 * unit));
+      var maxSize = 13 * scale * Math.max(0.65, Math.min(1.3, unit));
+      var pad = Math.ceil(maxExtraGap + maxSize + travel + 24);
+      var vw = rect.width + pad * 2, vh = rect.height + pad * 2;
       triangleLayer.style.left = (rect.left - pad) + 'px';
       triangleLayer.style.top = (rect.top - pad) + 'px';
       triangleLayer.style.width = vw + 'px';
       triangleLayer.style.height = vh + 'px';
       triangleLayer.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
-      var cx = pad + bw / 2, cy = pad + bh / 2;
-      var radius = Math.min(bw, bh) * 0.5;
-      var count = 3;
-      var centers = [];
-      var minGap = 26, tries = 0;
-      // Upper half: 180° to 360°, with a little side margin.
+      var cx = pad + rect.width / 2, cy = pad + rect.height / 2;
+      var count = 3, centers = [], tries = 0;
+      var minGap = Math.max(20, Math.min(28, diameter * 0.085));
       while (centers.length < count && tries++ < 240) {
         var a = Math.PI * (1.06 + Math.random() * 0.88);
-        var r = (radius + 12 + Math.random() * 30) * 0.7;
-        var px = cx + r * Math.cos(a);
-        var py = cy + r * Math.sin(a);
-        if (centers.every(function(p) { return Math.hypot(px-p[0], py-p[1]) >= minGap; })) {
-          centers.push([px, py]);
-        }
+        var gap = tipClearance + Math.random() * maxExtraGap;
+        // p is the triangle's CENTER. Its inward tip must stay outside edge.
+        var r = radius + gap + maxSize * 0.5;
+        var px = cx + r * Math.cos(a), py = cy + r * Math.sin(a);
+        if (centers.every(function(q) { return Math.hypot(px-q[0], py-q[1]) >= minGap; })) centers.push([px,py]);
       }
       while (centers.length < count) {
         var i = centers.length;
         var a = Math.PI * (1.08 + i * 0.84 / Math.max(1,count-1));
-        var r = (radius + 12 + Math.random() * 30) * 0.7;
+        var r = radius + tipClearance + maxSize * 0.5 + Math.random() * maxExtraGap;
         centers.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
       }
       centers.forEach(function(p) {
         var dist = Math.hypot(cx-p[0], cy-p[1]);
         var ux = (cx-p[0]) / dist, uy = (cy-p[1]) / dist;
         var px = -uy, py = ux;
-        var tipX = p[0] + ux * 6.4 * scale, tipY = p[1] + uy * 6.4 * scale;
-        var backX = p[0] - ux * 6.4 * scale, backY = p[1] - uy * 6.4 * scale;
+        var halfLength = 6.4 * scale * Math.max(0.65, Math.min(1.3, unit));
+        var halfWidth = 2.08 * scale * Math.max(0.65, Math.min(1.3, unit));
+        var tipX = p[0] + ux * halfLength, tipY = p[1] + uy * halfLength;
+        var backX = p[0] - ux * halfLength, backY = p[1] - uy * halfLength;
         var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         triangle.setAttribute('points',
-          tipX+','+tipY+' '+(backX+px*2.08*scale)+','+(backY+py*2.08*scale)+' '+
-          (backX-px*2.08*scale)+','+(backY-py*2.08*scale));
+          tipX+','+tipY+' '+(backX+px*halfWidth)+','+(backY+py*halfWidth)+' '+
+          (backX-px*halfWidth)+','+(backY-py*halfWidth));
         triangle.setAttribute('fill', '#000');
         triangleLayer.appendChild(triangle);
-        // Brief outward pop, without rotating away from the circle center.
-        gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*(5+Math.random()*5)*0.7,y:-uy*(5+Math.random()*5)*0.7,duration:0.2,ease:'power2.out'});
+        var move = travel * (0.7 + Math.random() * 0.6);
+        gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*move,y:-uy*move,duration:0.2,ease:'power2.out'});
       });
       triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
