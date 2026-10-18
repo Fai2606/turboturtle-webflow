@@ -2287,7 +2287,10 @@ if (
 
     function clearKnockTriangles() {
       if (triangleTimer) { triangleTimer.kill(); triangleTimer = null; }
-      while (triangleLayer.firstChild) triangleLayer.removeChild(triangleLayer.firstChild);
+      while (triangleLayer.firstChild) {
+        gsap.killTweensOf(triangleLayer.firstChild);
+        triangleLayer.removeChild(triangleLayer.firstChild);
+      }
       triangleLayer.style.visibility = 'hidden';
     }
     function showKnockTriangles() {
@@ -2304,15 +2307,16 @@ if (
       triangleLayer.style.height = vh + 'px';
       triangleLayer.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
       var cx = pad + bw / 2, cy = pad + bh / 2;
-      var radius = Math.min(bw, bh) * 0.5 + 17;
-      var count = 3 + Math.floor(Math.random() * 2);
+      var radius = Math.min(bw, bh) * 0.5;
+      var count = 3;
       var centers = [];
-      var minGap = 34, tries = 0;
+      var minGap = 26, tries = 0;
       // Upper half: 180° to 360°, with a little side margin.
       while (centers.length < count && tries++ < 240) {
         var a = Math.PI * (1.06 + Math.random() * 0.88);
-        var px = cx + radius * Math.cos(a);
-        var py = cy + radius * Math.sin(a);
+        var r = radius + 12 + Math.random() * 30;
+        var px = cx + r * Math.cos(a);
+        var py = cy + r * Math.sin(a);
         if (centers.every(function(p) { return Math.hypot(px-p[0], py-p[1]) >= minGap; })) {
           centers.push([px, py]);
         }
@@ -2320,19 +2324,23 @@ if (
       while (centers.length < count) {
         var i = centers.length;
         var a = Math.PI * (1.08 + i * 0.84 / Math.max(1,count-1));
-        centers.push([cx + radius*Math.cos(a), cy + radius*Math.sin(a)]);
+        var r = radius + 12 + Math.random() * 30;
+        centers.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
       }
       centers.forEach(function(p) {
-        var ux = (cx-p[0]) / radius, uy = (cy-p[1]) / radius;
+        var dist = Math.hypot(cx-p[0], cy-p[1]);
+        var ux = (cx-p[0]) / dist, uy = (cy-p[1]) / dist;
         var px = -uy, py = ux;
-        var tipX = p[0] + ux * 7, tipY = p[1] + uy * 7;
-        var backX = p[0] - ux * 7, backY = p[1] - uy * 7;
+        var tipX = p[0] + ux * 8, tipY = p[1] + uy * 8;
+        var backX = p[0] - ux * 8, backY = p[1] - uy * 8;
         var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         triangle.setAttribute('points',
-          tipX+','+tipY+' '+(backX+px*4.2)+','+(backY+py*4.2)+' '+
-          (backX-px*4.2)+','+(backY-py*4.2));
+          tipX+','+tipY+' '+(backX+px*2.6)+','+(backY+py*2.6)+' '+
+          (backX-px*2.6)+','+(backY-py*2.6));
         triangle.setAttribute('fill', '#000');
         triangleLayer.appendChild(triangle);
+        // Brief outward pop, without rotating away from the circle center.
+        gsap.fromTo(triangle, {x:0,y:0}, {x:-ux*(5+Math.random()*5),y:-uy*(5+Math.random()*5),duration:0.2,ease:'power2.out'});
       });
       triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
@@ -2345,10 +2353,10 @@ if (
     }
     function runDoubleKnock() {
       if (mode !== 'docked' || lidScrolling) return;
-      var strength = 0.9 + Math.random() * 0.35;
-      var strength2 = 0.9 + Math.random() * 0.35;
-      // Show triangles beginning with the 3-second knock (and every faster knock).
-      var showTriangles = lidIntervalIndex >= 3;
+      var strength = 0.65 + Math.random() * 0.95;
+      var strength2 = 0.65 + Math.random() * 0.95;
+      // Start triangles on the second double-knock, including both impacts.
+      var showTriangles = lidIntervalIndex >= 2;
       lidOpen = gsap.timeline({onComplete:function() {
         lidOpen = null;
         if (mode === 'docked' && !lidScrolling) scheduleNextLid();
