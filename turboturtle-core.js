@@ -2059,7 +2059,7 @@ if (
   // ============================================================
   // ============================================================
   // CIRCLE_TEXT — TIME-DRIVEN HUE WHILE RELEASED; WEBFLOW COLOR AT HOME
-  // Start from the Webflow background hue; continuous 12-second loop.
+  // Start from the Webflow background hue; continuous 6-second loop.
   // Hue changes automatically even when scrolling stops.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2077,7 +2077,7 @@ if (
     var webflowHue = delta === 0 ? 0 :
       ((hi === r ? ((g-b)/delta)%6 : hi === g ? (b-r)/delta+2 : (r-g)/delta+4)*60+360)%360;
     var active = false, startTime = 0, startHue = 0, frame = 0;
-    var CYCLE_MS = 12000; // Full 360-degree hue rotation in 12 seconds.
+    var CYCLE_MS = 6000; // Full 360-degree hue rotation in 6 seconds.
     function paint(now) {
       if (!active) return;
       var h = ((startHue + (now-startTime)*360/CYCLE_MS)%360+360)%360;
@@ -2270,14 +2270,15 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Docked lid: opens toward upper-left, holds, then snaps shut.
-    // The physics wrapper is the lid while docked; no extra Webflow element required.
+    // Docked lid: tiny irregular double impact, not an oscillating shake.
+    // Each impact is a short directional nudge followed by a crisp return.
     var lidOpen = gsap.timeline({paused:true, onComplete:function(){
-      if (mode==='docked' && !lidScrolling) scheduleLid(4);
+      if (mode==='docked' && !lidScrolling) scheduleLid(5);
     }});
-    lidOpen.to(wrap,{x:-6,y:-6,rotation:-20,duration:0.3,ease:'power3.out'})
-           .to({}, {duration:1.2})
-           .to(wrap,{x:0,y:0,rotation:0,duration:0.3,ease:'power2.in'});
+    lidOpen.to(wrap,{x:-1.3,y:-2.0,rotation:-0.9,duration:0.045,ease:'power3.in'})
+           .to(wrap,{x:0,y:0,rotation:0,duration:0.085,ease:'power2.out'})
+           .to(wrap,{x:1.0,y:-1.7,rotation:0.7,duration:0.05,ease:'power3.in'})
+           .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     function stopLid(){
       if(lidTimer){lidTimer.kill();lidTimer=null;}
@@ -2304,7 +2305,7 @@ if (
     // Pause lid activity during native or Lenis scrolling.
     window.addEventListener('scroll',onLidScroll,{passive:true});
     if(lenis&&typeof lenis.on==='function')lenis.on('scroll',onLidScroll);
-    scheduleLid(4);
+    scheduleLid(5);
 
     var sx=0, sy=0, sa=0, moved=false;
     var lastScroll=typeof lenis.scroll==='number'?lenis.scroll:window.scrollY;
