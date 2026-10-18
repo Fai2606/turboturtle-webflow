@@ -2058,62 +2058,89 @@ if (
 
   // ============================================================
   // ============================================================
-  // CIRCLE_TEXT — RANDOM INITIAL HUE; SLOW AT HOME, FAST RELEASED
-  // Docked: 32 seconds / revolution. Released: 8 seconds / revolution.
-  // Hue remains continuous when changing between states.
+  // CIRCLE_TEXT — WEBFLOW COLOR AT HOME; CYCLING HUE WHEN RELEASED
+  // Initial/docked: Webflow-selected background, no hue progression.
+  // Released: 0.1s transition to #afe7da with random hue rotation;
+  //           then 360 degrees per 8 seconds, continuously.
+  // Returning: 0.1s transition back to Webflow's original color.
   // ============================================================
   (function initCircleTextScrollHue() {
     var ball = document.querySelector('.circle_text');
     if (!ball) return;
-    var original = getComputedStyle(ball).backgroundColor;
-    var match = original.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s\/]+([\d.]+))?/i);
-    if (!match) return;
-    var r = Number(match[1]) / 255, g = Number(match[2]) / 255, b = Number(match[3]) / 255;
-    var alpha = match[4] === undefined ? 1 : Number(match[4]);
-    var brightness = Math.max(r, g, b);
-    var saturation = brightness ? (brightness - Math.min(r, g, b)) / brightness : 0;
-    var hi = Math.max(r, g, b), lo = Math.min(r, g, b), delta = hi - lo;
-    var webflowHue = delta === 0 ? 0 :
-      ((hi === r ? ((g - b) / delta) % 6 : hi === g ? (b - r) / delta + 2 : (r - g) / delta + 4) * 60 + 360) % 360;
 
-    // Pick a new hue immediately on initialization, retaining Webflow saturation/value.
-    var currentHue = (webflowHue + Math.random() * 360) % 360;
+    // Capture the Webflow color BEFORE applying any inline color.
+    var webflowColor = getComputedStyle(ball).backgroundColor;
     var released = false;
+    var currentHue = 0;
     var lastTime = performance.now();
-    var DOCKED_CYCLE_MS = 32000;
     var RELEASED_CYCLE_MS = 8000;
+    var COLOR_TRANSITION_S = 0.1;
+    var colorTween = null;
+    var hueTweenTarget = { hue: 0 };
 
-    function renderHue() {
-      var h = currentHue;
-      var c = brightness * saturation, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = brightness - c;
-      var rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] :
-                h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
-      ball.style.backgroundColor = 'rgba(' + rgb.map(function(v) { return Math.round((v + m) * 255); }).join(',') + ',' + alpha + ')';
+    function hsvColor(hue) {
+      // Hue-rotate the exact #afe7da base (RGB 175,231,218), preserving
+      // its original saturation and value rather than the Webflow color's.
+      var r = 175 / 255, g = 231 / 255, b = 218 / 255;
+      var hi = Math.max(r,g,b), lo = Math.min(r,g,b), d = hi-lo;
+      var h0 = ((b-r)/d + 2)*60; // #afe7da is green/cyan
+      var h = ((h0 + hue) % 360 + 360) % 360;
+      var c = d, x = c * (1-Math.abs((h/60)%2-1)), m = lo;
+      var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+                h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return 'rgb(' + rgb.map(function(v){return Math.round((v+m)*255);}).join(',') + ')';
     }
 
+    function stopTween() {
+      if (colorTween) { colorTween.kill(); colorTween = null; }
+    }
+
+    ball.ttColorStart = function () {
+      stopTween();
+      released = true;
+      currentHue = Math.random() * 360;
+      lastTime = performance.now();
+      // Tween from the Webflow/docked color to the randomly shifted mint.
+      colorTween = gsap.to(ball, {
+        backgroundColor: hsvColor(currentHue),
+        duration: COLOR_TRANSITION_S,
+        ease: 'none',
+        overwrite: 'auto',
+        onComplete: function () { colorTween = null; }
+      });
+    };
+
+    ball.ttColorStop = function () {
+      released = false;
+      stopTween();
+      colorTween = gsap.to(ball, {
+        backgroundColor: webflowColor,
+        duration: COLOR_TRANSITION_S,
+        ease: 'none',
+        overwrite: 'auto',
+        onComplete: function () {
+          colorTween = null;
+          // Remove the inline override so Webflow remains the color source.
+          ball.style.removeProperty('background-color');
+        }
+      });
+    };
+
     function tick(now) {
-      // Cap long inactive-tab gaps to avoid sudden large color jumps.
       var dt = Math.min(Math.max(now - lastTime, 0), 100);
       lastTime = now;
-      currentHue = (currentHue + dt * 360 / (released ? RELEASED_CYCLE_MS : DOCKED_CYCLE_MS)) % 360;
-      renderHue();
+      if (released) {
+        currentHue = (currentHue + dt * 360 / RELEASED_CYCLE_MS) % 360;
+        // Do not fight the 0.1s entrance transition.
+        if (!colorTween) ball.style.backgroundColor = hsvColor(currentHue);
+      }
       requestAnimationFrame(tick);
     }
 
-    ball.ttColorStart = function() {
-      gsap.killTweensOf(ball, 'backgroundColor');
-      released = true;
-    };
-    ball.ttColorStop = function() {
-      released = false;
-    };
-
-    gsap.killTweensOf(ball, 'backgroundColor');
-    renderHue(); // Immediate random starting color, before the first frame.
+    // Initially use the untouched Webflow color, with no cycling.
     requestAnimationFrame(tick);
   })();
 
-  // ============================================================
   // ============================================================
   // CIRCLE_TEXT — DRAG, THROW, SCROLL JUMP, MAGNETIC DOCK
   // Only this image enters physics mode; other rotations remain.
