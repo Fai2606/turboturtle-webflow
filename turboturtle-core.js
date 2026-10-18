@@ -2425,7 +2425,7 @@ if (
       // Hover jumps immediately to the strongest stage.
       if (lidOpen) { lidOpen.kill(); lidOpen = null; }
       var progress = lidHovered ? 1 : Math.min(1, Math.max(0, (lidIntervalIndex - 1) / 7));
-      var power = 1 + 0.42 * progress;
+      var power = 1 + 0.35 * progress;
       var strength = (0.65 + Math.random() * 0.95) * power;
       var strength2 = (0.65 + Math.random() * 0.95) * power;
       // Triangle size grows from 70% to 110% over the eight knock stages.
@@ -2441,8 +2441,8 @@ if (
         .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:0.05,ease:'power3.in'})
         .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
       // Hover cadence is measured from knock START, not completion.
-      // The 0.2s restart allows more of each double-knock to play before restarting.
-      if (lidHovered) scheduleLid(0.2);
+      // The 0.15s restart allows more of each double-knock to play before restarting.
+      if (lidHovered) scheduleLid(0.15);
     }
     function scheduleLid(delay) {
       if (lidTimer) { lidTimer.kill(); lidTimer = null; }
@@ -2453,7 +2453,7 @@ if (
       });
     }
     function scheduleNextLid() {
-      var delay = lidHovered ? 0.2 : lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
+      var delay = lidHovered ? 0.15 : lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
       if (!lidHovered && lidIntervalIndex < lidIntervals.length-1) lidIntervalIndex++;
       scheduleLid(delay);
     }
@@ -2469,7 +2469,7 @@ if (
       });
     }
     // Mouse hover is attached to the interactive wrapper because .circle_text has pointer-events:none.
-    // Maximum knock strength / triangle size at 0.2s intervals.
+    // Maximum knock strength / triangle size at 0.15s intervals.
     // Leaving restores the original idle progression from its first stage.
     wrap.addEventListener('mouseenter', function() {
       lidHovered = true;
