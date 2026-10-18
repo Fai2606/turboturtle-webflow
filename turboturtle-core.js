@@ -2270,50 +2270,114 @@ if (
     var x=bounds.left, y=bounds.top, hx=x, hy=y;
     var vx=0, vy=0, angle=0, spin=0, cooldown=0;
     var mode='docked', pointer=null, lastPoint=null, history=[];
-    // Docked lid: small, irregular double impact with accelerating idle frequency.
-    // Intervals: 5s, 4s, 3s, 2s, 1s, 0.5s, then 0.25s repeatedly.
-    // Any scrolling cancels the knock and resets the sequence to 5s.
-    var lidIntervals = [5, 4, 3, 2, 1, 0.5, 0.25];
+    // Docked lid: irregular micro double-knocks, accelerating during idle.
+    // Intervals: 5, 4, 3, 2, 1, .5, .25, .15 seconds; .15 repeats.
+    // Scrolling cancels the current knock and resets the sequence.
+    var lidIntervals = [5, 4, 3, 2, 1, 0.5, 0.25, 0.15];
     var lidIntervalIndex = 0;
-    var lidOpen = gsap.timeline({paused:true, onComplete:function(){
-      if (mode==='docked' && !lidScrolling) scheduleNextLid();
-    }});
-    lidOpen.to(wrap,{x:-1.7,y:-2.6,rotation:-1.15,duration:0.045,ease:'power3.in'})
-           .to(wrap,{x:0,y:0,rotation:0,duration:0.085,ease:'power2.out'})
-           .to(wrap,{x:1.3,y:-2.2,rotation:0.9,duration:0.05,ease:'power3.in'})
-           .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
-    function stopLid(){
-      if(lidTimer){lidTimer.kill();lidTimer=null;}
-      lidOpen.pause(0);
-      gsap.set(wrap,{x:0,y:0,rotation:0});
+    var lidOpen = null;
+    var triangleTimer = null;
+    var triangleLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    triangleLayer.setAttribute('aria-hidden', 'true');
+    triangleLayer.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:3;';
+    wrap.appendChild(triangleLayer);
+
+    function clearKnockTriangles() {
+      if (triangleTimer) { triangleTimer.kill(); triangleTimer = null; }
+      while (triangleLayer.firstChild) triangleLayer.removeChild(triangleLayer.firstChild);
     }
-    function scheduleLid(delay){
-      if(lidTimer){lidTimer.kill();lidTimer=null;}
-      if(mode!=='docked'||lidScrolling)return;
-      lidTimer=gsap.delayedCall(delay,function(){
-        lidTimer=null;
-        if(mode==='docked'&&!lidScrolling)lidOpen.restart();
+    function showKnockTriangles() {
+      clearKnockTriangles();
+      if (mode !== 'docked' || lidScrolling) return;
+      var rect = wrap.getBoundingClientRect();
+      var bw = rect.width, bh = rect.height;
+      if (!bw || !bh) return;
+      triangleLayer.setAttribute('viewBox', '0 0 ' + bw + ' ' + bh);
+      var cx = bw / 2, cy = bh / 2;
+      var radius = Math.min(bw, bh) * 0.5 + 17;
+      var count = 3 + Math.floor(Math.random() * 2);
+      var centers = [];
+      // Upper semicircle, separated by at least 20px between triangle edges.
+      var minGap = 34;
+      var tries = 0;
+      while (centers.length < count && tries++ < 240) {
+        var angle = Math.PI * (1.06 + Math.random() * 0.88);
+        var px = cx + radius * Math.cos(angle);
+        var py = cy + radius * Math.sin(angle);
+        if (centers.every(function(p) { return Math.hypot(px-p[0], py-p[1]) >= minGap; })) {
+          centers.push([px,py]);
+        }
+      }
+      // Spread evenly with randomized jitter if the available arc is too short.
+      while (centers.length < count) {
+        var i = centers.length;
+        var a = Math.PI * (1.08 + i * 0.84 / Math.max(1,count-1));
+        centers.push([cx+radius*Math.cos(a),cy+radius*Math.sin(a)]);
+      }
+      centers.forEach(function(p) {
+        var ux = (cx-p[0]) / radius, uy = (cy-p[1]) / radius;
+        var px = -uy, py = ux;
+        // Triangle tip faces the circle core, broad edge faces outward.
+        var tipX = p[0] + ux * 7, tipY = p[1] + uy * 7;
+        var backX = p[0] - ux * 7, backY = p[1] - uy * 7;
+        var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        triangle.setAttribute('points',
+          tipX+','+tipY+' '+(backX+px*4.2)+','+(backY+py*4.2)+' '+
+          (backX-px*4.2)+','+(backY-py*4.2));
+        triangle.setAttribute('fill', '#000');
+        triangleLayer.appendChild(triangle);
+      });
+      triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
+    }
+    function stopLid() {
+      if (lidTimer) { lidTimer.kill(); lidTimer = null; }
+      if (lidOpen) { lidOpen.kill(); lidOpen = null; }
+      clearKnockTriangles();
+      gsap.set(wrap, {x:0,y:0,rotation:0});
+    }
+    function runDoubleKnock() {
+      if (mode !== 'docked' || lidScrolling) return;
+      var strength = 0.9 + Math.random() * 0.35;
+      var strength2 = 0.9 + Math.random() * 0.35;
+      // Show triangles beginning with the 3-second knock (and every faster knock).
+      var showTriangles = lidIntervalIndex >= 3;
+      lidOpen = gsap.timeline({onComplete:function() {
+        lidOpen = null;
+        if (mode === 'docked' && !lidScrolling) scheduleNextLid();
+      }});
+      lidOpen.call(function(){ if (showTriangles) showKnockTriangles(); })
+        .to(wrap,{x:-1.7*strength,y:-2.6*strength,rotation:-1.15*strength,duration:0.045,ease:'power3.in'})
+        .to(wrap,{x:0,y:0,rotation:0,duration:0.085,ease:'power2.out'})
+        .call(function(){ if (showTriangles) showKnockTriangles(); })
+        .to(wrap,{x:1.3*strength2,y:-2.2*strength2,rotation:0.9*strength2,duration:0.05,ease:'power3.in'})
+        .to(wrap,{x:0,y:0,rotation:0,duration:0.10,ease:'power2.out'});
+    }
+    function scheduleLid(delay) {
+      if (lidTimer) { lidTimer.kill(); lidTimer = null; }
+      if (mode !== 'docked' || lidScrolling) return;
+      lidTimer = gsap.delayedCall(delay,function(){
+        lidTimer = null;
+        runDoubleKnock();
       });
     }
-    function scheduleNextLid(){
-      var delay=lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
-      if(lidIntervalIndex<lidIntervals.length-1)lidIntervalIndex++;
+    function scheduleNextLid() {
+      var delay = lidIntervals[Math.min(lidIntervalIndex,lidIntervals.length-1)];
+      if (lidIntervalIndex < lidIntervals.length-1) lidIntervalIndex++;
       scheduleLid(delay);
     }
-    function onLidScroll(){
-      lidScrolling=true;
-      lidIntervalIndex=0;
-      if(mode==='docked')stopLid();
-      if(lidScrollTimer)lidScrollTimer.kill();
-      lidScrollTimer=gsap.delayedCall(0.3,function(){
-        lidScrolling=false;
-        if(mode==='docked')scheduleNextLid();
+    function onLidScroll() {
+      lidScrolling = true;
+      lidIntervalIndex = 0;
+      if (mode === 'docked') stopLid();
+      if (lidScrollTimer) lidScrollTimer.kill();
+      lidScrollTimer = gsap.delayedCall(0.3,function(){
+        lidScrolling = false;
+        if (mode === 'docked') scheduleNextLid();
       });
     }
-    // Pause lid activity during native or Lenis scrolling.
     window.addEventListener('scroll',onLidScroll,{passive:true});
-    if(lenis&&typeof lenis.on==='function')lenis.on('scroll',onLidScroll);
+    if (lenis && typeof lenis.on === 'function') lenis.on('scroll',onLidScroll);
     scheduleNextLid();
 
     var sx=0, sy=0, sa=0, moved=false;
