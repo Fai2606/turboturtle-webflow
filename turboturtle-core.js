@@ -2278,14 +2278,17 @@ if (
     var lidTimer = null, lidScrollTimer = null, lidScrolling = false;
     var lidOpen = null;
     var triangleTimer = null;
+    // Use a viewport-level overlay, not an SVG inside the ball wrapper.
+    // The Webflow base or its ancestors may clip overflow outside the circle.
     var triangleLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     triangleLayer.setAttribute('aria-hidden', 'true');
-    triangleLayer.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:3;';
-    wrap.appendChild(triangleLayer);
+    triangleLayer.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:2147483646;visibility:hidden;';
+    document.body.appendChild(triangleLayer);
 
     function clearKnockTriangles() {
       if (triangleTimer) { triangleTimer.kill(); triangleTimer = null; }
       while (triangleLayer.firstChild) triangleLayer.removeChild(triangleLayer.firstChild);
+      triangleLayer.style.visibility = 'hidden';
     }
     function showKnockTriangles() {
       clearKnockTriangles();
@@ -2293,32 +2296,35 @@ if (
       var rect = wrap.getBoundingClientRect();
       var bw = rect.width, bh = rect.height;
       if (!bw || !bh) return;
-      triangleLayer.setAttribute('viewBox', '0 0 ' + bw + ' ' + bh);
-      var cx = bw / 2, cy = bh / 2;
+      // 60px padding all around gives triangles their own visible SVG area.
+      var pad = 60, vw = bw + pad * 2, vh = bh + pad * 2;
+      triangleLayer.style.left = (rect.left - pad) + 'px';
+      triangleLayer.style.top = (rect.top - pad) + 'px';
+      triangleLayer.style.width = vw + 'px';
+      triangleLayer.style.height = vh + 'px';
+      triangleLayer.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
+      var cx = pad + bw / 2, cy = pad + bh / 2;
       var radius = Math.min(bw, bh) * 0.5 + 17;
       var count = 3 + Math.floor(Math.random() * 2);
       var centers = [];
-      // Upper semicircle, separated by at least 20px between triangle edges.
-      var minGap = 34;
-      var tries = 0;
+      var minGap = 34, tries = 0;
+      // Upper half: 180° to 360°, with a little side margin.
       while (centers.length < count && tries++ < 240) {
-        var angle = Math.PI * (1.06 + Math.random() * 0.88);
-        var px = cx + radius * Math.cos(angle);
-        var py = cy + radius * Math.sin(angle);
+        var a = Math.PI * (1.06 + Math.random() * 0.88);
+        var px = cx + radius * Math.cos(a);
+        var py = cy + radius * Math.sin(a);
         if (centers.every(function(p) { return Math.hypot(px-p[0], py-p[1]) >= minGap; })) {
-          centers.push([px,py]);
+          centers.push([px, py]);
         }
       }
-      // Spread evenly with randomized jitter if the available arc is too short.
       while (centers.length < count) {
         var i = centers.length;
         var a = Math.PI * (1.08 + i * 0.84 / Math.max(1,count-1));
-        centers.push([cx+radius*Math.cos(a),cy+radius*Math.sin(a)]);
+        centers.push([cx + radius*Math.cos(a), cy + radius*Math.sin(a)]);
       }
       centers.forEach(function(p) {
         var ux = (cx-p[0]) / radius, uy = (cy-p[1]) / radius;
         var px = -uy, py = ux;
-        // Triangle tip faces the circle core, broad edge faces outward.
         var tipX = p[0] + ux * 7, tipY = p[1] + uy * 7;
         var backX = p[0] - ux * 7, backY = p[1] - uy * 7;
         var triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -2328,6 +2334,7 @@ if (
         triangle.setAttribute('fill', '#000');
         triangleLayer.appendChild(triangle);
       });
+      triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(0.2, clearKnockTriangles);
     }
     function stopLid() {
