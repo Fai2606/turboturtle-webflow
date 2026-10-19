@@ -2622,43 +2622,39 @@ if (
       dock.classList.add('tt-near');
     }
     function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
-    function beginBallDrag(e){
-      if(e.pointerType==='mouse'&&e.button!==0)return;
-      if(mode==='drag') return; // One pointerdown can reach both listeners.
-      e.preventDefault();
-      pointer=e.pointerId;
-      // Transfer the currently visible rotation to the physics wrapper.
+    // Touch starts are handled explicitly. During momentum scrolling, iOS can
+    // delay/cancel pointerdown even when the next touch lands on the ball.
+    // Keep desktop Pointer Events, but claim a NEW touch immediately on mobile.
+    var activeTouchId = null;
+    var TOUCH_POINTER_ID = -999;
+    function beginBallDrag(e, id, capturePointer) {
+      if (mode === 'drag') return;
+      pointer=id;
       if(mode==='docked'){
         stopLid();
         gsap.set(wrap,{x:0,y:0});
         angle=Number(gsap.getProperty(el,'rotation'))||0;
         undock();
       }
-      // Reparenting can cancel pointer capture on Safari. Capture only AFTER undocking.
       startPhysics();mode='drag';moved=false;
-      try { wrap.setPointerCapture(pointer); } catch(err) {}
+      if(capturePointer) { try { wrap.setPointerCapture(pointer); } catch(err) {} }
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
       render();
     }
-    wrap.addEventListener('pointerdown', beginBallDrag);
-    // A rotating circle can visually occupy pixels outside its unrotated
-    // wrapper, or another composited layer can intercept its pointerdown.
-    // Use the visible circle geometry as a fallback hit area while docked.
-    // This does NOT wait for the scroll/rotation chase to settle.
-    document.addEventListener('pointerdown', function(e) {
-      if (mode !== 'docked' || e.defaultPrevented) return;
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      var r = el.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      var cx = r.left + r.width / 2;
-      var cy = r.top + r.height / 2;
-      var rx = r.width / 2, ry = r.height / 2;
-      var dx = (e.clientX - cx) / rx;
-      var dy = (e.clientY - cy) / ry;
-      if (dx * dx + dy * dy > 1) return;
-      beginBallDrag(e);
-    }, true);
+    wrap.addEventListener('touchstart',function(e){
+      if (!e.changedTouches.length || activeTouchId !== null) return;
+      if (e.cancelable) e.preventDefault();
+      var touch=e.changedTouches[0];
+      activeTouchId=touch.identifier;
+      beginBallDrag(touch,TOUCH_POINTER_ID,false);
+    },{passive:false});
+    wrap.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='touch') return; // touchstart owns mobile gestures
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      e.preventDefault();
+      beginBallDrag(e,e.pointerId,true);
+    });
     function moveBallPointer(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
       var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
@@ -2672,6 +2668,20 @@ if (
     }
     // Window listeners are essential when a fast swipe leaves the ball,
     // or mobile Safari drops capture during DOM reparenting.
+    // Touch listeners live on window: reparenting the ball during touchstart
+    // must not lose the ongoing gesture when the finger leaves the wrapper.
+    function trackedTouch(e) {
+      if(activeTouchId===null)return null;
+      for(var i=0;i<e.changedTouches.length;i++)
+        if(e.changedTouches[i].identifier===activeTouchId)return e.changedTouches[i];
+      return null;
+    }
+    window.addEventListener('touchmove',function(e){
+      var t=trackedTouch(e);
+      if(!t || mode!=='drag' || pointer!==TOUCH_POINTER_ID)return;
+      if(e.cancelable)e.preventDefault();
+      moveBallPointer({clientX:t.clientX,clientY:t.clientY,pointerId:TOUCH_POINTER_ID});
+    },{passive:false});
     window.addEventListener('pointermove',moveBallPointer,{passive:false});
     function release(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
@@ -2691,8 +2701,17 @@ if (
         spin=vx*.23;
       }
     }
+    function finishBallTouch(e){
+      var t=trackedTouch(e);
+      if(!t)return;
+      if(e.cancelable)e.preventDefault();
+      activeTouchId=null;
+      release({pointerId:TOUCH_POINTER_ID});
+    }
+    window.addEventListener('touchend',finishBallTouch,{passive:false});
+    window.addEventListener('touchcancel',finishBallTouch,{passive:false});
     window.addEventListener('pointerup',release);
-    window.addEventListener('pointercancel',release);
+    window.addEventListener('pointercancel',function(e){ if(e.pointerType!=='touch')release(e); });
     wrap.addEventListener('lostpointercapture',function(){
       // Do not abandon a live drag merely because Safari loses capture.
       // Window-level pointermove/up continue to handle the gesture.
