@@ -2411,27 +2411,6 @@ if (
       }
       drawTriangleSet(centers, '#2c2c2c');
       drawTriangleSet(whiteCenters, '#ffffff');
-      // One tiny KNOCK label alongside the six triangles on each impact.
-      // Use the same overlay so Webflow containers cannot clip the label.
-      var knockAngle = Math.PI * (1.13 + Math.random() * 0.70);
-      var knockRadius = radius + tipClearance + maxExtraGap * (0.65 + Math.random() * 0.35) + 14;
-      var labelX = cx + knockRadius * Math.cos(knockAngle);
-      var labelY = cy + knockRadius * Math.sin(knockAngle);
-      var knockLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      knockLabel.setAttribute('x', labelX);
-      knockLabel.setAttribute('y', labelY);
-      knockLabel.setAttribute('fill', '#2c2c2c');
-      knockLabel.setAttribute('font-size', '6px');
-      knockLabel.setAttribute('font-weight', '700');
-      knockLabel.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
-      knockLabel.setAttribute('text-anchor', 'middle');
-      knockLabel.setAttribute('dominant-baseline', 'middle');
-      knockLabel.textContent = 'KNOCK';
-      triangleLayer.appendChild(knockLabel);
-      gsap.fromTo(knockLabel, {x:0,y:0}, {
-        x:Math.cos(knockAngle)*travel, y:Math.sin(knockAngle)*travel,
-        duration:lidHovered ? 0.12 : 0.2, ease:'power2.out'
-      });
       triangleLayer.style.visibility = 'visible';
       triangleTimer = gsap.delayedCall(lidHovered ? 0.14 : 0.2, clearKnockTriangles);
     }
@@ -2643,8 +2622,9 @@ if (
       dock.classList.add('tt-near');
     }
     function point(e){return {x:e.clientX,y:e.clientY,t:performance.now()};}
-    wrap.addEventListener('pointerdown',function(e){
+    function beginBallDrag(e){
       if(e.pointerType==='mouse'&&e.button!==0)return;
+      if(mode==='drag') return; // One pointerdown can reach both listeners.
       e.preventDefault();
       pointer=e.pointerId;
       // Transfer the currently visible rotation to the physics wrapper.
@@ -2660,7 +2640,25 @@ if (
       vx=vy=spin=0;lastPoint=point(e);history=[lastPoint];
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
       render();
-    });
+    }
+    wrap.addEventListener('pointerdown', beginBallDrag);
+    // A rotating circle can visually occupy pixels outside its unrotated
+    // wrapper, or another composited layer can intercept its pointerdown.
+    // Use the visible circle geometry as a fallback hit area while docked.
+    // This does NOT wait for the scroll/rotation chase to settle.
+    document.addEventListener('pointerdown', function(e) {
+      if (mode !== 'docked' || e.defaultPrevented) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      var rx = r.width / 2, ry = r.height / 2;
+      var dx = (e.clientX - cx) / rx;
+      var dy = (e.clientY - cy) / ry;
+      if (dx * dx + dy * dy > 1) return;
+      beginBallDrag(e);
+    }, true);
     function moveBallPointer(e){
       if(mode!=='drag'||pointer!==e.pointerId)return;
       var p=point(e), dx=p.x-lastPoint.x, dy=p.y-lastPoint.y;
