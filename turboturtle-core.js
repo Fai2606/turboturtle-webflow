@@ -2642,13 +2642,21 @@ if (
       wrap.classList.add('tt-dragging');dock.classList.remove('tt-near');
       render();
     }
-    wrap.addEventListener('touchstart',function(e){
-      if (!e.changedTouches.length || activeTouchId !== null) return;
+    // Capture at WINDOW level: during iOS momentum scrolling the browser can
+    // target the scrolling page instead of the moving/docked ball wrapper.
+    // Hit-test the actual visible ball rectangle before the scroll handler runs.
+    function claimBallTouch(e) {
+      if (activeTouchId !== null || mode === 'drag' || !e.changedTouches.length) return;
+      var touch = e.changedTouches[0];
+      var r = wrap.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var px = touch.clientX, py = touch.clientY;
+      if (px < r.left || px > r.right || py < r.top || py > r.bottom) return;
       if (e.cancelable) e.preventDefault();
-      var touch=e.changedTouches[0];
-      activeTouchId=touch.identifier;
-      beginBallDrag(touch,TOUCH_POINTER_ID,false);
-    },{passive:false});
+      activeTouchId = touch.identifier;
+      beginBallDrag(touch, TOUCH_POINTER_ID, false);
+    }
+    window.addEventListener('touchstart', claimBallTouch, {capture:true,passive:false});
     wrap.addEventListener('pointerdown',function(e){
       if(e.pointerType==='touch') return; // touchstart owns mobile gestures
       if(e.pointerType==='mouse'&&e.button!==0)return;
