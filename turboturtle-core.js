@@ -7713,12 +7713,12 @@ function initHomeSection7() {
         gsap.set(longneck, {
 
           x:
-            -10 *
+            -5 *
             MASTER_VW *
             p,
 
           y:
-            -32 *
+            -60 *
             MASTER_VH *
             p,
 
