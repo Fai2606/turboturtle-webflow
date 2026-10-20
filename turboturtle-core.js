@@ -5580,6 +5580,186 @@ function initHomeSection6() {
   
 
   // ==========================================================
+  // HOME 6 — V4 ELECTRIC FIELD (independent random discharges)
+  // Uses the exact copied V4 settings; no extra libraries.
+  // Point 1 = A, Point 2 = B. Both follow Webflow transforms.
+  // ==========================================================
+  (function initHome6ElectricField() {
+    var pointA = q(".home6_eletricity_point1");
+    var pointB = q(".home6_eletricity_point2");
+    if (!pointA || !pointB) return;
+
+    var cfg = {
+      spawnRate: 26, speed: 0.7, thickness: 0.65,
+      brightness: 100, arc: 44, randomness: 53,
+      glow: 11, life: 140, spread: 43, length: 47,
+      curvature: 0, maxBolts: 3
+    };
+
+    // Fixed, transparent, pointer-events:none canvas. Keeping it in
+    // document.body avoids inherited Webflow transforms / CSS zoom.
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;" +
+      "pointer-events:none;background:transparent;z-index:12;";
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) { canvas.remove(); return; }
+
+    var bolts = [], carry = 0, previous = 0;
+    var running = false, frameID = 0, visible = false;
+    var w = 1, h = 1, dpr = 1, originX = 0, originY = 0;
+    var a = { x: 0, y: 0 }, b = { x: 0, y: 0 };
+    function rand(min, max) { return min + Math.random() * (max - min); }
+
+    // Endpoints are the centers of the actual Webflow marker elements.
+    function measure() {
+      var r1 = pointA.getBoundingClientRect();
+      var r2 = pointB.getBoundingClientRect();
+      var x1 = r1.left + r1.width / 2, y1 = r1.top + r1.height / 2;
+      var x2 = r2.left + r2.width / 2, y2 = r2.top + r2.height / 2;
+      var len = Math.hypot(x2 - x1, y2 - y1);
+      // Room for V4's arc and randomized spread; crop to viewport.
+      var pad = Math.max(85, cfg.arc * .55 + cfg.spread * 1.3 + 25);
+      var left = Math.max(0, Math.floor(Math.min(x1, x2) - pad));
+      var top = Math.max(0, Math.floor(Math.min(y1, y2) - pad));
+      var right = Math.min(window.innerWidth, Math.ceil(Math.max(x1, x2) + pad));
+      var bottom = Math.min(window.innerHeight, Math.ceil(Math.max(y1, y2) + pad));
+      if (right <= left || bottom <= top || len < 2) return false;
+      originX = left; originY = top;
+      w = right - left; h = bottom - top;
+      a.x = x1 - left; a.y = y1 - top;
+      b.x = x2 - left; b.y = y2 - top;
+      canvas.style.left = left + "px";
+      canvas.style.top = top + "px";
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      var targetDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      var cw = Math.max(1, Math.round(w * targetDpr));
+      var ch = Math.max(1, Math.round(h * targetDpr));
+      if (canvas.width !== cw || canvas.height !== ch) {
+        canvas.width = cw; canvas.height = ch;
+      }
+      dpr = targetDpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
+    }
+
+    // Exact V4 path construction and bolt lifecycle.
+    function base(t) {
+      var dx = b.x - a.x, dy = b.y - a.y;
+      var L = Math.hypot(dx, dy) || 1;
+      var nx = -dy / L, ny = dx / L;
+      var bend = Math.sin(t * Math.PI) * cfg.arc * .55;
+      return { x: a.x + dx * t + nx * bend,
+        y: a.y + dy * t + ny * bend, nx: nx, ny: ny };
+    }
+    function createBolt(now) {
+      var start = rand(.01, .95);
+      var extent = rand(.12, 1) * cfg.length / 100;
+      var end = Math.min(.99, start + extent);
+      var count = Math.max(5, Math.round((end - start) * 38));
+      var seed = rand(-1, 1) * cfg.spread * .85;
+      var pts = [], walk = 0;
+      for (var i = 0; i <= count; i++) {
+        var t = start + (end - start) * i / count;
+        var bp = base(t);
+        var envelope = Math.pow(Math.sin(Math.PI * i / count), .5);
+        walk = walk * .50 + rand(-1, 1) * cfg.randomness * .16;
+        var drift = seed + walk * envelope +
+          rand(-1, 1) * cfg.randomness * .09 * envelope;
+        pts.push({ x: bp.x + bp.nx * drift, y: bp.y + bp.ny * drift });
+      }
+      bolts.push({ pts: pts, born: now,
+        duration: cfg.life * rand(.45, 1.6), phase: rand(0, 6.28),
+        smooth: cfg.curvature / 100, opacity: rand(.55, 1),
+        width: rand(.7, 1.3) });
+      if (bolts.length > cfg.maxBolts) bolts.shift();
+    }
+    function trace(bolt) {
+      var pts = bolt.pts;
+      if (!pts.length) return;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      if (bolt.smooth < .05) {
+        for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      } else {
+        for (var j = 1; j < pts.length - 1; j++) {
+          var q = pts[j], r = pts[j + 1];
+          ctx.quadraticCurveTo(q.x, q.y,
+            q.x + (r.x - q.x) * bolt.smooth * .5,
+            q.y + (r.y - q.y) * bolt.smooth * .5);
+        }
+        var last = pts[pts.length - 1];
+        ctx.lineTo(last.x, last.y);
+      }
+    }
+    function render(t) {
+      if (!running) return;
+      frameID = requestAnimationFrame(render);
+      if (!measure()) { ctx.clearRect(0, 0, w, h); previous = t; return; }
+      if (!previous) previous = t;
+      var dt = Math.min(70, t - previous);
+      previous = t;
+      ctx.clearRect(0, 0, w, h);
+      carry += dt / 1000 * cfg.spawnRate * cfg.speed;
+      var spawned = 0;
+      while (carry >= 1 && spawned < 5) {
+        createBolt(t); carry--; spawned++;
+      }
+      bolts = bolts.filter(function (bolt) { return t - bolt.born < bolt.duration; });
+      ctx.save();
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      for (var i = 0; i < bolts.length; i++) {
+        var bolt = bolts[i];
+        var age = (t - bolt.born) / bolt.duration;
+        var fade = Math.pow(Math.sin(Math.PI * age), .32);
+        var pulse = Math.sin(t * .06 + bolt.phase) * .12 + .88;
+        var alpha = fade * pulse * bolt.opacity * cfg.brightness / 100;
+        if (alpha < .015) continue;
+        var width = cfg.thickness * bolt.width;
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = "#fff";
+        ctx.shadowColor = "#fff";
+        ctx.shadowBlur = cfg.glow;
+        ctx.lineWidth = width * 2.8;
+        trace(bolt); ctx.stroke();
+        ctx.shadowBlur = cfg.glow * .35;
+        ctx.lineWidth = width;
+        trace(bolt); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function start() {
+      if (running) return;
+      running = true; previous = 0;
+      frameID = requestAnimationFrame(render);
+    }
+    function stop() {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(frameID);
+      bolts.length = 0; carry = 0; previous = 0;
+      ctx.clearRect(0, 0, w, h);
+    }
+    // Avoid running Canvas animations while Home 6 is offscreen.
+    var watch = q(".home_section6") || pointA;
+    if ("IntersectionObserver" in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible && !document.hidden) start(); else stop();
+      }, { rootMargin: "120px" });
+      observer.observe(watch);
+    } else {
+      start();
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) stop(); else if (visible) start();
+    });
+  })();
+
+
+  // ==========================================================
   // HOME 6 — CAMEL GROUP IDLE MOVEMENT
   // Larger vertical sway, very subtle rotation.
   // Preserve the transform origin defined in Webflow.
