@@ -5549,7 +5549,7 @@ function initHomeSection6() {
     var tree = q(".home6_tree_group");
     if (!tree) return;
 
-    var MAX_ROTATION = 0.1;
+    var MAX_ROTATION = 0.02;
     var MIN_DURATION = 3.5;
     var MAX_DURATION = 6.5;
     var baseRotation = Number(gsap.getProperty(tree, "rotation")) || 0;
