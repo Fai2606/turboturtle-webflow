@@ -5540,6 +5540,38 @@ function initHomeSection5() {
   
 function initHomeSection6() {
 
+  // ==========================================================
+  // HOME 6 — TREE WIND SWAY
+  // Randomized, slow alternating sway within +/-20 degrees.
+  // Transform origin remains controlled by Webflow.
+  // ==========================================================
+  (function initHome6TreeWindSway() {
+    var tree = q(".home6_tree_group");
+    if (!tree) return;
+
+    var MAX_ROTATION = 20;
+    var MIN_DURATION = 3.5;
+    var MAX_DURATION = 6.5;
+    var baseRotation = Number(gsap.getProperty(tree, "rotation")) || 0;
+    var direction = Math.random() < 0.5 ? 1 : -1;
+
+    function sway() {
+      // Alternate directions, with irregular swing amplitudes and timing.
+      var target = baseRotation + direction * gsap.utils.random(8, MAX_ROTATION);
+      direction *= -1;
+      gsap.to(tree, {
+        rotation: target,
+        duration: gsap.utils.random(MIN_DURATION, MAX_DURATION),
+        ease: "sine.inOut",
+        overwrite: "auto",
+        onComplete: sway
+      });
+    }
+
+    sway();
+  })();
+
+
   var section = q(".home_section6");
   var city = q(".home_section6_city");
 
