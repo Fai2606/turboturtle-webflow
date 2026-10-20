@@ -5552,7 +5552,7 @@ function initHomeSection6() {
     if (!tree) return;
 
     // SETTINGS
-    var MAX_ROTATION = 0.25; // Maximum +/- 0.25 degrees
+    var MAX_ROTATION = 1; // Maximum +/- 0.25 degrees
     var MIN_DURATION = 5;    // Minimum swing time (seconds)
     var MAX_DURATION = 8;    // Maximum swing time (seconds)
 
