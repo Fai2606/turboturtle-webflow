@@ -5587,10 +5587,7 @@ function initHomeSection6() {
     sway();
   })();
 
-  // KEEP ALL YOUR EXISTING HOME 6 CODE BELOW THIS LINE
-}
-
-
+  // Continue existing Home 6 animations inside initHomeSection6().
 
   var section = q(".home_section6");
   var city = q(".home_section6_city");
