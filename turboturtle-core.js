@@ -5557,7 +5557,7 @@ function initHomeSection6() {
 
     function sway() {
       // Alternate directions, with irregular swing amplitudes and timing.
-      var target = baseRotation + direction * gsap.utils.random(8, MAX_ROTATION);
+      var target = baseRotation + direction * gsap.utils.random(4, MAX_ROTATION);
       direction *= -1;
       gsap.to(tree, {
         rotation: target,
