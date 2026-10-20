@@ -5557,7 +5557,7 @@ function initHomeSection6() {
     // A gentle nod and vertical breathing motion, continuously looping.
     // Separate durations avoid a mechanical, perfectly synchronized cycle.
     gsap.to(head, {
-      rotation: initialRotation + 3,
+      rotation: initialRotation + 5,
       duration: 2.2,
       ease: "sine.inOut",
       repeat: -1,
@@ -5566,7 +5566,7 @@ function initHomeSection6() {
     });
 
     gsap.to(head, {
-      y: initialY - 7,
+      y: initialY - 11,
       duration: 2.8,
       ease: "sine.inOut",
       repeat: -1,
@@ -7713,12 +7713,12 @@ function initHomeSection7() {
         gsap.set(longneck, {
 
           x:
-            -15 *
+            -10 *
             MASTER_VW *
             p,
 
           y:
-            -60 *
+            -32 *
             MASTER_VH *
             p,
 
