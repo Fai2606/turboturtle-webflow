@@ -5590,9 +5590,9 @@ function initHomeSection6() {
     if (!pointA || !pointB) return;
 
     var cfg = {
-      spawnRate: 26, speed: 0.7, thickness: 0.65,
-      brightness: 100, arc: 44, randomness: 53,
-      glow: 11, life: 140, spread: 43, length: 47,
+      spawnRate: 83, speed: 0.4, thickness: 1,
+      brightness: 100, arc: 100, randomness: 100,
+      glow: 7, life: 100, spread: 33, length: 68,
       curvature: 0, maxBolts: 3
     };
 
