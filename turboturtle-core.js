@@ -1536,6 +1536,15 @@ if (
         };
     
         var lastProgress = 0;
+
+        // Responsive travel distance: move the UFO completely past the right edge.
+        // Subtract the current animated X to recover its untransformed starting position.
+        function getUFOTravelDistance() {
+          var rect = host.getBoundingClientRect();
+          var startLeft = rect.left - actual.x;
+          var viewportWidth = document.documentElement.clientWidth;
+          return Math.max(0, viewportWidth - startLeft + rect.width + 30);
+        }
     
         if (root.ScrollTrigger) {
           root.ScrollTrigger.create({
@@ -1546,7 +1555,7 @@ if (
     
             onUpdate: function (self) {
               lastProgress = self.progress;
-              target.x = 130 * vw * self.progress;
+              target.x = getUFOTravelDistance() * self.progress;
             }
           });
         }
@@ -1557,8 +1566,7 @@ if (
           var max = (document.documentElement.scrollHeight - innerHeight) || 1;
     
           target.x =
-            130 *
-            vw *
+            getUFOTravelDistance() *
             Math.max(
               0,
               Math.min(
@@ -5552,7 +5560,7 @@ function initHomeSection6() {
     if (!tree) return;
 
     // SETTINGS
-    var MAX_ROTATION = 1; // Maximum +/- 0.25 degrees
+    var MAX_ROTATION = 0.25; // Maximum +/- 0.25 degrees
     var MIN_DURATION = 5;    // Minimum swing time (seconds)
     var MAX_DURATION = 8;    // Maximum swing time (seconds)
 
