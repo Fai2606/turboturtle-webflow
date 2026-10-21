@@ -208,7 +208,11 @@ root.addEventListener("resize", function () {
       ScrollTrigger.config({ ignoreMobileResize: true, syncInterval: 999 });
 
       lenis = new root.Lenis({
-        lerp: isIOSChromeNativeScroll ? 1 : (isMobile ? 0.12 : 0.08),
+        // Desktop wheel: duration-based ease-in-out (test setting).
+        // Mobile touch and iOS Chrome native-scroll exception remain unchanged.
+        lerp: isIOSChromeNativeScroll ? 1 : (isMobile ? 0.12 : undefined),
+        duration: 1.2,
+        easing: function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; },
         smoothWheel: !isIOSChromeNativeScroll,
         smoothTouch: false,
         syncTouch: false,
