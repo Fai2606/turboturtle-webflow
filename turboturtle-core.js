@@ -96,7 +96,9 @@ root.addEventListener("resize", function () {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       MorphSVGPlugin = root.MorphSVGPlugin;
-      gsap.set(".home2_cloud, .general_cloud", { opacity: 1 });
+      var SplitText = root.SplitText;
+      var ttClouds = gsap.utils.toArray(".home2_cloud, .general_cloud");
+      if (ttClouds.length) gsap.set(ttClouds, { opacity: 1 });
   
 
 
@@ -484,7 +486,10 @@ root.addEventListener("resize", function () {
           if (userOnToggle) userOnToggle(self);
         };
 
-        return vars;
+        // targetEl is internal metadata for onToggle, not a GSAP tween property.
+        var cleanVars = Object.assign({}, vars);
+        delete cleanVars.targetEl;
+        return cleanVars;
       }
 
       // -------------------------------------------------------------
