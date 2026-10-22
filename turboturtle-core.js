@@ -1535,46 +1535,51 @@ if (
           rot: 0
         };
     
-        var lastProgress = 0;
+    
+/* =====================================================
+   WOMAN UFO — HORIZONTAL FLIGHT FIX
 
-        // Responsive travel distance: move the UFO completely past the right edge.
-        // Subtract the current animated X to recover its untransformed starting position.
-        function getUFOTravelDistance() {
-          var rect = host.getBoundingClientRect();
-          var startLeft = rect.left - actual.x;
-          var viewportWidth = document.documentElement.clientWidth;
-          return Math.max(0, viewportWidth - startLeft + rect.width + 30);
-        }
-    
-        if (root.ScrollTrigger) {
-          root.ScrollTrigger.create({
-            trigger: ".parallax-wrapper",
-            start: "top top",
-            end: (isMobile ? innerHeight * 0.25 : innerHeight * 0.5) + "px top",
-            scrub: 1,
-    
-            onUpdate: function (self) {
-              lastProgress = self.progress;
-              target.x = getUFOTravelDistance() * self.progress;
-            }
-          });
-        }
-    
-        function ensureX() {
-          if (lastProgress > 0) return;
-    
-          var max = (document.documentElement.scrollHeight - innerHeight) || 1;
-    
-          target.x =
-            getUFOTravelDistance() *
-            Math.max(
-              0,
-              Math.min(
-                1,
-                (root.pageYOffset || 0) / max
-              )
-            );
-        }
+   Independent of ScrollTrigger geometry.
+   Keeps existing bounce, tilt and trail.
+   ===================================================== */
+
+function getUFOTravelDistance() {
+  var rect = host.getBoundingClientRect();
+  var startLeft = rect.left - actual.x;
+  var viewportWidth = document.documentElement.clientWidth;
+
+  return Math.max(
+    0,
+    viewportWidth - startLeft + rect.width + 30
+  );
+}
+
+function ensureX() {
+
+  var scrollPos =
+    (lenis && typeof lenis.scroll === "number")
+      ? lenis.scroll
+      : (root.pageYOffset || 0);
+
+  var viewportHeight =
+    document.documentElement.clientHeight;
+
+  // Desktop: fly out over first 50% viewport of scrolling.
+  // Mobile: fly out over first 25% viewport of scrolling.
+  var flightDistance =
+    viewportHeight * (isMobile ? 0.25 : 0.5);
+
+  var progress = Math.max(
+    0,
+    Math.min(
+      1,
+      scrollPos / Math.max(1, flightDistance)
+    )
+  );
+
+  target.x = getUFOTravelDistance() * progress;
+}
+
     
         var lastScroll = 0;
         var bouncePhase = 0;
