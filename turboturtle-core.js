@@ -4764,7 +4764,7 @@ function initHomeSection4() {
 
   home4Dots.forEach(function (dot) {
     gsap.fromTo(dot,
-      { scale: 0.5 },
+      { scale: 2 },
       {
         scale: 0.1,
         ease: "power3.out",
