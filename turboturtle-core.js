@@ -4756,6 +4756,32 @@ function initHomeSection4() {
 
 
   // ==========================================================
+  // HOME4 DOT — SCROLL SCALE (0.2 -> 0.6)
+  // Begins when dot top enters viewport bottom.
+  // ==========================================================
+
+  var home4Dots = gsap.utils.toArray(".home4_dot");
+
+  home4Dots.forEach(function (dot) {
+    gsap.fromTo(dot,
+      { scale: 0.2 },
+      {
+        scale: 0.6,
+        ease: "power2.out",
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: dot,
+          start: "top bottom",
+          end: "top top",
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  });
+
+
+  // ==========================================================
   // DOT PATTERN
   //
   // SAME SIMPLE METHOD AS HOME3_LION
