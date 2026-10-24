@@ -1849,9 +1849,9 @@ function ensureX() {
     selfrotate_yellowcircle3: {
       duration: 24,
       direction: 1,
-      speed: 1.25,       // Half of yellowcircle2's scroll impulse (2.5)
+      speed: 1,       // Half of yellowcircle2's scroll impulse (2.5)
       friction: 3.5,
-      maxSpeed: 180      // Half of yellowcircle2's scroll momentum cap (360)
+      maxSpeed: 150      // Half of yellowcircle2's scroll momentum cap (360)
     }
 
   };
@@ -4812,9 +4812,9 @@ function initHomeSection4() {
 
   home4Dots.forEach(function (dot) {
     gsap.fromTo(dot,
-      { scale: 0.2 },
+      { scale: 0.4 },
       {
-        scale: 1.2,
+        scale: 1,
         ease: "power3.out",
         immediateRender: false,
         scrollTrigger: {
