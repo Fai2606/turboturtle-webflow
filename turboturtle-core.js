@@ -1843,6 +1843,15 @@ function ensureX() {
       speed: 2.5,       // scroll impulse, same as .selfrotate
       friction: 3.5,    // how quickly scroll momentum fades
       maxSpeed: 360     // maximum added scroll rotation (degrees/second)
+    },
+
+    // Same as yellowcircle2, but HALF the scroll-driven rotation speed.
+    selfrotate_yellowcircle3: {
+      duration: 24,
+      direction: 1,
+      speed: 1.25,       // Half of yellowcircle2's scroll impulse (2.5)
+      friction: 3.5,
+      maxSpeed: 180      // Half of yellowcircle2's scroll momentum cap (360)
     }
 
   };
@@ -2075,6 +2084,45 @@ function ensureX() {
 
 
   // ============================================================
+  // ============================================================
+  // SELFROTATE YELLOWCIRCLE 3 — SAME IDLE, HALF SCROLL MOMENTUM
+  // ============================================================
+  (function initMomentumYellowCircle3() {
+    var elements = gsap.utils.toArray(".selfrotate_yellowcircle3");
+    if (!elements.length) return;
+
+    var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle3;
+    var idleVelocity = (360 / settings.duration) * settings.direction;
+    var momentumVelocity = 0;
+    var angle = 0;
+    var lastScroll = typeof lenis.scroll === "number" ? lenis.scroll : window.scrollY;
+
+    lenis.on("scroll", function(event) {
+      var currentScroll = typeof event.scroll === "number"
+        ? event.scroll : window.scrollY;
+      var delta = currentScroll - lastScroll;
+      lastScroll = currentScroll;
+
+      momentumVelocity += delta * settings.speed;
+      momentumVelocity = Math.max(-settings.maxSpeed,
+        Math.min(settings.maxSpeed, momentumVelocity));
+    });
+
+    gsap.ticker.add(function(time, deltaTime) {
+      var dt = Math.min(deltaTime / 1000, 0.05);
+      angle += (idleVelocity + momentumVelocity) * dt;
+      momentumVelocity *= Math.exp(-settings.friction * dt);
+      if (Math.abs(momentumVelocity) < 0.01) momentumVelocity = 0;
+      angle %= 360;
+
+      elements.forEach(function(el) {
+        if (el.dataset.ttPhysicsActive === "1") return;
+        gsap.set(el, { rotation: angle, force3D: true });
+      });
+    });
+  })();
+
+
   // ============================================================
   // CIRCLE_TEXT — WEBFLOW COLOR AT HOME; CYCLING HUE WHEN RELEASED
   // Initial/docked: Webflow-selected background, no hue progression.
@@ -4766,13 +4814,13 @@ function initHomeSection4() {
     gsap.fromTo(dot,
       { scale: 0.2 },
       {
-        scale: 1.2,
-        ease: "power3.out",
+        scale: 0.6,
+        ease: "power2.out",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
           start: "top bottom",
-          end: "bottom top",
+          end: "top top",
           scrub: 1,
           invalidateOnRefresh: true
         }
