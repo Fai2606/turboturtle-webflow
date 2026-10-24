@@ -3036,9 +3036,12 @@ function ensureX() {
     // ==========================================================
     
     function playMoonIntro() {
-    
-      if (!moon) return;
-    
+
+      if (!moon) {
+        document.dispatchEvent(new CustomEvent("tt:moon-intro-complete"));
+        return;
+      }
+
       gsap.killTweensOf(moon);
     
       gsap.set(moon, {
@@ -3059,8 +3062,14 @@ function ensureX() {
     
       .to(moon, {
         y: 0,
-        duration: 0.6,
-        ease: "bounce.out"
+        duration: 0.9,
+        ease: "bounce.out",
+        onComplete: function () {
+          if (!window.ttMoonFirstBounceDone) {
+            window.ttMoonFirstBounceDone = true;
+            document.dispatchEvent(new CustomEvent("tt:moon-intro-complete"));
+          }
+        }
       });
     }
     
@@ -3074,10 +3083,10 @@ function ensureX() {
         return;
       }
     
-      playMoonIntro();
+      // Give the freshly revealed page half a second to settle.
+      window.setTimeout(playMoonIntro, 500);
     }
-    
-    
+
     waitForPreloader();
   
   
@@ -9803,3 +9812,141 @@ if (width < 1920) {
 
 
   
+
+
+/* TT RELOCATED MODULES — unchanged from working slim-footer migration */
+/* TURBO TURTLE — CORE ADDITIONS — append to turboturtle-core.js @ e66d731
+   Relocated verbatim from the supplied footer. Do not include <script> tags. */
+
+(function () {
+  function updateNavbarLogo() {
+    document.documentElement.classList.toggle("navbar-scrolled", window.scrollY > 5);
+  }
+  window.addEventListener("scroll", updateNavbarLogo, { passive: true });
+  updateNavbarLogo();
+})();
+
+(function () {
+  "use strict";
+  var EXIT_MS = 500;
+  var exiting = false;
+  var overlay = document.createElement("div");
+  overlay.id = "tt-page-exit";
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.appendChild(overlay);
+
+  function resetExit() {
+    exiting = false;
+    document.documentElement.classList.remove("tt-page-exiting");
+  }
+  // Restore the page if it is brought back from the browser's back-forward cache.
+  window.addEventListener("pageshow", resetExit);
+
+  document.addEventListener("click", function (event) {
+    if (event.defaultPrevented || exiting || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    var link = event.target.closest && event.target.closest("a[href]");
+    if (!link || link.hasAttribute("download") ||
+        (link.target && link.target.toLowerCase() !== "_self") ||
+        link.hasAttribute("data-no-page-transition")) return;
+
+    var dest;
+    try { dest = new URL(link.href, window.location.href); }
+    catch (e) { return; }
+    if ((dest.protocol !== "http:" && dest.protocol !== "https:") ||
+        dest.origin !== window.location.origin) return;
+
+    // Let in-page hash navigation happen normally.
+    if (dest.pathname === window.location.pathname &&
+        dest.search === window.location.search &&
+        (dest.hash || dest.href === window.location.href)) return;
+
+    event.preventDefault();
+    exiting = true;
+    document.documentElement.classList.add("tt-page-exiting");
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(function () {
+      window.location.assign(dest.href);
+    }, reduced ? 20 : EXIT_MS);
+  });
+})();
+
+(function () {
+  "use strict";
+  var ua = navigator.userAgent || "";
+  if (!/CriOS/.test(ua) || !/iPhone|iPad|iPod/.test(ua)) return;
+
+  var ran = false;
+  function refreshOnce() {
+    if (ran || document.hidden) return;
+    if (document.documentElement.classList.contains("tt-loading") ||
+        document.documentElement.classList.contains("tt-revealing")) return;
+    ran = true;
+
+    // Force a contained, temporary layout invalidation, not a viewport offset.
+    // This is an experiment; it cannot invoke Chrome's native tab reinitialization.
+    var probe = document.createElement("div");
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText = "position:absolute;left:0;top:0;width:1px;height:1px;" +
+      "visibility:hidden;pointer-events:none;contain:layout style paint;";
+    document.body.appendChild(probe);
+    void probe.offsetHeight;
+    probe.style.width = "2px";
+    void probe.offsetHeight;
+    probe.remove();
+
+    // Request one ordinary resize pass after the preloader/nav entrance.
+    // No ScrollTrigger refresh: it can disturb active scroll animations.
+    window.dispatchEvent(new Event("resize"));
+    if (window.lenis && typeof window.lenis.resize === "function") {
+      window.lenis.resize();
+    }
+    window.ttChromeViewportRefreshResult = {
+      attempted: true,
+      at: Math.round(performance.now()),
+      innerHeight: window.innerHeight,
+      visualHeight: window.visualViewport ? window.visualViewport.height : null
+    };
+  }
+
+  function waitUntilReady() {
+    if (ran) return;
+    if (document.documentElement.classList.contains("tt-loading") ||
+        document.documentElement.classList.contains("tt-revealing")) {
+      setTimeout(waitUntilReady, 150);
+      return;
+    }
+    // Original reveal lasts 1.75s; navbar finishes ~2.90s from reveal start.
+    // Wait an additional 1.3s after the preloader class clears.
+    setTimeout(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(refreshOnce);
+      });
+    }, 1300);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", waitUntilReady, { once: true });
+  } else {
+    waitUntilReady();
+  }
+})();
+
+(function () {
+  "use strict";
+  function placeShaderLast() {
+    var shader = document.querySelector(".shader");
+    if (!shader || !document.body) return;
+    if (shader.parentElement !== document.body ||
+        shader !== document.body.lastElementChild) {
+      document.body.appendChild(shader);
+    }
+  }
+  // This footer runs after Webflow's body markup and the page-exit overlay.
+  placeShaderLast();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", placeShaderLast, { once: true });
+  }
+})();
+
