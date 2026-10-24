@@ -4817,7 +4817,7 @@ function initHomeSection4() {
       { scale: 1.2 },
       {
         scale: 0.5,
-        ease: "power3.out",
+        ease: "power2.out",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
