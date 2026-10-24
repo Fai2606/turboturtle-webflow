@@ -8742,13 +8742,55 @@ function getFireflyGlow(fireflySize) {
 //
 // 3. Every city can have its own scale values.
 //
-// 4. Typography compensates against city scale so its
-//    VISUAL size stays unchanged.
+// 4. Typography is now positioned OUTSIDE the City and is NOT
+//    compensated by this system. Legacy compensation was removed.
 //
 // 5. Homepage body width is a separate layout rule.
 // =============================================================
 
 function initHomeResponsiveScale() {
+
+  // ==========================================================
+  // CRITICAL LEGACY DESIGN COORDINATE SYSTEM — PRESERVE 2195
+  // ==========================================================
+  // CONFIRMED BY ORIGINAL DESIGNER (October 2026):
+  // - The original City artwork/layout was built in Webflow Designer
+  //   on a Windows 4K physical monitor: 3840 x 2160 pixels.
+  // - Windows Display Scaling was 175%, and still needs to remain
+  //   usable at that setting (100% makes UI text too small).
+  // - Each *_city is deliberately a fixed 3840px-wide design canvas
+  //   (e.g. home_section2_city: 3840 x 2200px in Webflow).
+  // - Child DIVs wrapping images were often visually right around
+  //   width: 60%, while width: 100% extended beyond the intended
+  //   composition. The extra ~3% was intentional visual bleed.
+  // - The responsive City system was subsequently tuned around
+  //   this existing layout. It is currently WORKING; do not rebuild
+  //   or reposition the Webflow artwork to 'fix' the history.
+  //
+  // STRONG MATHEMATICAL EXPLANATION (NOT A PROVEN BROWSER BUG):
+  // 3840 physical px / Windows scaling factor 1.75 = 2194.2857
+  // logical px; rounded design reference is about 2195.
+  // 2195 / 3840 = 0.5716 (~57.2%), close to the historical 60%.
+  // This explains the numerical relationship, but DOES NOT prove
+  // that Windows scaling itself broke CSS width:100%: CSS percent
+  // widths are relative to the containing block, not physical px.
+  // The fixed 3840px parent, CSS zoom, Designer viewport/panels,
+  // browser zoom, and element layout all need separate examination
+  // before attributing the original overflow to a single cause.
+  //
+  // MASTER_WIDTH=2195 is a CALIBRATED REFERENCE, not a Webflow
+  // breakpoint or an invitation to use 1920/1440 instead.
+  // Scale curves, cropping, horizontal centering, section offsets,
+  // and animation distances depend on this legacy composition.
+  // Never replace 2195 with 1920, 1440, 3840, or 2194 without a
+  // complete visual regression audit across devices and sections.
+  //
+  // PERFORMANCE: the arithmetic (mode selection, interpolation,
+  // centering) is trivial. The main possible browser cost is the
+  // resulting CSS zoom/layout/paint and ScrollTrigger refresh.
+  // This routine runs on initialization and qualified resize,
+  // NOT as a per-animation-frame scaling calculation.
+  // ==========================================================
 
   var MASTER_WIDTH = 2195;
 
@@ -9419,68 +9461,6 @@ function initHomeResponsiveScale() {
 
   
 
-// // ==========================================================
-// // UNIVERSAL TYPOGRAPHY COMPENSATION
-// //
-// // CITY is scaled with CSS zoom.
-// //
-// // Text must visually remain at the Webflow-designed size.
-// //
-// // Example:
-// // Webflow = 60px
-// // CITY scale = 0.40
-// //
-// // Internal font = 60 / 0.40 = 150px
-// // Visual result  = 150 × 0.40 = 60px
-// // ==========================================================
-
-// function applyCityTypography(city, scale) {
-
-//   var textElements =
-//     city.querySelectorAll(
-//       ".big_heading, .section_heading, .body_text"
-//     );
-
-
-//   textElements.forEach(function(el) {
-
-//     if (!el.dataset.webflowFontSize) {
-
-//       var computed =
-//         window.getComputedStyle(el);
-
-//       var originalSize =
-//         parseFloat(computed.fontSize);
-
-//       if (!originalSize) return;
-
-//       el.dataset.webflowFontSize =
-//         originalSize;
-//     }
-
-
-//     var visualSize =
-//       parseFloat(
-//         el.dataset.webflowFontSize
-//       );
-
-
-//     el.style.fontSize =
-//       (
-//         visualSize /
-//         scale
-//       ) +
-//       "px";
-
-//   });
-
-// }
-
-
-  
-
-
-
   // ==========================================================
   // HOMEPAGE MOBILE BODY WIDTH
   //
@@ -9614,16 +9594,6 @@ if (width < 1920) {
     cityCorrection +
     "px";
 }
-
-
-    // // ====================================================
-    // // TYPOGRAPHY
-    // // ====================================================
-
-    // applyCityTypography(
-    //   city,
-    //   scale
-    // );
 
 
     // ====================================================
