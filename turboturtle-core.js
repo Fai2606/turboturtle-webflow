@@ -4816,7 +4816,7 @@ function initHomeSection4() {
     gsap.fromTo(dot,
       { scale: 0.3 },
       {
-        scale: 1.5,
+        scale: 1.2,
         ease: "none",
         immediateRender: false,
         scrollTrigger: {
@@ -4857,7 +4857,7 @@ function initHomeSection4() {
 
         end: "bottom top",
 
-        scrub: 1,
+        scrub: true,
 
         invalidateOnRefresh: true
 
