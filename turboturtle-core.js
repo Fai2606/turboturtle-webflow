@@ -4820,7 +4820,7 @@ function initHomeSection4() {
         scrollTrigger: {
           trigger: dot,
           start: "top bottom",
-          end: "bottom top",
+          end: "top 30%",
           scrub: 1.2,
           invalidateOnRefresh: true
         }
