@@ -4814,15 +4814,15 @@ function initHomeSection4() {
 
   home4Dots.forEach(function (dot) {
     gsap.fromTo(dot,
-      { scale: 1 },
+      { scale: 1.2 },
       {
-        scale: 0.7,
+        scale: 0.5,
         ease: "power3.inout",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
           start: "top bottom",
-          end: "top 20%",
+          end: "top 10%",
           scrub: 1.2,
           invalidateOnRefresh: true
         }
