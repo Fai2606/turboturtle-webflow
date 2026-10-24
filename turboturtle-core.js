@@ -4812,10 +4812,10 @@ function initHomeSection4() {
 
   home4Dots.forEach(function (dot) {
     gsap.fromTo(dot,
-      { scale: 0.4 },
+      { scale: 3 },
       {
-        scale: 1,
-        ease: "power3.out",
+        scale: 0.5,
+        ease: "power3.inout",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
