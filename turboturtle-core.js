@@ -4816,13 +4816,13 @@ function initHomeSection4() {
     gsap.fromTo(dot,
       { scale: 0.1 },
       {
-        scale: 1,
+        scale: 0.7,
         ease: "power1.out",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
           start: "top bottom",
-          end: "bottom top",
+          end: "top 30%",
           scrub: 1,
           invalidateOnRefresh: true
         }
