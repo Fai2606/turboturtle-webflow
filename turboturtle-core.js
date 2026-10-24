@@ -528,7 +528,7 @@ tweenIf(".lakeshrink", stable({ targetEl: ".lakeshrink", scaleY: 0.2, ease: "non
 tweenIf(".duckswim", stable({ targetEl: ".duckswim", x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_turtle2", stable({ targetEl: ".about_turtle2", x: () => 60 * vw, y: () => 10 * vw, rotation: 6, ease: "none", scrollTrigger: { trigger: ".about_turtle2", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
 // Blood cells — similar direction to turtle2, slightly slower movement.
-tweenIf(".about_bloodcell", stable({ targetEl: ".about_bloodcell", x: () => 48 * vw, y: () => 8 * vw, rotation: 5, ease: "none", scrollTrigger: { trigger: ".about_bloodcell", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
+tweenIf(".about_bloodcell", stable({ targetEl: ".about_bloodcell", x: () => 5 * vw, y: () => 8 * vw, rotation: 5, ease: "none", scrollTrigger: { trigger: ".about_bloodcell", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
 tweenIf(".about_turtle1", stable({ targetEl: ".about_turtle1", x: () => 28 * vw, y: () => -5 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_turtle1", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_nessie", stable({ targetEl: ".about_nessie", x: () => 7 * vw, y: () => -13 * vw, rotation: -20, ease: "none", scrollTrigger: { trigger: ".about_nessie", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".about_bigbigfly", stable({ targetEl: ".about_bigbigfly", x: () => 220 * vw, y: () => -4 * vw, rotation: -5, ease: "none", scrollTrigger: { trigger: ".about_bigbigfly", start: "top bottom", end: "bottom -10%", scrub: true } }));
@@ -2954,7 +2954,7 @@ function ensureX() {
   
       xPercent: 300,
       yPercent: -200,
-      rotation: 810,
+      rotation: 900,
   
       ease: "none",
       force3D: true,
