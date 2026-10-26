@@ -6978,42 +6978,36 @@ var home6LightOnDelay = null;
 // UFO HIDDEN POSITION
 // ==========================================================
 
+// ==========================================================
+// UFO / SUN START ALIGNMENT — DESIGN-SPACE GAP
+//
+// This is a FIXED vertical gap in Home6 City design pixels,
+// not a percentage of the distance to the UFO's final position.
+// Increase to start LOWER beneath the Sun; decrease for HIGHER.
+// Adjust only this value to fine-tune the visual art direction.
+// CSS zoom / City Scaling applies to both positions and this gap.
+// ==========================================================
+var HOME6_UFO_SUN_GAP = 150;
+
 function getHome6UFOHiddenY() {
 
-  if (
-    !home6UFO ||
-    !weirdSun ||
-    !city
-  ) {
+  if (!home6UFO || !weirdSun || !city) {
     return -getRealViewportHeight() * 1.15;
   }
 
+  // Both offsets are in the same unscaled Home6 City coordinates.
+  // GSAP y on a child of the zoomed City uses these local CSS pixels;
+  // do NOT multiply by getCityScale() again (double scaling).
+  var ufoTop = getOffsetInsideCity(home6UFO);
+  var sunTop = getOffsetInsideCity(weirdSun);
 
-  var cityScale =
-    getCityScale();
-
-
-  // Position of UFO and Sun
-  // inside the unscaled city coordinate system.
-  var ufoTop =
-    getOffsetInsideCity(home6UFO);
-
-  var sunTop =
-    getOffsetInsideCity(weirdSun);
-
-
-  // Move UFO from its Webflow destination
-  // up to approximately the Sun's position.
-  // UFO appears
-  // UFO distance
-  var distance =
-    (sunTop - ufoTop) * 0.92;
-
-
-  return distance;
+  // Final UFO position remains its Webflow placement (y: 0).
+  // Initial UFO top is Sun anchor + fixed intentional gap.
+  // This no longer depends on the height of .home_section6_city.
+  return sunTop - ufoTop + HOME6_UFO_SUN_GAP;
 
 }
-  
+
 
 // ==========================================================
 // INITIAL STATES
