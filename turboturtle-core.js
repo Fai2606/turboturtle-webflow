@@ -7636,6 +7636,7 @@ function initHomeSection7() {
   var balloon    = q(".home7_balloon");
   var moon       = q(".home7_moon");
   var satellite  = q(".home7_satellite");
+  var saturn     = q(".home7_saturn");
 
   var dino2Arm   = q(".home7_dino2_arm");
 
@@ -7711,6 +7712,30 @@ function initHomeSection7() {
 
           y:
             30 *
+            MASTER_VH *
+            p,
+
+          force3D: true
+
+        });
+
+      }
+
+      // ========================================================
+      // SATURN
+      // ========================================================
+
+      if (saturn) {
+
+        gsap.set(saturn, {
+
+          x:
+            30 *
+            MASTER_VW *
+            p,
+
+          y:
+            -20 *
             MASTER_VH *
             p,
 
