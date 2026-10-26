@@ -7007,7 +7007,7 @@ function getHome6UFOHiddenY() {
   // UFO appears
   // UFO distance
   var distance =
-    (sunTop - ufoTop) * 1;
+    (sunTop - ufoTop) * 0.92;
 
 
   return distance;
