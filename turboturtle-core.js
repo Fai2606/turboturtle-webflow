@@ -7730,12 +7730,12 @@ function initHomeSection7() {
         gsap.set(saturn, {
 
           x:
-            30 *
+            15 *
             MASTER_VW *
             p,
 
           y:
-            -20 *
+            -15 *
             MASTER_VH *
             p,
 
