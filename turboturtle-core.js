@@ -7751,12 +7751,12 @@ function initHomeSection7() {
         gsap.set(moon, {
 
           x:
-            -11 *
+            -18 *
             MASTER_VW *
             p,
 
           y:
-            33 *
+            36 *
             MASTER_VH *
             p,
 
