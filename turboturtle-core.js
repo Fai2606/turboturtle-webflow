@@ -4550,7 +4550,7 @@ if (enableGrowup) {
     { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
     { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
   ];
-  
+
   var moversMobile = [
     { sel: ".home3_fish1",      x: 100,y:   3, r:   0 },
     { sel: ".home3_fish2",      x: 80, y:  -4, r:   0 },
@@ -4567,7 +4567,7 @@ if (enableGrowup) {
     { sel: ".home3_fishbunch1", x: 10, y:  30, r:   0 },
     { sel: ".home3_fishbunch2", x: 10, y:  30, r:   0 }
   ];
-  
+
 // Select by viewport width
 var movers = window.matchMedia("(max-width: 767px)").matches
   ? moversMobile
@@ -6989,7 +6989,7 @@ var home6LightOnDelay = null;
 // Adjust only this value to fine-tune the visual art direction.
 // CSS zoom / City Scaling applies to both positions and this gap.
 // ==========================================================
-var HOME6_UFO_SUN_GAP = 250;
+var HOME6_UFO_SUN_GAP = 150;
 
 function getHome6UFOHiddenY() {
 
@@ -7423,15 +7423,21 @@ if (
             : home6TallPillar,
 
 
+        // Mobile: finish earlier so the UFO can switch on its light
+        // while the destination is still within the viewport.
+        // Desktop stays at the original 30%.
+        // Adjust 0.70 / 70% together if further tuning is needed.
         end:
           (isSafari && section && city)
 
             ? safariStart(
                 home6TallPillar,
-                0.30
+                window.matchMedia("(max-width: 767px)").matches ? 0.70 : 0.30
               )
 
-            : "top 30%",
+            : (window.matchMedia("(max-width: 767px)").matches
+                ? "top 70%"
+                : "top 30%"),
 
 
         // ==================================================
@@ -7638,7 +7644,6 @@ function initHomeSection7() {
   var balloon    = q(".home7_balloon");
   var moon       = q(".home7_moon");
   var satellite  = q(".home7_satellite");
-  var saturn     = q(".home7_saturn");
 
   var dino2Arm   = q(".home7_dino2_arm");
 
@@ -7722,30 +7727,6 @@ function initHomeSection7() {
         });
 
       }
-
-      // ========================================================
-      // SATURN
-      // ========================================================
-
-      if (saturn) {
-
-        gsap.set(saturn, {
-
-          x:
-            15 *
-            MASTER_VW *
-            p,
-
-          y:
-            -15 *
-            MASTER_VH *
-            p,
-
-          force3D: true
-
-        });
-
-      }
       
 
       // ========================================================
@@ -7778,12 +7759,12 @@ function initHomeSection7() {
         gsap.set(moon, {
 
           x:
-            -18 *
+            -11 *
             MASTER_VW *
             p,
 
           y:
-            36 *
+            33 *
             MASTER_VH *
             p,
 
