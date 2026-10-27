@@ -3499,7 +3499,7 @@ start: function () {
   // ==========================================================
   var home2FloatCloud = q(".home2_floatcloud");
   if (home2FloatCloud) {
-    var HOME2_FLOATCLOUD_TRAVEL = -35 * MASTER_VH; // -715px
+    var HOME2_FLOATCLOUD_TRAVEL = -15 * MASTER_VH; // -715px
     gsap.fromTo(home2FloatCloud, { y: 0 }, {
       y: HOME2_FLOATCLOUD_TRAVEL,
       ease: "none",
