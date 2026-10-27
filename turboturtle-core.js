@@ -3495,6 +3495,27 @@ start: function () {
  
 
   // ==========================================================
+  // HOME 2 — FLOAT CLOUD: INDEPENDENT FAST UPWARD PARALLAX
+  // ==========================================================
+  var home2FloatCloud = q(".home2_floatcloud");
+  if (home2FloatCloud) {
+    var HOME2_FLOATCLOUD_TRAVEL = -65 * MASTER_VH; // -715px
+    gsap.fromTo(home2FloatCloud, { y: 0 }, {
+      y: HOME2_FLOATCLOUD_TRAVEL,
+      ease: "none",
+      force3D: true,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: home2FloatCloud,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    });
+  }
+
+  // ==========================================================
   // DEPTH PARALLAX
   // ==========================================================
 
