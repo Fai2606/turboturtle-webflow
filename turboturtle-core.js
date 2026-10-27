@@ -8894,7 +8894,7 @@ function initHomeResponsiveScale() {
       phoneMax: 0.52,
 
       outerType: "marginTop",
-      outerBase: -2400
+      outerBase: -2560
     },
 
 
