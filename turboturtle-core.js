@@ -6987,7 +6987,7 @@ var home6LightOnDelay = null;
 // Adjust only this value to fine-tune the visual art direction.
 // CSS zoom / City Scaling applies to both positions and this gap.
 // ==========================================================
-var HOME6_UFO_SUN_GAP = 200;
+var HOME6_UFO_SUN_GAP = 300;
 
 function getHome6UFOHiddenY() {
 
