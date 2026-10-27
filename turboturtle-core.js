@@ -3494,26 +3494,48 @@ start: function () {
   
  
 
-  // ==========================================================
-  // HOME 2 — FLOAT CLOUD: INDEPENDENT FAST UPWARD PARALLAX
-  // ==========================================================
-  var home2FloatCloud = q(".home2_floatcloud");
-  if (home2FloatCloud) {
-    var HOME2_FLOATCLOUD_TRAVEL = -15 * MASTER_VH; // -715px
-    gsap.fromTo(home2FloatCloud, { y: 0 }, {
-      y: HOME2_FLOATCLOUD_TRAVEL,
+// ==========================================================
+// HOME 2 — FLOAT CLOUD 1 & 2: INDEPENDENT SPEED
+// ==========================================================
+
+// SETTINGS — adjust separately
+var HOME2_FLOATCLOUD1_SPEED = -20;
+var HOME2_FLOATCLOUD2_SPEED = -30;
+
+[
+  {
+    sel: ".home2_floatcloud1",
+    speed: HOME2_FLOATCLOUD1_SPEED
+  },
+  {
+    sel: ".home2_floatcloud2",
+    speed: HOME2_FLOATCLOUD2_SPEED
+  }
+].forEach(function(item) {
+
+  var cloud = q(item.sel);
+  if (!cloud) return;
+
+  gsap.fromTo(cloud,
+    { y: 0 },
+    {
+      y: () => item.speed * MASTER_VH,
       ease: "none",
       force3D: true,
       immediateRender: false,
       scrollTrigger: {
-        trigger: home2FloatCloud,
+        trigger: cloud,
         start: "top bottom",
         end: "bottom top",
         scrub: true,
         invalidateOnRefresh: true
       }
-    });
-  }
+    }
+  );
+
+});
+
+  
 
   // ==========================================================
   // DEPTH PARALLAX
