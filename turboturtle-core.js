@@ -8850,7 +8850,7 @@ function initHomeResponsiveScale() {
       phoneMax: 0.52,
 
       outerType: "marginTop",
-      outerBase: -600
+      outerBase: -800
     },
 
 
