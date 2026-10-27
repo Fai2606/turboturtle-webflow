@@ -5250,7 +5250,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 145,
+          y: 158,
           duration: 0.28,
           ease: "power2.in"
         })
@@ -5262,7 +5262,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 145,
+          y: 158,
           duration: 0.18,
           ease: "power2.in"
         })
@@ -5274,7 +5274,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 145,
+          y: 158,
           duration: 0.11,
           ease: "power2.in"
         });
