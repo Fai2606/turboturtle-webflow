@@ -3499,8 +3499,8 @@ start: function () {
 // ==========================================================
 
 // SETTINGS — adjust separately
-var HOME2_FLOATCLOUD1_SPEED = -20;
-var HOME2_FLOATCLOUD2_SPEED = -30;
+var HOME2_FLOATCLOUD1_SPEED = -30;
+var HOME2_FLOATCLOUD2_SPEED = -15;
 
 [
   {
