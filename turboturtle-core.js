@@ -5235,7 +5235,7 @@ function initHomeSection5() {
       rocketDropTimeline = gsap.timeline()
 
         .to(rocketTip, {
-          y: 158,
+          y: 165,
           duration: 0.4,
           ease: "power2.in",
           force3D: true
@@ -5250,7 +5250,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 158,
+          y: 165,
           duration: 0.28,
           ease: "power2.in"
         })
@@ -5262,7 +5262,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 158,
+          y: 165,
           duration: 0.18,
           ease: "power2.in"
         })
@@ -5274,7 +5274,7 @@ function initHomeSection5() {
         })
 
         .to(rocketTip, {
-          y: 158,
+          y: 165,
           duration: 0.11,
           ease: "power2.in"
         });
