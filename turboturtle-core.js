@@ -3562,9 +3562,9 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
 // Parent group rotates independently from -23° to -7°.
 gsap.utils.toArray(".floatmount_bear_group").forEach(function(bearGroup) {
   gsap.fromTo(bearGroup,
-    { rotation: -23 },
+    { rotation: -30 },
     {
-      rotation: -7,
+      rotation: -0,
       ease: "none",
       force3D: true,
       immediateRender: false,
