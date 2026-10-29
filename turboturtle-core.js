@@ -3498,9 +3498,9 @@ start: function () {
 // HOME 2 — FLOAT CLOUDS + FLOAT MOUNTAIN CLOUDS: INDEPENDENT PARALLAX
 // ==========================================================
 
-// Original cloud speeds (master-space travel units)
-var HOME2_FLOATCLOUD1_SPEED = -18;
-var HOME2_FLOATCLOUD2_SPEED = -20;
+// Cloud travel distances increased by 1.3x (master-space travel units)
+var HOME2_FLOATCLOUD1_SPEED = -23.4;
+var HOME2_FLOATCLOUD2_SPEED = -26;
 
 // Mountain clouds automatically travel HALF as far as their matching cloud.
 // Each element starts when its own top reaches the viewport bottom.
@@ -3533,13 +3533,13 @@ var HOME2_FLOATCLOUD2_SPEED = -20;
 // ==========================================================
 // HOME 2 — FLOAT MOUNTAIN BEAR HEAD: SCROLL ROTATION
 // ==========================================================
-// Rotates from +26 to -26 degrees while travelling through the viewport.
+// Rotates from -26 to +26 degrees while travelling through the viewport.
 // Set transform-origin in Webflow to control its pivot point.
 gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
   gsap.fromTo(bearHead,
-    { rotation: 26 },
+    { rotation: -26 },
     {
-      rotation: -26,
+      rotation: 26,
       ease: "none",
       force3D: true,
       scrollTrigger: {
