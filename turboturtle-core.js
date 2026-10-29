@@ -3556,6 +3556,31 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
 
 
 // ==========================================================
+// HOME 2 — FLOAT MOUNTAIN BEAR GROUP: SCROLL ROTATION
+// ==========================================================
+// Same scroll-linked behavior as .floatmount_bear_head.
+// Parent group rotates independently from -23° to -7°.
+gsap.utils.toArray(".floatmount_bear_group").forEach(function(bearGroup) {
+  gsap.fromTo(bearGroup,
+    { rotation: -23 },
+    {
+      rotation: -7,
+      ease: "none",
+      force3D: true,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: bearGroup,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+});
+
+
+// ==========================================================
 // HOME 2 — PARTY BEAR: SCROLL ROTATION (+18° TO -12°)
 // ==========================================================
 // Independent ScrollTrigger, grouped with the float-cloud effects.
