@@ -3508,7 +3508,7 @@ var HOME2_FLOATCLOUD2_SPEED = -26;
   { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED },
   { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED },
   { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5 },
-  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.5 }
+  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.4 }
 ].forEach(function(item) {
   gsap.utils.toArray(item.sel).forEach(function(cloud) {
     gsap.fromTo(cloud,
@@ -3537,9 +3537,9 @@ var HOME2_FLOATCLOUD2_SPEED = -26;
 // Set transform-origin in Webflow to control its pivot point.
 gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
   gsap.fromTo(bearHead,
-    { rotation: -26 },
+    { rotation: 22 },
     {
-      rotation: 26,
+      rotation: -22,
       ease: "none",
       force3D: true,
       scrollTrigger: {
