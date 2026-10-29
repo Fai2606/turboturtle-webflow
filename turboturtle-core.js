@@ -3508,7 +3508,7 @@ var HOME2_FLOATCLOUD2_SPEED = -29;
   { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED },
   { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED },
   { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5 },
-  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.4 }
+  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.3 }
 ].forEach(function(item) {
   gsap.utils.toArray(item.sel).forEach(function(cloud) {
     gsap.fromTo(cloud,
