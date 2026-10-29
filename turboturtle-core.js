@@ -3538,9 +3538,9 @@ var HOME2_FLOATCLOUD2_SPEED = -36;
 // Set transform-origin in Webflow to control its pivot point.
 gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
   gsap.fromTo(bearHead,
-    { rotation: 22 },
+    { rotation: 26 },
     {
-      rotation: -22,
+      rotation: -18,
       ease: "none",
       force3D: true,
       scrollTrigger: {
@@ -3564,7 +3564,7 @@ gsap.utils.toArray(".floatmount_bear_group").forEach(function(bearGroup) {
   gsap.fromTo(bearGroup,
     { rotation: -25 },
     {
-      rotation: 5,
+      rotation: 15,
       ease: "none",
       force3D: true,
       immediateRender: false,
