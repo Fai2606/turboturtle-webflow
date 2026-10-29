@@ -3495,36 +3495,55 @@ start: function () {
  
 
 // ==========================================================
-// HOME 2 — FLOAT CLOUD 1 & 2: INDEPENDENT SPEED
+// HOME 2 — FLOAT CLOUDS + FLOAT MOUNTAIN CLOUDS: INDEPENDENT PARALLAX
 // ==========================================================
 
-// SETTINGS — adjust separately
+// Original cloud speeds (master-space travel units)
 var HOME2_FLOATCLOUD1_SPEED = -18;
 var HOME2_FLOATCLOUD2_SPEED = -20;
 
+// Mountain clouds automatically travel HALF as far as their matching cloud.
+// Each element starts when its own top reaches the viewport bottom.
 [
-  {
-    sel: ".home2_floatcloud1",
-    speed: HOME2_FLOATCLOUD1_SPEED
-  },
-  {
-    sel: ".home2_floatcloud2",
-    speed: HOME2_FLOATCLOUD2_SPEED
-  }
+  { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED },
+  { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED },
+  { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5 },
+  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.5 }
 ].forEach(function(item) {
+  gsap.utils.toArray(item.sel).forEach(function(cloud) {
+    gsap.fromTo(cloud,
+      { y: 0 },
+      {
+        y: function() { return item.speed * MASTER_VH; },
+        ease: "none",
+        force3D: true,
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: cloud,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  });
+});
 
-  var cloud = q(item.sel);
-  if (!cloud) return;
-
-  gsap.fromTo(cloud,
-    { y: 0 },
+// ==========================================================
+// HOME 2 — FLOAT MOUNTAIN BEAR HEAD: SCROLL ROTATION
+// ==========================================================
+// Rotates from +26 to -26 degrees while travelling through the viewport.
+// Set transform-origin in Webflow to control its pivot point.
+gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
+  gsap.fromTo(bearHead,
+    { rotation: 26 },
     {
-      y: () => item.speed * MASTER_VH,
+      rotation: -26,
       ease: "none",
       force3D: true,
-      immediateRender: false,
       scrollTrigger: {
-        trigger: cloud,
+        trigger: bearHead,
         start: "top bottom",
         end: "bottom top",
         scrub: true,
@@ -3532,10 +3551,8 @@ var HOME2_FLOATCLOUD2_SPEED = -20;
       }
     }
   );
-
 });
 
-  
 
   // ==========================================================
   // DEPTH PARALLAX
