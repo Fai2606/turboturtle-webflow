@@ -3505,10 +3505,10 @@ var HOME2_FLOATCLOUD2_SPEED = -36;
 // Mountain clouds automatically travel HALF as far as their matching cloud.
 // Each element starts when its own top reaches the viewport bottom.
 [
-  { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED, driftX: -3 },
-  { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED, driftX: -3 },
-  { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5 },
-  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.2 }
+  { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED },
+  { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED },
+  { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5, driftX: -3 },
+  { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.2, driftX: 3 }
 ].forEach(function(item) {
   gsap.utils.toArray(item.sel).forEach(function(cloud) {
     gsap.fromTo(cloud,
