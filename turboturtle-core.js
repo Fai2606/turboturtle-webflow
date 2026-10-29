@@ -3540,7 +3540,7 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
   gsap.fromTo(bearHead,
     { rotation: 26 },
     {
-      rotation: -18,
+      rotation: -22,
       ease: "none",
       force3D: true,
       scrollTrigger: {
