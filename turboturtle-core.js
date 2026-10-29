@@ -3554,6 +3554,31 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
 });
 
 
+// ==========================================================
+// HOME 2 — PARTY BEAR: SCROLL ROTATION (+18° TO -12°)
+// ==========================================================
+// Independent ScrollTrigger, grouped with the float-cloud effects.
+// Starts when the bear enters from the bottom of the viewport.
+gsap.utils.toArray(".partybear").forEach(function(partyBear) {
+  gsap.fromTo(partyBear,
+    { rotation: 18 },
+    {
+      rotation: -12,
+      ease: "none",
+      force3D: true,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: partyBear,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    }
+  );
+});
+
+
   // ==========================================================
   // DEPTH PARALLAX
   // ==========================================================
