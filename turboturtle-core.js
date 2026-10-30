@@ -7757,11 +7757,11 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — YELLOW SILHOUETTE AFTERIMAGES (V4 FEEL)
+  // HOME 6 UFO — LIME-YELLOW LONG AFTERIMAGES (DIRECTION SAFE)
   // ==========================================================
   // Visual-only: follows the ACTUAL rendered UFO position.
   // Does not touch UFO ScrollTrigger, transforms or light timing.
-  // 5 ghosts, ~4-frame spacing; close = opaque, far = transparent.
+  // 5 ghosts, 9-frame spacing; close = opaque, far = transparent.
   // Uses CSS image mask (transparent WebP/PNG), not a yellow box.
   (function initHome6UFOAfterimages() {
     if (!home6UFO || home6UFO.dataset.ttAfterimageInstalled === "1") return;
@@ -7773,12 +7773,13 @@ if (
     home6UFO.dataset.ttAfterimageInstalled = "1";
 
     var COUNT = 5;
-    var FRAME_GAP = 4;
-    var MAX_HISTORY = COUNT * FRAME_GAP + 8;
-    var YELLOW = "#ffe600";
+    var FRAME_GAP = 9; // longer spacing / longer trail
+    var MAX_HISTORY = COUNT * FRAME_GAP + 12;
+    var YELLOW = "#dfff00"; // lime-yellow, closer to the site ball
     var ghosts = [];
     var history = [];
     var previous = null;
+    var lastDirection = null;
     var intensity = 0;
     var source = "";
 
@@ -7827,15 +7828,31 @@ if (
         layer.style.visibility = "hidden";
         history.length = 0;
         previous = null;
+        lastDirection = null;
         intensity = 0;
         requestAnimationFrame(frame);
         return;
       }
       layer.style.visibility = "visible";
       var state = { x: r.left, y: r.top, w: r.width, h: r.height };
-      var distance = previous ? Math.hypot(state.x - previous.x, state.y - previous.y) : 0;
+      var dx = previous ? state.x - previous.x : 0;
+      var dy = previous ? state.y - previous.y : 0;
+      var distance = Math.hypot(dx, dy);
       previous = state;
-      // No static initial yellow ghost; fade out once movement stops.
+
+      // Never reuse the old tail when scroll direction reverses.
+      // The short dead-zone avoids treating tiny subpixel jitter as a reversal.
+      if (distance > 0.35) {
+        var direction = { x: dx / distance, y: dy / distance };
+        if (lastDirection &&
+            direction.x * lastDirection.x + direction.y * lastDirection.y < -0.20) {
+          history.length = 0;
+          intensity = 0;
+        }
+        lastDirection = direction;
+      }
+
+      // No initial parked silhouette. Fade quickly when the UFO settles.
       var desired = Math.max(0, Math.min(1, (distance - 0.18) / 2.2));
       intensity += (desired - intensity) * (desired > intensity ? 0.5 : 0.16);
       history.unshift(state);
@@ -7844,9 +7861,16 @@ if (
       ghosts.forEach(function(g, i) {
         var lag = (i + 1) * FRAME_GAP;
         var past = history[lag];
-        var alpha = past ? (0.84 * Math.pow(1 - i / COUNT, 1.55) * intensity) : 0;
+        // Guard against a silhouette appearing ahead of the UFO,
+        // including the first frame after a direction change.
+        var behind = !lastDirection || !past ||
+          ((state.x - past.x) * lastDirection.x +
+           (state.y - past.y) * lastDirection.y > 0.5);
+        var alpha = (past && behind)
+          ? (0.84 * Math.pow(1 - i / COUNT, 1.55) * intensity)
+          : 0;
         g.style.opacity = alpha > 0.012 ? alpha.toFixed(3) : "0";
-        if (!past) return;
+        if (!past || !behind) return;
         g.style.width = past.w + "px";
         g.style.height = past.h + "px";
         g.style.transform = "translate3d(" + past.x + "px," + past.y + "px,0)";
