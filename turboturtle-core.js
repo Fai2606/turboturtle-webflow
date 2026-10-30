@@ -3457,7 +3457,7 @@ function initHomeSection2() {
         y: 0
       },
       {
-        y: -30 * MASTER_VH,
+        y: -35 * MASTER_VH,
 
         ease: "none",
         force3D: true,
@@ -9415,7 +9415,7 @@ function initHomeResponsiveScale() {
   // ========================================================
 
   var MOVESLOWER1_SPEED_DESKTOP = 0.8;
-  var MOVESLOWER1_SPEED_MOBILE  = 0.8;
+  var MOVESLOWER1_SPEED_MOBILE  = 0.7;
 
   // 1.0 = normal page scroll speed
   // 0.8 = 20% slower
