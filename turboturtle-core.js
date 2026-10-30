@@ -3541,7 +3541,7 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
     { rotation: 26 },
     {
       rotation: -24,
-      ease: "none",
+      ease: "power1.out",
       force3D: true,
       scrollTrigger: {
         trigger: bearHead,
@@ -3565,7 +3565,7 @@ gsap.utils.toArray(".floatmount_bear_group").forEach(function(bearGroup) {
     { rotation: -25 },
     {
       rotation: 15,
-      ease: "none",
+      ease: "power1.out",
       force3D: true,
       immediateRender: false,
       scrollTrigger: {
