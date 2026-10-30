@@ -7757,9 +7757,10 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — 8 LIME AFTERIMAGES (SIBLING STACK + DIRECTION LOCK)
+  // HOME 6 UFO — 8 SMOOTH LIME AFTERIMAGES (VELOCITY-BASED)
   // ==========================================================
-  // Visual only. No changes to UFO scroll tween or light timing.
+  // Procedural trailing positions, NOT old scroll history. This prevents
+  // ghosts jumping in front during rapid scroll reversals. No changes to UFO.
   (function initHome6UFOAfterimages() {
     if (!home6UFO || home6UFO.dataset.ttAfterimageInstalled === "1") return;
     var picture = home6UFO.matches("img") ? home6UFO : home6UFO.querySelector("img");
@@ -7767,25 +7768,26 @@ if (
     home6UFO.dataset.ttAfterimageInstalled = "1";
 
     var COUNT = 8;
-    var FRAME_GAP = 9;
-    var MAX_HISTORY = COUNT * FRAME_GAP + 8;
-    var YELLOW = "#dfff00";
+    var COLOR = "#dfff00";
+    // Distance per ghost at moderate speed, in screen pixels.
+    // Increase GAP_BASE / GAP_SPEED for a longer tail.
+    var GAP_BASE = 13;
+    var GAP_SPEED = 5.5;
+    var MAX_GAP = 38;
+    var FADE_IN = 0.11;   // seconds, soft appearance
+    var FADE_OUT = 0.22;  // seconds, soft disappearance
     var parent = home6UFO.parentElement;
     var ghosts = [];
-    var history = [];
-    var previous = null;
-    var travelDirection = null;
-    var idleFrames = 0;
-    var intensity = 0;
+    var last = null;
+    var lastTime = 0;
+    var direction = { x: 0, y: 1 };
+    var visibility = 0;
+    var reverseBlend = 1;
     var source = "";
 
-    // Place the layer directly BEFORE the UFO, within the SAME parent stacking
-    // context. A body-fixed overlay was behind unrelated City objects.
-    // DOM order ensures UFO paints over its own trail without changing UFO z-index.
     var layer = document.createElement("div");
     layer.setAttribute("data-tt-home6-ufo-afterimages", "");
-    var parentStyle = getComputedStyle(parent);
-    if (parentStyle.position === "static") parent.style.position = "relative";
+    if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
     var ufoZ = getComputedStyle(home6UFO).zIndex;
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
@@ -7794,105 +7796,82 @@ if (
     });
     parent.insertBefore(layer, home6UFO);
 
-    for (var n = 0; n < COUNT; n++) {
-      var ghost = document.createElement("div");
-      Object.assign(ghost.style, {
+    for (var i = 0; i < COUNT; i++) {
+      var g = document.createElement("div");
+      Object.assign(g.style, {
         position: "absolute", left: "0", top: "0", width: "1px", height: "1px",
-        backgroundColor: YELLOW, opacity: "0", pointerEvents: "none",
+        backgroundColor: COLOR, opacity: "0", pointerEvents: "none",
         maskRepeat: "no-repeat", webkitMaskRepeat: "no-repeat",
         maskSize: "100% 100%", webkitMaskSize: "100% 100%",
         transformOrigin: "top left"
       });
-      layer.appendChild(ghost);
-      ghosts.push(ghost);
+      layer.appendChild(g);
+      ghosts.push(g);
     }
 
-    function resetTrail() {
-      history.length = 0;
-      travelDirection = null;
-      intensity = 0;
-      ghosts.forEach(function(g) { g.style.opacity = "0"; });
-    }
-
-    function frame() {
-      var imgURL = picture.currentSrc || picture.src;
-      if (imgURL && imgURL !== source) {
-        source = imgURL;
-        var cssURL = 'url("' + imgURL.replace(/"/g, '%22') + '")';
+    function frame(now) {
+      var dt = lastTime ? Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000)) : 1 / 60;
+      lastTime = now;
+      var url = picture.currentSrc || picture.src;
+      if (url && url !== source) {
+        source = url;
+        var mask = 'url("' + url.replace(/"/g, "%22") + '")';
         ghosts.forEach(function(g) {
-          g.style.maskImage = cssURL;
-          g.style.webkitMaskImage = cssURL;
+          g.style.maskImage = mask;
+          g.style.webkitMaskImage = mask;
         });
       }
 
       var r = picture.getBoundingClientRect();
-      var ufoStyle = getComputedStyle(home6UFO);
-      var visible = source && r.width > 0 && r.height > 0 &&
+      var style = getComputedStyle(home6UFO);
+      var visible = !!source && r.width > 0 && r.height > 0 &&
         r.bottom > 0 && r.top < getRealViewportHeight() &&
         r.right > 0 && r.left < getRealViewportWidth() &&
-        ufoStyle.visibility !== "hidden" && parseFloat(ufoStyle.opacity) > 0.05;
-      if (!visible) {
-        layer.style.visibility = "hidden";
-        previous = null;
-        idleFrames = 0;
-        resetTrail();
-        requestAnimationFrame(frame);
-        return;
+        style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
+      var pos = { x: r.left, y: r.top, w: r.width, h: r.height };
+      var dx = last ? pos.x - last.x : 0;
+      var dy = last ? pos.y - last.y : 0;
+      var step = Math.hypot(dx, dy);
+      last = visible ? pos : null;
+
+      // Direction is always derived from the CURRENT UFO motion.
+      // On reversal we smoothly fade the old tail away and regrow it
+      // on the correct side, instead of reusing misleading history.
+      if (visible && step > 0.35) {
+        var nx = dx / step, ny = dy / step;
+        var dot = nx * direction.x + ny * direction.y;
+        if (dot < -0.20 && visibility > 0.03) reverseBlend = 0;
+        direction.x = nx;
+        direction.y = ny;
       }
+      reverseBlend += (1 - reverseBlend) * (1 - Math.exp(-dt / 0.13));
+      var moving = visible && step > 0.45;
+      var target = moving ? Math.min(1, (step - 0.45) / 1.6) : 0;
+      var tau = target > visibility ? FADE_IN : FADE_OUT;
+      visibility += (target - visibility) * (1 - Math.exp(-dt / tau));
+      if (visibility < 0.002) visibility = 0;
 
-      layer.style.visibility = "visible";
-      var state = { x: r.left, y: r.top, w: r.width, h: r.height };
-      var dx = previous ? state.x - previous.x : 0;
-      var dy = previous ? state.y - previous.y : 0;
-      var distance = Math.hypot(dx, dy);
-      previous = state;
-
-      // Never display parked history on the first scroll frame. Reset after
-      // stillness, and immediately on any genuine direction reversal.
-      if (distance < 0.45) {
-        idleFrames++;
-        if (idleFrames >= 3) resetTrail();
-      } else {
-        if (idleFrames >= 3) resetTrail();
-        idleFrames = 0;
-        var direction = { x: dx / distance, y: dy / distance };
-        if (travelDirection &&
-            direction.x * travelDirection.x + direction.y * travelDirection.y < 0.15) {
-          resetTrail();
-        }
-        travelDirection = direction;
+      layer.style.visibility = visible ? "visible" : "hidden";
+      if (visible) {
+        var pr = parent.getBoundingClientRect();
+        var sx = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
+        var sy = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
+        if (!isFinite(sx) || Math.abs(sx) < 0.001) sx = 1;
+        if (!isFinite(sy) || Math.abs(sy) < 0.001) sy = 1;
+        // Long, spaced silhouettes. Distance scales with current movement.
+        var gap = Math.min(MAX_GAP, GAP_BASE + Math.min(30, step) * GAP_SPEED);
+        ghosts.forEach(function(g, i) {
+          var depth = i + 1;
+          var tailX = pos.x - direction.x * gap * depth;
+          var tailY = pos.y - direction.y * gap * depth;
+          var alpha = 0.83 * Math.pow(1 - i / COUNT, 1.55) * visibility * reverseBlend;
+          g.style.opacity = alpha.toFixed(3);
+          g.style.width = (pos.w / Math.abs(sx)) + "px";
+          g.style.height = (pos.h / Math.abs(sy)) + "px";
+          g.style.transform = "translate3d(" + ((tailX - pr.left) / sx) +
+            "px," + ((tailY - pr.top) / sy) + "px,0)";
+        });
       }
-
-      var desired = distance > 0.45 ? Math.min(1, (distance - 0.45) / 2.0) : 0;
-      intensity += (desired - intensity) * (desired > intensity ? 0.5 : 0.25);
-      history.unshift(state);
-      if (history.length > MAX_HISTORY) history.pop();
-
-      // Convert viewport coordinates to local coordinates of the UFO's parent.
-      // This accounts for City CSS zoom / responsive scaling, while preserving
-      // the exact same stacking context as the UFO and neighboring objects.
-      var pr = parent.getBoundingClientRect();
-      var scaleX = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
-      var scaleY = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
-      if (!isFinite(scaleX) || Math.abs(scaleX) < 0.001) scaleX = 1;
-      if (!isFinite(scaleY) || Math.abs(scaleY) < 0.001) scaleY = 1;
-
-      ghosts.forEach(function(g, i) {
-        var past = history[(i + 1) * FRAME_GAP];
-        // Use THIS FRAME'S velocity, not a stale direction from previous scroll.
-        var behind = !!past && distance > 0.45 &&
-          ((state.x - past.x) * dx + (state.y - past.y) * dy > 1);
-        var alpha = behind
-          ? 0.88 * Math.pow(1 - i / COUNT, 1.45) * intensity
-          : 0;
-        g.style.opacity = alpha > 0.012 ? alpha.toFixed(3) : "0";
-        if (!behind) return;
-        g.style.width = (past.w / Math.abs(scaleX)) + "px";
-        g.style.height = (past.h / Math.abs(scaleY)) + "px";
-        g.style.transform = "translate3d(" +
-          ((past.x - pr.left) / scaleX) + "px," +
-          ((past.y - pr.top) / scaleY) + "px,0)";
-      });
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
