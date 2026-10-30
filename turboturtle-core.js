@@ -7580,26 +7580,24 @@ if (
         // ==================================================
 
         endTrigger:
-          (isSafari && section && city)
+          ((isSafari || window.matchMedia("(max-width: 767px)").matches) && section && city)
             ? section
             : home6TallPillar,
 
 
-        // Mobile: finish earlier so the UFO can switch on its light
-        // while the destination is still within the viewport.
-        // Desktop stays at the original 30%.
-        // Adjust 0.70 / 70% together if further tuning is needed.
-        end:
-          (isSafari && section && city)
-
-            ? safariStart(
-                home6TallPillar,
-                window.matchMedia("(max-width: 767px)").matches ? 0.70 : 0.30
-              )
-
-            : (window.matchMedia("(max-width: 767px)").matches
-                ? "top 70%"
-                : "top 30%"),
+        // MOBILE FIX: use the UFO's own FINAL Webflow position as the anchor.
+        // Its CSS zoomed City position is calculated from layout offsets,
+        // not its animated getBoundingClientRect() (which would move).
+        // At completion the UFO's final top sits at 65% of viewport height.
+        // Desktop keeps its existing tall-pillar timing unchanged.
+        end: function() {
+          if (window.matchMedia("(max-width: 767px)").matches && section && city) {
+            return safariStart(home6UFO, 0.65)();
+          }
+          return (isSafari && section && city)
+            ? safariStart(home6TallPillar, 0.30)()
+            : "top 30%";
+        },
 
 
         // ==================================================
@@ -7682,17 +7680,19 @@ if (
           cancelHome6LightDelay();
 
 
-          home6LightOnDelay =
-            gsap.delayedCall(
-              0.12,
-              function() {
-
-                home6LightOnDelay = null;
-
-                turnHome6LightsOn();
-
-              }
-            );
+          // Wait for the actual UFO transform to settle at y:0.
+          // A fixed 0.12s delay can turn lights on while scrub:0.35
+          // is still visibly moving the UFO.
+          function lightWhenUFOSettled() {
+            home6LightOnDelay = null;
+            if (this.progress < 0.999) return;
+            if (Math.abs(Number(gsap.getProperty(home6UFO, "y")) || 0) > 1) {
+              home6LightOnDelay = gsap.delayedCall(0.06, lightWhenUFOSettled.bind(this));
+              return;
+            }
+            turnHome6LightsOn();
+          }
+          home6LightOnDelay = gsap.delayedCall(0.12, lightWhenUFOSettled.bind(this));
 
         },
 
