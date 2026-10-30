@@ -9621,6 +9621,179 @@ function initHomeResponsiveScale() {
 })();
 
 
+// ==========================================================
+// REUSABLE SLOWER-SCROLL PARALLAX
+// Add class: .moveslower2 (half the slowing effect of .moveslower1)
+// iOS Safari viewport-height safe
+// ==========================================================
+
+(function () {
+
+  var elements = gsap.utils.toArray(".moveslower2");
+
+  if (!elements.length) return;
+
+  // ========================================================
+  // EASY SETTINGS
+  // ========================================================
+
+  var MOVESLOWER2_SPEED_DESKTOP = 0.825;
+  var MOVESLOWER2_SPEED_MOBILE  = 0.85;
+
+  // Desktop: 0.825 (17.5% slower); Mobile: 0.85 (15% slower)
+  // 1.0 = normal page scroll speed
+  // 0.8 = 20% slower
+  // 0.825 = 35% slower
+  // 0.5 = half speed
+  // 0.3 = very slow
+
+  // ========================================================
+
+  var previousWidth =
+    document.documentElement.clientWidth;
+
+  var fixedViewportHeight =
+    document.documentElement.clientHeight;
+
+  var resizeTimer;
+
+  function getScroll() {
+    return (
+      lenis &&
+      typeof lenis.scroll === "number"
+    )
+      ? lenis.scroll
+      : (window.scrollY || 0);
+  }
+
+  function getSpeed() {
+    return isMobile
+      ? MOVESLOWER2_SPEED_MOBILE
+      : MOVESLOWER2_SPEED_DESKTOP;
+  }
+
+
+  elements.forEach(function (el) {
+
+    var startScroll = 0;
+
+    gsap.set(el, {
+      y: 0,
+      force3D: false
+    });
+
+    var setY = gsap.quickSetter(
+      el,
+      "y",
+      "px"
+    );
+
+
+    function update() {
+
+      var scroll = getScroll();
+
+      var distance = Math.max(
+        0,
+        scroll - startScroll
+      );
+
+      var y =
+        distance *
+        (1 - getSpeed());
+
+      setY(y);
+    }
+
+
+    function measure() {
+
+      // reset before measuring actual layout position
+      setY(0);
+
+      var scroll = getScroll();
+
+      var elementTop =
+        el.getBoundingClientRect().top +
+        scroll;
+
+      startScroll =
+        elementTop -
+        fixedViewportHeight;
+
+      update();
+    }
+
+
+    // Lenis scroll
+    if (lenis && lenis.on) {
+      lenis.on("scroll", update);
+    }
+
+    // Native scroll fallback
+    window.addEventListener(
+      "scroll",
+      update,
+      { passive: true }
+    );
+
+
+    // Initial measure
+    requestAnimationFrame(function () {
+      requestAnimationFrame(measure);
+    });
+
+
+    // Store measure function on element
+    el._moveslower2Measure = measure;
+
+  });
+
+
+  // ========================================================
+  // RESIZE
+  // Ignore iOS Safari height-only changes
+  // ========================================================
+
+  window.addEventListener("resize", function () {
+
+    var currentWidth =
+      document.documentElement.clientWidth;
+
+    // Ignore Safari browser bar viewport-height changes
+    if (
+      Math.abs(
+        currentWidth - previousWidth
+      ) < 20
+    ) {
+      return;
+    }
+
+    previousWidth = currentWidth;
+
+    clearTimeout(resizeTimer);
+
+    resizeTimer = setTimeout(function () {
+
+      fixedViewportHeight =
+        document.documentElement.clientHeight;
+
+      elements.forEach(function (el) {
+
+        if (el._moveslower2Measure) {
+          el._moveslower2Measure();
+        }
+
+      });
+
+    }, 200);
+
+  }, { passive: true });
+
+
+})();
+
+
 
 
   
