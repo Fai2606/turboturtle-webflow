@@ -3507,7 +3507,6 @@ var HOME2_FLOATCLOUD2_SPEED = -70;
 [
   { sel: ".home2_floatcloud1",       speed: HOME2_FLOATCLOUD1_SPEED },
   { sel: ".home2_floatcloud2",       speed: HOME2_FLOATCLOUD2_SPEED },
-  { sel: ".home2_building12_cloud",  speed: HOME2_FLOATCLOUD2_SPEED },
   { sel: ".home2_floatmount1_cloud", speed: HOME2_FLOATCLOUD1_SPEED * 0.5, driftX: -2 },
   { sel: ".floatmount_cloud",        speed: HOME2_FLOATCLOUD2_SPEED * 0.2, driftX: 3 }
 ].forEach(function(item) {
@@ -3605,6 +3604,31 @@ gsap.utils.toArray(".partybear").forEach(function(partyBear) {
   );
 });
 
+
+  // ==========================================================
+  // HOME 2 — BUILDING 12 CLOUD: INDEPENDENT GENTLE DRIFT
+  // ==========================================================
+  // Keep near the Building 12 animations, not the float-cloud group.
+  // Its own position controls when it starts and finishes.
+  gsap.utils.toArray(".home2_building12_cloud").forEach(function(buildingCloud) {
+    gsap.fromTo(buildingCloud,
+      { x: 0, y: 0 },
+      {
+        x: function() { return getRealViewportWidth() * 0.02; }, // right 2vw
+        y: function() { return -getRealViewportHeight() * 0.08; }, // up 8vh
+        ease: "none",
+        force3D: true,
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: buildingCloud,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true
+        }
+      }
+    );
+  });
 
   // ==========================================================
   // DEPTH PARALLAX
