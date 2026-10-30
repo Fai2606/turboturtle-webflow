@@ -3500,7 +3500,7 @@ start: function () {
 
 // Cloud travel distances increased by 1.3x (master-space travel units)
 var HOME2_FLOATCLOUD1_SPEED = -24;
-var HOME2_FLOATCLOUD2_SPEED = -50;
+var HOME2_FLOATCLOUD2_SPEED = -70;
 
 // Mountain clouds automatically travel HALF as far as their matching cloud.
 // Each element starts when its own top reaches the viewport bottom.
@@ -3540,7 +3540,7 @@ gsap.utils.toArray(".floatmount_bear_head").forEach(function(bearHead) {
   gsap.fromTo(bearHead,
     { rotation: 26 },
     {
-      rotation: -22,
+      rotation: -24,
       ease: "none",
       force3D: true,
       scrollTrigger: {
