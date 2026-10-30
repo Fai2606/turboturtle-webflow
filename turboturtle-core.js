@@ -7756,6 +7756,106 @@ if (
 
 
 
+  // ==========================================================
+  // HOME 6 UFO — YELLOW SILHOUETTE AFTERIMAGES (V4 FEEL)
+  // ==========================================================
+  // Visual-only: follows the ACTUAL rendered UFO position.
+  // Does not touch UFO ScrollTrigger, transforms or light timing.
+  // 5 ghosts, ~4-frame spacing; close = opaque, far = transparent.
+  // Uses CSS image mask (transparent WebP/PNG), not a yellow box.
+  (function initHome6UFOAfterimages() {
+    if (!home6UFO || home6UFO.dataset.ttAfterimageInstalled === "1") return;
+    var picture = home6UFO.matches("img") ? home6UFO : home6UFO.querySelector("img");
+    if (!picture) {
+      console.warn("[TT UFO afterimage] No IMG inside .home6_ufo; effect skipped.");
+      return;
+    }
+    home6UFO.dataset.ttAfterimageInstalled = "1";
+
+    var COUNT = 5;
+    var FRAME_GAP = 4;
+    var MAX_HISTORY = COUNT * FRAME_GAP + 8;
+    var YELLOW = "#ffe600";
+    var ghosts = [];
+    var history = [];
+    var previous = null;
+    var intensity = 0;
+    var source = "";
+
+    // Fixed overlay avoids the City CSS-zoom coordinate problem.
+    // Keep behind the main City/UFO; adjust zIndex only if necessary.
+    var layer = document.createElement("div");
+    layer.setAttribute("data-tt-home6-ufo-afterimages", "");
+    Object.assign(layer.style, {
+      position: "fixed", inset: "0", pointerEvents: "none",
+      overflow: "hidden", zIndex: "2", visibility: "hidden"
+    });
+    document.body.appendChild(layer);
+
+    for (var n = 0; n < COUNT; n++) {
+      var ghost = document.createElement("div");
+      Object.assign(ghost.style, {
+        position: "absolute", left: "0", top: "0", width: "1px", height: "1px",
+        backgroundColor: YELLOW, opacity: "0", pointerEvents: "none",
+        willChange: "transform, opacity", maskRepeat: "no-repeat",
+        webkitMaskRepeat: "no-repeat", maskSize: "100% 100%",
+        webkitMaskSize: "100% 100%", transformOrigin: "top left"
+      });
+      layer.appendChild(ghost);
+      ghosts.push(ghost);
+    }
+
+    function frame() {
+      var imgURL = picture.currentSrc || picture.src;
+      if (imgURL && imgURL !== source) {
+        source = imgURL;
+        var cssURL = 'url("' + imgURL.replace(/"/g, '%22') + '")';
+        ghosts.forEach(function(g) {
+          g.style.maskImage = cssURL;
+          g.style.webkitMaskImage = cssURL;
+        });
+      }
+
+      var r = picture.getBoundingClientRect();
+      var ufoStyle = getComputedStyle(home6UFO);
+      var visible = source && r.width > 0 && r.height > 0 &&
+        r.bottom > 0 && r.top < getRealViewportHeight() &&
+        r.right > 0 && r.left < getRealViewportWidth() &&
+        ufoStyle.visibility !== "hidden" && parseFloat(ufoStyle.opacity) > 0.05;
+
+      if (!visible) {
+        layer.style.visibility = "hidden";
+        history.length = 0;
+        previous = null;
+        intensity = 0;
+        requestAnimationFrame(frame);
+        return;
+      }
+      layer.style.visibility = "visible";
+      var state = { x: r.left, y: r.top, w: r.width, h: r.height };
+      var distance = previous ? Math.hypot(state.x - previous.x, state.y - previous.y) : 0;
+      previous = state;
+      // No static initial yellow ghost; fade out once movement stops.
+      var desired = Math.max(0, Math.min(1, (distance - 0.18) / 2.2));
+      intensity += (desired - intensity) * (desired > intensity ? 0.5 : 0.16);
+      history.unshift(state);
+      if (history.length > MAX_HISTORY) history.pop();
+
+      ghosts.forEach(function(g, i) {
+        var lag = (i + 1) * FRAME_GAP;
+        var past = history[lag];
+        var alpha = past ? (0.84 * Math.pow(1 - i / COUNT, 1.55) * intensity) : 0;
+        g.style.opacity = alpha > 0.012 ? alpha.toFixed(3) : "0";
+        if (!past) return;
+        g.style.width = past.w + "px";
+        g.style.height = past.h + "px";
+        g.style.transform = "translate3d(" + past.x + "px," + past.y + "px,0)";
+      });
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
   requestAnimationFrame(
     function() {
 
