@@ -3581,6 +3581,32 @@ gsap.utils.toArray(".floatmount_bear_group").forEach(function(bearGroup) {
 
 
 // ==========================================================
+// HOME 2 — FLOAT MOUNTAIN TURTLE: TINY BOUNCE (~3s INTERVAL)
+// ==========================================================
+// For a ~20px turtle: three small hops, like the Home 6 dinosaur.
+// Play only while the turtle is near the viewport.
+gsap.utils.toArray(".floatmount_turtle").forEach(function(turtle) {
+  var turtleBounce = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 2.25 })
+    .to(turtle, { y: -5, duration: 0.13, ease: "power3.out" })
+    .to(turtle, { y: 0, duration: 0.16, ease: "bounce.out" })
+    .to(turtle, { y: -3, duration: 0.11, ease: "power3.out" })
+    .to(turtle, { y: 0, duration: 0.13, ease: "bounce.out" })
+    .to(turtle, { y: -1.5, duration: 0.09, ease: "power3.out" })
+    .to(turtle, { y: 0, duration: 0.13, ease: "bounce.out" });
+
+  ScrollTrigger.create({
+    trigger: turtle,
+    start: "top bottom",
+    end: "bottom top",
+    onEnter: function() { turtleBounce.play(); },
+    onEnterBack: function() { turtleBounce.play(); },
+    onLeave: function() { turtleBounce.pause(); },
+    onLeaveBack: function() { turtleBounce.pause(); }
+  });
+});
+
+
+// ==========================================================
 // HOME 2 — PARTY BEAR: SCROLL ROTATION (+18° TO -12°)
 // ==========================================================
 // Independent ScrollTrigger, grouped with the float-cloud effects.
