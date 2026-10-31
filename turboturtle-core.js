@@ -7773,7 +7773,7 @@ if (
     var COUNT = 8;
     var DELAY_MS = 35;
     var PALETTE = ["#f0ff00", "#d57cff", "#6dabff"];
-    var PALETTE_STEP_MS = 20;
+    var PALETTE_STEP_MS = 80;
     var COLOR_EASING = true; // false = instant color switch; true = smooth transition
     var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
     var CLONE_HUE_OFFSET_STEPS = 0;
