@@ -7785,8 +7785,8 @@ if (
       return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
-    var PALETTE_STEP_MS = 80;       // UFO clones: ms per color step
-    var RAINBOW_STEP_MS = 40;       // rainbowlight SVG: ms per color step
+    var PALETTE_STEP_MS = 90;       // UFO clones: ms per color step
+    var RAINBOW_STEP_MS = 20;       // rainbowlight SVG: ms per color step
     // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
     // White SVG: first tint it mint with CSS filters, then animate hue rotation.
     var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
