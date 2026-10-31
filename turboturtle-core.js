@@ -7771,10 +7771,22 @@ if (
     // V15: single source of truth is the UFO's actual GSAP Y.
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 7;
-    var DELAY_MS = 30;
-    var MAX_TRAIL_DISTANCE_PX = 135; // cap total visual tail length (local CSS px)
+    var DELAY_MS = 35; // slightly longer trail
+    var MAX_TRAIL_DISTANCE_PX = 190; // cap total visual tail length (local CSS px)
     var START_AFTER_PX = 0.5; // show trail immediately after UFO begins moving
-    var PALETTE = ["#f0ff00", "#d79eff", "#6861ff"];
+    // Same pastel hue-rotation family as the draggable .circle_text (#afe7da).
+    // 12 evenly spaced hues, with its original saturation and brightness.
+    function circleTextHueColor(hue) {
+      var r=175/255, g=231/255, b=218/255;
+      var hi=Math.max(r,g,b), lo=Math.min(r,g,b), d=hi-lo;
+      var h0=((b-r)/d+2)*60;
+      var h=((h0+hue)%360+360)%360;
+      var c=d, x=c*(1-Math.abs((h/60)%2-1)), m=lo;
+      var rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+              h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return '#' + rgb.map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0');}).join('');
+    }
+    var PALETTE = Array.from({length:12},function(_,i){return circleTextHueColor(i*30);});
     var PALETTE_STEP_MS = 80;
     var COLOR_EASING = false; // false = instant color switch; true = smooth transition
     var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
