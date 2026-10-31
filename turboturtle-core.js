@@ -7785,8 +7785,16 @@ if (
       return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
-    var PALETTE_STEP_MS = 90;       // UFO clones: ms per color step
-    var RAINBOW_STEP_MS = 20;       // rainbowlight SVG: ms per color step
+    // ==========================================================
+    // HOME6 — INDEPENDENT COLOR CYCLE SPEEDS (SECONDS)
+    // Change ONLY these two numbers. Smaller = faster.
+    // A full cycle passes through all 12 palette hues.
+    // ==========================================================
+    var UFO_TRAIL_CYCLE_SECONDS = 1.08;  // UFO moving trail: 360-degree cycle
+    var UFO_LIGHT_CYCLE_SECONDS = 0.24; // UFO rainbowlight: 360-degree cycle
+
+    var PALETTE_STEP_MS = Math.max(1, UFO_TRAIL_CYCLE_SECONDS * 1000 / 12);
+    var RAINBOW_STEP_MS = Math.max(1, UFO_LIGHT_CYCLE_SECONDS * 1000 / 12);
     // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
     // White SVG: first tint it mint with CSS filters, then animate hue rotation.
     var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
