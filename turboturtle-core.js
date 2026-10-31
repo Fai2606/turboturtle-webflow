@@ -7757,7 +7757,7 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — SIX DELAYED CLONES (V9 HUE CYCLE + RETURN EXIT)
+  // HOME 6 UFO — SIX DELAYED CLONES (V10 TRUE-PATH EXIT + ARCADE HUE)
   // ==========================================================
   // Each clone samples the REAL on-screen UFO path at a fixed time delay.
   // No velocity projection, no directional repositioning, no flying ghosts.
@@ -7773,9 +7773,9 @@ if (
     var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
     var COLOR = "#DFFF00";   // lime yellow base; hue rotates continuously
     var FADE_IN_MS = 95;
-    var FADE_OUT_MS = 420; // smooth fade while all clones return to the dock
-    var HUE_CYCLE_MS = 14000; // 360 degrees in 14 seconds (set 0 to disable)
-    var EXIT_RETURN_MS = 430; // return-to-start duration
+    var FADE_OUT_MS = 500; // smooth fade while all clones return to the dock
+    var HUE_CYCLE_MS = 800; // 360 degrees in 14 seconds (set 0 to disable)
+    var EXIT_HOLD_MS = COUNT * DELAY_MS + 80; // allow delayed ghosts to reach UFO's hidden starting position
     var MOVE_THRESHOLD = 0.45; // screen px/frame, suppress stationary ghosts
     // ---------------------------------------------------------
 
@@ -7791,7 +7791,7 @@ if (
     home6UFO.style.zIndex = String(baseZ + 1);
 
     var layer = document.createElement("div");
-    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v9");
+    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v10");
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
       overflow: "visible", pointerEvents: "none", zIndex: "-100",
@@ -7820,7 +7820,7 @@ if (
     var strength = 0;
     var maskSource = "";
     var wasVisible = false;
-    var exitStart = 0, exitFrom = null, exitTo = null;
+    var exitStart = 0;
 
     function sampleAt(time) {
       if (!history.length) return null;
@@ -7882,26 +7882,14 @@ if (
       }
       if (!visible && wasVisible) {
         exitStart = now;
-        exitFrom = history.length ? history[history.length - 1] : p;
-        // The dock is the current DOM position after the UFO's hide/reset.
-        // If it is unchanged, the clones converge to the last UFO location.
-        exitTo = { x: p.x, y: p.y, w: p.w, h: p.h };
       }
       wasVisible = visible;
 
-      if (visible) {
-        history.push(p);
-      } else if (exitStart && exitFrom && exitTo && strength > 0.001) {
-        var exitProgress = Math.min(1, (now - exitStart) / EXIT_RETURN_MS);
-        var ease = 1 - Math.pow(1 - exitProgress, 3);
-        history.push({
-          t: now,
-          x: exitFrom.x + (exitTo.x - exitFrom.x) * ease,
-          y: exitFrom.y + (exitTo.y - exitFrom.y) * ease,
-          w: exitFrom.w + (exitTo.w - exitFrom.w) * ease,
-          h: exitFrom.h + (exitTo.h - exitFrom.h) * ease
-        });
-      }
+      // Keep sampling the ACTUAL UFO transform even after it becomes hidden.
+      // The GSAP scrub continues moving it to the initial position; the clones
+      // follow that same path with their original 35ms stagger.
+      // Never synthesize a separate return path.
+      if (visible || exitStart) history.push(p);
       while (history.length > 2 && history[1].t < now - COUNT * DELAY_MS - 100)
         history.shift();
 
@@ -7909,7 +7897,12 @@ if (
       if (visible) last = p;
       var moving = visible && (now - visibleSince > COUNT * DELAY_MS + 40) &&
         distance > MOVE_THRESHOLD;
-      var target = moving ? 1 : 0;
+      // Once the UFO hides, retain trail visibility while the delayed
+      // samples catch up, then fade the whole chain away smoothly.
+      var exiting = !visible && exitStart > 0;
+      var target = exiting
+        ? (now - exitStart < EXIT_HOLD_MS ? 1 : 0)
+        : (moving ? 1 : 0);
       var tau = target > strength ? FADE_IN_MS : FADE_OUT_MS;
       strength += (target - strength) * (1 - Math.exp(-dt / tau));
       if (strength < 0.001) {
@@ -7922,18 +7915,20 @@ if (
         }
       }
       layer.style.visibility = strength > 0.001 ? "visible" : "hidden";
-      // Hue shifts the whole set together, without changing its luminance/opacity.
-      layer.style.filter = HUE_CYCLE_MS > 0
-        ? "hue-rotate(" + ((now % HUE_CYCLE_MS) / HUE_CYCLE_MS * 360).toFixed(2) + "deg)"
-        : "none";
+      // Rapid arcade rainbow: each clone has its own phase, creating
+      // distinct coloured silhouettes rather than a uniform colour strip.
+      var hue = HUE_CYCLE_MS > 0 ? (now % HUE_CYCLE_MS) / HUE_CYCLE_MS * 360 : 0;
 
       if (strength && history.length) {
         ghosts.forEach(function(g, i) {
-          // Delayed clones continue sampling the generated RETURN path.
+          // Delayed clones sample the actual (possibly hidden) UFO path.
           var sample = sampleAt(now - (i + 1) * DELAY_MS);
           if (!sample) return;
           var alpha = 0.85 * Math.pow(1 - i / COUNT, 1.35) * strength;
           g.style.opacity = alpha.toFixed(3);
+          g.style.filter = HUE_CYCLE_MS > 0
+            ? "hue-rotate(" + ((hue + i * 60) % 360).toFixed(1) + "deg) saturate(1.65)"
+            : "none";
           g.style.width = sample.w + "px";
           g.style.height = sample.h + "px";
           g.style.transform = "translate3d(" + sample.x +
