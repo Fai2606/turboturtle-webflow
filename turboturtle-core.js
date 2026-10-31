@@ -7787,7 +7787,7 @@ if (
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
     var PALETTE_STEP_MS = 16;
     // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
-    // Works on an <img> SVG without editing its internal fills.
+    // White SVG: first tint it mint with CSS filters, then animate hue rotation.
     var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
       document.querySelector('.home6_light img');
     var lastRainbowHue = -1;
@@ -7896,7 +7896,7 @@ if (
         if (rainbowLight) {
           var rainbowHue = ((paletteStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
           if (rainbowHue !== lastRainbowHue) {
-            rainbowLight.style.filter = 'hue-rotate(' + rainbowHue + 'deg)';
+            rainbowLight.style.filter = 'brightness(0) saturate(100%) invert(89%) sepia(16%) saturate(395%) hue-rotate(105deg) brightness(99%) contrast(90%) hue-rotate(' + rainbowHue + 'deg)';
             lastRainbowHue = rainbowHue;
           }
         }
