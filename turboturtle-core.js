@@ -7772,12 +7772,12 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 8;
     var DELAY_MS = 35;
-    var PALETTE = ["#f0ff00", "#00d2ff", "#ff5cd7"];
+    var PALETTE = ["#f0ff00", "#00d2ff", "#ff825c"];
     var PALETTE_STEP_MS = 2;
     var CLONE_HUE_OFFSET_STEPS = 0;
-    var FADE_IN_MS = 95;
-    var FADE_OUT_MS = 150;
-    var MOVE_THRESHOLD = 0.45;
+    var FADE_IN_MS = 45;
+    var FADE_OUT_MS = 75;
+    var MOVE_THRESHOLD = 0.35;
     // Last 18% of the UFO's actual return path collapses the history gap.
     // At the exact start all clones coincide with the UFO and fade to zero.
     var START_COLLAPSE_FRACTION = 0.18;
