@@ -2126,133 +2126,10 @@ function ensureX() {
 
 
   // ============================================================
-  // TT UNIVERSAL RAINBOW ENGINE — SETTINGS (EDIT HERE)
-  // ============================================================
-  // ONE shared color selection for ALL effects (including future ones).
-  // METHOD "A": hue rotation starting from baseColor.
-  // METHOD "B": loop through ANY number of colors in palette.
-  // Each element ONLY controls its own speed and number of steps.
-  // speedMs = duration of ONE COMPLETE color cycle.
-  var TT_RAINBOW_SETTINGS = {
-    method: "A",                     // Change ONLY here: "A" or "B"
-    baseColor: "#afe7da",            // Method A: starting color for EVERY element
-    colors: [                       // Method B: shared palette for EVERY element
-      "#afe7da", "#ff7fb9", "#ffdb58", "#75aaff"
-    ],
-    elements: {
-      circleText: { speedMs: 8000, steps: 0 },
-      ufoTrail:   { speedMs: 1080, steps: 12 },
-      home6Light: { speedMs: 1080, steps: 12 }
-      // Future: myElement: { speedMs: 3000, steps: 0 }
-    }
-  };
-
-  function ttRainbowRGB(hex) {
-    var s=String(hex||"#afe7da").replace(/^#/,"").trim();
-    if (/^[0-9a-f]{3}$/i.test(s)) s=s.split("").map(function(c){return c+c;}).join("");
-    if (!/^[0-9a-f]{6}$/i.test(s)) s="afe7da";
-    return [parseInt(s.slice(0,2),16),parseInt(s.slice(2,4),16),parseInt(s.slice(4,6),16)];
-  }
-  function ttRainbowColor(config, timeMs, offset) {
-    config=config||TT_RAINBOW_SETTINGS.elements.circleText;
-    var duration=Math.max(1,Number(config.speedMs)||8000);
-    var cycle=(((timeMs||0)/duration+(offset||0))%1+1)%1;
-    var steps=Math.max(0,Math.floor(Number(config.steps)||0));
-    if(steps>0) cycle=Math.floor(cycle*steps)/steps;
-    var rgb;
-    if(String(TT_RAINBOW_SETTINGS.method||"A").toUpperCase()==="B") {
-      var colors=(TT_RAINBOW_SETTINGS.colors&&TT_RAINBOW_SETTINGS.colors.length?TT_RAINBOW_SETTINGS.colors:[TT_RAINBOW_SETTINGS.baseColor||"#afe7da"]);
-      if(colors.length===1) rgb=ttRainbowRGB(colors[0]);
-      else {
-        var pos=cycle*colors.length, i=Math.floor(pos), f=pos-i;
-        var a=ttRainbowRGB(colors[i%colors.length]);
-        var b=ttRainbowRGB(colors[(i+1)%colors.length]);
-        rgb=a.map(function(v,j){return Math.round(v+(b[j]-v)*f);});
-      }
-    } else {
-      var base=ttRainbowRGB(TT_RAINBOW_SETTINGS.baseColor||"#afe7da").map(function(v){return v/255;});
-      var hi=Math.max.apply(null,base),lo=Math.min.apply(null,base),d=hi-lo;
-      if(d<0.000001) rgb=base.map(function(v){return Math.round(v*255);});
-      else {
-        var h0=(hi===base[0]?((base[1]-base[2])/d+6)%6:
-                 hi===base[1]?(base[2]-base[0])/d+2:(base[0]-base[1])/d+4)*60;
-        var h=(h0+cycle*360)%360;
-        var x=d*(1-Math.abs((h/60)%2-1));
-        var v=h<60?[d,x,0]:h<120?[x,d,0]:h<180?[0,d,x]:
-              h<240?[0,x,d]:h<300?[x,0,d]:[d,0,x];
-        rgb=v.map(function(n){return Math.round((n+lo)*255);});
-      }
-    }
-    return "rgb("+rgb.join(",")+")";
-  }
-  var TT_RAINBOW = {
-    settings: TT_RAINBOW_SETTINGS,
-    color: function(name,timeMs,offset){return ttRainbowColor(TT_RAINBOW_SETTINGS.elements[name],timeMs,offset);},
-    // Register additional elements with a CSS selector and an entry under settings.elements.
-    // property: "backgroundColor" (default), "color", or "svgImage".
-    register: function(selector,settingsName,property) {
-      var nodes=document.querySelectorAll(selector);
-      Array.prototype.forEach.call(nodes,function(el){
-        if(el.dataset.ttRainbowGeneric==="1") return;
-        el.dataset.ttRainbowGeneric="1";
-        var start=performance.now(),last="";
-        function frame(now){
-          if(!el.isConnected) return;
-          var c=TT_RAINBOW.color(settingsName,now-start);
-          if(c!==last){
-            if(property==="svgImage") ttRainbowTintImage(el,c);
-            else el.style[property||"backgroundColor"]=c;
-            last=c;
-          }
-          requestAnimationFrame(frame);
-        }
-        requestAnimationFrame(frame);
-      });
-    }
-  };
-  root.TTRainbow = TT_RAINBOW; // Console: TTRainbow.settings, TTRainbow.register(...)
-
-  // Tint an external white SVG <img> to an EXACT RGB color while keeping
-  // its original alpha and shape (no SVG re-upload required).
-  var ttRainbowSvgFilterId=0;
-  function ttRainbowTintImage(img,color){
-    if(!img) return;
-    var match=color.match(/[\d.]+/g);
-    if(!match||match.length<3) return;
-    var id=img.dataset.ttRainbowFilterId;
-    var matrix;
-    if(!id){
-      id="tt-rainbow-filter-"+(++ttRainbowSvgFilterId);
-      var ns="http://www.w3.org/2000/svg";
-      var svg=document.createElementNS(ns,"svg");
-      svg.setAttribute("aria-hidden","true");
-      svg.setAttribute("width","0");svg.setAttribute("height","0");
-      svg.style.cssText="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-      var defs=document.createElementNS(ns,"defs");
-      var filter=document.createElementNS(ns,"filter");
-      filter.setAttribute("id",id);
-      filter.setAttribute("color-interpolation-filters","sRGB");
-      matrix=document.createElementNS(ns,"feColorMatrix");
-      matrix.setAttribute("type","matrix");
-      filter.appendChild(matrix);defs.appendChild(filter);svg.appendChild(defs);
-      document.body.appendChild(svg);
-      img.dataset.ttRainbowFilterId=id;
-      img._ttRainbowMatrix=matrix;
-      img.style.filter='url("#'+id+'")';
-    } else matrix=img._ttRainbowMatrix||document.getElementById(id).querySelector('feColorMatrix');
-    matrix.setAttribute("values",
-      "0 0 0 0 "+(+match[0]/255)+" 0 0 0 0 "+(+match[1]/255)+
-      " 0 0 0 0 "+(+match[2]/255)+" 0 0 0 1 0");
-  }
-
-  // FUTURE ELEMENT EXAMPLE (uncomment and create .my_rainbow_element):
-  // TT_RAINBOW.register(".my_rainbow_element", "extra", "backgroundColor");
-
-  // ============================================================
   // CIRCLE_TEXT — WEBFLOW COLOR AT HOME; CYCLING HUE WHEN RELEASED
   // Initial/docked: Webflow-selected background, no hue progression.
-  // Released: 0.1s transition to universal rainbow color;
-  //           then cycle at circleText.speedMs.
+  // Released: 0.1s transition to #afe7da with random hue rotation;
+  //           then 360 degrees per 8 seconds, continuously.
   // Returning: 0.1s transition back to Webflow's original color.
   // ============================================================
   (function initCircleTextScrollHue() {
@@ -2262,12 +2139,24 @@ function ensureX() {
     // Capture the Webflow color BEFORE applying any inline color.
     var webflowColor = getComputedStyle(ball).backgroundColor;
     var released = false;
+    var currentHue = 0;
     var lastTime = performance.now();
+    var RELEASED_CYCLE_MS = 8000;
     var COLOR_TRANSITION_S = 0.1;
     var colorTween = null;
-    var colorPhaseMs = 0;
-    function hsvColor(phaseMs) {
-      return TT_RAINBOW.color("circleText", phaseMs);
+    var hueTweenTarget = { hue: 0 };
+
+    function hsvColor(hue) {
+      // Hue-rotate the exact #afe7da base (RGB 175,231,218), preserving
+      // its original saturation and value rather than the Webflow color's.
+      var r = 175 / 255, g = 231 / 255, b = 218 / 255;
+      var hi = Math.max(r,g,b), lo = Math.min(r,g,b), d = hi-lo;
+      var h0 = ((b-r)/d + 2)*60; // #afe7da is green/cyan
+      var h = ((h0 + hue) % 360 + 360) % 360;
+      var c = d, x = c * (1-Math.abs((h/60)%2-1)), m = lo;
+      var rgb = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+                h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return 'rgb(' + rgb.map(function(v){return Math.round((v+m)*255);}).join(',') + ')';
     }
 
     function stopTween() {
@@ -2277,11 +2166,11 @@ function ensureX() {
     ball.ttColorStart = function () {
       stopTween();
       released = true;
-      colorPhaseMs = Math.random() * TT_RAINBOW_SETTINGS.elements.circleText.speedMs;
+      currentHue = Math.random() * 360;
       lastTime = performance.now();
       // Tween from the Webflow/docked color to the randomly shifted mint.
       colorTween = gsap.to(ball, {
-        backgroundColor: hsvColor(colorPhaseMs),
+        backgroundColor: hsvColor(currentHue),
         duration: COLOR_TRANSITION_S,
         ease: 'none',
         overwrite: 'auto',
@@ -2309,9 +2198,9 @@ function ensureX() {
       var dt = Math.min(Math.max(now - lastTime, 0), 100);
       lastTime = now;
       if (released) {
-        colorPhaseMs += dt;
+        currentHue = (currentHue + dt * 360 / RELEASED_CYCLE_MS) % 360;
         // Do not fight the 0.1s entrance transition.
-        if (!colorTween) ball.style.backgroundColor = hsvColor(colorPhaseMs);
+        if (!colorTween) ball.style.backgroundColor = hsvColor(currentHue);
       }
       requestAnimationFrame(tick);
     }
@@ -7883,11 +7772,27 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 35;
-    // Colors are now provided by TT UNIVERSAL RAINBOW ENGINE above.
+    // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
+    // Only the palette changes; clone movement, spacing and fade stay untouched.
+    function circleTextTrailColor(hue) {
+      var r=175/255, g=231/255, b=218/255;
+      var hi=Math.max(r,g,b), lo=Math.min(r,g,b), d=hi-lo;
+      var h0=((b-r)/d+2)*60;
+      var h=((h0+hue)%360+360)%360;
+      var c=d, x=c*(1-Math.abs((h/60)%2-1)), m=lo;
+      var rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+              h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
+    }
+    var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
+    var PALETTE_STEP_MS = 90;       // UFO clones: ms per color step
+    var RAINBOW_STEP_MS = 20;       // rainbowlight SVG: ms per color step
+    // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
+    // White SVG: first tint it mint with CSS filters, then animate hue rotation.
     var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
       document.querySelector('.home6_light img');
-    var lastRainbowColor = "";
-    var lastTrailColor = "";
+    var lastRainbowHue = -1;
+    var RAINBOW_LIGHT_HUE_OFFSET = 0; // degrees; adjust if source SVG hue differs
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 150;
@@ -7918,7 +7823,7 @@ if (
       var ghost = document.createElement("div");
       Object.assign(ghost.style, {
         position: "absolute", left: "0", top: "0", width: "1px", height: "1px",
-        backgroundColor: TT_RAINBOW.color("ufoTrail",0), opacity: "0", pointerEvents: "none",
+        backgroundColor: PALETTE[0], opacity: "0", pointerEvents: "none",
         maskRepeat: "no-repeat", webkitMaskRepeat: "no-repeat",
         maskSize: "100% 100%", webkitMaskSize: "100% 100%",
         transformOrigin: "top left", willChange: "transform,opacity"
@@ -7986,21 +7891,21 @@ if (
         r.right>0 && r.left<getRealViewportWidth();
       var active = inView && style.visibility!=="hidden" && progress>0.0001;
 
-      // All components share the SAME method and colors, with independent speeds.
-      var lightColor = TT_RAINBOW.color("home6Light", now);
-      if (rainbowLight && lightColor !== lastRainbowColor) {
-        ttRainbowTintImage(rainbowLight, lightColor);
-        lastRainbowColor = lightColor;
+      var paletteStep = Math.floor(now/PALETTE_STEP_MS);
+      if (rainbowLight) {
+        var rainbowStep = Math.floor(now/RAINBOW_STEP_MS);
+        var rainbowHue = ((rainbowStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
+        if (rainbowHue !== lastRainbowHue) {
+          rainbowLight.style.filter = 'brightness(0) saturate(100%) invert(89%) sepia(16%) saturate(395%) hue-rotate(105deg) brightness(99%) contrast(90%) hue-rotate(' + rainbowHue + 'deg)';
+          lastRainbowHue = rainbowHue;
+        }
       }
-      var trailColor = TT_RAINBOW.color("ufoTrail", now);
-      if (trailColor !== lastTrailColor || CLONE_HUE_OFFSET_STEPS !== 0) {
+      if (paletteStep !== lastPaletteStep) {
+        lastPaletteStep = paletteStep;
         ghosts.forEach(function(g,i) {
-          g.style.backgroundColor = CLONE_HUE_OFFSET_STEPS === 0
-            ? trailColor
-            : TT_RAINBOW.color("ufoTrail",now,
-                i * CLONE_HUE_OFFSET_STEPS / Math.max(1,TT_RAINBOW_SETTINGS.elements.ufoTrail.steps||12));
+          g.style.backgroundColor =
+            PALETTE[(paletteStep+i*CLONE_HUE_OFFSET_STEPS)%PALETTE.length];
         });
-        lastTrailColor = trailColor;
       }
 
       if (!active) {
