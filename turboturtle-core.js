@@ -7772,7 +7772,19 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 35;
-    var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
+    // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
+    // Only the palette changes; clone movement, spacing and fade stay untouched.
+    function circleTextTrailColor(hue) {
+      var r=175/255, g=231/255, b=218/255;
+      var hi=Math.max(r,g,b), lo=Math.min(r,g,b), d=hi-lo;
+      var h0=((b-r)/d+2)*60;
+      var h=((h0+hue)%360+360)%360;
+      var c=d, x=c*(1-Math.abs((h/60)%2-1)), m=lo;
+      var rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+              h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
+    }
+    var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
     var PALETTE_STEP_MS = 16;
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
