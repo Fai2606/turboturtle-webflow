@@ -7772,7 +7772,7 @@ if (
     var COUNT = 6;
     var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
     var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
-    var PALETTE_STEP_MS = 16; // instant changes; no interpolation
+    var PALETTE_STEP_MS = 8; // instant changes; no interpolation
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 240;
