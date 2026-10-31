@@ -7739,7 +7739,7 @@ if (
         gsap.set(
           home6UFO,
           {
-            visibility: "hidden",
+            visibility: "visible", // remain measurable for trailing clones after fading
             opacity: 0,
             filter: "blur(5px)"
           }
@@ -7757,183 +7757,175 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — V12 / SIX LOCAL-SPACE CLONES + FAST ARCADE PALETTE + RETURN
+  // HOME 6 UFO — SIX DELAYED SILHOUETTE CLONES (V6 LOCAL-SPACE FIX)
   // ==========================================================
-  (function initHome6UFOClonesV12() {
+  // Each clone samples the REAL on-screen UFO path at a fixed time delay.
+  // No velocity projection, no directional repositioning, no flying ghosts.
+  // Clones start coincident with UFO and become visible only in motion.
+  (function initHome6UFODelayedClones() {
     if (!home6UFO || home6UFO.dataset.ttAfterimageInstalled === "1") return;
     var picture = home6UFO.matches("img") ? home6UFO : home6UFO.querySelector("img");
     if (!picture || !home6UFO.parentElement) return;
     home6UFO.dataset.ttAfterimageInstalled = "1";
 
-    // SETTINGS
+    // ------------------- EDITABLE SETTINGS -------------------
     var COUNT = 6;
-    var DELAY_MS = 35;
-    var RETURN_MS = 310;       // clones finish travelling to actual UFO hidden Y
-    var FADE_IN_MS = 85;
-    var FADE_OUT_MS = 290;
-    var PALETTE_STEP_MS = 20; // HARD jump: ~24 palette changes / second
-    var MOVE_THRESHOLD = 0.45;
-    // NES/Famicom-like discrete palette values (common emulator RGB approximation).
-    // Not an exact analogue NTSC capture; no HSL interpolation or CSS hue rotation.
-    var NES_COLORS = [
-      "#F878F8", "#A878F8", "#6888FC", "#3CBCFC",
-      "#58D8F8", "#00E8D8", "#58F898", "#B8F818",
-      "#F878F8", "#D858F8", "#6888FC", "#00E8D8"
-    ];
+    var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
+    var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
+    var PALETTE_STEP_MS = 16; // instant changes; no interpolation
+    var CLONE_HUE_OFFSET_STEPS = 0;
+    var FADE_IN_MS = 95;
+    var FADE_OUT_MS = 240;
+    var MOVE_THRESHOLD = 0.45; // screen px/frame, suppress stationary ghosts
+    // ---------------------------------------------------------
 
     var parent = home6UFO.parentElement;
     if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
-    var oldZ = parseInt(getComputedStyle(home6UFO).zIndex, 10);
-    if (!isFinite(oldZ)) oldZ = 1;
+
+    // Keep both UFO and clones in their EXISTING parent stacking context.
+    // Experimental stacking: clone layer z-index -100, UFO remains above.
+    var originalZ = getComputedStyle(home6UFO).zIndex;
+    var baseZ = originalZ !== "auto" && isFinite(parseInt(originalZ, 10))
+      ? parseInt(originalZ, 10) : 1;
     if (getComputedStyle(home6UFO).position === "static") home6UFO.style.position = "relative";
-    home6UFO.style.zIndex = String(oldZ + 1);
+    home6UFO.style.zIndex = String(baseZ + 1);
 
     var layer = document.createElement("div");
-    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v12");
+    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v13");
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
-      overflow: "visible", pointerEvents: "none", zIndex: "-100", visibility: "hidden"
+      overflow: "visible", pointerEvents: "none", zIndex: "-100",
+      visibility: "hidden"
     });
     parent.insertBefore(layer, home6UFO);
+
     var ghosts = [];
     for (var i = 0; i < COUNT; i++) {
-      var g = document.createElement("div");
-      Object.assign(g.style, {
+      var ghost = document.createElement("div");
+      Object.assign(ghost.style, {
         position: "absolute", left: "0", top: "0", width: "1px", height: "1px",
-        backgroundColor: NES_COLORS[i], opacity: "0", pointerEvents: "none",
+        backgroundColor: PALETTE[0], opacity: "0", pointerEvents: "none",
         maskRepeat: "no-repeat", webkitMaskRepeat: "no-repeat",
         maskSize: "100% 100%", webkitMaskSize: "100% 100%",
         transformOrigin: "top left", willChange: "transform,opacity"
       });
-      layer.appendChild(g);
-      ghosts.push(g);
+      layer.appendChild(ghost);
+      ghosts.push(ghost);
     }
 
-    var history = [], last = null, lastTime = 0, strength = 0;
-    var wasVisible = false, visibleSince = 0, maskSource = "";
-    var returning = false, returnStart = 0, returnFrom = null, returnTo = null;
-    var returnGhosts = [];
-    var lastPaletteTick = -1;
+    var history = [];
+    var last = null;
+    var visibleSince = 0;
+    var lastTime = 0;
+    var strength = 0;
+    var maskSource = "";
+    var lastPaletteStep = -1;
+    var hasBeenActive = false;
 
     function sampleAt(time) {
       if (!history.length) return null;
       if (time <= history[0].t) return history[0];
-      var lastSample = history[history.length - 1];
-      if (time >= lastSample.t) return lastSample;
+      var end = history[history.length - 1];
+      if (time >= end.t) return end;
       for (var j = history.length - 1; j > 0; j--) {
-        var a = history[j-1], b = history[j];
+        var a = history[j - 1], b = history[j];
         if (a.t <= time) {
-          var f = (time-a.t) / Math.max(1,b.t-a.t);
-          return {x:a.x+(b.x-a.x)*f, y:a.y+(b.y-a.y)*f,
-                  w:a.w+(b.w-a.w)*f, h:a.h+(b.h-a.h)*f};
+          var f = (time - a.t) / Math.max(1, b.t - a.t);
+          return { x: a.x + (b.x - a.x) * f,
+                   y: a.y + (b.y - a.y) * f,
+                   w: a.w + (b.w - a.w) * f,
+                   h: a.h + (b.h - a.h) * f };
         }
       }
       return history[0];
     }
-    function localPosition() {
-      var r = picture.getBoundingClientRect();
-      var pr = parent.getBoundingClientRect();
-      var sx = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
-      var sy = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
-      if (!isFinite(sx) || Math.abs(sx) < .001) sx = 1;
-      if (!isFinite(sy) || Math.abs(sy) < .001) sy = 1;
-      return {x:(r.left-pr.left)/sx, y:(r.top-pr.top)/sy,
-              w:r.width/Math.abs(sx), h:r.height/Math.abs(sy), r:r};
-    }
-    function startReturn(now, p) {
-      returning = true;
-      returnStart = now;
-      // The hidden dock is the original UFO's real GSAP endpoint.
-      // Clone coordinates are parent-local; GSAP y uses the same local units.
-      var currentY = Number(gsap.getProperty(home6UFO, "y")) || 0;
-      var dockY = getHome6UFOHiddenY();
-      returnTo = {x:p.x, y:p.y + dockY - currentY, w:p.w, h:p.h};
-      // Snapshot EACH clone's own delayed position. Moving all clones from
-      // one common point was why the tail appeared to freeze or scatter.
-      returnGhosts = ghosts.map(function(g, i) {
-        var sample = sampleAt(now - (i + 1) * DELAY_MS) || p;
-        return {x:sample.x, y:sample.y, w:sample.w, h:sample.h};
-      });
-      history.length = 0;
-    }
+
     function frame(now) {
-      var dt = lastTime ? Math.min(50,now-lastTime) : 16.7;
+      var dt = lastTime ? Math.min(50, now - lastTime) : 16.7;
       lastTime = now;
       var url = picture.currentSrc || picture.src;
       if (url && url !== maskSource) {
         maskSource = url;
-        var mask = 'url("' + url.replace(/"/g,"%22") + '")';
-        ghosts.forEach(function(g) {g.style.maskImage=mask;g.style.webkitMaskImage=mask;});
-      }
-      var p = localPosition();
-      var st = getComputedStyle(home6UFO);
-      var visible = !!maskSource && p.w>0 && p.h>0 &&
-        p.r.bottom>0 && p.r.top<getRealViewportHeight() &&
-        p.r.right>0 && p.r.left<getRealViewportWidth() &&
-        st.visibility!=="hidden" && parseFloat(st.opacity)>.05;
-
-      if (visible && !wasVisible) {
-        history.length=0;last=null;visibleSince=now;strength=0;
-        returning=false;returnFrom=null;returnTo=null;returnGhosts=[];
-      }
-      // Explicit return target from the EXISTING UFO GSAP target Y.
-      // No reliance on invisible element continuing to animate.
-      if (!visible && wasVisible) startReturn(now,p);
-      wasVisible=visible;
-
-      if (visible) {
-        history.push({t:now,x:p.x,y:p.y,w:p.w,h:p.h});
-        while (history.length>2 && history[1].t<now-COUNT*DELAY_MS-120) history.shift();
-      }
-
-      var distance = visible && last ? Math.hypot(p.x-last.x,p.y-last.y) : 0;
-      if (visible) last=p;
-      var moving = visible && now-visibleSince>COUNT*DELAY_MS+40 && distance>MOVE_THRESHOLD;
-      // Keep clones visible while travelling back to the actual dock.
-      // Fade starts near the end of the journey and finishes after arrival.
-      var returningTime = returning ? now-returnStart : 0;
-      var target = returning ? (returningTime<RETURN_MS*.45 ? 1 : 0) : (moving?1:0);
-      var tau=target>strength?FADE_IN_MS:FADE_OUT_MS;
-      strength+=(target-strength)*(1-Math.exp(-dt/tau));
-      if (returning && returningTime>RETURN_MS+COUNT*DELAY_MS+FADE_OUT_MS*3 && strength<.05) {
-        returning=false;history.length=0;last=null;strength=0;returnGhosts=[];
-      }
-      layer.style.visibility=strength>.001?"visible":"hidden";
-
-      // Authentic discrete palette cycling: hard RGB changes, no easing.
-      var tick=Math.floor(now/PALETTE_STEP_MS);
-      if (tick!==lastPaletteTick) {
-        lastPaletteTick=tick;
-        ghosts.forEach(function(g,i){
-          g.style.backgroundColor=NES_COLORS[(tick+i*2)%NES_COLORS.length];
+        var mask = 'url("' + url.replace(/"/g, "%22") + '")';
+        ghosts.forEach(function(g) {
+          g.style.maskImage = mask;
+          g.style.webkitMaskImage = mask;
         });
       }
-      if (strength > .001 && (history.length || returning)) {
-        ghosts.forEach(function(g,i){
-          var sample;
-          if (returning && returnTo && returnGhosts[i]) {
-            // Every clone travels toward ONE explicit dock position.
-            // Slightly staggered arrivals preserve the tail's ordering.
-            var duration = RETURN_MS + i * 18;
-            var t = Math.min(1, (now-returnStart) / duration);
-            var f = t*t*(3-2*t); // smooth arrival; no overshoot
-            var from = returnGhosts[i];
-            sample = {x:from.x+(returnTo.x-from.x)*f,
-                      y:from.y+(returnTo.y-from.y)*f,
-                      w:from.w+(returnTo.w-from.w)*f,
-                      h:from.h+(returnTo.h-from.h)*f};
-          } else {
-            sample=sampleAt(now-(i+1)*DELAY_MS);
-          }
+
+      var r = picture.getBoundingClientRect();
+      var style = getComputedStyle(home6UFO);
+      var visible = !!maskSource && r.width > 0 && r.height > 0 &&
+        r.bottom > 0 && r.top < getRealViewportHeight() &&
+        r.right > 0 && r.left < getRealViewportWidth() &&
+        style.visibility !== "hidden"; // opacity=0 must NOT stop tracking during return
+      // CRITICAL: record positions in the SAME local coordinate system as
+      // the clone layer. Screen-space history + a moving/zoomed parent
+      // caused old samples to jump ahead when scrolling or reversing.
+      var pr = parent.getBoundingClientRect();
+      var sx = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
+      var sy = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
+      if (!isFinite(sx) || Math.abs(sx) < 0.001) sx = 1;
+      if (!isFinite(sy) || Math.abs(sy) < 0.001) sy = 1;
+      var p = { t: now, x: (r.left - pr.left) / sx,
+        y: (r.top - pr.top) / sy,
+        w: r.width / Math.abs(sx), h: r.height / Math.abs(sy) };
+
+      // Preserve tracking after the UFO becomes transparent onLeaveBack.
+      // Initial hidden state still blocks the trail until UFO first appears.
+      if (parseFloat(style.opacity) > 0.05) hasBeenActive = true;
+      if (!hasBeenActive) visible = false;
+
+      var paletteStep = Math.floor(now / PALETTE_STEP_MS);
+      if (paletteStep !== lastPaletteStep) {
+        lastPaletteStep = paletteStep;
+        ghosts.forEach(function(g, i) {
+          g.style.backgroundColor = PALETTE[(paletteStep + i * CLONE_HUE_OFFSET_STEPS) % PALETTE.length];
+        });
+      }
+
+      // When offscreen, restart with a clean coincident history upon re-entry.
+      if (!visible) {
+        if (style.visibility === "hidden") hasBeenActive = false;
+        history.length = 0;
+        last = null;
+        visibleSince = 0;
+        strength = 0;
+        layer.style.visibility = "hidden";
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      if (!visibleSince) visibleSince = now;
+      // Always append the actual LOCAL position, including rapid reversals.
+      // A clone follows the same path at t-50ms, t-100ms ... t-300ms.
+      history.push(p);
+      while (history.length > 2 && history[1].t < now - COUNT * DELAY_MS - 80)
+        history.shift();
+
+      var distance = last ? Math.hypot(p.x - last.x, p.y - last.y) : 0;
+      last = p;
+      // Warm-up prevents a first-frame visibility/layout snap from
+      // displaying as a long trail. All six clones start coincident.
+      var moving = (now - visibleSince > COUNT * DELAY_MS + 40) &&
+        distance > MOVE_THRESHOLD;
+      var target = moving ? 1 : 0;
+      var tau = target > strength ? FADE_IN_MS : FADE_OUT_MS;
+      strength += (target - strength) * (1 - Math.exp(-dt / tau));
+      if (strength < 0.001) strength = 0;
+      layer.style.visibility = strength > 0.001 ? "visible" : "hidden";
+
+      if (strength) {
+        ghosts.forEach(function(g, i) {
+          var sample = sampleAt(now - (i + 1) * DELAY_MS);
           if (!sample) return;
-          var alpha=.85*Math.pow(1-i/COUNT,1.35)*strength;
-          g.style.opacity=alpha.toFixed(3);
-          g.style.width=sample.w+"px";
-          g.style.height=sample.h+"px";
-          g.style.transform="translate3d("+sample.x+"px,"+sample.y+"px,0)";
+          var alpha = 0.85 * Math.pow(1 - i / COUNT, 1.35) * strength;
+          g.style.opacity = alpha.toFixed(3);
+          g.style.width = sample.w + "px";
+          g.style.height = sample.h + "px";
+          g.style.transform = "translate3d(" + sample.x +
+            "px," + sample.y + "px,0)";
         });
-      } else if (!returning) {
-        ghosts.forEach(function(g){g.style.opacity="0";});
       }
       requestAnimationFrame(frame);
     }
