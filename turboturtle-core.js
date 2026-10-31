@@ -7709,6 +7709,7 @@ if (
 
         onEnterBack: function() {
 
+          home6UFO.dataset.ttAtStart = "0";
           cancelHome6LightDelay();
 
           turnHome6LightsOff();
@@ -7731,6 +7732,9 @@ if (
 
         onLeaveBack: function() {
 
+          // Signal that the UFO has reached the ScrollTrigger starting boundary.
+          // Clones now converge on the actual GSAP start Y, not an invented path.
+          home6UFO.dataset.ttAtStart = "1";
           cancelHome6LightDelay();
 
           turnHome6LightsOff();
@@ -7772,7 +7776,7 @@ if (
     var COUNT = 6;
     var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
     var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
-    var PALETTE_STEP_MS = 8; // instant changes; no interpolation
+    var PALETTE_STEP_MS = 16; // instant changes; no interpolation
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 240;
@@ -7821,6 +7825,11 @@ if (
     var maskSource = "";
     var lastPaletteStep = -1;
     var hasBeenActive = false;
+    var returningToStart = false;
+    var returnBegin = 0;
+    var returnFrom = [];
+    var returnTarget = null;
+    var RETURN_MS = 110; // fast convergence after crossing the start boundary
 
     function sampleAt(time) {
       if (!history.length) return null;
@@ -7876,12 +7885,67 @@ if (
       if (parseFloat(style.opacity) > 0.05) hasBeenActive = true;
       if (!hasBeenActive) visible = false;
 
+      // ScrollTrigger's onLeaveBack identifies the actual start boundary.
+      // Use the UFO's own GSAP starting Y in the SAME local coordinates
+      // as the V7 history; never rely on an invisible element's screen position.
+      var atStart = home6UFO.dataset.ttAtStart === "1";
+      if (atStart && !returningToStart && hasBeenActive) {
+        returningToStart = true;
+        returnBegin = now;
+        var startY = getHome6UFOHiddenY();
+        var currentY = Number(gsap.getProperty(home6UFO, "y")) || 0;
+        returnTarget = {
+          x: p.x,
+          y: p.y + (startY - currentY),
+          w: p.w, h: p.h
+        };
+        returnFrom = ghosts.map(function(g, i) {
+          return sampleAt(now - (i + 1) * DELAY_MS) || p;
+        });
+      }
+      if (!atStart && returningToStart) {
+        returningToStart = false;
+        returnFrom = [];
+        returnTarget = null;
+        history.length = 0;
+        last = null;
+        visibleSince = 0;
+        strength = 0;
+      }
+
       var paletteStep = Math.floor(now / PALETTE_STEP_MS);
       if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
         ghosts.forEach(function(g, i) {
           g.style.backgroundColor = PALETTE[(paletteStep + i * CLONE_HUE_OFFSET_STEPS) % PALETTE.length];
         });
+      }
+
+      // Boundary return: all six clones converge to the UFO's REAL start
+      // target and fade together, rather than replaying 210ms of old history.
+      if (returningToStart && returnTarget) {
+        var f = Math.min(1, (now - returnBegin) / RETURN_MS);
+        var e = 1 - Math.pow(1 - f, 3);
+        layer.style.visibility = f < 1 ? "visible" : "hidden";
+        ghosts.forEach(function(g, i) {
+          var a = returnFrom[i] || p;
+          g.style.width = (a.w + (returnTarget.w - a.w) * e) + "px";
+          g.style.height = (a.h + (returnTarget.h - a.h) * e) + "px";
+          g.style.transform = "translate3d(" +
+            (a.x + (returnTarget.x - a.x) * e) + "px," +
+            (a.y + (returnTarget.y - a.y) * e) + "px,0)";
+          g.style.opacity = (0.85 * Math.pow(1 - i / COUNT, 1.35) *
+            strength * (1 - f)).toFixed(3);
+        });
+        if (f >= 1) {
+          strength = 0;
+          history.length = 0;
+          last = null;
+          visibleSince = 0;
+          hasBeenActive = false;
+        }
+        requestAnimationFrame(frame);
+        return;
       }
 
       // When offscreen, restart with a clean coincident history upon re-entry.
