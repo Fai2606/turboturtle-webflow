@@ -7772,8 +7772,8 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 35;
-    var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
-    var PALETTE_STEP_MS = 16;
+    var PALETTE = ["#efff5b", "#efff5b"];
+    var PALETTE_STEP_MS = 8;
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 150;
