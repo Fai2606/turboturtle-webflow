@@ -7786,7 +7786,7 @@ if (
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
     var PALETTE_STEP_MS = 90;
-    var CLONE_HUE_OFFSET_STEPS = 1;
+    var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 80;
     var FADE_OUT_MS = 150;
     var MOVE_THRESHOLD = 0.15;
