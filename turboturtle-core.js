@@ -10625,3 +10625,23 @@ if (width < 1920) {
     document.addEventListener("DOMContentLoaded", placeShaderLast, { once: true });
   }
 })();
+
+
+/* ============================================================
+   HOME2 CRYSTAL ONLY — independent CSS filter animation
+   Saturation 112%, Brightness 130%, Hue 360deg / 0.3s
+   Does not modify GSAP transforms or any existing Core JS logic.
+   ============================================================ */
+(function () {
+  var styleId = "tt-home2-crystal-filter-only";
+  if (document.getElementById(styleId)) return;
+  var style = document.createElement("style");
+  style.id = styleId;
+  style.textContent =
+    "@keyframes ttHome2CrystalHueOnly {" +
+    "from { filter: saturate(1.12) brightness(1.30) hue-rotate(0deg); }" +
+    "to { filter: saturate(1.12) brightness(1.30) hue-rotate(360deg); }" +
+    "}" +
+    ".home2_crystal { animation: ttHome2CrystalHueOnly 0.3s linear infinite; }";
+  document.head.appendChild(style);
+})();
