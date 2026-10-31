@@ -10721,3 +10721,24 @@ if (width < 1920) {
   }
 })();
 
+
+
+/* ============================================================
+   HOME2 CRYSTAL — INDEPENDENT HUE ROTATION
+   0.5 seconds per complete 360° cycle.
+   Independent of the Universal Rainbow Method A/B palette.
+   ============================================================ */
+(function installHome2CrystalHueRotation() {
+  "use strict";
+  var STYLE_ID = "tt-home2-crystal-hue";
+  if (document.getElementById(STYLE_ID)) return;
+  var style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent =
+    "@keyframes ttCrystalHueRotate {" +
+    "from { filter: hue-rotate(0deg); }" +
+    "to { filter: hue-rotate(360deg); }" +
+    "}" +
+    ".home2_crystal { animation: ttCrystalHueRotate 0.5s linear infinite; }";
+  (document.head || document.documentElement).appendChild(style);
+})();
