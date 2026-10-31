@@ -7770,23 +7770,17 @@ if (
 
     // V15: single source of truth is the UFO's actual GSAP Y.
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
-    var COUNT = 7;
-    var DELAY_MS = 30;
-    var MAX_TRAIL_DISTANCE_PX = 135; // cap total visual tail length (local CSS px)
-    var START_AFTER_PX = 0.5; // show trail immediately after UFO begins moving
-    var PALETTE = ["#f0ff00", "#d79eff", "#6861ff"];
-    var PALETTE_STEP_MS = 80;
-    var COLOR_EASING = false; // false = instant color switch; true = smooth transition
-    var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
+    var COUNT = 6;
+    var DELAY_MS = 35;
+    var PALETTE = ["#FF5CFF", "#4133FF", "#00CCFF", "#2EFF96", "#E1FF00"];
+    var PALETTE_STEP_MS = 16;
     var CLONE_HUE_OFFSET_STEPS = 0;
-    var FADE_IN_MS = 45;
-    var FADE_OUT_MS = 75;
-    var MOVE_THRESHOLD = 0.35;
+    var FADE_IN_MS = 95;
+    var FADE_OUT_MS = 150;
+    var MOVE_THRESHOLD = 0.45;
     // Last 18% of the UFO's actual return path collapses the history gap.
     // At the exact start all clones coincide with the UFO and fade to zero.
     var START_COLLAPSE_FRACTION = 0.18;
-    var LAUNCH_MIN_SPACING_PX = 5; // first visible motion creates visible separation immediately
-    var LAUNCH_FADE_IN_MS = 12; // no delayed fade-in on launch
 
     var parent = home6UFO.parentElement;
     if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
@@ -7823,9 +7817,6 @@ if (
     var last = null;
     var lastTime = 0;
     var visibleSince = 0;
-    var movingStarted = false;
-    var launchDirection = {x:0,y:1};
-    var hadVisibleTrail = false;
     var strength = 0;
     var maskSource = "";
     var lastPaletteStep = -1;
@@ -7881,26 +7872,8 @@ if (
         r.right>0 && r.left<getRealViewportWidth();
       var active = inView && style.visibility!=="hidden" && progress>0.0001;
 
-      var palettePosition = now / Math.max(1, PALETTE_STEP_MS);
-      var paletteStep = Math.floor(palettePosition);
-      if (COLOR_EASING) {
-        // Interpolate between consecutive palette entries (no GSAP tweens).
-        // Uses the same palette and per-clone offset as instant mode.
-        var mix = palettePosition - paletteStep;
-        if (COLOR_EASE_POWER === 2) mix = mix * mix * (3 - 2 * mix);
-        ghosts.forEach(function(g, i) {
-          var index = (paletteStep + i * CLONE_HUE_OFFSET_STEPS) % PALETTE.length;
-          var next = (index + 1) % PALETTE.length;
-          var from = PALETTE[index].replace('#', '');
-          var to = PALETTE[next].replace('#', '');
-          var r1 = parseInt(from.slice(0,2),16), g1 = parseInt(from.slice(2,4),16), b1 = parseInt(from.slice(4,6),16);
-          var r2 = parseInt(to.slice(0,2),16), g2 = parseInt(to.slice(2,4),16), b2 = parseInt(to.slice(4,6),16);
-          g.style.backgroundColor = 'rgb(' +
-            Math.round(r1 + (r2-r1)*mix) + ',' +
-            Math.round(g1 + (g2-g1)*mix) + ',' +
-            Math.round(b1 + (b2-b1)*mix) + ')';
-        });
-      } else if (paletteStep !== lastPaletteStep) {
+      var paletteStep = Math.floor(now/PALETTE_STEP_MS);
+      if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
         ghosts.forEach(function(g,i) {
           g.style.backgroundColor =
@@ -7909,7 +7882,7 @@ if (
       }
 
       if (!active) {
-        history.length=0; last=null; visibleSince=0; movingStarted=false; hadVisibleTrail=false; strength=0;
+        history.length=0; last=null; visibleSince=0; strength=0;
         layer.style.visibility="hidden";
         requestAnimationFrame(frame);
         return;
@@ -7919,54 +7892,26 @@ if (
       while(history.length>2 && history[1].t<now-COUNT*DELAY_MS-80)
         history.shift();
 
-      var vx=last ? p.x-last.x : 0;
-      var vy=last ? p.y-last.y : 0;
-      var distance=Math.hypot(vx,vy);
-      if (distance>0.05) {
-        launchDirection.x=vx/distance;
-        launchDirection.y=vy/distance;
-      }
+      var distance=last ? Math.hypot(p.x-last.x,p.y-last.y) : 0;
       last=p;
-      // Do not wait for the full trail history to fill before showing clones.
-      // On launch, initialize a short trail from the very first movement frame.
-      if (distance > START_AFTER_PX) movingStarted = true;
-      var moving = distance > MOVE_THRESHOLD;
-      var target = (movingStarted && moving) ? 1 : 0;
-      var tau=target>strength?(hadVisibleTrail?FADE_IN_MS:LAUNCH_FADE_IN_MS):FADE_OUT_MS;
+      var moving=now-visibleSince>COUNT*DELAY_MS+40 &&
+        distance>MOVE_THRESHOLD;
+      var target=moving?1:0;
+      var tau=target>strength?FADE_IN_MS:FADE_OUT_MS;
       strength+=(target-strength)*(1-Math.exp(-dt/tau));
-      if (target) hadVisibleTrail=true;
       if (strength<0.001) strength=0;
-      // Only collapse when returning to the sun, not while launching.
-      // V16 multiplied opacity by progress/0.18 in BOTH directions,
-      // suppressing the trail during the first 18% of the outbound flight.
-      var effectiveStrength=strength;
+      var effectiveStrength=strength*collapse;
       layer.style.visibility=effectiveStrength>0.001?"visible":"hidden";
 
       if (effectiveStrength>0.001) {
         ghosts.forEach(function(g,i) {
           var old=sampleAt(now-(i+1)*DELAY_MS)||p;
-          // Hard spatial cap: fast scrolling cannot stretch the tail arbitrarily.
-          // The oldest clone is capped at MAX_TRAIL_DISTANCE_PX;
-          // closer clones use proportional limits for even spacing.
-          var dx=old.x-p.x, dy=old.y-p.y;
-          var gap=Math.hypot(dx,dy);
-          var maxGap=MAX_TRAIL_DISTANCE_PX*(i+1)/COUNT;
-          if (gap>maxGap && gap>0) {
-            old={x:p.x+dx*maxGap/gap, y:p.y+dy*maxGap/gap,
-              w:old.w, h:old.h};
-          }
-          // During the first few frames, history has no spatial gap yet.
-          // Create a tiny, capped backward spread from the measured motion.
-          // Once history fills, natural time-delayed tracking takes over.
-          if (moving && gap < LAUNCH_MIN_SPACING_PX*(i+1)) {
-            var spread=Math.min(maxGap, LAUNCH_MIN_SPACING_PX*(i+1));
-            old={x:p.x-launchDirection.x*spread,
-                 y:p.y-launchDirection.y*spread,w:old.w,h:old.h};
-          }
-          var x=old.x;
-          var y=old.y;
-          var w=old.w;
-          var h=old.h;
+          // Normal travel: delayed local-space positions, exactly as V7.
+          // Near start: converge smoothly on the UFO's CURRENT actual position.
+          var x=p.x+(old.x-p.x)*collapse;
+          var y=p.y+(old.y-p.y)*collapse;
+          var w=p.w+(old.w-p.w)*collapse;
+          var h=p.h+(old.h-p.h)*collapse;
           g.style.opacity=(0.85*Math.pow(1-i/COUNT,1.35)*
             effectiveStrength).toFixed(3);
           g.style.width=w+"px"; g.style.height=h+"px";
