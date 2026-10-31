@@ -7772,8 +7772,10 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 8;
     var DELAY_MS = 35;
-    var PALETTE = ["#f0ff00", "#7f5cff", "#dddddd"];
+    var PALETTE = ["#f0ff00", "#00d2ff", "#ff825c"];
     var PALETTE_STEP_MS = 2;
+    var COLOR_EASING = false; // false = instant color switch; true = smooth transition
+    var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 45;
     var FADE_OUT_MS = 75;
@@ -7872,8 +7874,26 @@ if (
         r.right>0 && r.left<getRealViewportWidth();
       var active = inView && style.visibility!=="hidden" && progress>0.0001;
 
-      var paletteStep = Math.floor(now/PALETTE_STEP_MS);
-      if (paletteStep !== lastPaletteStep) {
+      var palettePosition = now / Math.max(1, PALETTE_STEP_MS);
+      var paletteStep = Math.floor(palettePosition);
+      if (COLOR_EASING) {
+        // Interpolate between consecutive palette entries (no GSAP tweens).
+        // Uses the same palette and per-clone offset as instant mode.
+        var mix = palettePosition - paletteStep;
+        if (COLOR_EASE_POWER === 2) mix = mix * mix * (3 - 2 * mix);
+        ghosts.forEach(function(g, i) {
+          var index = (paletteStep + i * CLONE_HUE_OFFSET_STEPS) % PALETTE.length;
+          var next = (index + 1) % PALETTE.length;
+          var from = PALETTE[index].replace('#', '');
+          var to = PALETTE[next].replace('#', '');
+          var r1 = parseInt(from.slice(0,2),16), g1 = parseInt(from.slice(2,4),16), b1 = parseInt(from.slice(4,6),16);
+          var r2 = parseInt(to.slice(0,2),16), g2 = parseInt(to.slice(2,4),16), b2 = parseInt(to.slice(4,6),16);
+          g.style.backgroundColor = 'rgb(' +
+            Math.round(r1 + (r2-r1)*mix) + ',' +
+            Math.round(g1 + (g2-g1)*mix) + ',' +
+            Math.round(b1 + (b2-b1)*mix) + ')';
+        });
+      } else if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
         ghosts.forEach(function(g,i) {
           g.style.backgroundColor =
