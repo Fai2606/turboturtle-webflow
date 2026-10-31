@@ -7772,8 +7772,8 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 8;
     var DELAY_MS = 35;
-    var PALETTE = ["#f0ff00", "#00d2ff", "#ff825c"];
-    var PALETTE_STEP_MS = 2;
+    var PALETTE = ["#f0ff00", "#d79eff", "8bff2d", "#ff825c"];
+    var PALETTE_STEP_MS = 12;
     var COLOR_EASING = false; // false = instant color switch; true = smooth transition
     var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
     var CLONE_HUE_OFFSET_STEPS = 0;
