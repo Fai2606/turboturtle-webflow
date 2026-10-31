@@ -7802,7 +7802,7 @@ if (
     var START_COLLAPSE_FRACTION = 0.18;
     var LAUNCH_MIN_SPACING_PX = 5; // original compact launch spacing
     var LAUNCH_FADE_IN_MS = 12; // no delayed fade-in on launch
-    var CATCH_UP_SPEED = 0.15; // stopped UFO: ghosts smoothly converge, never snap
+    var CATCH_UP_SPEED = 0.10; // stopped UFO: ghosts smoothly converge, never snap
     var CATCH_UP_EPSILON_PX = 0.7;
     var DELAY_RESPONSE = 0.12; // prevent sudden changes in sampling delay
 
@@ -7849,6 +7849,8 @@ if (
     var lastPaletteStep = -1;
     var smoothDelay = DELAY_MS;
     var ghostPositions = Array.from({length:COUNT},function(){return null;});
+    var stillSince = 0;
+    var catchupMix = 0; // continuous blend; never switch the destination abruptly
 
     function sampleAt(t) {
       if (!history.length) return null;
@@ -7932,6 +7934,7 @@ if (
         history.length=0; last=null; visibleSince=0; movingStarted=false; hadVisibleTrail=false; strength=0;
         smoothDelay=DELAY_MS;
         ghostPositions.fill(null);
+        stillSince=0; catchupMix=0;
         layer.style.visibility="hidden";
         requestAnimationFrame(frame);
         return;
@@ -7953,6 +7956,12 @@ if (
       // On launch, initialize a short trail from the very first movement frame.
       if (distance > START_AFTER_PX) movingStarted = true;
       var moving = distance > MOVE_THRESHOLD;
+      if (moving) stillSince=0;
+      else if (!stillSince) stillSince=now;
+      // Only begin catch-up after genuine stillness, not a single slow frame.
+      var settled = !!stillSince && now-stillSince>90;
+      var mixTarget = settled ? 1 : 0;
+      catchupMix += (mixTarget-catchupMix)*(1-Math.exp(-dt/125));
       // The old MAX_TRAIL_DISTANCE_PX was only a CAP; raising it could not
       // make the tail longer. Stretch history sampling ONLY at high speed.
       var speedFactor = Math.max(0, Math.min(1,
@@ -7967,7 +7976,7 @@ if (
       var allCaughtUp = ghostPositions.every(function(pos){
         return !pos || Math.hypot(pos.x-p.x,pos.y-p.y)<CATCH_UP_EPSILON_PX;
       });
-      var target = (movingStarted && (moving || !allCaughtUp)) ? 1 : 0;
+      var target = (movingStarted && (!settled || !allCaughtUp)) ? 1 : 0;
       var tau=target>strength?(hadVisibleTrail?FADE_IN_MS:LAUNCH_FADE_IN_MS):FADE_OUT_MS;
       strength+=(target-strength)*(1-Math.exp(-dt/tau));
       if (target) hadVisibleTrail=true;
@@ -8001,13 +8010,15 @@ if (
           }
           // When stopped, move every clone toward the CURRENT UFO position.
           // Never jump from an old sampled history point to a new one.
-          var destX=moving?old.x:p.x;
-          var destY=moving?old.y:p.y;
-          var destW=moving?old.w:p.w;
-          var destH=moving?old.h:p.h;
+          // Smoothly blend from history-following to current UFO on stop.
+          // A hard moving/stopped conditional caused the visible jump in V23.
+          var destX=old.x+(p.x-old.x)*catchupMix;
+          var destY=old.y+(p.y-old.y)*catchupMix;
+          var destW=old.w+(p.w-old.w)*catchupMix;
+          var destH=old.h+(p.h-old.h)*catchupMix;
           var pos=ghostPositions[i];
           if (!pos) pos=ghostPositions[i]={x:destX,y:destY,w:destW,h:destH};
-          var follow=moving?0.45:CATCH_UP_SPEED;
+          var follow=0.20+(CATCH_UP_SPEED-0.20)*catchupMix;
           var blend=1-Math.pow(1-follow,dt/16.7);
           pos.x+=(destX-pos.x)*blend;
           pos.y+=(destY-pos.y)*blend;
