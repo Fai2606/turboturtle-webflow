@@ -7770,9 +7770,9 @@ if (
 
     // V15: single source of truth is the UFO's actual GSAP Y.
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
-    var COUNT = 7;
-    var DELAY_MS = 35; // slightly longer trail
-    var MAX_TRAIL_DISTANCE_PX = 190; // cap total visual tail length (local CSS px)
+    var COUNT = 6;
+    var DELAY_MS = 42; // slightly wider spacing between afterimages
+    var MAX_TRAIL_DISTANCE_PX = 220; // slightly longer cap for wider spacing (local CSS px)
     var START_AFTER_PX = 0.5; // show trail immediately after UFO begins moving
     // Same pastel hue-rotation family as the draggable .circle_text (#afe7da).
     // 12 evenly spaced hues, with its original saturation and brightness.
@@ -7787,7 +7787,7 @@ if (
       return '#' + rgb.map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,'0');}).join('');
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextHueColor(i*30);});
-    var PALETTE_STEP_MS = 80;
+    var PALETTE_STEP_MS = 40; // double color-change speed
     var COLOR_EASING = false; // false = instant color switch; true = smooth transition
     var COLOR_EASE_POWER = 1; // 1 = linear, 2 = ease-in-out (smoothstep below)
     var CLONE_HUE_OFFSET_STEPS = 0;
@@ -7797,7 +7797,7 @@ if (
     // Last 18% of the UFO's actual return path collapses the history gap.
     // At the exact start all clones coincide with the UFO and fade to zero.
     var START_COLLAPSE_FRACTION = 0.18;
-    var LAUNCH_MIN_SPACING_PX = 5; // first visible motion creates visible separation immediately
+    var LAUNCH_MIN_SPACING_PX = 6; // first visible motion creates visible separation immediately
     var LAUNCH_FADE_IN_MS = 12; // no delayed fade-in on launch
 
     var parent = home6UFO.parentElement;
