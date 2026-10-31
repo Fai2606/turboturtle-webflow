@@ -7770,7 +7770,7 @@ if (
 
     // ------------------- EDITABLE SETTINGS -------------------
     var COUNT = 6;
-    var DELAY_MS = 50;         // clone 1: 50ms; clone 6: 300ms behind UFO
+    var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
     var COLOR = "#DFFF00";   // greenish fluorescent yellow
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 240;
@@ -7781,7 +7781,7 @@ if (
     if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
 
     // Keep both UFO and clones in their EXISTING parent stacking context.
-    // Two adjacent z-index levels: clones immediately below UFO.
+    // Experimental stacking: clone layer z-index -100, UFO remains above.
     var originalZ = getComputedStyle(home6UFO).zIndex;
     var baseZ = originalZ !== "auto" && isFinite(parseInt(originalZ, 10))
       ? parseInt(originalZ, 10) : 1;
@@ -7789,10 +7789,10 @@ if (
     home6UFO.style.zIndex = String(baseZ + 1);
 
     var layer = document.createElement("div");
-    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v5");
+    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v7");
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
-      overflow: "visible", pointerEvents: "none", zIndex: String(baseZ),
+      overflow: "visible", pointerEvents: "none", zIndex: "-100",
       visibility: "hidden"
     });
     parent.insertBefore(layer, home6UFO);
