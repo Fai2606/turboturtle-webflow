@@ -7757,9 +7757,9 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — V11 / SIX LOCAL-SPACE CLONES + NES PALETTE
+  // HOME 6 UFO — V12 / SIX LOCAL-SPACE CLONES + FAST ARCADE PALETTE + RETURN
   // ==========================================================
-  (function initHome6UFOClonesV11() {
+  (function initHome6UFOClonesV12() {
     if (!home6UFO || home6UFO.dataset.ttAfterimageInstalled === "1") return;
     var picture = home6UFO.matches("img") ? home6UFO : home6UFO.querySelector("img");
     if (!picture || !home6UFO.parentElement) return;
@@ -7771,14 +7771,14 @@ if (
     var RETURN_MS = 310;       // clones finish travelling to actual UFO hidden Y
     var FADE_IN_MS = 85;
     var FADE_OUT_MS = 290;
-    var PALETTE_STEP_MS = 42; // HARD jump: ~24 palette changes / second
+    var PALETTE_STEP_MS = 20; // HARD jump: ~24 palette changes / second
     var MOVE_THRESHOLD = 0.45;
     // NES/Famicom-like discrete palette values (common emulator RGB approximation).
     // Not an exact analogue NTSC capture; no HSL interpolation or CSS hue rotation.
     var NES_COLORS = [
-      "#F83800", "#F87858", "#F8B800", "#F8D878",
-      "#B8F818", "#58F898", "#00E8D8", "#58D8F8",
-      "#3CBCFC", "#6888FC", "#A878F8", "#F878F8"
+      "#F878F8", "#A878F8", "#6888FC", "#3CBCFC",
+      "#58D8F8", "#00E8D8", "#58F898", "#B8F818",
+      "#F878F8", "#D858F8", "#6888FC", "#00E8D8"
     ];
 
     var parent = home6UFO.parentElement;
@@ -7789,7 +7789,7 @@ if (
     home6UFO.style.zIndex = String(oldZ + 1);
 
     var layer = document.createElement("div");
-    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v11");
+    layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v12");
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
       overflow: "visible", pointerEvents: "none", zIndex: "-100", visibility: "hidden"
@@ -7812,6 +7812,7 @@ if (
     var history = [], last = null, lastTime = 0, strength = 0;
     var wasVisible = false, visibleSince = 0, maskSource = "";
     var returning = false, returnStart = 0, returnFrom = null, returnTo = null;
+    var returnGhosts = [];
     var lastPaletteTick = -1;
 
     function sampleAt(time) {
@@ -7842,12 +7843,18 @@ if (
     function startReturn(now, p) {
       returning = true;
       returnStart = now;
-      returnFrom = {x:p.x,y:p.y,w:p.w,h:p.h};
-      // Actual UFO GSAP endpoint is y:getHome6UFOHiddenY(), not its
-      // last DOM rect when ScrollTrigger hides it mid-scrub.
-      var currentY = Number(gsap.getProperty(home6UFO,"y")) || 0;
-      var finalY = getHome6UFOHiddenY();
-      returnTo = {x:p.x, y:p.y + finalY - currentY, w:p.w,h:p.h};
+      // The hidden dock is the original UFO's real GSAP endpoint.
+      // Clone coordinates are parent-local; GSAP y uses the same local units.
+      var currentY = Number(gsap.getProperty(home6UFO, "y")) || 0;
+      var dockY = getHome6UFOHiddenY();
+      returnTo = {x:p.x, y:p.y + dockY - currentY, w:p.w, h:p.h};
+      // Snapshot EACH clone's own delayed position. Moving all clones from
+      // one common point was why the tail appeared to freeze or scatter.
+      returnGhosts = ghosts.map(function(g, i) {
+        var sample = sampleAt(now - (i + 1) * DELAY_MS) || p;
+        return {x:sample.x, y:sample.y, w:sample.w, h:sample.h};
+      });
+      history.length = 0;
     }
     function frame(now) {
       var dt = lastTime ? Math.min(50,now-lastTime) : 16.7;
@@ -7867,7 +7874,7 @@ if (
 
       if (visible && !wasVisible) {
         history.length=0;last=null;visibleSince=now;strength=0;
-        returning=false;returnFrom=null;returnTo=null;
+        returning=false;returnFrom=null;returnTo=null;returnGhosts=[];
       }
       // Explicit return target from the EXISTING UFO GSAP target Y.
       // No reliance on invisible element continuing to animate.
@@ -7876,14 +7883,8 @@ if (
 
       if (visible) {
         history.push({t:now,x:p.x,y:p.y,w:p.w,h:p.h});
-      } else if (returning && returnFrom && returnTo) {
-        var t=Math.min(1,(now-returnStart)/RETURN_MS);
-        // Direct linear motion; avoids overshoot / forward firing.
-        history.push({t:now,x:returnFrom.x+(returnTo.x-returnFrom.x)*t,
-          y:returnFrom.y+(returnTo.y-returnFrom.y)*t,
-          w:returnFrom.w,h:returnFrom.h});
+        while (history.length>2 && history[1].t<now-COUNT*DELAY_MS-120) history.shift();
       }
-      while (history.length>2 && history[1].t<now-COUNT*DELAY_MS-120) history.shift();
 
       var distance = visible && last ? Math.hypot(p.x-last.x,p.y-last.y) : 0;
       if (visible) last=p;
@@ -7891,11 +7892,11 @@ if (
       // Keep clones visible while travelling back to the actual dock.
       // Fade starts near the end of the journey and finishes after arrival.
       var returningTime = returning ? now-returnStart : 0;
-      var target = returning ? (returningTime<RETURN_MS*.7 ? 1 : 0) : (moving?1:0);
+      var target = returning ? (returningTime<RETURN_MS*.45 ? 1 : 0) : (moving?1:0);
       var tau=target>strength?FADE_IN_MS:FADE_OUT_MS;
       strength+=(target-strength)*(1-Math.exp(-dt/tau));
       if (returning && returningTime>RETURN_MS+COUNT*DELAY_MS+FADE_OUT_MS*3 && strength<.05) {
-        returning=false;history.length=0;last=null;strength=0;
+        returning=false;history.length=0;last=null;strength=0;returnGhosts=[];
       }
       layer.style.visibility=strength>.001?"visible":"hidden";
 
@@ -7907,9 +7908,23 @@ if (
           g.style.backgroundColor=NES_COLORS[(tick+i*2)%NES_COLORS.length];
         });
       }
-      if (strength && history.length) {
+      if (strength > .001 && (history.length || returning)) {
         ghosts.forEach(function(g,i){
-          var sample=sampleAt(now-(i+1)*DELAY_MS);
+          var sample;
+          if (returning && returnTo && returnGhosts[i]) {
+            // Every clone travels toward ONE explicit dock position.
+            // Slightly staggered arrivals preserve the tail's ordering.
+            var duration = RETURN_MS + i * 18;
+            var t = Math.min(1, (now-returnStart) / duration);
+            var f = t*t*(3-2*t); // smooth arrival; no overshoot
+            var from = returnGhosts[i];
+            sample = {x:from.x+(returnTo.x-from.x)*f,
+                      y:from.y+(returnTo.y-from.y)*f,
+                      w:from.w+(returnTo.w-from.w)*f,
+                      h:from.h+(returnTo.h-from.h)*f};
+          } else {
+            sample=sampleAt(now-(i+1)*DELAY_MS);
+          }
           if (!sample) return;
           var alpha=.85*Math.pow(1-i/COUNT,1.35)*strength;
           g.style.opacity=alpha.toFixed(3);
@@ -7917,6 +7932,8 @@ if (
           g.style.height=sample.h+"px";
           g.style.transform="translate3d("+sample.x+"px,"+sample.y+"px,0)";
         });
+      } else if (!returning) {
+        ghosts.forEach(function(g){g.style.opacity="0";});
       }
       requestAnimationFrame(frame);
     }
