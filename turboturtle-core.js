@@ -2134,10 +2134,10 @@ function ensureX() {
   // Each element ONLY controls its own speed and number of steps.
   // speedMs = duration of ONE COMPLETE color cycle.
   var TT_RAINBOW_SETTINGS = {
-    method: "B",                     // Shared method for ALL rainbow elements
-    baseColor: "#afe7da",            // Used only if method is "A"
-    colors: [                        // Shared Method B palette, in cycle order
-      "#ced562", "#6ccbc5", "#c982c8", "#8d9cbf"
+    method: "A",                     // Change ONLY here: "A" or "B"
+    baseColor: "#afe7da",            // Method A: starting color for EVERY element
+    colors: [                       // Method B: shared palette for EVERY element
+      "#afe7da", "#ff7fb9", "#ffdb58", "#75aaff"
     ],
     elements: {
       circleText: { speedMs: 8000, steps: 0 },
@@ -10719,26 +10719,4 @@ if (width < 1920) {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", placeShaderLast, { once: true });
   }
-})();
-
-
-
-/* ============================================================
-   HOME2 CRYSTAL — INDEPENDENT HUE ROTATION
-   0.5 seconds per complete 360° cycle.
-   Independent of the Universal Rainbow Method A/B palette.
-   ============================================================ */
-(function installHome2CrystalHueRotation() {
-  "use strict";
-  var STYLE_ID = "tt-home2-crystal-hue";
-  if (document.getElementById(STYLE_ID)) return;
-  var style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent =
-    "@keyframes ttCrystalHueRotate {" +
-    "from { filter: hue-rotate(0deg); }" +
-    "to { filter: hue-rotate(360deg); }" +
-    "}" +
-    ".home2_crystal { animation: ttCrystalHueRotate 0.5s linear infinite; }";
-  (document.head || document.documentElement).appendChild(style);
 })();
