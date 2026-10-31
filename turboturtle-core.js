@@ -7771,7 +7771,7 @@ if (
     // V15: single source of truth is the UFO's actual GSAP Y.
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
-    var DELAY_MS = 25;
+    var DELAY_MS = 35;
     // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
     // Only the palette changes; clone movement, spacing and fade stay untouched.
     function circleTextTrailColor(hue) {
@@ -7785,11 +7785,17 @@ if (
       return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
-    var PALETTE_STEP_MS = 90;
+    var PALETTE_STEP_MS = 16;
+    // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
+    // Works on an <img> SVG without editing its internal fills.
+    var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
+      document.querySelector('.home6_light img');
+    var lastRainbowHue = -1;
+    var RAINBOW_LIGHT_HUE_OFFSET = 0; // degrees; adjust if source SVG hue differs
     var CLONE_HUE_OFFSET_STEPS = 0;
-    var FADE_IN_MS = 80;
+    var FADE_IN_MS = 95;
     var FADE_OUT_MS = 150;
-    var MOVE_THRESHOLD = 0.15;
+    var MOVE_THRESHOLD = 0.45;
     // Last 18% of the UFO's actual return path collapses the history gap.
     // At the exact start all clones coincide with the UFO and fade to zero.
     var START_COLLAPSE_FRACTION = 0.18;
@@ -7887,6 +7893,13 @@ if (
       var paletteStep = Math.floor(now/PALETTE_STEP_MS);
       if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
+        if (rainbowLight) {
+          var rainbowHue = ((paletteStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
+          if (rainbowHue !== lastRainbowHue) {
+            rainbowLight.style.filter = 'hue-rotate(' + rainbowHue + 'deg)';
+            lastRainbowHue = rainbowHue;
+          }
+        }
         ghosts.forEach(function(g,i) {
           g.style.backgroundColor =
             PALETTE[(paletteStep+i*CLONE_HUE_OFFSET_STEPS)%PALETTE.length];
