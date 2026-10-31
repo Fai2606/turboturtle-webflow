@@ -2134,10 +2134,10 @@ function ensureX() {
   // Each element ONLY controls its own speed and number of steps.
   // speedMs = duration of ONE COMPLETE color cycle.
   var TT_RAINBOW_SETTINGS = {
-    method: "A",                     // Change ONLY here: "A" or "B"
-    baseColor: "#afe7da",            // Method A: starting color for EVERY element
-    colors: [                       // Method B: shared palette for EVERY element
-      "#afe7da", "#ff7fb9", "#ffdb58", "#75aaff"
+    method: "B",                     // Shared method for ALL rainbow elements
+    baseColor: "#afe7da",            // Used only if method is "A"
+    colors: [                        // Shared Method B palette, in cycle order
+      "#ced562", "#6ccbc5", "#c982c8", "#8d9cbf"
     ],
     elements: {
       circleText: { speedMs: 8000, steps: 0 },
