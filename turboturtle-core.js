@@ -10639,8 +10639,8 @@ if (width < 1920) {
   style.id = styleId;
   style.textContent =
     "@keyframes ttHome2CrystalHueOnly {" +
-    "from { filter: saturate(1.12) brightness(1.30) hue-rotate(0deg); }" +
-    "to { filter: saturate(1.12) brightness(1.30) hue-rotate(360deg); }" +
+    "from { filter: contrast(0.60) saturate(1.20) brightness(1.35) hue-rotate(0deg); }" +
+    "to { filter: contrast(0.60) saturate(1.20) brightness(1.35) hue-rotate(360deg); }" +
     "}" +
     ".home2_crystal { animation: ttHome2CrystalHueOnly 0.3s linear infinite; }";
   document.head.appendChild(style);
