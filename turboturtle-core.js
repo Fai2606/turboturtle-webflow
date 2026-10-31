@@ -7785,7 +7785,8 @@ if (
       return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
     }
     var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
-    var PALETTE_STEP_MS = 16;
+    var PALETTE_STEP_MS = 90;       // UFO clones: ms per color step
+    var RAINBOW_STEP_MS = 90;       // rainbowlight SVG: ms per color step
     // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
     // White SVG: first tint it mint with CSS filters, then animate hue rotation.
     var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
@@ -7891,15 +7892,16 @@ if (
       var active = inView && style.visibility!=="hidden" && progress>0.0001;
 
       var paletteStep = Math.floor(now/PALETTE_STEP_MS);
+      if (rainbowLight) {
+        var rainbowStep = Math.floor(now/RAINBOW_STEP_MS);
+        var rainbowHue = ((rainbowStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
+        if (rainbowHue !== lastRainbowHue) {
+          rainbowLight.style.filter = 'brightness(0) saturate(100%) invert(89%) sepia(16%) saturate(395%) hue-rotate(105deg) brightness(99%) contrast(90%) hue-rotate(' + rainbowHue + 'deg)';
+          lastRainbowHue = rainbowHue;
+        }
+      }
       if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
-        if (rainbowLight) {
-          var rainbowHue = ((paletteStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
-          if (rainbowHue !== lastRainbowHue) {
-            rainbowLight.style.filter = 'brightness(0) saturate(100%) invert(89%) sepia(16%) saturate(395%) hue-rotate(105deg) brightness(99%) contrast(90%) hue-rotate(' + rainbowHue + 'deg)';
-            lastRainbowHue = rainbowHue;
-          }
-        }
         ghosts.forEach(function(g,i) {
           g.style.backgroundColor =
             PALETTE[(paletteStep+i*CLONE_HUE_OFFSET_STEPS)%PALETTE.length];
