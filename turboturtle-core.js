@@ -7771,7 +7771,7 @@ if (
     // V15: single source of truth is the UFO's actual GSAP Y.
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
-    var DELAY_MS = 35;
+    var DELAY_MS = 30;
     // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
     // Only the palette changes; clone movement, spacing and fade stay untouched.
     function circleTextTrailColor(hue) {
@@ -7796,7 +7796,7 @@ if (
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 150;
-    var MOVE_THRESHOLD = 0.45;
+    var MOVE_THRESHOLD = 0.35;
     // Last 18% of the UFO's actual return path collapses the history gap.
     // At the exact start all clones coincide with the UFO and fade to zero.
     var START_COLLAPSE_FRACTION = 0.18;
