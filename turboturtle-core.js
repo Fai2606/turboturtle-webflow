@@ -7772,7 +7772,10 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 30; // normal clone spacing restored; not permanently spread apart
-    var MAX_TRAIL_DISTANCE_PX = 300; // higher ceiling only during fast movement (local CSS px)
+    var MAX_TRAIL_DISTANCE_PX = 300; // maximum extension at high speed
+    var SPEED_STRETCH_START_PX = 1.5; // per-frame motion below this keeps original spacing
+    var SPEED_STRETCH_FULL_PX = 18; // per-frame motion at which extension reaches maximum
+    var MAX_DYNAMIC_DELAY_MS = 105; // each ghost samples further back only when UFO is fast
     var START_AFTER_PX = 0.5; // show trail immediately after UFO begins moving
     // Same pastel hue-rotation family as the draggable .circle_text (#afe7da).
     // 12 evenly spaced hues, with its original saturation and brightness.
@@ -7799,6 +7802,9 @@ if (
     var START_COLLAPSE_FRACTION = 0.18;
     var LAUNCH_MIN_SPACING_PX = 5; // original compact launch spacing
     var LAUNCH_FADE_IN_MS = 12; // no delayed fade-in on launch
+    var CATCH_UP_SPEED = 0.15; // stopped UFO: ghosts smoothly converge, never snap
+    var CATCH_UP_EPSILON_PX = 0.7;
+    var DELAY_RESPONSE = 0.12; // prevent sudden changes in sampling delay
 
     var parent = home6UFO.parentElement;
     if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
@@ -7841,6 +7847,8 @@ if (
     var strength = 0;
     var maskSource = "";
     var lastPaletteStep = -1;
+    var smoothDelay = DELAY_MS;
+    var ghostPositions = Array.from({length:COUNT},function(){return null;});
 
     function sampleAt(t) {
       if (!history.length) return null;
@@ -7922,13 +7930,15 @@ if (
 
       if (!active) {
         history.length=0; last=null; visibleSince=0; movingStarted=false; hadVisibleTrail=false; strength=0;
+        smoothDelay=DELAY_MS;
+        ghostPositions.fill(null);
         layer.style.visibility="hidden";
         requestAnimationFrame(frame);
         return;
       }
       if (!visibleSince) visibleSince=now;
       history.push(p);
-      while(history.length>2 && history[1].t<now-COUNT*DELAY_MS-80)
+      while(history.length>2 && history[1].t<now-COUNT*MAX_DYNAMIC_DELAY_MS-80)
         history.shift();
 
       var vx=last ? p.x-last.x : 0;
@@ -7943,7 +7953,21 @@ if (
       // On launch, initialize a short trail from the very first movement frame.
       if (distance > START_AFTER_PX) movingStarted = true;
       var moving = distance > MOVE_THRESHOLD;
-      var target = (movingStarted && moving) ? 1 : 0;
+      // The old MAX_TRAIL_DISTANCE_PX was only a CAP; raising it could not
+      // make the tail longer. Stretch history sampling ONLY at high speed.
+      var speedFactor = Math.max(0, Math.min(1,
+        (distance - SPEED_STRETCH_START_PX) /
+        Math.max(0.01, SPEED_STRETCH_FULL_PX - SPEED_STRETCH_START_PX)));
+      var requestedDelay = DELAY_MS +
+        (MAX_DYNAMIC_DELAY_MS - DELAY_MS) * speedFactor;
+      smoothDelay += (requestedDelay-smoothDelay)*DELAY_RESPONSE;
+      var dynamicDelay = smoothDelay;
+      // On stopping, keep ghosts visible while they glide into the UFO.
+      // Fade only AFTER they have reached it; otherwise they vanish mid-air.
+      var allCaughtUp = ghostPositions.every(function(pos){
+        return !pos || Math.hypot(pos.x-p.x,pos.y-p.y)<CATCH_UP_EPSILON_PX;
+      });
+      var target = (movingStarted && (moving || !allCaughtUp)) ? 1 : 0;
       var tau=target>strength?(hadVisibleTrail?FADE_IN_MS:LAUNCH_FADE_IN_MS):FADE_OUT_MS;
       strength+=(target-strength)*(1-Math.exp(-dt/tau));
       if (target) hadVisibleTrail=true;
@@ -7956,7 +7980,7 @@ if (
 
       if (effectiveStrength>0.001) {
         ghosts.forEach(function(g,i) {
-          var old=sampleAt(now-(i+1)*DELAY_MS)||p;
+          var old=sampleAt(now-(i+1)*dynamicDelay)||p;
           // Hard spatial cap: fast scrolling cannot stretch the tail arbitrarily.
           // The oldest clone is capped at MAX_TRAIL_DISTANCE_PX;
           // closer clones use proportional limits for even spacing.
@@ -7975,10 +7999,24 @@ if (
             old={x:p.x-launchDirection.x*spread,
                  y:p.y-launchDirection.y*spread,w:old.w,h:old.h};
           }
-          var x=old.x;
-          var y=old.y;
-          var w=old.w;
-          var h=old.h;
+          // When stopped, move every clone toward the CURRENT UFO position.
+          // Never jump from an old sampled history point to a new one.
+          var destX=moving?old.x:p.x;
+          var destY=moving?old.y:p.y;
+          var destW=moving?old.w:p.w;
+          var destH=moving?old.h:p.h;
+          var pos=ghostPositions[i];
+          if (!pos) pos=ghostPositions[i]={x:destX,y:destY,w:destW,h:destH};
+          var follow=moving?0.45:CATCH_UP_SPEED;
+          var blend=1-Math.pow(1-follow,dt/16.7);
+          pos.x+=(destX-pos.x)*blend;
+          pos.y+=(destY-pos.y)*blend;
+          pos.w+=(destW-pos.w)*blend;
+          pos.h+=(destH-pos.h)*blend;
+          var x=pos.x;
+          var y=pos.y;
+          var w=pos.w;
+          var h=pos.h;
           g.style.opacity=(0.85*Math.pow(1-i/COUNT,1.35)*
             effectiveStrength).toFixed(3);
           g.style.width=w+"px"; g.style.height=h+"px";
