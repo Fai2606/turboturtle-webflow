@@ -7757,7 +7757,7 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — SIX DELAYED SILHOUETTE CLONES (V5 REBUILD)
+  // HOME 6 UFO — SIX DELAYED SILHOUETTE CLONES (V6 LOCAL-SPACE FIX)
   // ==========================================================
   // Each clone samples the REAL on-screen UFO path at a fixed time delay.
   // No velocity projection, no directional repositioning, no flying ghosts.
@@ -7813,6 +7813,7 @@ if (
 
     var history = [];
     var last = null;
+    var visibleSince = 0;
     var lastTime = 0;
     var strength = 0;
     var maskSource = "";
@@ -7854,19 +7855,31 @@ if (
         r.bottom > 0 && r.top < getRealViewportHeight() &&
         r.right > 0 && r.left < getRealViewportWidth() &&
         style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
-      var p = { t: now, x: r.left, y: r.top, w: r.width, h: r.height };
+      // CRITICAL: record positions in the SAME local coordinate system as
+      // the clone layer. Screen-space history + a moving/zoomed parent
+      // caused old samples to jump ahead when scrolling or reversing.
+      var pr = parent.getBoundingClientRect();
+      var sx = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
+      var sy = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
+      if (!isFinite(sx) || Math.abs(sx) < 0.001) sx = 1;
+      if (!isFinite(sy) || Math.abs(sy) < 0.001) sy = 1;
+      var p = { t: now, x: (r.left - pr.left) / sx,
+        y: (r.top - pr.top) / sy,
+        w: r.width / Math.abs(sx), h: r.height / Math.abs(sy) };
 
       // When offscreen, restart with a clean coincident history upon re-entry.
       if (!visible) {
         history.length = 0;
         last = null;
+        visibleSince = 0;
         strength = 0;
         layer.style.visibility = "hidden";
         requestAnimationFrame(frame);
         return;
       }
 
-      // Always append the actual rendered position, including rapid reversals.
+      if (!visibleSince) visibleSince = now;
+      // Always append the actual LOCAL position, including rapid reversals.
       // A clone follows the same path at t-50ms, t-100ms ... t-300ms.
       history.push(p);
       while (history.length > 2 && history[1].t < now - COUNT * DELAY_MS - 80)
@@ -7874,7 +7887,10 @@ if (
 
       var distance = last ? Math.hypot(p.x - last.x, p.y - last.y) : 0;
       last = p;
-      var moving = distance > MOVE_THRESHOLD;
+      // Warm-up prevents a first-frame visibility/layout snap from
+      // displaying as a long trail. All six clones start coincident.
+      var moving = (now - visibleSince > COUNT * DELAY_MS + 40) &&
+        distance > MOVE_THRESHOLD;
       var target = moving ? 1 : 0;
       var tau = target > strength ? FADE_IN_MS : FADE_OUT_MS;
       strength += (target - strength) * (1 - Math.exp(-dt / tau));
@@ -7882,20 +7898,15 @@ if (
       layer.style.visibility = strength > 0.001 ? "visible" : "hidden";
 
       if (strength) {
-        var pr = parent.getBoundingClientRect();
-        var sx = parent.offsetWidth ? pr.width / parent.offsetWidth : 1;
-        var sy = parent.offsetHeight ? pr.height / parent.offsetHeight : 1;
-        if (!isFinite(sx) || Math.abs(sx) < 0.001) sx = 1;
-        if (!isFinite(sy) || Math.abs(sy) < 0.001) sy = 1;
         ghosts.forEach(function(g, i) {
           var sample = sampleAt(now - (i + 1) * DELAY_MS);
           if (!sample) return;
           var alpha = 0.85 * Math.pow(1 - i / COUNT, 1.35) * strength;
           g.style.opacity = alpha.toFixed(3);
-          g.style.width = (sample.w / Math.abs(sx)) + "px";
-          g.style.height = (sample.h / Math.abs(sy)) + "px";
-          g.style.transform = "translate3d(" + ((sample.x - pr.left) / sx) +
-            "px," + ((sample.y - pr.top) / sy) + "px,0)";
+          g.style.width = sample.w + "px";
+          g.style.height = sample.h + "px";
+          g.style.transform = "translate3d(" + sample.x +
+            "px," + sample.y + "px,0)";
         });
       }
       requestAnimationFrame(frame);
