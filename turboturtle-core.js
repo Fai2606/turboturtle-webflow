@@ -7757,7 +7757,7 @@ if (
 
 
   // ==========================================================
-  // HOME 6 UFO — SIX DELAYED SILHOUETTE CLONES (V6 LOCAL-SPACE FIX)
+  // HOME 6 UFO — SIX DELAYED SILHOUETTE CLONES (V8 GREY + EXIT FADE)
   // ==========================================================
   // Each clone samples the REAL on-screen UFO path at a fixed time delay.
   // No velocity projection, no directional repositioning, no flying ghosts.
@@ -7771,9 +7771,9 @@ if (
     // ------------------- EDITABLE SETTINGS -------------------
     var COUNT = 6;
     var DELAY_MS = 35;         // shorter tail: clone 1: 35ms; clone 6: 210ms behind UFO
-    var COLOR = "#DFFF00";   // greenish fluorescent yellow
+    var COLOR = "#EEEEEE";   // soft grey
     var FADE_IN_MS = 95;
-    var FADE_OUT_MS = 240;
+    var FADE_OUT_MS = 420; // let ghosts linger after UFO is hidden
     var MOVE_THRESHOLD = 0.45; // screen px/frame, suppress stationary ghosts
     // ---------------------------------------------------------
 
@@ -7817,6 +7817,7 @@ if (
     var lastTime = 0;
     var strength = 0;
     var maskSource = "";
+    var wasVisible = false;
 
     function sampleAt(time) {
       if (!history.length) return null;
@@ -7867,39 +7868,49 @@ if (
         y: (r.top - pr.top) / sy,
         w: r.width / Math.abs(sx), h: r.height / Math.abs(sy) };
 
-      // When offscreen, restart with a clean coincident history upon re-entry.
-      if (!visible) {
+      // On exit the original UFO becomes visibility:hidden immediately.
+      // Keep the clones at their LAST recorded local positions and fade them
+      // independently, instead of clearing the layer/history in one frame.
+      // This also prevents an old path being replayed on re-entry.
+      if (visible && !wasVisible) {
         history.length = 0;
         last = null;
-        visibleSince = 0;
+        visibleSince = now;
         strength = 0;
-        layer.style.visibility = "hidden";
-        requestAnimationFrame(frame);
-        return;
+      }
+      wasVisible = visible;
+
+      if (visible) {
+        history.push(p);
+        while (history.length > 2 && history[1].t < now - COUNT * DELAY_MS - 80)
+          history.shift();
       }
 
-      if (!visibleSince) visibleSince = now;
-      // Always append the actual LOCAL position, including rapid reversals.
-      // A clone follows the same path at t-50ms, t-100ms ... t-300ms.
-      history.push(p);
-      while (history.length > 2 && history[1].t < now - COUNT * DELAY_MS - 80)
-        history.shift();
-
-      var distance = last ? Math.hypot(p.x - last.x, p.y - last.y) : 0;
-      last = p;
+      var distance = (visible && last) ? Math.hypot(p.x - last.x, p.y - last.y) : 0;
+      if (visible) last = p;
       // Warm-up prevents a first-frame visibility/layout snap from
       // displaying as a long trail. All six clones start coincident.
-      var moving = (now - visibleSince > COUNT * DELAY_MS + 40) &&
+      var moving = visible && (now - visibleSince > COUNT * DELAY_MS + 40) &&
         distance > MOVE_THRESHOLD;
       var target = moving ? 1 : 0;
       var tau = target > strength ? FADE_IN_MS : FADE_OUT_MS;
       strength += (target - strength) * (1 - Math.exp(-dt / tau));
-      if (strength < 0.001) strength = 0;
+      if (strength < 0.001) {
+        strength = 0;
+        if (!visible) {
+          history.length = 0;
+          last = null;
+          visibleSince = 0;
+        }
+      }
       layer.style.visibility = strength > 0.001 ? "visible" : "hidden";
 
-      if (strength) {
+      if (strength && history.length) {
         ghosts.forEach(function(g, i) {
-          var sample = sampleAt(now - (i + 1) * DELAY_MS);
+          // Freeze the delayed poses at the moment of disappearance.
+          // Do not advance sample time after the source becomes hidden.
+          var sampleTime = visible ? now : history[history.length - 1].t;
+          var sample = sampleAt(sampleTime - (i + 1) * DELAY_MS);
           if (!sample) return;
           var alpha = 0.85 * Math.pow(1 - i / COUNT, 1.35) * strength;
           g.style.opacity = alpha.toFixed(3);
