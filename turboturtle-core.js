@@ -10636,8 +10636,8 @@ if (width < 1920) {
 
 
 /* ============================================================
-   HOME2 CRYSTAL ONLY — independent CSS filter animation
-   Saturation 112%, Brightness 130%, Hue 360deg / 0.3s
+   RAINBOW_SHINNING — reusable CSS filter animation
+   Contrast 55%, Saturation 100%, Brightness 140%, Hue 360deg / 0.2s
    Does not modify GSAP transforms or any existing Core JS logic.
    ============================================================ */
 (function () {
@@ -10650,6 +10650,6 @@ if (width < 1920) {
     "from { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(0deg); }" +
     "to { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(360deg); }" +
     "}" +
-    ".home2_crystal { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
+    ".rainbow_shinning { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
   document.head.appendChild(style);
 })();
