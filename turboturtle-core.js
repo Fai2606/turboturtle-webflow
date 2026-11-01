@@ -7774,7 +7774,7 @@ if (
     var DELAY_MS = 30;
     // HOME6 — SINGLE COLOR FOR UFO TRAIL + UFO LIGHT
     // Change this HEX value to recolor both effects.
-    var HOME6_UFO_COLOR = "#8df3e3";
+    var HOME6_UFO_COLOR = "#efff5b";
     var PALETTE = [HOME6_UFO_COLOR];
     // No palette rotation: both effects stay solid-coloured.
     var PALETTE_STEP_MS = 1000;
