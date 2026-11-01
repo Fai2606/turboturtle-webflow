@@ -7821,7 +7821,7 @@ if (
     layer.setAttribute("data-tt-home6-ufo-afterimages", "clones-v15");
     Object.assign(layer.style, {
       position: "absolute", left: "0", top: "0", width: "0", height: "0",
-      overflow: "visible", pointerEvents: "none", zIndex: "-40",
+      overflow: "visible", pointerEvents: "none", zIndex: "-100",
       visibility: "hidden"
     });
     parent.insertBefore(layer, home6UFO);
