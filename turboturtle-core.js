@@ -7772,34 +7772,13 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 30;
-    // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
-    // Only the palette changes; clone movement, spacing and fade stay untouched.
-    function circleTextTrailColor(hue) {
-      var r=175/255, g=231/255, b=218/255;
-      var hi=Math.max(r,g,b), lo=Math.min(r,g,b), d=hi-lo;
-      var h0=((b-r)/d+2)*60;
-      var h=((h0+hue)%360+360)%360;
-      var c=d, x=c*(1-Math.abs((h/60)%2-1)), m=lo;
-      var rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
-              h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
-      return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
-    }
-    var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
-    // ==========================================================
-    // HOME6 — INDEPENDENT COLOR CYCLE SPEEDS (SECONDS)
-    // Change ONLY these two numbers. Smaller = faster.
-    // A full cycle passes through all 12 palette hues.
-    // ==========================================================
-    var UFO_TRAIL_CYCLE_SECONDS = 1.08;  // UFO moving trail: 360-degree cycle
-    var UFO_LIGHT_CYCLE_SECONDS = 0.24; // UFO rainbowlight: full palette cycle (seconds)
-
-    var PALETTE_STEP_MS = Math.max(1, UFO_TRAIL_CYCLE_SECONDS * 1000 / 12);
-    var RAINBOW_STEP_MS = Math.max(1, UFO_LIGHT_CYCLE_SECONDS * 1000 / 12);
-    // HOME6 LIGHT — vertically travelling TWO-COLOR gradient.
-    // Edit this palette freely (Method B). Only adjacent colors appear at once.
-    var UFO_LIGHT_GRADIENT_COLORS = [
-       "#b3d9f1", "#e8ff4a", "#f8c3f5"
-    ];
+    // HOME6 — SINGLE COLOR FOR UFO TRAIL + UFO LIGHT
+    // Change this HEX value to recolor both effects.
+    var HOME6_UFO_COLOR = "#8df3e3";
+    var PALETTE = [HOME6_UFO_COLOR];
+    // No palette rotation: both effects stay solid-coloured.
+    var PALETTE_STEP_MS = 1000;
+    var UFO_LIGHT_GRADIENT_COLORS = [HOME6_UFO_COLOR];
     var rainbowLight = document.querySelector('.home6_light .rainbowlight');
     var rainbowGradient = null;
     var rainbowGradientParent = null;
@@ -7942,17 +7921,9 @@ if (
         rainbowGradient.style.width = rainbowLight.offsetWidth + 'px';
         rainbowGradient.style.height = rainbowLight.offsetHeight + 'px';
         rainbowGradient.style.transform = getComputedStyle(rainbowLight).transform;
-        var lightColors = UFO_LIGHT_GRADIENT_COLORS;
-        var cycleMs = Math.max(50, UFO_LIGHT_CYCLE_SECONDS * 1000);
-        var position = ((now % cycleMs) / cycleMs) * lightColors.length;
-        var index = Math.floor(position);
-        var blend = position - index;
-        var c1 = ttMixColor(lightColors[index % lightColors.length], lightColors[(index+1) % lightColors.length], blend);
-        var c2 = ttMixColor(lightColors[(index+1) % lightColors.length], lightColors[(index+2) % lightColors.length], blend);
-        // Two colors at a time, smoothly shifting downward across the mask.
-        // Seamless loop: at the end of each segment, both gradient endpoints
-        // equal the next segment's starting endpoints. Never reset backgroundPosition.
-        rainbowGradient.style.backgroundImage = 'linear-gradient(to bottom, ' + c1 + ' 0%, ' + c2 + ' 100%)';
+        // Solid fill instead of the former animated gradient.
+        rainbowGradient.style.backgroundImage = 'none';
+        rainbowGradient.style.backgroundColor = HOME6_UFO_COLOR;
         rainbowGradient.style.backgroundSize = '100% 100%';
         rainbowGradient.style.backgroundPosition = '0 0';
       }
