@@ -7791,14 +7791,14 @@ if (
     // A full cycle passes through all 12 palette hues.
     // ==========================================================
     var UFO_TRAIL_CYCLE_SECONDS = 1.08;  // UFO moving trail: 360-degree cycle
-    var UFO_LIGHT_CYCLE_SECONDS = 0.24; // UFO rainbowlight: full palette cycle (seconds)
+    var UFO_LIGHT_CYCLE_SECONDS = 0.5; // UFO rainbowlight: full palette cycle (seconds)
 
     var PALETTE_STEP_MS = Math.max(1, UFO_TRAIL_CYCLE_SECONDS * 1000 / 12);
     var RAINBOW_STEP_MS = Math.max(1, UFO_LIGHT_CYCLE_SECONDS * 1000 / 12);
     // HOME6 LIGHT — vertically travelling TWO-COLOR gradient.
     // Edit this palette freely (Method B). Only adjacent colors appear at once.
     var UFO_LIGHT_GRADIENT_COLORS = [
-      "#ced562", "#6ccbc5", "#c982c8", "#8d9cbf"
+      "#ffa9f0", "#92c5ff", "#e4ff76", "#9ba9ff"
     ];
     var rainbowLight = document.querySelector('.home6_light .rainbowlight');
     var rainbowGradient = null;
