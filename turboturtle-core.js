@@ -4979,48 +4979,18 @@ function initHomeSection4() {
 
 
   // ==========================================================
-  // HOME4 DOT — CIRCULAR MASK REVEAL (10px -> 800px)
-  // The image stays at its full size while the circular viewport grows.
+  // HOME4 DOT — SCROLL SCALE (0.2 -> 0.6)
+  // Begins when dot top enters viewport bottom.
   // ==========================================================
 
   var home4Dots = gsap.utils.toArray(".home4_dot");
 
   home4Dots.forEach(function (dot) {
-    // Prevent the old transform-scale behavior from shrinking contents.
-    gsap.set(dot, {
-      scale: 1,
-      width: 10,
-      height: 10,
-      overflow: "hidden",
-      borderRadius: "50%"
-    });
-
-    // Keep the image at its final dimensions, independent of the mask size.
-    // Centering ensures the same portion of the image is revealed at every size.
-    var dotImage = dot.matches("img") ? null : dot.querySelector("img");
-    if (dotImage) {
-      gsap.set(dotImage, {
-        width: 800,
-        height: 800,
-        maxWidth: "none",
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        xPercent: -50,
-        yPercent: -50,
-        objectFit: "cover"
-      });
-      if (getComputedStyle(dot).position === "static") {
-        dot.style.position = "relative";
-      }
-    }
-
     gsap.fromTo(dot,
-      { width: 10, height: 10 },
+      { scale: 0.1 },
       {
-        width: 800,
-        height: 800,
-        ease: "power3.inOut",
+        scale: 0.75,
+        ease: "power3.inout",
         immediateRender: false,
         scrollTrigger: {
           trigger: dot,
@@ -7802,41 +7772,35 @@ if (
     // No exit timer, no fabricated return trajectory, no onLeaveBack event.
     var COUNT = 6;
     var DELAY_MS = 30;
-    // HOME6 — SINGLE COLOR FOR UFO TRAIL + UFO LIGHT
-    // Change this HEX value to recolor both effects.
-    var HOME6_UFO_COLOR = "#8df3e3";
-    var PALETTE = [HOME6_UFO_COLOR];
-    // No palette rotation: both effects stay solid-coloured.
-    var PALETTE_STEP_MS = 1000;
-    var UFO_LIGHT_GRADIENT_COLORS = [HOME6_UFO_COLOR];
-    var rainbowLight = document.querySelector('.home6_light .rainbowlight');
-    var rainbowGradient = null;
-    var rainbowGradientParent = null;
-    if (rainbowLight && rainbowLight.parentElement) {
-      rainbowGradientParent = rainbowLight.parentElement;
-      if (getComputedStyle(rainbowGradientParent).position === 'static') {
-        rainbowGradientParent.style.position = 'relative';
-      }
-      rainbowGradient = document.createElement('div');
-      rainbowGradient.setAttribute('data-tt-rainbowlight-gradient', '');
-      Object.assign(rainbowGradient.style, {
-        position: 'absolute', pointerEvents: 'none',
-        maskRepeat: 'no-repeat', webkitMaskRepeat: 'no-repeat',
-        maskSize: '100% 100%', webkitMaskSize: '100% 100%',
-        zIndex: getComputedStyle(rainbowLight).zIndex === 'auto' ? '1' : getComputedStyle(rainbowLight).zIndex
-      });
-      rainbowLight.insertAdjacentElement('afterend', rainbowGradient);
-      // Keep the image in the layout; show its silhouette via the gradient mask.
-      rainbowLight.style.opacity = '0';
+    // Same mint-based hue cycle as the draggable .circle_text (#afe7da).
+    // Only the palette changes; clone movement, spacing and fade stay untouched.
+    function circleTextTrailColor(hue) {
+      var r=175/255, g=231/255, b=218/255;
+      var hi=Math.max(r,g,b), lo=Math.min(r,g,b), d=hi-lo;
+      var h0=((b-r)/d+2)*60;
+      var h=((h0+hue)%360+360)%360;
+      var c=d, x=c*(1-Math.abs((h/60)%2-1)), m=lo;
+      var rgb=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:
+              h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+      return 'rgb('+rgb.map(function(v){return Math.round((v+m)*255);}).join(',')+')';
     }
-    function ttHexRgb(hex) {
-      var n = parseInt(hex.replace('#',''),16);
-      return [(n>>16)&255,(n>>8)&255,n&255];
-    }
-    function ttMixColor(a,b,t) {
-      var x=ttHexRgb(a), y=ttHexRgb(b);
-      return 'rgb(' + x.map(function(v,i){return Math.round(v+(y[i]-v)*t);}).join(',') + ')';
-    }
+    var PALETTE = Array.from({length:12},function(_,i){return circleTextTrailColor(i*30);});
+    // ==========================================================
+    // HOME6 — INDEPENDENT COLOR CYCLE SPEEDS (SECONDS)
+    // Change ONLY these two numbers. Smaller = faster.
+    // A full cycle passes through all 12 palette hues.
+    // ==========================================================
+    var UFO_TRAIL_CYCLE_SECONDS = 1.08;  // UFO moving trail: 360-degree cycle
+    var UFO_LIGHT_CYCLE_SECONDS = 0.24; // UFO rainbowlight: 360-degree cycle
+
+    var PALETTE_STEP_MS = Math.max(1, UFO_TRAIL_CYCLE_SECONDS * 1000 / 12);
+    var RAINBOW_STEP_MS = Math.max(1, UFO_LIGHT_CYCLE_SECONDS * 1000 / 12);
+    // HOME6 LIGHT SVG: synchronize hue rotation with UFO clone palette.
+    // White SVG: first tint it mint with CSS filters, then animate hue rotation.
+    var rainbowLight = document.querySelector('.home6_light .rainbowlight') ||
+      document.querySelector('.home6_light img');
+    var lastRainbowHue = -1;
+    var RAINBOW_LIGHT_HUE_OFFSET = 0; // degrees; adjust if source SVG hue differs
     var CLONE_HUE_OFFSET_STEPS = 0;
     var FADE_IN_MS = 95;
     var FADE_OUT_MS = 150;
@@ -7936,26 +7900,13 @@ if (
       var active = inView && style.visibility!=="hidden" && progress>0.0001;
 
       var paletteStep = Math.floor(now/PALETTE_STEP_MS);
-      if (rainbowGradient && rainbowLight) {
-        var source = rainbowLight.currentSrc || rainbowLight.src;
-        if (source) {
-          var maskUrl = 'url("' + source.replace(/"/g,'%22') + '")';
-          if (rainbowGradient.style.maskImage !== maskUrl) {
-            rainbowGradient.style.maskImage = maskUrl;
-            rainbowGradient.style.webkitMaskImage = maskUrl;
-          }
+      if (rainbowLight) {
+        var rainbowStep = Math.floor(now/RAINBOW_STEP_MS);
+        var rainbowHue = ((rainbowStep % PALETTE.length) * 30 + RAINBOW_LIGHT_HUE_OFFSET) % 360;
+        if (rainbowHue !== lastRainbowHue) {
+          rainbowLight.style.filter = 'brightness(0) saturate(100%) invert(89%) sepia(16%) saturate(395%) hue-rotate(105deg) brightness(99%) contrast(90%) hue-rotate(' + rainbowHue + 'deg)';
+          lastRainbowHue = rainbowHue;
         }
-        // Mirror the actual SVG image box (including Webflow sizing).
-        rainbowGradient.style.left = rainbowLight.offsetLeft + 'px';
-        rainbowGradient.style.top = rainbowLight.offsetTop + 'px';
-        rainbowGradient.style.width = rainbowLight.offsetWidth + 'px';
-        rainbowGradient.style.height = rainbowLight.offsetHeight + 'px';
-        rainbowGradient.style.transform = getComputedStyle(rainbowLight).transform;
-        // Solid fill instead of the former animated gradient.
-        rainbowGradient.style.backgroundImage = 'none';
-        rainbowGradient.style.backgroundColor = HOME6_UFO_COLOR;
-        rainbowGradient.style.backgroundSize = '100% 100%';
-        rainbowGradient.style.backgroundPosition = '0 0';
       }
       if (paletteStep !== lastPaletteStep) {
         lastPaletteStep = paletteStep;
@@ -10685,12 +10636,12 @@ if (width < 1920) {
 
 
 /* ============================================================
-   REUSABLE .rainbow_shinning — independent CSS filter animation
+   HOME2 CRYSTAL ONLY — independent CSS filter animation
    Saturation 112%, Brightness 130%, Hue 360deg / 0.3s
    Does not modify GSAP transforms or any existing Core JS logic.
    ============================================================ */
 (function () {
-  var styleId = "tt-rainbow-shinning-reusable";
+  var styleId = "tt-home2-crystal-filter-only";
   if (document.getElementById(styleId)) return;
   var style = document.createElement("style");
   style.id = styleId;
@@ -10699,6 +10650,6 @@ if (width < 1920) {
     "from { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(0deg); }" +
     "to { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(360deg); }" +
     "}" +
-    ".rainbow_shinning { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
+    ".home2_crystal { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
   document.head.appendChild(style);
 })();
