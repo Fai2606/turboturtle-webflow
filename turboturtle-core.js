@@ -1279,15 +1279,32 @@ if (
 
 }
       // -------------------------------------------------------------
-      // HIGHLIGHT
+      // HIGHLIGHT — black bar behind existing #EEE text
+      // Self-contained CSS; does not change Webflow text styling.
       // -------------------------------------------------------------
+      if (!document.getElementById("tt-black-highlight-style")) {
+        var highlightStyle = document.createElement("style");
+        highlightStyle.id = "tt-black-highlight-style";
+        highlightStyle.textContent = [
+          ".black_highlight { position: relative; isolation: isolate; }",
+          ".black_highlight::before {",
+          "  content: ''; position: absolute; inset: 0;",
+          "  background: #000; z-index: -1; pointer-events: none;",
+          "  transform: scaleX(var(--highlight-scale, 0));",
+          "  transform-origin: left center;",
+          "  transition: transform 0.6s ease;",
+          "}"
+        ].join("\n");
+        document.head.appendChild(highlightStyle);
+      }
+
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
         ScrollTrigger.create({
           trigger: el,
           start: "top 85%",
           end: "bottom 0%",
           onEnter: function () { el.style.setProperty("--highlight-scale", "1"); },
-          onLeave: function () { el.style.setProperty("--highlight-scale", "0"); },
+          onLeave: function () { el.style.setProperty("--highlight-scale", "1"); },
           onEnterBack: function () { el.style.setProperty("--highlight-scale", "1"); },
           onLeaveBack: function () { el.style.setProperty("--highlight-scale", "0"); }
         });
