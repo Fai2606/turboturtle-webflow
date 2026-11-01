@@ -7798,7 +7798,7 @@ if (
     // HOME6 LIGHT — vertically travelling TWO-COLOR gradient.
     // Edit this palette freely (Method B). Only adjacent colors appear at once.
     var UFO_LIGHT_GRADIENT_COLORS = [
-      "#e2ff22", "#6ccbc5"
+      "#e8ff4a", "#ffa9f0", "#95d6ff"
     ];
     var rainbowLight = document.querySelector('.home6_light .rainbowlight');
     var rainbowGradient = null;
