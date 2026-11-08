@@ -1279,37 +1279,40 @@ if (
 
 }
       // -------------------------------------------------------------
-      // HIGHLIGHT — black bar behind existing #EEE text
-      // Self-contained CSS; does not change Webflow text styling.
+      // HIGHLIGHT — line-by-line black bar behind existing #EEE text
+      // Inline text backgrounds follow actual glyph line lengths, not parent width.
       // -------------------------------------------------------------
       if (!document.getElementById("tt-black-highlight-style")) {
         var highlightStyle = document.createElement("style");
         highlightStyle.id = "tt-black-highlight-style";
         highlightStyle.textContent = [
-          ".black_highlight { position: relative; isolation: isolate; }",
-          ".black_highlight::before {",
-          "  content: ''; position: absolute; inset: 0;",
-          "  background: #000; z-index: -1; pointer-events: none;",
-          "  transform: scaleX(var(--highlight-scale, 0));",
-          "  transform-origin: left center;",
-          "  transition: transform 0.6s ease;",
+          ".black_highlight {",
+          "  display: inline !important; width: auto !important;",
+          "  background-image: linear-gradient(#000, #000);",
+          "  background-repeat: no-repeat;",
+          "  background-size: var(--highlight-width, 0%) 100%;",
+          "  -webkit-box-decoration-break: clone; box-decoration-break: clone;",
+          "  transition: background-size 0.6s ease;",
           "}"
         ].join("\n");
         document.head.appendChild(highlightStyle);
       }
 
       gsap.utils.toArray(".black_highlight").forEach(function (el) {
+        // Remove the previous version's inline variable, if present.
+        el.style.removeProperty("--highlight-scale");
         ScrollTrigger.create({
           trigger: el,
           start: "top 85%",
           end: "bottom 0%",
-          onEnter: function () { el.style.setProperty("--highlight-scale", "1"); },
-          onLeave: function () { el.style.setProperty("--highlight-scale", "1"); },
-          onEnterBack: function () { el.style.setProperty("--highlight-scale", "1"); },
-          onLeaveBack: function () { el.style.setProperty("--highlight-scale", "0"); }
+          onEnter: function () { el.style.setProperty("--highlight-width", "100%"); },
+          onLeave: function () { el.style.setProperty("--highlight-width", "100%"); },
+          onEnterBack: function () { el.style.setProperty("--highlight-width", "100%"); },
+          onLeaveBack: function () { el.style.setProperty("--highlight-width", "0%"); }
         });
       });
 
+      // -------------------------------------------------------------
       // -------------------------------------------------------------
       // FADE UP
       // -------------------------------------------------------------
