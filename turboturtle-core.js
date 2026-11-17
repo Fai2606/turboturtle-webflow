@@ -27,8 +27,6 @@ var vh = getRealViewportHeight() / 100;
 var lastWidth =
   getRealViewportWidth();
 
-var lastHeight =
-  getRealViewportHeight();
 
 
 root.addEventListener("resize", function () {
@@ -62,8 +60,6 @@ root.addEventListener("resize", function () {
   lastWidth =
     currentWidth;
 
-  lastHeight =
-    currentHeight;
 
 
   if (root.ScrollTrigger) {
@@ -96,112 +92,10 @@ root.addEventListener("resize", function () {
       gsap = root.gsap;
       ScrollTrigger = root.ScrollTrigger;
       MorphSVGPlugin = root.MorphSVGPlugin;
-      var SplitText = root.SplitText;
       var ttClouds = gsap.utils.toArray(".home2_cloud, .general_cloud");
       if (ttClouds.length) gsap.set(ttClouds, { opacity: 1 });
-  
 
 
-
-      // ============================================================
-      // GLOBAL — SPLITTEXT SCATTER / UNIFY / SCATTER
-      // Unified from top 60% to top 40%
-      // ============================================================
-
-      var SPLITTEXT_SETTINGS = {
-        scatterX: 50,
-        scatterY: 35,
-        scatterRotation: 30,
-        scrub: 1
-      };
-
-      if (SplitText) {
-
-        gsap.utils.toArray(".splittext").forEach(function(el) {
-
-          var split = SplitText.create(el, {
-            type: "chars",
-            charsClass: "splittext_char"
-          });
-
-          var chars = split.chars;
-
-          var scatterData = chars.map(function() {
-            return {
-              x: gsap.utils.random(
-                -SPLITTEXT_SETTINGS.scatterX,
-                SPLITTEXT_SETTINGS.scatterX
-              ),
-              y: gsap.utils.random(
-                -SPLITTEXT_SETTINGS.scatterY,
-                SPLITTEXT_SETTINGS.scatterY
-              ),
-              rotation: gsap.utils.random(
-                -SPLITTEXT_SETTINGS.scatterRotation,
-                SPLITTEXT_SETTINGS.scatterRotation
-              )
-            };
-          });
-
-          // Initial scattered state
-          chars.forEach(function(char, i) {
-            gsap.set(char, {
-              display: "inline-block",
-              x: scatterData[i].x,
-              y: scatterData[i].y,
-              rotation: scatterData[i].rotation
-            });
-          });
-
-          var tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: el,
-              start: "top 100%",
-              end: "top 0%",
-              scrub: SPLITTEXT_SETTINGS.scrub,
-              invalidateOnRefresh: true
-            }
-          });
-
-          // ========================================================
-          // TOP 100% → 60%: UNIFY (EASE OUT)
-          // ========================================================
-
-          tl.to(chars, {
-            x: 0,
-            y: 0,
-            rotation: 0,
-            duration: 0.4,
-            ease: "power2.out"
-          }, 0);
-
-          // ========================================================
-          // TOP 60% → 40%: HOLD UNIFIED
-          // ========================================================
-
-          tl.to({}, {
-            duration: 0.2
-          }, 0.4);
-
-          // ========================================================
-          // TOP 40% → 0%: SPLIT (EASE IN)
-          // ========================================================
-
-          chars.forEach(function(char, i) {
-            tl.to(char, {
-              x: scatterData[i].x,
-              y: scatterData[i].y,
-              rotation: scatterData[i].rotation,
-              duration: 0.4,
-              ease: "power2.in"
-            }, 0.6);
-          });
-
-        });
-
-      } else {
-        console.warn("[TT] SplitText plugin not loaded.");
-      }
 
 
 
@@ -522,7 +416,6 @@ tweenIf(".spacecats", stable({ targetEl: ".spacecats", x: () => -3 * vw, y: () =
 tweenIf(".about_saturn", stable({ targetEl: ".about_saturn", x: () => -2 * vw, y: () => 30 * vh, rotation: -25, scale: 0.9, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
 tweenIf(".satellitemove", stable({ targetEl: ".satellitemove", x: () => 10 * vw, y: () => 50 * vh, rotation: 15, scale: 0.85, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
 tweenIf(".about_watermoon", stable({ targetEl: ".about_watermoon", yPercent: 35, ease: "none", scrollTrigger: { trigger: ".about_watermoon", start: "-20% bottom", end: "bottom -20%", scrub: true } }));
-tweenIf(".about_section_1", stable({ targetEl: ".about_section_1", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: parallaxTrigger, start: "top top", end: "bottom bottom", scrub: true } }));
 tweenIf(".about_section_2", stable({ targetEl: ".about_section_2", y: () => -10 * vh, ease: "none", scrollTrigger: { trigger: ".about_section_2", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".lakeshrink", stable({ targetEl: ".lakeshrink", scaleY: 0.2, ease: "none", scrollTrigger: { trigger: ".lakeshrink", start: "top bottom", end: "bottom top", scrub: true } }));
 tweenIf(".duckswim", stable({ targetEl: ".duckswim", x: () => -5 * vw - 80, yPercent: -35, ease: "none", scrollTrigger: { trigger: ".duckswim", start: "top bottom", end: "bottom top", scrub: true } }));
@@ -586,26 +479,6 @@ if (giantSquid) {
   });
 }
       
-      if (exists(".about_balloon")) {
-        gsap.set(".about_balloon", { force3D: true, z: 0.1 });
-
-        gsap.fromTo(
-          ".about_balloon",
-          { y: "0vh", yPercent: 0 },
-          {
-            y: "50vh",
-            yPercent: 50,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".about_balloon",
-              start: "top 120%",
-              end: "bottom top",
-              scrub: 1,
-              fastScrollEnd: true
-            }
-          }
-        );
-      }
 
 // -------------------------------------------------------------
 // ABOUT US — CITY REVEALS
@@ -1310,31 +1183,6 @@ if (
           onEnterBack: function () { el.style.setProperty("--highlight-width", "100%"); },
           onLeaveBack: function () { el.style.setProperty("--highlight-width", "0%"); }
         });
-      });
-
-      // -------------------------------------------------------------
-      // -------------------------------------------------------------
-      // FADE UP
-      // -------------------------------------------------------------
-      gsap.utils.toArray(".fadeup").forEach(function (el) {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            force3D: true,
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: el,
-              start: "top 80%",
-              end: "top 10%",
-              toggleActions: "play reverse play reverse"
-            }
-          }
-        );
       });
 
       // -------------------------------------------------------------
@@ -2164,7 +2012,6 @@ function ensureX() {
     var RELEASED_CYCLE_MS = 8000;
     var COLOR_TRANSITION_S = 0.1;
     var colorTween = null;
-    var hueTweenTarget = { hue: 0 };
 
     function hsvColor(hue) {
       // Hue-rotate the exact #afe7da base (RGB 175,231,218), preserving
@@ -2268,8 +2115,6 @@ function ensureX() {
     // The base owns the docked layout; the wrapper is absolute inside it.
     // Only undock into a fixed-position physics layer when interaction begins.
     var w = bounds.width, h = bounds.height;
-    var rightGap = document.documentElement.clientWidth - bounds.right;
-    var bottomGap = document.documentElement.clientHeight - bounds.bottom;
     // Webflow controls the docked dimensions. When the ball is detached,
     // preserve the ACTUAL rendered ball dimensions in its temporary wrapper.
     // Never impose a viewport-based sizing formula on the ball.
@@ -3012,9 +2857,7 @@ function ensureX() {
     var realMoon2 = q(".home1_realmoon2");
     var cloud = q(".home1_cloud");
     var pyramid = q(".home1_pyramid");
-    var text = q(".home_kv");
     var goose = q(".home1_goose");
-    var galaxy = q(".home1_galaxy");
   
     if (!section || !gsap || !ScrollTrigger) return;
   
@@ -5202,7 +5045,6 @@ function initHomeSection5() {
   var rocketTip = q(".home5_rockettip");
   var burger = q(".home5_burger");
   var bear = q(".home5_bear");
-  var bloodcell = q(".home5_bloodcell");
   var jetman = q(".home5_jetman");
   var umbrellaCat = q(".home5_umbrellacat");
   var galaxy = q(".home5_galaxy");
@@ -5693,8 +5535,6 @@ function initHomeSection5() {
 
       onUpdate: function(self) {
 
-        var viewportWidth =
-          document.documentElement.clientWidth;
 
         var viewportHeight =
           document.documentElement.clientHeight;
@@ -9843,352 +9683,6 @@ function initHomeResponsiveScale() {
 })();
 
 
-// ==========================================================
-// REUSABLE SLOWER-SCROLL PARALLAX
-// Add class: .moveslower2 (midway between .moveslower1 and .moveslower3)
-// iOS Safari viewport-height safe
-// ==========================================================
-
-(function () {
-
-  var elements = gsap.utils.toArray(".moveslower2");
-
-  if (!elements.length) return;
-
-  // ========================================================
-  // EASY SETTINGS
-  // ========================================================
-
-  var MOVESLOWER2_SPEED_DESKTOP = 0.7375;
-  var MOVESLOWER2_SPEED_MOBILE  = 0.775;
-
-  // Desktop: 0.7375 (26.25% slower); Mobile: 0.775 (22.5% slower)
-  // 1.0 = normal page scroll speed
-  // 0.8 = 20% slower
-  // 0.5 = half speed
-  // 0.3 = very slow
-
-  // ========================================================
-
-  var previousWidth =
-    document.documentElement.clientWidth;
-
-  var fixedViewportHeight =
-    document.documentElement.clientHeight;
-
-  var resizeTimer;
-
-  function getScroll() {
-    return (
-      lenis &&
-      typeof lenis.scroll === "number"
-    )
-      ? lenis.scroll
-      : (window.scrollY || 0);
-  }
-
-  function getSpeed() {
-    return isMobile
-      ? MOVESLOWER2_SPEED_MOBILE
-      : MOVESLOWER2_SPEED_DESKTOP;
-  }
-
-
-  elements.forEach(function (el) {
-
-    var startScroll = 0;
-
-    gsap.set(el, {
-      y: 0,
-      force3D: false
-    });
-
-    var setY = gsap.quickSetter(
-      el,
-      "y",
-      "px"
-    );
-
-
-    function update() {
-
-      var scroll = getScroll();
-
-      var distance = Math.max(
-        0,
-        scroll - startScroll
-      );
-
-      var y =
-        distance *
-        (1 - getSpeed());
-
-      setY(y);
-    }
-
-
-    function measure() {
-
-      // reset before measuring actual layout position
-      setY(0);
-
-      var scroll = getScroll();
-
-      var elementTop =
-        el.getBoundingClientRect().top +
-        scroll;
-
-      startScroll =
-        elementTop -
-        fixedViewportHeight;
-
-      update();
-    }
-
-
-    // Lenis scroll
-    if (lenis && lenis.on) {
-      lenis.on("scroll", update);
-    }
-
-    // Native scroll fallback
-    window.addEventListener(
-      "scroll",
-      update,
-      { passive: true }
-    );
-
-
-    // Initial measure
-    requestAnimationFrame(function () {
-      requestAnimationFrame(measure);
-    });
-
-
-    // Store measure function on element
-    el._moveslower2Measure = measure;
-
-  });
-
-
-  // ========================================================
-  // RESIZE
-  // Ignore iOS Safari height-only changes
-  // ========================================================
-
-  window.addEventListener("resize", function () {
-
-    var currentWidth =
-      document.documentElement.clientWidth;
-
-    // Ignore Safari browser bar viewport-height changes
-    if (
-      Math.abs(
-        currentWidth - previousWidth
-      ) < 20
-    ) {
-      return;
-    }
-
-    previousWidth = currentWidth;
-
-    clearTimeout(resizeTimer);
-
-    resizeTimer = setTimeout(function () {
-
-      fixedViewportHeight =
-        document.documentElement.clientHeight;
-
-      elements.forEach(function (el) {
-
-        if (el._moveslower2Measure) {
-          el._moveslower2Measure();
-        }
-
-      });
-
-    }, 200);
-
-  }, { passive: true });
-
-
-})();
-
-
-
-
-  
-
-// ==========================================================
-// REUSABLE SLOWER-SCROLL PARALLAX
-// Add class: .moveslower3 (half the slowing effect of .moveslower1)
-// iOS Safari viewport-height safe
-// ==========================================================
-
-(function () {
-
-  var elements = gsap.utils.toArray(".moveslower3");
-
-  if (!elements.length) return;
-
-  // ========================================================
-  // EASY SETTINGS
-  // ========================================================
-
-  var MOVESLOWER3_SPEED_DESKTOP = 0.825;
-  var MOVESLOWER3_SPEED_MOBILE  = 0.85;
-
-  // Desktop: 0.825 (17.5% slower); Mobile: 0.85 (15% slower)
-  // 1.0 = normal page scroll speed
-  // 0.8 = 20% slower
-  // 0.5 = half speed
-  // 0.3 = very slow
-
-  // ========================================================
-
-  var previousWidth =
-    document.documentElement.clientWidth;
-
-  var fixedViewportHeight =
-    document.documentElement.clientHeight;
-
-  var resizeTimer;
-
-  function getScroll() {
-    return (
-      lenis &&
-      typeof lenis.scroll === "number"
-    )
-      ? lenis.scroll
-      : (window.scrollY || 0);
-  }
-
-  function getSpeed() {
-    return isMobile
-      ? MOVESLOWER3_SPEED_MOBILE
-      : MOVESLOWER3_SPEED_DESKTOP;
-  }
-
-
-  elements.forEach(function (el) {
-
-    var startScroll = 0;
-
-    gsap.set(el, {
-      y: 0,
-      force3D: false
-    });
-
-    var setY = gsap.quickSetter(
-      el,
-      "y",
-      "px"
-    );
-
-
-    function update() {
-
-      var scroll = getScroll();
-
-      var distance = Math.max(
-        0,
-        scroll - startScroll
-      );
-
-      var y =
-        distance *
-        (1 - getSpeed());
-
-      setY(y);
-    }
-
-
-    function measure() {
-
-      // reset before measuring actual layout position
-      setY(0);
-
-      var scroll = getScroll();
-
-      var elementTop =
-        el.getBoundingClientRect().top +
-        scroll;
-
-      startScroll =
-        elementTop -
-        fixedViewportHeight;
-
-      update();
-    }
-
-
-    // Lenis scroll
-    if (lenis && lenis.on) {
-      lenis.on("scroll", update);
-    }
-
-    // Native scroll fallback
-    window.addEventListener(
-      "scroll",
-      update,
-      { passive: true }
-    );
-
-
-    // Initial measure
-    requestAnimationFrame(function () {
-      requestAnimationFrame(measure);
-    });
-
-
-    // Store measure function on element
-    el._moveslower3Measure = measure;
-
-  });
-
-
-  // ========================================================
-  // RESIZE
-  // Ignore iOS Safari height-only changes
-  // ========================================================
-
-  window.addEventListener("resize", function () {
-
-    var currentWidth =
-      document.documentElement.clientWidth;
-
-    // Ignore Safari browser bar viewport-height changes
-    if (
-      Math.abs(
-        currentWidth - previousWidth
-      ) < 20
-    ) {
-      return;
-    }
-
-    previousWidth = currentWidth;
-
-    clearTimeout(resizeTimer);
-
-    resizeTimer = setTimeout(function () {
-
-      fixedViewportHeight =
-        document.documentElement.clientHeight;
-
-      elements.forEach(function (el) {
-
-        if (el._moveslower3Measure) {
-          el._moveslower3Measure();
-        }
-
-      });
-
-    }, 200);
-
-  }, { passive: true });
-
-
-})();
 
 
 
@@ -10673,3 +10167,4 @@ if (width < 1920) {
     ".rainbow_shinning { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
   document.head.appendChild(style);
 })();
+
