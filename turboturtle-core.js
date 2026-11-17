@@ -10164,7 +10164,8 @@ if (width < 1920) {
     "from { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(0deg); }" +
     "to { filter: contrast(0.55) saturate(1.00) brightness(1.4) hue-rotate(360deg); }" +
     "}" +
-    ".rainbow_shinning { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
+    ".rainbow_shining { animation: ttHome2CrystalHueOnly 0.2s linear infinite; }";
   document.head.appendChild(style);
 })();
+
 
