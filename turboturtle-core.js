@@ -1353,27 +1353,7 @@ if (
       // -------------------------------------------------------------
       // OFFSCREEN VIDEO AUTO PAUSE
       // -------------------------------------------------------------
-      var vids = document.querySelectorAll(".about_onceupon video, video[data-pause-offscreen]");
-
-      if (vids.length) {
-        vids.forEach(function (v) {
-          v.setAttribute("playsinline", "");
-          v.setAttribute("muted", "");
-        });
-
-        vids.forEach(function (v) {
-          ScrollTrigger.create({
-            trigger: v,
-            start: "top 120%",
-            end: "bottom -20%",
-            onEnter: function () { try { v.play && v.play(); } catch (e) {} },
-            onEnterBack: function () { try { v.play && v.play(); } catch (e) {} },
-            onLeave: function () { try { v.pause && v.pause(); } catch (e) {} },
-            onLeaveBack: function () { try { v.pause && v.pause(); } catch (e) {} }
-          });
-        });
-      }
-
+      // Video visibility is managed globally below, including embedded videos.
 
     // -------------------------------------------------------------
     // ABOUT US UFO
@@ -10169,3 +10149,76 @@ if (width < 1920) {
 })();
 
 
+
+
+// Native videos, including videos inside Webflow code embeds/backgrounds.
+// Keep their sources and playhead; resume only autoplay/previously playing media.
+(function () {
+  "use strict";
+  if (window.ttVideoVisibility || !("IntersectionObserver" in window)) return;
+  var states = new Map();
+  function sync(state) {
+    var video = state.video;
+    var active = state.visible && !document.hidden;
+    video.setAttribute("data-tt-visibility-state", active ? "visible" : "paused");
+    if (!active) {
+      if (!video.paused) {
+        state.wanted = true;
+        state.policyPauses++;
+        video.pause();
+      }
+    } else if (state.wanted && video.paused && !video.ended && !state.playPending) {
+      state.playPending = true;
+      var attempt = video.play();
+      if (attempt && typeof attempt.then === "function") {
+        attempt.then(function () {
+          state.playPending = false;
+          if (!state.visible || document.hidden) sync(state);
+        }, function () {
+          state.playPending = false;
+          // Browser autoplay restrictions remain in force; retry on re-entry.
+        });
+      } else state.playPending = false;
+    }
+  }
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var state = states.get(entry.target);
+      if (!state) return;
+      state.visible = entry.isIntersecting && entry.intersectionRect.width > 0 && entry.intersectionRect.height > 0;
+      sync(state);
+    });
+  }, { threshold: 0 });
+  function add(video) {
+    if (states.has(video)) return;
+    var state = { video: video, visible: false, wanted: video.autoplay || !video.paused, policyPauses: 0, playPending: false };
+    states.set(video, state);
+    video.addEventListener("play", function () { state.wanted = true; sync(state); });
+    video.addEventListener("pause", function () {
+      if (state.policyPauses) state.policyPauses--;
+      else state.wanted = false; // Respect a visitor's own pause choice.
+    });
+    video.addEventListener("ended", function () { state.wanted = false; });
+    observer.observe(video);
+    sync(state);
+  }
+  function scan(node) {
+    if (node.nodeType !== 1 && node.nodeType !== 9) return;
+    if (node.matches && node.matches("video")) add(node);
+    node.querySelectorAll("video").forEach(add);
+  }
+  function init() {
+    scan(document);
+    new MutationObserver(function (records) {
+      records.forEach(function (record) { record.addedNodes.forEach(scan); });
+      states.forEach(function (state, video) {
+        if (!video.isConnected) { observer.unobserve(video); states.delete(video); }
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  document.addEventListener("visibilitychange", function () { states.forEach(sync); });
+  window.addEventListener("pageshow", function () { states.forEach(sync); });
+  window.ttVideoVisibility = { version: "2026-11-17", count: function () { return states.size; } };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
+})();
