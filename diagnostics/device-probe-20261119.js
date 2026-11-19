@@ -1,6 +1,7 @@
 (async function(){
 "use strict";
 if(document.readyState==="loading")await new Promise(r=>document.addEventListener("DOMContentLoaded",r,{once:true}));
+var readyStart=performance.now();while(!window.ttCoreReady||document.documentElement.classList.contains("tt-loading")||document.hidden){if(performance.now()-readyStart>120000)throw Error("Foreground/core readiness timed out");await new Promise(r=>setTimeout(r,200));}
 (function(){
   window.__vtResults=[];
   var token='TT-'+window.__ttVerifiedProbe.mode,events={touchstart:0,touchmove:0,touchend:0,wheel:0,pointerTouch:0,pointerMouse:0};
