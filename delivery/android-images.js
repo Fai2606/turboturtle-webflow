@@ -3,7 +3,7 @@
   "use strict";
   var production = true;
   var params = new URLSearchParams(window.location.search);
-  if (params.get("tt-android-images") === "off") return;
+  if (params.get("tt-android-images") === "off" || params.get("tt-mobile-test") === "1") return;
   var preview = params.get("tt-android-images") === "test";
   if ((!production && !preview) || !/Android/i.test(navigator.userAgent)) return;
   var media = window.matchMedia("(min-width: 320px) and (max-width: 479px) and (min-resolution: 2.5dppx)");
