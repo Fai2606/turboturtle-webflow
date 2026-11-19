@@ -198,6 +198,10 @@ root.addEventListener("resize", function () {
           force3D: true
         });
 
+        var pendulumSetters = pendulumElements.map(function(el) {
+          return gsap.quickSetter(el, "rotation", "deg");
+        });
+
         // ==========================================================
         // GLOBAL SCROLL INPUT
         // ==========================================================
@@ -330,15 +334,13 @@ root.addEventListener("resize", function () {
           // Apply to ALL pendulum_action elements
           // ------------------------------------------
 
-          pendulumElements.forEach(function(el) {
+          pendulumElements.forEach(function(el, index) {
           
             var magnitude = el.classList.contains("pendulum_action2")
               ? PENDULUM_ACTION2_MAGNITUDE
               : 1;
           
-            gsap.set(el, {
-              rotation: pendulumAngle * RAD_TO_DEG * magnitude
-            });
+            pendulumSetters[index](pendulumAngle * RAD_TO_DEG * magnitude);
           
           });
 
@@ -1725,6 +1727,9 @@ function ensureX() {
 
   if (normalRotateElements.length) {
 
+    var normalSetters = normalRotateElements.map(function(el) {
+      return gsap.quickSetter(el, "rotation", "deg");
+    });
     var normalAngle = 0;
     var normalVelocity = 0;
 
@@ -1780,9 +1785,9 @@ function ensureX() {
 
       normalAngle %= 360;
 
-      normalRotateElements.forEach(function(el) {
+      normalRotateElements.forEach(function(el, index) {
         if (el.dataset.ttPhysicsActive === "1") return;
-        gsap.set(el, { rotation: normalAngle });
+        normalSetters[index](normalAngle);
       });
 
     });
@@ -1801,6 +1806,11 @@ function ensureX() {
       SELFROTATE_SETTINGS.selfrotate_yellowcircle;
 
     var yellowAngle = 0;
+    var rotationPhoneQuery = window.matchMedia("(max-width: 767px)");
+    gsap.set(yellowCircleElements, { force3D: true });
+    var yellowSetters = yellowCircleElements.map(function(el) {
+      return gsap.quickSetter(el, "rotation", "deg");
+    });
 
     gsap.set(yellowCircleElements, {
       rotation: 0
@@ -1837,7 +1847,7 @@ function ensureX() {
 
       var targetAngle =
         scrollPosition /
-        (yellowSettings.pixelsPerRotation / (window.matchMedia("(max-width: 767px)").matches ? yellowSettings.mobileSpeedMultiplier : 1)) *
+        (yellowSettings.pixelsPerRotation / (rotationPhoneQuery.matches ? yellowSettings.mobileSpeedMultiplier : 1)) *
         360;
 
 
@@ -1875,9 +1885,9 @@ function ensureX() {
       // APPLY ROTATION
       // ========================================================
 
-      yellowCircleElements.forEach(function(el) {
+      yellowCircleElements.forEach(function(el, index) {
         if (el.dataset.ttPhysicsActive === "1") return;
-        gsap.set(el, { rotation: yellowAngle, force3D: true });
+        yellowSetters[index](yellowAngle);
       });
 
     });
@@ -1899,6 +1909,10 @@ function ensureX() {
     var elements = gsap.utils.toArray(".selfrotate_yellowcircle2");
     if (!elements.length) return;
 
+    gsap.set(elements, { force3D: true });
+    var rotationSetters = elements.map(function(el) {
+      return gsap.quickSetter(el, "rotation", "deg");
+    });
     var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle2;
     var idleVelocity = (360 / settings.duration) * settings.direction;
     var momentumVelocity = 0;
@@ -1925,9 +1939,9 @@ function ensureX() {
       if (Math.abs(momentumVelocity) < 0.01) momentumVelocity = 0;
       angle %= 360;
 
-      elements.forEach(function(el) {
+      elements.forEach(function(el, index) {
         if (el.dataset.ttPhysicsActive === "1") return;
-        gsap.set(el, { rotation: angle, force3D: true });
+        rotationSetters[index](angle);
       });
     });
   })();
@@ -1941,6 +1955,10 @@ function ensureX() {
     var elements = gsap.utils.toArray(".selfrotate_yellowcircle3");
     if (!elements.length) return;
 
+    gsap.set(elements, { force3D: true });
+    var rotationSetters = elements.map(function(el) {
+      return gsap.quickSetter(el, "rotation", "deg");
+    });
     var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle3;
     var idleVelocity = (360 / settings.duration) * settings.direction;
     var momentumVelocity = 0;
@@ -1965,9 +1983,9 @@ function ensureX() {
       if (Math.abs(momentumVelocity) < 0.01) momentumVelocity = 0;
       angle %= 360;
 
-      elements.forEach(function(el) {
+      elements.forEach(function(el, index) {
         if (el.dataset.ttPhysicsActive === "1") return;
-        gsap.set(el, { rotation: angle, force3D: true });
+        rotationSetters[index](angle);
       });
     });
   })();
@@ -7704,7 +7722,43 @@ if (
       return history[0];
     }
 
+    // Native observer gates work; observe the picture as well as its section
+    // so artwork extending beyond the section is never excluded by that box.
+    var trailFrame = 0;
+    var trailNear = true;
+    var trailObserver = null;
+    function queueTrailFrame() {
+      if (!trailFrame && trailNear && !document.hidden) {
+        trailFrame = requestAnimationFrame(frame);
+      }
+    }
+    function syncTrailVisibility() {
+      if (!trailNear || document.hidden) {
+        if (trailFrame) cancelAnimationFrame(trailFrame);
+        trailFrame = 0;
+        history.length = 0; last = null; visibleSince = 0; strength = 0; lastTime = 0;
+        layer.style.visibility = "hidden";
+      } else queueTrailFrame();
+    }
+    if (typeof IntersectionObserver === "function") {
+      var trailTargets = [picture];
+      var trailSection = home6UFO.closest(".home_section6");
+      if (trailSection && trailSection !== picture) trailTargets.push(trailSection);
+      var trailIntersections = new Map();
+      trailTargets.forEach(function(el) { trailIntersections.set(el, true); });
+      trailObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) { trailIntersections.set(entry.target, entry.isIntersecting); });
+        trailNear = Array.from(trailIntersections.values()).some(Boolean);
+        syncTrailVisibility();
+      }, { rootMargin: Math.max(1200, getRealViewportHeight() * 2) + "px 0px" });
+      trailTargets.forEach(function(el) { trailObserver.observe(el); });
+    }
+    document.addEventListener("visibilitychange", syncTrailVisibility);
+    window.addEventListener("pageshow", syncTrailVisibility);
+
     function frame(now) {
+      trailFrame = 0;
+      if (!trailNear || document.hidden) { syncTrailVisibility(); return; }
       var dt = lastTime ? Math.min(50, now-lastTime) : 16.7;
       lastTime = now;
       var url = picture.currentSrc || picture.src;
@@ -7759,7 +7813,7 @@ if (
       if (!active) {
         history.length=0; last=null; visibleSince=0; strength=0;
         layer.style.visibility="hidden";
-        requestAnimationFrame(frame);
+        queueTrailFrame();
         return;
       }
       if (!visibleSince) visibleSince=now;
@@ -7793,9 +7847,9 @@ if (
           g.style.transform="translate3d("+x+"px,"+y+"px,0)";
         });
       }
-      requestAnimationFrame(frame);
+      queueTrailFrame();
     }
-    requestAnimationFrame(frame);
+    queueTrailFrame();
   })();
 
   requestAnimationFrame(
