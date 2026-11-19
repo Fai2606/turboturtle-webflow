@@ -10031,6 +10031,9 @@ if (width < 1920) {
 
 }
 
+      root.ttCoreReady = true;
+      root.dispatchEvent(new CustomEvent("tt:core-ready"));
+
       } catch (e) {
         console.error("[TT] startCore crashed", e);
       }
