@@ -146,6 +146,43 @@ root.addEventListener("resize", function () {
         lenis.on("scroll", ScrollTrigger.update);
       }
 
+      // Android: keep global rotation physics advancing, but avoid writing
+      // transforms to distant artwork every frame. Generous native-observer
+      // margins restore the latest angle well before the artwork is visible.
+      var rotationWrites = new Map();
+      var rotationObserver = null;
+      if (/Android/i.test(navigator.userAgent) && root.IntersectionObserver) {
+        rotationObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            var state = rotationWrites.get(entry.target);
+            if (!state) return;
+            state.near = entry.isIntersecting;
+            if (state.near && !document.hidden && state.hasValue &&
+                state.el.dataset.ttPhysicsActive !== "1") state.set(state.value);
+          });
+        }, { rootMargin: "1600px 800px" });
+        document.addEventListener("visibilitychange", function() {
+          if (document.hidden) return;
+          rotationWrites.forEach(function(state) {
+            if (state.near && state.hasValue &&
+                state.el.dataset.ttPhysicsActive !== "1") state.set(state.value);
+          });
+        });
+      }
+      function createRotationWriter(el) {
+        var set = gsap.quickSetter(el, "rotation", "deg");
+        if (!rotationObserver || el.closest(".fixed_screen_area")) return set;
+        if (rotationWrites.has(el)) return rotationWrites.get(el).write;
+        var state = {el: el, set: set, near: true, hasValue: false, value: 0};
+        rotationWrites.set(el, state);
+        rotationObserver.observe(el);
+        state.write = function(value) {
+          state.value = value; state.hasValue = true;
+          if (state.near && !document.hidden) set(value);
+        };
+        return state.write;
+      }
+
       // ============================================================
       // GLOBAL — REUSABLE PENDULUM ACTION
       // Apply .pendulum_action to any Webflow element
@@ -199,7 +236,7 @@ root.addEventListener("resize", function () {
         });
 
         var pendulumSetters = pendulumElements.map(function(el) {
-          return gsap.quickSetter(el, "rotation", "deg");
+          return createRotationWriter(el);
         });
 
         // ==========================================================
@@ -1728,7 +1765,7 @@ function ensureX() {
   if (normalRotateElements.length) {
 
     var normalSetters = normalRotateElements.map(function(el) {
-      return gsap.quickSetter(el, "rotation", "deg");
+      return createRotationWriter(el);
     });
     var normalAngle = 0;
     var normalVelocity = 0;
@@ -1809,7 +1846,7 @@ function ensureX() {
     var rotationPhoneQuery = window.matchMedia("(max-width: 767px)");
     gsap.set(yellowCircleElements, { force3D: true });
     var yellowSetters = yellowCircleElements.map(function(el) {
-      return gsap.quickSetter(el, "rotation", "deg");
+      return createRotationWriter(el);
     });
 
     gsap.set(yellowCircleElements, {
@@ -1911,7 +1948,7 @@ function ensureX() {
 
     gsap.set(elements, { force3D: true });
     var rotationSetters = elements.map(function(el) {
-      return gsap.quickSetter(el, "rotation", "deg");
+      return createRotationWriter(el);
     });
     var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle2;
     var idleVelocity = (360 / settings.duration) * settings.direction;
@@ -1957,7 +1994,7 @@ function ensureX() {
 
     gsap.set(elements, { force3D: true });
     var rotationSetters = elements.map(function(el) {
-      return gsap.quickSetter(el, "rotation", "deg");
+      return createRotationWriter(el);
     });
     var settings = SELFROTATE_SETTINGS.selfrotate_yellowcircle3;
     var idleVelocity = (360 / settings.duration) * settings.direction;
@@ -2445,8 +2482,8 @@ function ensureX() {
       lidIntervalIndex = 0;
       if (!lidScrolling) scheduleNextLid();
     });
-    window.addEventListener('scroll',onLidScroll,{passive:true});
     if (lenis && typeof lenis.on === 'function') lenis.on('scroll',onLidScroll);
+    else window.addEventListener('scroll',onLidScroll,{passive:true});
     // Start the very first 2-second countdown only after the preloader ends.
     // Match the existing moon-intro convention: html.tt-loading indicates loading.
     function waitForLidPreloader() {
@@ -8447,6 +8484,33 @@ function initHomeSection9() {
     var CENTER_SPAWN_CHANCE = 0.75;
 
     var fireflies = [];
+    var batchFireflyMotion = /Android/i.test(navigator.userAgent);
+    var fireflyNear = true;
+    if (batchFireflyMotion && root.IntersectionObserver) {
+      var fireflyTargets = new Map([[fireflyField, true], [section, true]]);
+      var fireflyObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) { fireflyTargets.set(entry.target, entry.isIntersecting); });
+        fireflyNear = Array.from(fireflyTargets.values()).some(Boolean);
+        if (fireflyNear) flushFireflyMotion();
+      }, { rootMargin: "1600px 800px" });
+      fireflyTargets.forEach(function(value, target) { fireflyObserver.observe(target); });
+    }
+    function flushFireflyMotion() {
+      if (!fireflyNear || document.hidden) return;
+      fireflies.forEach(function(fly) {
+        if (!fly.motionDirty || !fly.alive || fly.fleeing) return;
+        fly.motionDirty = false;
+        gsap.set(fly.el, { x: fly.motion.wanderX, y: fly.motion.wanderY + fly.motion.riseY });
+      });
+    }
+    if (batchFireflyMotion) {
+      // Runs after GSAP's timeline update: combine wander/rise writes once.
+      // Timers and motion continue offscreen; no phase or population reset.
+      gsap.ticker.add(flushFireflyMotion);
+      document.addEventListener("visibilitychange", function() {
+        if (!document.hidden) flushFireflyMotion();
+      });
+    }
 
     // ========================================================
     // HELPERS
@@ -8499,6 +8563,7 @@ function getFireflyGlow(fireflySize) {
     function renderMotion(fly) {
 
       if (!fly.alive || fly.fleeing) return;
+      if (batchFireflyMotion) { fly.motionDirty = true; return; }
 
       gsap.set(fly.el, {
         x: fly.motion.wanderX,
@@ -9653,12 +9718,8 @@ function initHomeResponsiveScale() {
       lenis.on("scroll", update);
     }
 
-    // Native scroll fallback
-    window.addEventListener(
-      "scroll",
-      update,
-      { passive: true }
-    );
+    // Native fallback only when Lenis is unavailable; avoid duplicate writes.
+    else window.addEventListener("scroll", update, { passive: true });
 
 
     // Initial measure
@@ -10054,8 +10115,12 @@ if (width < 1920) {
    Relocated verbatim from the supplied footer. Do not include <script> tags. */
 
 (function () {
+  var navbarScrolled;
   function updateNavbarLogo() {
-    document.documentElement.classList.toggle("navbar-scrolled", window.scrollY > 5);
+    var next = window.scrollY > 5;
+    if (next === navbarScrolled) return;
+    navbarScrolled = next;
+    document.documentElement.classList.toggle("navbar-scrolled", next);
   }
   window.addEventListener("scroll", updateNavbarLogo, { passive: true });
   updateNavbarLogo();
